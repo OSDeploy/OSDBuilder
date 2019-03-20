@@ -207,126 +207,49 @@ function New-OSBuildTask {
             if ($($OSMedia.Build) -eq 17134) {$OSMedia.ReleaseId = 1803}
             if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
         }
-        
         #===================================================================================================
-        Write-Verbose '19.1.1 Install.wim Remove-AppxProvisionedPackage'
         #===================================================================================================
-        if ($RemoveAppx.IsPresent) {
-            if ($($OSMedia.InstallationType) -eq 'Client') {
-                $GetAppxProvisionedPackage = @()
-                if (Test-Path "$($OSMedia.FullName)\info\xml\Get-AppxProvisionedPackage.xml") {
-                    $GetAppxProvisionedPackage = Import-CliXml "$($OSMedia.FullName)\info\xml\Get-AppxProvisionedPackage.xml"
-                    $GetAppxProvisionedPackage = $GetAppxProvisionedPackage | Select-Object -Property DisplayName, PackageName
-                    $GetAppxProvisionedPackage = $GetAppxProvisionedPackage | Out-GridView -Title "Install.wim Remove-AppxProvisionedPackage: Select Packages to REMOVE and press OK (Esc or Cancel to Skip)" -PassThru
-                }
-                if ($null -eq $GetAppxProvisionedPackage) {Write-Warning "Install.wim Remove-AppxProvisionedPackage: Skipping"}
-            } else {Write-Warning "Install.wim Remove-AppxProvisionedPackage: Unsupported"}
-        } else {Write-Warning "Install.wim: To remove an Appx Provisioned Packages, use the -RemoveAppx parameter"}
-
+        Write-Host '========================================================================================' -ForegroundColor DarkGray
+        Write-Host "Operating System (Parameter Based)" -ForegroundColor Green
         #===================================================================================================
-        Write-Verbose '19.1.1 Install.wim Remove-WindowsPackage'
+        #   Install.wim RemoveAppx
         #===================================================================================================
-        if ($RemovePackage.IsPresent) {
-            $GetWindowsPackage = @()
-            if (Test-Path "$($OSMedia.FullName)\info\xml\Get-WindowsPackage.xml") {
-                $GetWindowsPackage = Import-CliXml "$($OSMedia.FullName)\info\xml\Get-WindowsPackage.xml"
-                $GetWindowsPackage = $GetWindowsPackage | Select-Object -Property PackageName
-                $GetWindowsPackage = $GetWindowsPackage | Out-GridView -Title "Install.wim Remove-WindowsPackage: Select Packages to REMOVE and press OK (Esc or Cancel to Skip)" -PassThru
-            }
-            if ($null -eq $GetWindowsPackage) {Write-Warning "Install.wim Remove-WindowsPackage: Skipping"}
-        } else {Write-Warning "Install.wim: To remove a Windows Package, use the -RemovePackage parameter"}
-
+        $TaskRemoveAppxProvisionedPackage = @()
+        [array]$TaskRemoveAppxProvisionedPackage = Get-TaskRemoveAppxProvisionedPackage
         #===================================================================================================
-        Write-Verbose '19.2.26 Install.wim Remove-WindowsCapability'
+        #   Install.wim Remove-WindowsPackage
         #===================================================================================================
-        if ($RemoveCapability.IsPresent) {
-            $GetWindowsCapability = @()
-            if (Test-Path "$($OSMedia.FullName)\info\xml\Get-WindowsCapability.xml") {
-                $GetWindowsCapability = Import-CliXml "$($OSMedia.FullName)\info\xml\Get-WindowsCapability.xml"
-                $GetWindowsCapability = $GetWindowsCapability | Where-Object {$_.State -eq 4}
-                $GetWindowsCapability = $GetWindowsCapability | Select-Object -Property Name, State
-                $GetWindowsCapability = $GetWindowsCapability | Out-GridView -Title "Install.wim Remove-WindowsCapability: Select Windows InBox Capability to REMOVE and press OK (Esc or Cancel to Skip)" -PassThru
-            }
-            if ($null -eq $GetWindowsCapability) {Write-Warning "Install.wim Remove-WindowsCapability: Skipping"}
-        } else {Write-Warning "Install.wim: To remove a Windows Capability, use the -RemoveCapability parameter"}
-
+        $TaskRemoveWindowsPackage = @()
+        [array]$TaskRemoveWindowsPackage = Get-TaskRemoveWindowsPackage
         #===================================================================================================
-        Write-Verbose '19.1.1 Install.wim WindowsOptionalFeature'
+        #   Install.wim Remove-WindowsCapability
         #===================================================================================================
-        $GetWindowsOptionalFeature = @()
-        if (Test-Path "$($OSMedia.FullName)\info\xml\Get-WindowsOptionalFeature.xml") {
-            $GetWindowsOptionalFeature = Import-CliXml "$($OSMedia.FullName)\info\xml\Get-WindowsOptionalFeature.xml"
-        }
-
+        $TaskRemoveWindowsCapability = @()
+        [array]$TaskRemoveWindowsCapability = Get-TaskRemoveWindowsCapability
         #===================================================================================================
-        Write-Verbose '19.1.14 Install.wim Disable-WindowsOptionalFeature'
+        #   Install.Wim Disable-WindowsOptionalFeature
         #===================================================================================================
-        if ($DisableFeature.IsPresent) {
-            $DisableWinOptionalFeature = @()
-            $DisableWinOptionalFeature = $GetWindowsOptionalFeature | Select-Object -Property FeatureName, State | Sort-Object -Property FeatureName | Where-Object {$_.State -eq 2 -or $_.State -eq 3}
-            $DisableWinOptionalFeature = $DisableWinOptionalFeature | Select-Object -Property FeatureName
-            $DisableWinOptionalFeature = $DisableWinOptionalFeature | Out-GridView -PassThru -Title "Install.wim Disable-WindowsOptionalFeature: Select Windows Optional Features to DISABLE and press OK (Esc or Cancel to Skip)"
-            if ($null -eq $DisableWinOptionalFeature) {Write-Warning "Install.wim Disable-WindowsOptionalFeature: Skipping"}
-        } else {Write-Warning "Install.wim: To disable a Windows Optional Feature, use the -DisableFeature parameter"}
-
+        $TaskDisableWindowsOptionalFeature = @()
+        [array]$TaskDisableWindowsOptionalFeature = Get-TaskDisableWindowsOptionalFeature
         #===================================================================================================
-        Write-Verbose '19.1.1 Install.wim Enable-WindowsOptionalFeature'
+        #   Install.Wim Enable-WindowsOptionalFeature
         #===================================================================================================
-        if ($EnableFeature.IsPresent) {
-            $EnableWinOptionalFeature = @()
-            $EnableWinOptionalFeature = $GetWindowsOptionalFeature | Select-Object -Property FeatureName, State | Sort-Object -Property FeatureName | Where-Object {$_.State -eq 0}
-            $EnableWinOptionalFeature = $EnableWinOptionalFeature | Select-Object -Property FeatureName
-            $EnableWinOptionalFeature = $EnableWinOptionalFeature | Out-GridView -PassThru -Title "Install.wim Enable-WindowsOptionalFeature: Select Windows Optional Features to ENABLE and press OK (Esc or Cancel to Skip)"
-            if ($null -eq $EnableWinOptionalFeature) {Write-Warning "Install.wim Enable-WindowsOptionalFeature: Skipping"}
-        } else {Write-Warning "Install.wim: To enable a Windows Optional Feature, use the -EnableFeature parameter"}
-
-
-
-
-
-
-
-
+        $TaskEnableWindowsOptionalFeature = @()
+        [array]$TaskEnableWindowsOptionalFeature = Get-TaskEnableWindowsOptionalFeature
         #===================================================================================================
-        #   Install.wim IsoExtract Content
         #===================================================================================================
-        $ContentIsoExtract = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$ContentIsoExtract = Get-ContentIsoExtract}
+        Write-Host '========================================================================================' -ForegroundColor DarkGray
+        Write-Host "Operating System (Content Based)" -ForegroundColor Green
         #===================================================================================================
-        #   Install.wim Features On Demand
+        #   Install.wim Add-WindowsDriver
         #===================================================================================================
-        $SelectedFeaturesOnDemand  = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedFeaturesOnDemand = Get-SelectedFeaturesOnDemand}
-        #===================================================================================================
-        #   Install.wim Language Packs
-        #===================================================================================================
-        $SelectedLanguagePacks  = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguagePacks = Get-SelectedLanguagePacks}
-        #===================================================================================================
-        #   Install.wim Language Interface Packs
-        #===================================================================================================
-        $SelectedLanguageInterfacePacks  = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguageInterfacePacks = Get-SelectedLanguageInterfacePacks}
-        #===================================================================================================
-        #   Install.wim Language Features On Demand
-        #===================================================================================================
-        $SelectedLanguageFeaturesOnDemand  = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguageFeaturesOnDemand = Get-SelectedLanguageFeaturesOnDemand}
-        #===================================================================================================
-        #   Install.wim Local Experience Packs
-        #===================================================================================================
-        $SelectedLocalExperiencePacks = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLocalExperiencePacks = Get-SelectedLocalExperiencePacks}
-        #===================================================================================================
-        #   Install.wim Drivers
-        #===================================================================================================
-        $SelectedWindowsDrivers =@()
-        [array]$SelectedWindowsDrivers = Get-SelectedWindowsDrivers
+        $TaskAddWindowsDriver =@()
+        [array]$TaskAddWindowsDriver = Get-TaskAddWindowsDriver
         #===================================================================================================
         #   Install.wim Extra Files
         #===================================================================================================
-        $SelectedExtraFiles =@()
-        [array]$SelectedExtraFiles = Get-SelectedExtraFiles
+        $TaskExtraFiles =@()
+        [array]$TaskExtraFiles = Get-TaskExtraFiles
         #===================================================================================================
         #   Install.wim Windows Packages
         #===================================================================================================
@@ -347,7 +270,11 @@ function New-OSBuildTask {
         #===================================================================================================
         $SelectedUnattendXML =@()
         if ($OSMedia.MajorVersion -eq 10) {$SelectedUnattendXML = Get-SelectedUnattendXML}
-
+        #===================================================================================================
+        #   WinPE Configuration
+        #===================================================================================================
+        Write-Host '========================================================================================' -ForegroundColor DarkGray
+        Write-Host "WinPE (Content Based)" -ForegroundColor Green
         #===================================================================================================
         Write-Verbose '19.1.1 WinPE.wim ADK Packages'
         #===================================================================================================
@@ -486,7 +413,44 @@ function New-OSBuildTask {
             $SelectedWinPEScriptsSetup = $SelectedWinPEScriptsSetup | Out-GridView -Title "WinSE.wim PowerShell Scripts: Select PowerShell Scripts to execute and press OK (Esc or Cancel to Skip)" -PassThru
             if ($null -eq $SelectedWinPEScriptsSetup) {Write-Warning "WinSE.wim PowerShell Scripts: Skipping"}
         }
-        
+        #===================================================================================================
+        #   Operating System Add-Ons
+        #===================================================================================================
+        Write-Host '========================================================================================' -ForegroundColor DarkGray
+        Write-Host "IsoExtract and Languages (Content Based)" -ForegroundColor Green
+        #===================================================================================================
+        #   Install.wim IsoExtract Content
+        #===================================================================================================
+        $ContentIsoExtract = @()
+        if ($OSMedia.MajorVersion -eq 10) {[array]$ContentIsoExtract = Get-ContentIsoExtract}
+        #===================================================================================================
+        #   Install.wim Features On Demand
+        #===================================================================================================
+        $SelectedFeaturesOnDemand  = @()
+        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedFeaturesOnDemand = Get-SelectedFeaturesOnDemand}
+        #===================================================================================================
+        #   Install.wim Language Packs
+        #===================================================================================================
+        $SelectedLanguagePacks  = @()
+        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguagePacks = Get-SelectedLanguagePacks}
+        #===================================================================================================
+        #   Install.wim Language Interface Packs
+        #===================================================================================================
+        $SelectedLanguageInterfacePacks  = @()
+        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguageInterfacePacks = Get-SelectedLanguageInterfacePacks}
+        #===================================================================================================
+        #   Install.wim Language Features On Demand
+        #===================================================================================================
+        $SelectedLanguageFeaturesOnDemand  = @()
+        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguageFeaturesOnDemand = Get-SelectedLanguageFeaturesOnDemand}
+        #===================================================================================================
+        #   Install.wim Local Experience Packs
+        #===================================================================================================
+        $SelectedLocalExperiencePacks = @()
+        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLocalExperiencePacks = Get-SelectedLocalExperiencePacks}
+        #===================================================================================================
+        #   Install.wim NetFX
+        #===================================================================================================
         if ($OSMedia.MajorVersion -eq 6) {$EnableNetFX3 = $false}
 
         #===================================================================================================
@@ -521,17 +485,17 @@ function New-OSBuildTask {
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
             "WinPEDaRT" = [string]$SelectedWinPEDaRT.FullName;
 
-            "ExtraFiles" = [string[]]$SelectedExtraFiles.FullName;
+            "ExtraFiles" = [string[]]$TaskExtraFiles.FullName;
             "Scripts" = [string[]]$SelectedTaskScripts.FullName;
-            "Drivers" = [string[]]$SelectedWindowsDrivers.FullName;
+            "Drivers" = [string[]]$TaskAddWindowsDriver.FullName;
 
             "AddWindowsPackage" = [string[]]$SelectedWindowsPackages.FullName;
-            "RemoveWindowsPackage" = [string[]]$GetWindowsPackage.PackageName;
+            "RemoveWindowsPackage" = [string[]]$TaskRemoveWindowsPackage.PackageName;
             "AddFeatureOnDemand" = [string[]]$SelectedFeaturesOnDemand.FullName;
-            "EnableWindowsOptionalFeature" = [string[]]$EnableWinOptionalFeature.FeatureName;
-            "DisableWindowsOptionalFeature" = [string[]]$DisableWinOptionalFeature.FeatureName;
-            "RemoveAppxProvisionedPackage" = [string[]]$GetAppxProvisionedPackage.PackageName;
-            "RemoveWindowsCapability" = [string[]]$GetWindowsCapability.Name;
+            "EnableWindowsOptionalFeature" = [string[]]$TaskEnableWindowsOptionalFeature.FeatureName;
+            "DisableWindowsOptionalFeature" = [string[]]$TaskDisableWindowsOptionalFeature.FeatureName;
+            "RemoveAppxProvisionedPackage" = [string[]]$TaskRemoveAppxProvisionedPackage.PackageName;
+            "RemoveWindowsCapability" = [string[]]$TaskRemoveWindowsCapability.Name;
 
             "WinPEDrivers" = [string[]]$SelectedWinPEDrivers.FullName;
             "WinPEScriptsPE" = [string[]]$SelectedWinPEScriptsPE.FullName;

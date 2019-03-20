@@ -15,7 +15,7 @@ Enter the name of the existing OSMedia to update
 Update-OSMedia -Name 'Win10 Ent x64 1803 17134.345'
 
 .PARAMETER Download
-Automatically download the required updates if they are not present in the Content\Updates directory
+Automatically download the required updates if they are not present in the Content\OSDUpdate directory
 
 .EXAMPLE
 Update-OSMedia -Name 'Win10 Ent x64 1803 17134.345' -Download

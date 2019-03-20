@@ -12,7 +12,6 @@ function OSD-OSBuild-EnableNetFX {
         Enable-WindowsOptionalFeature -Path "$MountDirectory" -FeatureName NetFX3 -All -LimitAccess -Source "$OS\sources\sxs" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-NetFX3.log" | Out-Null
         OSD-Updates-DotNet
         OSD-Updates-LCUForce
-        OSD-Updates-DismImageCleanup
     }
     Catch {
         $ErrorMessage = $_.Exception.Message

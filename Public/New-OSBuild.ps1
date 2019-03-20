@@ -813,14 +813,10 @@ function New-OSBuild {
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                     if ($WinPEDaRT) {OSD-WinPE-DaRT}
                     if ($WinPEAutoExtraFiles -eq $true) {OSD-WinPE-AutoExtraFiles}
-                    if ($WinPEExtraFilesPE -or $WinPEExtraFilesRE -or $WinPEExtraFilesSE) {
-                        OSD-WinPE-ExtraFiles
-                    }
+                    if ($WinPEExtraFilesPE -or $WinPEExtraFilesRE -or $WinPEExtraFilesSE) {OSD-WinPE-ExtraFiles}
                     if ($WinPEDrivers) {OSD-WinPE-Drivers}
-                    if ($WinPEADKPE -or $WinPEADKRE -or $WinPEADKSE) {
-                        OSD-WinPE-ADK
-                    }
-                    if ($WinPEScripts) {OSD-WinPE-Scripts}
+                    if ($WinPEADKPE -or $WinPEADKRE -or $WinPEADKSE) {OSD-WinPE-ADK}
+                    if ($WinPEScriptsPE -or $WinPEScriptsRE -or $WinPEScriptsSE) {OSD-WinPE-Scripts}
                     #OSD-UpdatesPE-SSUForce
                     #OSD-UpdatesPE-LCUForce
                 }

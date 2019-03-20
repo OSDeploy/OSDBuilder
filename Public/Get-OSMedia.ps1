@@ -311,7 +311,7 @@ function Get-OSMedia {
                 Arch                = $OSMArch
                 ReleaseId           = $OSMReleaseId
 
-                Version             = $OSMVersion
+                Version             = [version]$OSMVersion
                 MajorVersion        = $OSMMajorVersion
                 MinorVersion        = $OSMMinorVersion
                 Build               = [string]$OSMBuild
