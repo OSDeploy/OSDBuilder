@@ -365,20 +365,22 @@ $MDTUnattendPEx86 = @'
                 }
 
                 #===================================================================================================
-                Write-Verbose '19.1.1 Set Working Directories'
+                Write-Verbose '19.3.21 Set Working Directories'
                 #===================================================================================================
                 $Info = Join-Path $WorkingPath 'info'
                 if (!(Test-Path "$Info"))           {New-Item "$Info" -ItemType Directory -Force | Out-Null}
                 if (!(Test-Path "$Info\json"))      {New-Item "$Info\json" -ItemType Directory -Force | Out-Null}
                 if (!(Test-Path "$Info\logs"))      {New-Item "$Info\logs" -ItemType Directory -Force | Out-Null}
                 if (!(Test-Path "$Info\xml"))       {New-Item "$Info\xml" -ItemType Directory -Force | Out-Null}
-                
                 $OS = Join-Path $WorkingPath 'OS'
                 if (!(Test-Path "$OS"))             {New-Item "$OS" -ItemType Directory -Force | Out-Null}
 
                 $Sources = "$OS\sources"
                 if (!(Test-Path "$Sources")) {New-Item "$Sources" -ItemType Directory -Force | Out-Null}
 
+                $Logs = Join-Path $Info 'logs'
+                $PEInfo = $Info
+                $PELogs = $Logs
                 #===================================================================================================
                 Write-Verbose '19.1.1 Set WimTemp'
                 #===================================================================================================

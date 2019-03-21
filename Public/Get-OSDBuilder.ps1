@@ -41,14 +41,22 @@ function Get-OSDBuilder {
         [switch]$Update
     )
     #===================================================================================================
+    #   Verify Single Version of OSDBuilder
+    #===================================================================================================
+    if ((Get-Module -Name OSDBuilder).Count -gt 1) {
+        Write-Warning "Multiple OSDBuilder Modules are loaded"
+        Write-Warning "Close all open PowerShell sessions before using OSDBuilder"
+        Exit
+    }
+    #===================================================================================================
     #   19.3.9 OSDBuilder URLs
     #===================================================================================================
     $global:OSDBuilderURL = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
     #===================================================================================================
     #   19.3.9 Remove Existing Modules
     #===================================================================================================
-    OSD-Remove-ModuleOSBuilder
-    OSD-Remove-ModuleOSMedia
+    #OSD-Remove-ModuleOSBuilder
+    #OSD-Remove-ModuleOSMedia
     #===================================================================================================
     #   19.2.8  Get OSDBuilder Version
     #===================================================================================================
