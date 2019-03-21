@@ -28,7 +28,12 @@ function OSD-Updates-Component {
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Component-KB$($Update.KBNumber).log"
                 Write-Verbose "$CurrentLog"
-                Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateComp" -LogPath "$CurrentLog" | Out-Null
+                Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateComp" -LogPath "$CurrentLog" | Out-Null}
+                Catch {
+                    $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Host "$ErrorMessage"
+                    if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+                }
             }
         } else {
             Write-Warning "Not Found: $UpdateComp"
@@ -69,7 +74,12 @@ function OSD-Updates-SSU {
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber).log"
                 Write-Verbose "$CurrentLog"
-                Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null
+                Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
+                Catch {
+                    $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Host "$ErrorMessage"
+                    if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+                }
             }
         } else {
             Write-Warning "Not Found: $UpdateSSU"
@@ -108,7 +118,12 @@ function OSD-Updates-SSUForce {
             Write-Host "$UpdateSSU" -ForegroundColor DarkGray
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber).log"
             Write-Verbose "$CurrentLog"
-            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                $ErrorMessage = $_.Exception.$ErrorMessage
+                Write-Host "$ErrorMessage"
+                if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            }
         } else {
             Write-Warning "Not Found: $UpdateSSU"
         }
@@ -154,7 +169,12 @@ function OSD-Updates-LCU {
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber).log"
                 Write-Verbose "$CurrentLog"
-                Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
+                Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
+                Catch {
+                    $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Host "$ErrorMessage"
+                    if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+                }
             }
         } else {
             Write-Warning "Not Found: $UpdateLCU"
@@ -192,7 +212,12 @@ function OSD-Updates-LCUForce {
             Write-Host "$UpdateCU" -ForegroundColor DarkGray
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Cumulative-KB$($Update.KBNumber).log"
             Write-Verbose "$CurrentLog"
-            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateCU" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateCU" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                $ErrorMessage = $_.Exception.$ErrorMessage
+                Write-Host "$ErrorMessage"
+                if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            }
         } else {
             Write-Warning "Not Found: $UpdateCU"
         }
@@ -233,7 +258,12 @@ function OSD-Updates-Adobe {
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-AdobeFlashPlayer-KB$($Update.KBNumber).log"
                 Write-Verbose "$CurrentLog"
-                Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateASU" -LogPath "$CurrentLog" | Out-Null
+                Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateASU" -LogPath "$CurrentLog" | Out-Null}
+                Catch {
+                    $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Host "$ErrorMessage"
+                    if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+                }
             }
         } else {
             Write-Warning "Not Found: $UpdateASU"
@@ -265,14 +295,18 @@ function OSD-Updates-DotNet {
     #===================================================================================================
     #   Execute
     #===================================================================================================
-    
     foreach ($Update in $OSDUpdateDotNet) {
         $UpdateNetCU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
         if (Test-Path "$UpdateNetCU") {
             Write-Host "$UpdateNetCU" -ForegroundColor DarkGray
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DotNet-KB$($Update.KBNumber).log"
             Write-Verbose "$CurrentLog"
-            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateNetCU" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateNetCU" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                $ErrorMessage = $_.Exception.$ErrorMessage
+                Write-Host "$ErrorMessage"
+                if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            }
         } else {
             Write-Warning "Not Found: $UpdateNetCU"
         }
@@ -315,7 +349,7 @@ function OSD-Updates-Seven {
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
                     Write-Host "$ErrorMessage"
-                    if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable"}
+                    if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
             }
         } else {
@@ -360,7 +394,7 @@ function OSD-Updates-TwelveR2 {
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
                     Write-Host "$ErrorMessage"
-                    if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable"}
+                    if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
             }
         } else {
