@@ -187,6 +187,9 @@ function Get-DownOSDBuilder {
             #   Download Updates
             #===================================================================================================
             if ($Download.IsPresent) {
+				if ($WebClient.IsPresent) {							
+				$WebClientObj = New-Object System.Net.WebClient
+				}
                 foreach ($Update in $OSDUpdates) {
                     $DownloadPath = "$OSDBuilderPath\Content\OSDUpdate\$($Update.Catalog)\$($Update.Title)"
                     $DownloadFullPath = "$DownloadPath\$($Update.FileName)"
@@ -195,9 +198,8 @@ function Get-DownOSDBuilder {
                     if (!(Test-Path $DownloadFullPath)) {
                         Write-Host "$DownloadFullPath" -ForegroundColor Cyan
                         Write-Host "$($Update.OriginUri)" -ForegroundColor DarkGray
-                        if ($WebClient.IsPresent) {
-                            $WebClient = New-Object System.Net.WebClient
-                            $WebClient.DownloadFile("$($Update.OriginUri)","$DownloadFullPath")
+                        if ($WebClient.IsPresent) {							
+                            $WebClientObj.DownloadFile("$($Update.OriginUri)","$DownloadFullPath")
                         } else {
                             Start-BitsTransfer -Source $Update.OriginUri -Destination $DownloadFullPath
                         }
