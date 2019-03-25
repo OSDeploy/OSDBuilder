@@ -6,7 +6,7 @@ Creates a new PEBuild from an PEBuild Task
 Creates a new PEBuild from an PEBuild Task created with New-PEBuildTask
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/new-pebuild
+http://osdbuilder.com/docs/functions/pebuild/new-pebuild
 
 .PARAMETER Execute
 Creates the PEBuild
@@ -44,7 +44,8 @@ function New-PEBuild {
         #===================================================================================================
         if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Return
+            Pause
+			Exit
         }
 
         #===================================================================================================
@@ -207,7 +208,7 @@ $MDTUnattendPEx86 = @'
             }
             
             #===================================================================================================
-            Write-Verbose '19.1.8 Select Latest OSMedia'
+            Write-Verbose '19.3.22 Select Latest OSMedia'
             #===================================================================================================
             $TaskOSMedia = Get-OSMedia | Where-Object {$_.OSMGuid -eq $TaskOSMGuid}
             if ($TaskOSMedia) {
@@ -220,7 +221,7 @@ $MDTUnattendPEx86 = @'
                 Write-Host "-OSMedia Family:                $TaskOSMFamily"
                 Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
             }
-            $LatestOSMedia = Get-OSMedia | Where-Object {$_.OSMFamily -eq $TaskOSMFamily} | Sort-Object UBR | Select-Object -Last 1
+            $LatestOSMedia = Get-OSMedia -ShowLatest | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
             if ($LatestOSMedia) {
                 $OSMediaName = $LatestOSMedia.Name
                 $OSMediaPath = $LatestOSMedia.FullName

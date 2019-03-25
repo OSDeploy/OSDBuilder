@@ -6,7 +6,7 @@ Offline Servicing for Windows 7, Windows 10, Windows Server 2012 R2, Windows Ser
 Offline Servicing for Windows 7, Windows 10, Windows Server 2012 R2, Windows Server 2016 and Windows Server 2019
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/get-osdbuilder
+http://osdbuilder.com/docs/functions/get-osdbuilder
 
 .PARAMETER CreatePaths
 Creates empty directories used by OSDBuilder

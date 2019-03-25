@@ -6,7 +6,7 @@ Creates a JSON Task for use with New-OSBuild
 Creates a JSON Task for use with New-OSBuild
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/new-osbuildtask
+http://osdbuilder.com/docs/functions/osbuild/new-osbuildtask
 
 .PARAMETER TaskName
 Name of the Task to create
@@ -92,7 +92,8 @@ function New-OSBuildTask {
         #===================================================================================================
         if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Return
+            Pause
+			Exit
         }
         
         #===================================================================================================
@@ -127,11 +128,11 @@ function New-OSBuildTask {
         }
 
         #===================================================================================================
-        Write-Verbose '19.1.11 Get-OSMedia'
+        Write-Verbose '19.3.21 Get-OSMedia'
         #===================================================================================================
         $OSMedia = @()
-        $OSMedia = Get-OSMedia | Where-Object {$_.MajorVersion -eq 10}
-        #$OSMedia = Get-OSMedia
+        $OSMedia = Get-OSMedia -ShowLatest | Where-Object {$_.MajorVersion -eq 10}
+        #$OSMedia = Get-OSMedia -ShowLatest
 
         if ($TaskName -like "*x64*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x64'}}
         if ($TaskName -like "*x86*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x86'}}

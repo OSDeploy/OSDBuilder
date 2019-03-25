@@ -6,7 +6,7 @@ Shows Operating System information of any OSDBuilder Media
 Shows Operating System information of any OSDBuilder Media (OSMedia, OSBuilds, PEBuilds)
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/show-osdbuilderinfo
+http://osdbuilder.com/docs/functions/show-osdbuilderinfo
 
 .PARAMETER FullName
 Full Path of the OSDBuilder Media

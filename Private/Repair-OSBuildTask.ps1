@@ -6,7 +6,7 @@ Updates OSBuild Tasks to the latest version
 Updates OSBuild Tasks to the latest version
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/maintenance/repair-osbuildtask
+http://osdbuilder.com/docs/functions/maintenance/repair-osbuildtask
 #>
 function Repair-OSBuildTask {
     [CmdletBinding()]

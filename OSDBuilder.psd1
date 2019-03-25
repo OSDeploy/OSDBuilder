@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.3.21.0'
+ModuleVersion = '19.3.25.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -105,13 +105,13 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://www.osdeploy.com/osdbuilder/home'
+        ProjectUri = 'https://www.osdbuilder.com/home'
 
         # A URL to an icon representing this module.
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'https://www.osdeploy.com/osdbuilder/releases'
+        ReleaseNotes = 'https://www.osdbuilder.com/releases'
 
     } # End of PSData hashtable
 

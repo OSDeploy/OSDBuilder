@@ -6,7 +6,7 @@ Manage OSDBuilder Catalogs and Microsoft Updates
 Function used by OSDBuilder to update Catalogs and to download Microsoft Updates.  Content is saved to OSDBuilder\Content\Updates
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/updates/get-osbupdate
+http://osdbuilder.com/docs/functions/updates/get-osbupdate
 
 .PARAMETER Catalog
 Selects the Catalog JSON file containing the Updates

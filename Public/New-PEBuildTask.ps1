@@ -6,7 +6,7 @@ Creates a JSON Task for use with New-PEBuild
 Creates a JSON Task for use with New-PEBuild
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/new-pebuildtask
+http://osdbuilder.com/docs/functions/pebuild/new-pebuildtask
 
 .PARAMETER SourceWim
 Wim to use for the PEBuild
@@ -65,7 +65,8 @@ function New-PEBuildTask {
         #===================================================================================================
         if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Return
+            Pause
+			Exit
         }
 
         #===================================================================================================
@@ -96,10 +97,10 @@ function New-PEBuildTask {
         }
 
         #===================================================================================================
-        Write-Verbose '19.1.1 Get-OSMedia'
+        Write-Verbose '19.3.21 Get-OSMedia'
         #===================================================================================================
         $OSMedia = @()
-        $OSMedia = Get-OSMedia | Where-Object {$_.MajorVersion -eq 10}
+        $OSMedia = Get-OSMedia -ShowLatest | Where-Object {$_.MajorVersion -eq 10}
 
         if ($TaskName -like "*x64*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x64'}}
         if ($TaskName -like "*x86*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x86'}}

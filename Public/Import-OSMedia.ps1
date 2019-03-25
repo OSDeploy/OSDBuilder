@@ -6,7 +6,7 @@ Imports an Operating System into OSDBuilder
 Imports a supported Operating System into the OSDBuilder OSMedia directory
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/import-osmedia
+http://osdbuilder.com/docs/functions/osmedia/import-osmedia
 
 .PARAMETER OSDInfo
 Executes Show-OSDBuilderInfo -FullName $FullName
@@ -65,7 +65,8 @@ function Import-OSMedia {
         if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Return
+            Pause
+			Exit
         }
 
         #===================================================================================================

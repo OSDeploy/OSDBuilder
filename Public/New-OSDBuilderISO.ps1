@@ -6,7 +6,7 @@ Creates an ISO of any OSDBuilder Media
 Creates an ISO of any OSDBuilder Media (OSMedia, OSBuilds, PEBuilds)
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/new-osdbuilderiso
+http://osdbuilder.com/docs/functions/new-osdbuilderiso
 
 .PARAMETER FullName
 Full Path of the OSDBuilder Media

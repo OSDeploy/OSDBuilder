@@ -6,7 +6,7 @@ Creates a bootable USB of any OSDBuilder Media
 Creates a bootable USB of any OSDBuilder Media (OSMedia, OSBuilds, PEBuilds)
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/new-osdbuilderusb
+http://osdbuilder.com/docs/functions/new-osdbuilderusb
 
 .PARAMETER FullName
 Full Path of the OSDBuilder Media
@@ -33,7 +33,8 @@ function New-OSDBuilderUSB {
         #===================================================================================================
         if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Return
+            Pause
+			Exit
         }
 
         #===================================================================================================

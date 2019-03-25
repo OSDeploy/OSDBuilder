@@ -9,7 +9,7 @@ Updates the OSDBuilder PowerShell Module to the latest version from the PowerShe
 Installs the Module in the AllUsers Scope.  Requires Admin Rights
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/update-moduleosdbuilder
+http://osdbuilder.com/docs/functions/update-moduleosdbuilder
 
 .Example
 Update-ModuleOSDBuilder

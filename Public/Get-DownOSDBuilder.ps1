@@ -6,7 +6,7 @@ Downloads Microsoft Updates for use in OSDBuilder
 Downloads Microsoft Updates for use in OSDBuilder
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/get-downosdbuilder
+http://osdbuilder.com/docs/functions/get-downosdbuilder
 #>
 function Get-DownOSDBuilder {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]
@@ -49,7 +49,7 @@ function Get-DownOSDBuilder {
         [string]$UpdateArch,
 
         [Parameter(ParameterSetName='OSDUpdate')]
-        [ValidateSet (1903,1809,1803,1709,1703,1607,1511,1507,7601)]
+        [ValidateSet (1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [string]$UpdateBuild,
 
         [Parameter(ParameterSetName='OSDUpdate')]

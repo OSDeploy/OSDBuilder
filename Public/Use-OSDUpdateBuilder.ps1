@@ -6,7 +6,7 @@ Creates a new OSDBuilder Update Catalog XML
 Creates a new OSDBuilder Update Catalog XML for use with Get-OSDUpdateBuilder
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/new-osdupdatebuilder
+http://osdbuilder.com/docs/functions/new-osdupdatebuilder
 
 .PARAMETER Category
 Category of the Update

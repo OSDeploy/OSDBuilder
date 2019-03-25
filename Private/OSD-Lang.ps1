@@ -85,7 +85,7 @@ function OSD-Lang-LanguageSettings {
     Write-Host "Install.wim: Language Settings" -ForegroundColor Green
 
     #===================================================================================================
-    Write-Verbose '19.1.1 Install.wim: Generating Langini'
+    Write-Verbose '19.1.1 Install.wim: Generating Lang.ini'
     #===================================================================================================
     if ($SetAllIntl) {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -128,6 +128,6 @@ function OSD-Lang-LanguageSettings {
         Dism /Image:"$MountDirectory" /Set-UserLocale:"$SetUserLocale" /LogPath:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dism-SetUserLocale.log" | Out-Null
     }
     Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "Install.wim: Generating Updated Langini" -ForegroundColor Green
+    Write-Host "Install.wim: Generating Updated Lang.ini" -ForegroundColor Green
     Dism /Image:"$MountDirectory" /Gen-LangIni /Distribution:"$OS" /LogPath:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dism-gen-langini.log" | Out-Null
 }

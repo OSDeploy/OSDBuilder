@@ -6,16 +6,41 @@ Returns all Operating Systems in OSDBuilder\OSMedia
 Returns all Operating Systems in OSDBuilder\OSMedia as a PowerShell Custom Object
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/osmedia/get-osmedia
+http://osdbuilder.com/docs/functions/osmedia/get-osmedia
 
 .PARAMETER GridView
 Displays results in PowerShell ISE GridView with an added PassThru Parameter.  This can also be displayed with the following command
-Get-OSMedia | Out-GridView
+Get-OSMedia -Passthru | Out-GridView
+
+.PARAMETER IsLatestMedia
+Hides Superseded OSMedia for each OSMFamily
+
+.PARAMETER OSArch
+OSMedia Architecture
+
+.PARAMETER OSInstallationType
+OSMedia InstallationType
+
+.PARAMETER OSMajorVersion
+OSMedia MajorVersion
+
+.PARAMETER OSReleaseId
+OSMedia ReleaseId
+
 #>
 function Get-OSMedia {
     [CmdletBinding()]
     PARAM (
-        [switch]$GridView
+        [switch]$GridView,
+        [switch]$IsLatestMedia,
+        [ValidateSet('x64','x86')]
+        [string]$OSArch,
+        [ValidateSet('Client','Server')]
+        [string]$OSInstallationType,
+        [ValidateSet(6,10)]
+        [string]$OSMajorVersion,
+        [ValidateSet (1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [string]$OSReleaseId
     )
 
     BEGIN {
@@ -335,22 +360,52 @@ function Get-OSMedia {
         }
     #===================================================================================================
     #   Output
+        if ($OSArch) {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq $OSArch}}
+        if ($OSReleaseId) {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId-eq $OSReleaseId}}
+        if ($OSInstallationType -eq 'Client') {$OSMedia = $OSMedia | Where-Object {$_.InstallationType -notlike "*Server*"}}
+        if ($OSInstallationType -eq 'Server') {$OSMedia = $OSMedia | Where-Object {$_.InstallationType -like "*Server*"}}
+        if ($OSMajorVersion) {$OSMedia = $OSMedia | Where-Object {$_.MajorVersion -eq $OSMajorVersion}}
+        if ($IsLatestMedia.IsPresent) {
+            #Write-Warning "IsLatestMedia: Showing Latest OSMedia"
+            $OSMedia = $OSMedia | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1}
+        }
+
+        #$CurrentOS = $OSMedia | Where-Object {$_.MajorVersion -eq 10} | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1}
+        #$LegacyOS = $OSMedia | Where-Object {$_.MajorVersion -eq 6} | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -Last 1}
+        #$OSMedia = @()
+        #$OSMedia = [array]$CurrentOS + [array]$LegacyOS
+        #$CurrentOS = $OSMedia | Where-Object {$_.MajorVersion -eq 10} | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1}
+        #$LegacyOS = $OSMedia | Where-Object {$_.MajorVersion -eq 6} | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -Last 1}
+        #$OSMedia = @()
+        #$OSMedia = [array]$CurrentOS + [array]$LegacyOS
+
+        if ($UpdateNeeded.IsPresent) {
+            if ($OSMedia | Where-Object {$_.MajorVersion -eq 6}) {
+                Write-Warning "UpdateNeeded does not support Legacy Operating Systems"
+                Write-Warning "Legacy Operating Systems have been removed from the results"
+                $OSMedia = $OSMedia | Where-Object {$_.MajorVersion -eq 10}
+            }
+            $OSMedia = $OSMedia | Where-Object {($_.Servicing -eq '') -or ($_.Cumulative -eq '') -or ($_.Adobe -eq '')}
+        }
+
         if ($GridView.IsPresent) {
-            $OSMedia | Select-Object MediaType,`
-            ModifiedTime,Name,OSMFamily,ImageName,`
-            OperatingSystem,Arch,ReleaseId,`
+            $OSMedia | Select-Object ModifiedTime,MediaType,`
+            Servicing,Cumulative,Adobe,`
+            Name,OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
-            Languages,`
-            EditionId,InstallationType,Servicing,Cumulative,Adobe,FullName,CreatedTime,OSMGuid | `
-            Sort-Object -Property Name | Out-GridView -PassThru -Title 'OSMedia'
+            Languages,EditionId,InstallationType,`
+            ImageName,OSMFamily,`
+            FullName,CreatedTime,OSMGuid | `
+            Sort-Object Name | Out-GridView -PassThru -Title 'OSMedia'
         } else {
-            $OSMedia | Select-Object MediaType,`
-            ModifiedTime,Name,OSMFamily,ImageName,`
-            OperatingSystem,Arch,ReleaseId,`
+            $OSMedia | Select-Object ModifiedTime,MediaType,`
+            Servicing,Cumulative,Adobe,`
+            Name,OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
-            Languages,`
-            EditionId,InstallationType,Servicing,Cumulative,Adobe,FullName,CreatedTime,OSMGuid,OSMFamilyV1 | `
-            Sort-Object -Property Name
+            Languages,EditionId,InstallationType,`
+            ImageName,OSMFamily,`
+            FullName,CreatedTime,OSMGuid,OSMFamilyV1 | `
+            Sort-Object Name
         }
     }
 

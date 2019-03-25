@@ -6,7 +6,7 @@ Creates an VHD of any OSMedia or OSBuild
 Creates an VHD of any OSMedia or OSBuild
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/new-osdbuildervhd
+http://osdbuilder.com/docs/functions/new-osdbuildervhd
 
 .PARAMETER FullName
 Full Path of the OSDBuilder Media.  If omitted, GridView will prompt for selection
@@ -42,7 +42,8 @@ function New-OSDBuilderVHD {
         #===================================================================================================
         if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Break
+            Pause
+			Exit
         }
         #===================================================================================================
         #   Require HyperV Module for VHD Cmdlets

@@ -6,7 +6,7 @@ Renames directories in OSMedia
 Renames directories in OSMedia
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/maintenance/rename-osmedia
+http://osdbuilder.com/docs/functions/maintenance/rename-osmedia
 #>
 function Rename-OSMedia {
     [CmdletBinding()]

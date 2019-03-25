@@ -6,7 +6,7 @@ Creates a new OSBuild from an OSBuild Task
 Creates a new OSBuild from an OSBuild Task created with New-OSBuildTask
 
 .LINK
-https://www.osdeploy.com/osdbuilder/docs/functions/new-osbuild
+http://osdbuilder.com/docs/functions/osbuild/new-osbuild
 
 .PARAMETER OSDISO
 Creates an ISO of the OSDBuilder Media
@@ -88,7 +88,8 @@ function New-OSBuild {
         #===================================================================================================
         if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Return
+            Pause
+			Exit
         }
     }
 
@@ -98,7 +99,7 @@ function New-OSBuild {
         
         #===================================================================================================
         #   OSBuild
-        Write-Verbose '19.1.8 Get-OSBuildTask'
+        Write-Verbose '19.3.21 Get-OSBuildTask'
         #===================================================================================================
         if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
             if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
@@ -112,9 +113,13 @@ function New-OSBuild {
                     }
                 } else {
                     $BirdBox = @()
-                    $BirdBox = Get-OSMedia
+                    if ($IsLatestMedia.IsPresent) {
+                        $BirdBox = Get-OSMedia -IsLatestMedia
+                    } else {
+                        $BirdBox = Get-OSMedia
+                    }
                     $BirdBox = $BirdBox | Where-Object {$_.MajorVersion -eq 10}
-                    $BirdBox = $BirdBox | Out-GridView -PassThru -Title "Select one or more OSMedia to Update (Cancel to Exit) and press OK"
+                    $BirdBox = $BirdBox | Out-GridView -PassThru -Title "Select one or more OSMedia to Build (Cancel to Exit) and press OK"
                 }
                 if ($null -eq $BirdBox) {
                     Write-Warning "Could not find a matching OSMedia . . . Exiting!"
@@ -150,7 +155,19 @@ function New-OSBuild {
                 }
             } else {
                 $BirdBox = @()
-                $BirdBox = Get-OSMedia
+                if ($IsLatestMedia.IsPresent) {
+                    $BirdBox = Get-OSMedia -IsLatestMedia
+                } else {
+                    $BirdBox = Get-OSMedia
+                }
+                if ($UpdateNeeded.IsPresent) {
+                    if ($BirdBox | Where-Object {$_.MajorVersion -eq 6}) {
+                        Write-Warning "UpdateNeeded does not support Legacy Operating Systems"
+                        Write-Warning "Legacy Operating Systems have been removed from the results"
+                        $BirdBox = $BirdBox | Where-Object {$_.MajorVersion -eq 10}
+                    }
+                    $BirdBox = $BirdBox | Where-Object {($_.Servicing -eq '') -or ($_.Cumulative -eq '') -or ($_.Adobe -eq '')}
+                }
                 $BirdBox = $BirdBox | Where-Object {($_.MajorVersion -eq 10) -or ($_.InstallationType -like "*Client*" -and $_.Version -like "6.1.7601*") -or ($_.InstallationType -like "*Server*" -and $_.Version -like "6.3*")}
                 $BirdBox = $BirdBox | Out-GridView -PassThru -Title "Select one or more OSMedia to Update (Cancel to Exit) and press OK"
             }
@@ -163,7 +180,7 @@ function New-OSBuild {
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
-                    $Task = Get-OSMedia | Where-Object {$_.Name -eq $Bird.Name}
+                    $Task = Get-OSMedia -ShowLatest | Where-Object {$_.Name -eq $Bird.Name}
 
                     $TaskType = 'OSBuild'
                     $TaskName = 'Taskless'
@@ -241,7 +258,7 @@ function New-OSBuild {
 
             #===================================================================================================
             #   OSBuild
-            Write-Verbose '19.1.8 Select Latest OSMedia'
+            Write-Verbose '19.3.21 Select Latest OSMedia'
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (!($DontUseNewestMedia))) {
                 if ($TaskName -eq 'Taskless') {
@@ -260,7 +277,7 @@ function New-OSBuild {
                     Write-Host "-OSMedia Family:                $TaskOSMFamily"
                     Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
                 }
-                $LatestOSMedia = Get-OSMedia | Where-Object {$_.OSMFamily -eq $TaskOSMFamily} | Sort-Object UBR | Select-Object -Last 1
+                $LatestOSMedia = Get-OSMedia -IsLatestMedia | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
                 if ($LatestOSMedia) {
                     $OSMediaName = $LatestOSMedia.Name
                     $OSMediaPath = $LatestOSMedia.FullName
@@ -832,55 +849,57 @@ function New-OSBuild {
                 #   Install.wim
                 #===================================================================================================
                 OSD-OS-MountWindowsImage
-
+                OSD-OS-ReplaceWinRE
                 #===================================================================================================
-                Write-Verbose '19.1.25 Install.wim: Mount Registry for UBR Information'
+                #   Install.wim UBR Pre-Update
                 #===================================================================================================
                 Write-Host "Install.wim: Mount Registry for UBR Information" -ForegroundColor Green
                 reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
                 $RegCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
                 reg UNLOAD 'HKLM\OSMedia' | Out-Null
-
                 $ReleaseId = $null
                 $ReleaseId = $($RegCurrentVersion.ReleaseId)
-                if ($OSMajorVersion -eq '10') {
+                if ($($RegCurrentVersion.UBR)) {
                     $RegCurrentVersionUBR = $($RegCurrentVersion.UBR)
                     $UBR = "$OSBuild.$RegCurrentVersionUBR"
                 } else {
                     $UBR = "$OSBuild.$OSSPBuild"
+                    $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
-
                 OSD-OS-RegExportCurrentVersion
-                OSD-OS-ReplaceWinRE
+                #===================================================================================================
+                #   Install.wim Updates
+                #===================================================================================================
                 OSD-Updates-Component
                 OSD-Updates-SSU
                 $UBRPre = $UBR
                 Write-Host "Install.wim: Update Build Revision $UBRPre (Pre-LCU)" -ForegroundColor Green
                 OSD-Updates-LCU
-                #===================================================================================================
-                Write-Verbose '19.1.25 Install.wim: Registry and UBR PostInstall'
-                #===================================================================================================
-                reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
-                $RegCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
-                reg UNLOAD 'HKLM\OSMedia' | Out-Null
-                $ReleaseId = $null
-                $ReleaseId = $($RegCurrentVersion.ReleaseId)
-                if ($OSMajorVersion -eq '10') {
-                    $RegCurrentVersionUBR = $($RegCurrentVersion.UBR)
-                    $UBR = "$OSBuild.$RegCurrentVersionUBR"
-                } else {
-                    $UBR = "$OSBuild.$OSSPBuild"
-                }
-                OSD-OS-RegExportCurrentVersion
-                #===================================================================================================
-                Write-Host "Install.wim: Update Build Revision $UBR (Post-LCU)" -ForegroundColor Green
-                #===================================================================================================
                 if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
                     OSD-Updates-Seven
                     #OSD-Updates-EightOne
                     #OSD-Updates-Twelve
                     OSD-Updates-TwelveR2
                 }
+                #===================================================================================================
+                #   Install.wim UBR Post-Update
+                #===================================================================================================
+                reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
+                $RegCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
+                reg UNLOAD 'HKLM\OSMedia' | Out-Null
+                $ReleaseId = $null
+                $ReleaseId = $($RegCurrentVersion.ReleaseId)
+                if ($($RegCurrentVersion.UBR)) {
+                    $RegCurrentVersionUBR = $($RegCurrentVersion.UBR)
+                    $UBR = "$OSBuild.$RegCurrentVersionUBR"
+                } else {
+                    $UBR = "$OSBuild.$OSSPBuild"
+                    $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
+                }
+                OSD-OS-RegExportCurrentVersion
+                #===================================================================================================
+                Write-Host "Install.wim: Update Build Revision $UBR (Post-LCU)" -ForegroundColor Green
+                #===================================================================================================
                 OSD-Updates-Adobe
                 OSD-Updates-DotNet
                 OSD-Updates-DismImageCleanup
@@ -891,7 +910,9 @@ function New-OSBuild {
                     #===================================================================================================
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Host "Install.wim: Update OneDriveSetup.exe" -ForegroundColor Green
-                    Write-Warning "To update OneDriveSetup.exe: Get-DownOSDBuilder -ContentDownload"
+                    Write-Warning "To update OneDriveSetup.exe use one of the following commands:"
+                    Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
+                    Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
                     $OneDriveSetupDownload = $false
                     $OneDriveSetup = "$OSDBuilderContent\OneDrive\OneDriveSetup.exe"
                     if (!(Test-Path $OneDriveSetup)) {$OneDriveSetupDownload = $true}
@@ -968,7 +989,6 @@ function New-OSBuild {
                 }
                 OSD-OS-DismountWindowsImage
                 OSD-OS-ExportWindowsImage
-
                 #===================================================================================================
                 Write-Verbose '19.1.1 Install.wim: Export Configuration'
                 #===================================================================================================
