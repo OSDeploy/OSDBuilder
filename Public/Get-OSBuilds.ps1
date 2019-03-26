@@ -267,7 +267,7 @@ function Get-OSBuilds {
         } else {
             $OSBuilds | Select-Object MediaType,ModifiedTime,`
             Updates,`
-            ModifiedTime,Name,OSMFamily,ImageName,`
+            Name,OSMFamily,ImageName,`
             OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
             Languages,`
