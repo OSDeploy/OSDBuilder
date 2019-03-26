@@ -12,9 +12,6 @@ http://osdbuilder.com/docs/functions/osmedia/get-osmedia
 Displays results in PowerShell ISE GridView with an added PassThru Parameter.  This can also be displayed with the following command
 Get-OSMedia -Passthru | Out-GridView
 
-.PARAMETER IsLatestMedia
-Hides Superseded OSMedia for each OSMFamily
-
 .PARAMETER OSArch
 OSMedia Architecture
 
@@ -27,12 +24,22 @@ OSMedia MajorVersion
 .PARAMETER OSReleaseId
 OSMedia ReleaseId
 
+.PARAMETER Revision
+OK (Latest) or Superseded
+
+.PARAMETER Updates
+OK (Current) or Update (needs updates)
 #>
 function Get-OSMedia {
     [CmdletBinding()]
     PARAM (
+        #===================================================================================================
+        #   Basic
+        #===================================================================================================
         [switch]$GridView,
-        [switch]$IsLatestMedia,
+        #===================================================================================================
+        #   Filters
+        #===================================================================================================
         [ValidateSet('x64','x86')]
         [string]$OSArch,
         [ValidateSet('Client','Server')]
@@ -40,29 +47,41 @@ function Get-OSMedia {
         [ValidateSet(6,10)]
         [string]$OSMajorVersion,
         [ValidateSet (1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
-        [string]$OSReleaseId
+        [string]$OSReleaseId,
+        #===================================================================================================
+        #   Status
+        #===================================================================================================
+        [ValidateSet('OK','Superseded')]
+        [string]$Revision,
+        [ValidateSet('OK','Update')]
+        [string]$Updates
+        #===================================================================================================
     )
 
     BEGIN {
-    #===================================================================================================
-    #   Initialize OSDBuilder
+        #===================================================================================================
+        #   Initialize OSDBuilder
+        #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-    #===================================================================================================
-    #   Get OSDUpdates
+        #===================================================================================================
+        #   Get OSDUpdates
+        #===================================================================================================
         $OSDUpdates = @()
         $OSDUpdates = OSD-Update-GetOSDUpdates
-    #===================================================================================================
-    #   Get OSMedia
+        #===================================================================================================
+        #   Get OSMedia
+        #===================================================================================================
         $AllOSMedia = @()
         $AllOSMedia = Get-ChildItem -Path "$OSDBuilderOSMedia" -Directory | Select-Object -Property * | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Get-WindowsImage.xml")}
-    #===================================================================================================
+        #===================================================================================================
     }
 
     PROCESS {
         $OSMedia = foreach ($Item in $AllOSMedia) {
-        #===================================================================================================
-        #   Get Windows Image Information
+            #===================================================================================================
+            #   Get Windows Image Information
+            #===================================================================================================
             $OSMediaPath = $($Item.FullName)
             Write-Verbose "OSMedia Full Path: $OSMediaPath"
             
@@ -83,8 +102,9 @@ function Get-OSMedia {
 
             $OSMInstallationType = $($OSMWindowsImage.InstallationType)
             Write-Verbose "InstallationType: $OSMInstallationType"
-        #===================================================================================================
-        #   Version Information
+            #===================================================================================================
+            #   Version Information
+            #===================================================================================================
             $OSMVersion = $($OSMWindowsImage.Version)
             Write-Verbose "Version: $OSMVersion"
 
@@ -99,8 +119,9 @@ function Get-OSMedia {
 
             $OSMUBR = $($OSMWindowsImage.UBR)
             Write-Verbose "UBR: $OSMUBR"
-        #===================================================================================================
-        #   UpdateOS
+            #===================================================================================================
+            #   UpdateOS
+            #===================================================================================================
             $UpdateOS = ''
             if ($OSMMajorVersion -eq 10) {
                 if ($OSMInstallationType -notlike "*Server*") {$UpdateOS = 'Windows 10'}
@@ -120,17 +141,20 @@ function Get-OSMedia {
                 }
             }
             Write-Verbose "UpdateOS: $UpdateOS"
-        #===================================================================================================
-        #   Language
+            #===================================================================================================
+            #   Language
+            #===================================================================================================
             $OSMLanguages = $($OSMWindowsImage.Languages)
             Write-Verbose "Languages: $OSMLanguages"
-        #===================================================================================================
-        #   OSMFamily
+            #===================================================================================================
+            #   OSMFamily
+            #===================================================================================================
             $OSMFamilyV1 = $(Get-Date -Date $($OSMWindowsImage.CreatedTime)).ToString("yyyyMMddHHmmss") + $OSMEditionID
             $OSMFamily = $OSMInstallationType + " " + $OSMEditionId + " " + $OSMArch + " " + [string]$OSMBuild + " " + $OSMLanguages
             Write-Verbose "OSMFamily: $OSMFamily"
-        #===================================================================================================
-        #   Guid
+            #===================================================================================================
+            #   Guid
+            #===================================================================================================
             #   $OSMWindowsImage | ForEach {$_.PSObject.Properties.Remove('Guid')}
             $OSMGuid = $($OSMWindowsImage.OSMGuid)
             if (-not ($OSMGuid)) {
@@ -147,8 +171,9 @@ function Get-OSMedia {
             } else {
                 Write-Verbose "Guid: $OSMGuid"
             }
-        #===================================================================================================
-        #   Registry ReleaseId
+            #===================================================================================================
+            #   Registry ReleaseId
+            #===================================================================================================
             $OSMRegistry = @()
             if (Test-Path "$OSMediaPath\info\xml\CurrentVersion.xml") {
                 Write-Verbose "Registry: $OSMediaPath\info\xml\CurrentVersion.xml"
@@ -169,8 +194,9 @@ function Get-OSMedia {
             if ($OSMBuild -eq 17763) {$OSMReleaseId = 1809}
 
             Write-Verbose "ReleaseId: $OSMReleaseId"
-        #===================================================================================================
-        #   Template Drivers
+            #===================================================================================================
+            #   Template Drivers
+            #===================================================================================================
             if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\Global")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\Global" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\Global $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
@@ -180,8 +206,9 @@ function Get-OSMedia {
             if ($OSMInstallationType -notlike "*Server*" -and $OSMMajorVersion -eq 10) {
                 if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS $OSMArch $OSMReleaseId")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS $OSMArch $OSMReleaseId" -ItemType Directory -Force | Out-Null}
             }
-        #===================================================================================================
-        #   Template ExtraFiles
+            #===================================================================================================
+            #   Template ExtraFiles
+            #===================================================================================================
             if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\Global")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\Global" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\Global $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
@@ -191,8 +218,9 @@ function Get-OSMedia {
             if ($OSMInstallationType -notlike "*Server*" -and $OSMMajorVersion -eq 10) {
                 if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch $OSMReleaseId")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch $OSMReleaseId" -ItemType Directory -Force | Out-Null}
             }
-        #===================================================================================================
-        #   Template Registry
+            #===================================================================================================
+            #   Template Registry
+            #===================================================================================================
             if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\Global")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\Global" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\Global $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
@@ -202,8 +230,9 @@ function Get-OSMedia {
             if ($OSMInstallationType -notlike "*Server*" -and $OSMMajorVersion -eq 10) {
                 if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS $OSMArch $OSMReleaseId")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS $OSMArch $OSMReleaseId" -ItemType Directory -Force | Out-Null}
             }
-        #===================================================================================================
-        #   Template Scripts
+            #===================================================================================================
+            #   Template Scripts
+            #===================================================================================================
             if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\Global")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\Global" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\Global $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
@@ -213,8 +242,9 @@ function Get-OSMedia {
             if ($OSMInstallationType -notlike "*Server*" -and $OSMMajorVersion -eq 10) {
                 if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS $OSMArch $OSMReleaseId")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS $OSMArch $OSMReleaseId" -ItemType Directory -Force | Out-Null}
             }
-        #===================================================================================================
-        #   Get-WindowsPackage
+            #===================================================================================================
+            #   Get-WindowsPackage
+            #===================================================================================================
             $OSMPackage = @()
             if (Test-Path "$OSMediaPath\info\xml\Get-WindowsPackage.xml") {
                 Write-Verbose "Packages: $OSMediaPath\info\xml\Get-WindowsPackage.xml"
@@ -222,8 +252,9 @@ function Get-OSMedia {
             } else {
                 Write-Verbose "Packages: $OSMediaPath\info\xml\Get-WindowsPackage.xml (Not Found)"
             }
-        #===================================================================================================
-        #   Sessions.xml
+            #===================================================================================================
+            #   Sessions.xml
+            #===================================================================================================
             $OSMSessions = @()
             if (Test-Path "$OSMediaPath\Sessions.xml") {
                 OSD-SessionsConvert -OSMediaPath "$OSMediaPath"
@@ -234,64 +265,27 @@ function Get-OSMedia {
             } else {
                 Write-Verbose "Sessions: $OSMediaPath\info\xml\Sessions.xml (Not Found)"
             }
-            
-        #===================================================================================================
-        #   Adobe
-            $LatestAdobe = @()
-            $LatestAdobe = $OSDUpdates | Sort-Object -Property CreationDate -Descending | `
+            #===================================================================================================
+            #   Verify Updates
+            #===================================================================================================
+            $VerifyUpdates = @()
+            $VerifyUpdates = $OSDUpdates | Sort-Object -Property CreationDate | `
             Where-Object {$_.UpdateOS -like "*$UpdateOS*"} | Where-Object {$_.UpdateBuild -like "*$OSMReleaseId*"} | `
-            Where-Object {$_.UpdateArch -like "*$($Arch)*"} | Where-Object {$_.UpdateGroup -like "*Adobe*"} | `
-            Select-Object -First 1
+            Where-Object {$_.UpdateArch -like "*$($OSMArch)*"} | Where-Object {$_.UpdateGroup -notlike "*Setup*"} | `
+            Where-Object {$_.UpdateGroup -ne ''} | Where-Object {$_.UpdateGroup -ne 'Optional'}
 
-            $InstalledAdobe = $OSMPackage | Where-Object {$_.PackageName -like "*$($LatestAdobe.KBNumber)*"}
-            if ($null -eq $LatestAdobe) {$LatestAdobe = 'Not Applicable'}
-            elseif ($null -eq $InstalledAdobe) {
-                Write-Verbose "LatestAdobe: $($LatestAdobe.Title) (Not Installed)"
-                #$LatestAdobe = "KB$($LatestAdobe.KBNumber)"
-                $LatestAdobe = ''
-            } else {
-                Write-Verbose "LatestAdobe: $($LatestAdobe.Title) (Installed)"
-                $LatestAdobe = 'Latest'
+            $OSMUpdateStatus = 'OK'
+            foreach ($OSMUpdate in $VerifyUpdates) {
+                if ($OSMSessions | Where-Object {$_.KBNumber -like "*$($OSMUpdate.KBNumber)*"}) {
+                    Write-Verbose "Installed: $($OSMUpdate.Title)"
+                } else {
+                    Write-Verbose "Not Installed: $($OSMUpdate.Title)"
+                    $OSMUpdateStatus = 'Update'
+                }
             }
-        #===================================================================================================
-        #   SSU Servicing Stack
-            $LatestSSU = @()
-            $LatestSSU = $OSDUpdates | Sort-Object -Property CreationDate -Descending | `
-            Where-Object {$_.UpdateOS -like "*$UpdateOS*"} | Where-Object {$_.UpdateBuild -like "*$OSMReleaseId*"} | `
-            Where-Object {$_.UpdateArch -like "*$($Arch)*"} | Where-Object {$_.UpdateGroup -like "*SSU*"} | `
-            Select-Object -First 1
-
-            $InstalledSSU = $OSMPackage | Where-Object {$_.PackageName -like "*$($LatestSSU.KBNumber)*"}
-            if ($null -eq $InstalledSSU) {
-                Write-Verbose "LatestSSU: $($LatestSSU.Title) (Not Installed)"
-            # $LatestSSU = "KB$($LatestSSU.KBNumber)"
-                $LatestSSU = ''
-            } else {
-                Write-Verbose "LatestSSU: $($LatestSSU.Title) (Installed)"
-                $LatestSSU = 'Latest'
-            }
-        #===================================================================================================
-        #   LCU Cumulative Update
-            $LatestLCU = @()
-            $LatestLCU = $OSDUpdates | Sort-Object -Property CreationDate -Descending | `
-            Where-Object {$_.UpdateOS -like "*$UpdateOS*"} | Where-Object {$_.UpdateBuild -like "*$OSMReleaseId*"} | `
-            Where-Object {$_.UpdateArch -like "*$($Arch)*"} | Where-Object {$_.UpdateGroup -like "*LCU*"} | `
-            Select-Object -First 1
-
-            $InstalledLCU = $OSMSessions | Where-Object {$_.KBNumber -like "*$($LatestLCU.KBNumber)*"}
-
-            if (!(Test-Path "$OSMediaPath\info\Sessions.xml")) {
-                Write-Verbose "LatestLCU: Sessions.xml required for validation"
-                $LatestLCU = 'Repair'
-            } elseif ($null -eq $InstalledLCU) {
-                Write-Verbose "LatestLCU: $($LatestLCU.Title) (Not Installed)"
-                $LatestLCU = ''
-            } else {
-                Write-Verbose "LatestLCU: $($LatestLCU.Title) (Installed)"
-                $LatestLCU = 'Latest'
-            }
-        #===================================================================================================
-        #   Correct WinSE
+            #===================================================================================================
+            #   Correct WinSE
+            #===================================================================================================
             if (Test-Path "$OSMediaPath\WinPE\setup.wim") {Rename-Item "$OSMediaPath\WinPE\setup.wim" 'winse.wim' -Force | Out-Null}
 
             if (Test-Path "$OSMediaPath\WinPE\info\boot.txt") {Rename-Item "$OSMediaPath\WinPE\info\boot.txt" 'Get-WindowsImage-Boot.txt' -Force | Out-Null}
@@ -322,13 +316,18 @@ function Get-OSMedia {
             if (Test-Path "$OSMediaPath\WinPE\info\xml\Get-WindowsPackage-winpe.wim.xml") {Rename-Item "$OSMediaPath\WinPE\info\xml\Get-WindowsPackage-winpe.wim.xml" 'Get-WindowsPackage-WinPE.xml' -Force | Out-Null}
             if (Test-Path "$OSMediaPath\WinPE\info\xml\Get-WindowsPackage-winre.wim.xml") {Rename-Item "$OSMediaPath\WinPE\info\xml\Get-WindowsPackage-winre.wim.xml" 'Get-WindowsPackage-WinRE.xml' -Force | Out-Null}
             if (Test-Path "$OSMediaPath\WinPE\info\xml\Get-WindowsPackage-setup.wim.xml") {Rename-Item "$OSMediaPath\WinPE\info\xml\Get-WindowsPackage-setup.wim.xml" 'Get-WindowsPackage-WinSE.xml' -Force | Out-Null}
-        #===================================================================================================
-        #   Create Object
+            #===================================================================================================
+            #   Create Object
+            #===================================================================================================
             $ObjectProperties = @{
                 MediaType           = 'OSMedia'
 
                 ModifiedTime        = [datetime]$OSMWindowsImage.ModifiedTime
                 Name                = $Item.Name
+
+                Revision            = 'Superseded'
+                Updates             = $OSMUpdateStatus
+
                 OSMFamily           = $OSMFamily
                 ImageName           = $OSMImageName
 
@@ -346,9 +345,6 @@ function Get-OSMedia {
                 
                 EditionId           = $OSMEditionId
                 InstallationType    = $OSMInstallationType
-                Servicing           = $LatestSSU
-                Cumulative          = $LatestLCU
-                Adobe               = $LatestAdobe
                 FullName            = $Item.FullName
                 CreatedTime         = [datetime]$OSMWindowsImage.CreatedTime
 
@@ -358,39 +354,26 @@ function Get-OSMedia {
             New-Object -TypeName PSObject -Property $ObjectProperties
             Write-Verbose ""
         }
-    #===================================================================================================
-    #   Output
+        #===================================================================================================
+        #   Revision
+        #===================================================================================================
+        $OSMedia | Sort-Object ModifiedTime,UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1} | foreach {$_.Revision = 'OK'}
+        #===================================================================================================
+        #   Filters
+        #===================================================================================================
         if ($OSArch) {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq $OSArch}}
         if ($OSReleaseId) {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId-eq $OSReleaseId}}
         if ($OSInstallationType -eq 'Client') {$OSMedia = $OSMedia | Where-Object {$_.InstallationType -notlike "*Server*"}}
         if ($OSInstallationType -eq 'Server') {$OSMedia = $OSMedia | Where-Object {$_.InstallationType -like "*Server*"}}
         if ($OSMajorVersion) {$OSMedia = $OSMedia | Where-Object {$_.MajorVersion -eq $OSMajorVersion}}
-        if ($IsLatestMedia.IsPresent) {
-            #Write-Warning "IsLatestMedia: Showing Latest OSMedia"
-            $OSMedia = $OSMedia | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1}
-        }
-
-        #$CurrentOS = $OSMedia | Where-Object {$_.MajorVersion -eq 10} | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1}
-        #$LegacyOS = $OSMedia | Where-Object {$_.MajorVersion -eq 6} | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -Last 1}
-        #$OSMedia = @()
-        #$OSMedia = [array]$CurrentOS + [array]$LegacyOS
-        #$CurrentOS = $OSMedia | Where-Object {$_.MajorVersion -eq 10} | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1}
-        #$LegacyOS = $OSMedia | Where-Object {$_.MajorVersion -eq 6} | Sort-Object UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -Last 1}
-        #$OSMedia = @()
-        #$OSMedia = [array]$CurrentOS + [array]$LegacyOS
-
-        if ($UpdateNeeded.IsPresent) {
-            if ($OSMedia | Where-Object {$_.MajorVersion -eq 6}) {
-                Write-Warning "UpdateNeeded does not support Legacy Operating Systems"
-                Write-Warning "Legacy Operating Systems have been removed from the results"
-                $OSMedia = $OSMedia | Where-Object {$_.MajorVersion -eq 10}
-            }
-            $OSMedia = $OSMedia | Where-Object {($_.Servicing -eq '') -or ($_.Cumulative -eq '') -or ($_.Adobe -eq '')}
-        }
-
+        if ($Revision) {$OSMedia = $OSMedia | Where-Object {$_.Revision -eq $Revision}}
+        if ($Updates) {$OSMedia = $OSMedia | Where-Object {$_.Updates -eq $Updates}}
+        #===================================================================================================
+        #   Results
+        #===================================================================================================
         if ($GridView.IsPresent) {
-            $OSMedia | Select-Object ModifiedTime,MediaType,`
-            Servicing,Cumulative,Adobe,`
+            $OSMedia | Select-Object MediaType,ModifiedTime,`
+            Revision,Updates,`
             Name,OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
             Languages,EditionId,InstallationType,`
@@ -398,8 +381,8 @@ function Get-OSMedia {
             FullName,CreatedTime,OSMGuid | `
             Sort-Object Name | Out-GridView -PassThru -Title 'OSMedia'
         } else {
-            $OSMedia | Select-Object ModifiedTime,MediaType,`
-            Servicing,Cumulative,Adobe,`
+            $OSMedia | Select-Object MediaType,ModifiedTime,`
+            Revision,Updates,`
             Name,OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
             Languages,EditionId,InstallationType,`
@@ -407,6 +390,7 @@ function Get-OSMedia {
             FullName,CreatedTime,OSMGuid,OSMFamilyV1 | `
             Sort-Object Name
         }
+        #===================================================================================================
     }
 
     END {}

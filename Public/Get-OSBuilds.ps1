@@ -15,29 +15,37 @@ Get-OSBuilds | Out-GridView
 function Get-OSBuilds {
     [CmdletBinding()]
     PARAM (
+        #===================================================================================================
+        #   Basic
+        #===================================================================================================
         [switch]$GridView
+        #===================================================================================================
     )
 
     BEGIN {
-    #===================================================================================================
-    #   Initialize OSDBuilder
+        #===================================================================================================
+        #   Initialize OSDBuilder
+        #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-    #===================================================================================================
-    #   Get OSDUpdates
+        #===================================================================================================
+        #   Get OSDUpdates
+        #===================================================================================================
         $OSDUpdates = @()
         $OSDUpdates = OSD-Update-GetOSDUpdates
-    #===================================================================================================
-    #   Get OSMedia
+        #===================================================================================================
+        #   Get OSBuilds
+        #===================================================================================================
         $AllOSBuilds = @()
         $AllOSBuilds = Get-ChildItem -Path "$OSDBuilderOSBuilds" -Directory | Select-Object -Property * | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Get-WindowsImage.xml")}
-    #===================================================================================================
+        #===================================================================================================
     }
 
     PROCESS {
         $OSBuilds = foreach ($Item in $AllOSBuilds) {
-        #===================================================================================================
-        #   Get Windows Image Information
+            #===================================================================================================
+            #   Get Windows Image Information
+            #===================================================================================================
             $OSBuildPath = $($Item.FullName)
             Write-Verbose "OSBuild Full Path: $OSBuildPath"
             
@@ -58,8 +66,9 @@ function Get-OSBuilds {
 
             $OSMInstallationType = $($OSMWindowsImage.InstallationType)
             Write-Verbose "InstallationType: $OSMInstallationType"
-        #===================================================================================================
-        #   Version Information
+            #===================================================================================================
+            #   Version Information
+            #===================================================================================================
             $OSMVersion = $($OSMWindowsImage.Version)
             Write-Verbose "Version: $OSMVersion"
 
@@ -74,8 +83,9 @@ function Get-OSBuilds {
 
             $OSMUBR = $($OSMWindowsImage.UBR)
             Write-Verbose "UBR: $OSMUBR"
-        #===================================================================================================
-        #   UpdateOS
+            #===================================================================================================
+            #   UpdateOS
+            #===================================================================================================
             $UpdateOS = ''
             if ($OSMMajorVersion -eq 10) {
                 if ($OSMInstallationType -notlike "*Server*") {$UpdateOS = 'Windows 10'}
@@ -95,17 +105,20 @@ function Get-OSBuilds {
                 }
             }
             Write-Verbose "UpdateOS: $UpdateOS"
-        #===================================================================================================
-        #   Language
+            #===================================================================================================
+            #   Language
+            #===================================================================================================
             $OSMLanguages = $($OSMWindowsImage.Languages)
             Write-Verbose "Languages: $OSMLanguages"
-        #===================================================================================================
-        #   OSMFamily
+            #===================================================================================================
+            #   OSMFamily
+            #===================================================================================================
             $OSMFamilyV1 = $(Get-Date -Date $($OSMWindowsImage.CreatedTime)).ToString("yyyyMMddHHmmss") + $OSMEditionID
             $OSMFamily = $OSMInstallationType + " " + $OSMEditionId + " " + $OSMArch + " " + [string]$OSMBuild + " " + $OSMLanguages
             Write-Verbose "OSMFamily: $OSMFamily"
-        #===================================================================================================
-        #   Registry ReleaseId
+            #===================================================================================================
+            #   Registry ReleaseId
+            #===================================================================================================
             $OSMRegistry = @()
             if (Test-Path "$OSBuildPath\info\xml\CurrentVersion.xml") {
                 Write-Verbose "Registry: $OSBuildPath\info\xml\CurrentVersion.xml"
@@ -126,8 +139,9 @@ function Get-OSBuilds {
             if ($OSMBuild -eq 17763) {$OSMReleaseId = 1809}
 
             Write-Verbose "ReleaseId: $OSMReleaseId"
-        #===================================================================================================
-        #   Get-WindowsPackage
+            #===================================================================================================
+            #   Get-WindowsPackage
+            #===================================================================================================
             $OSMPackage = @()
             if (Test-Path "$OSBuildPath\info\xml\Get-WindowsPackage.xml") {
                 Write-Verbose "Packages: $OSBuildPath\info\xml\Get-WindowsPackage.xml"
@@ -135,8 +149,9 @@ function Get-OSBuilds {
             } else {
                 Write-Verbose "Packages: $OSBuildPath\info\xml\Get-WindowsPackage.xml (Not Found)"
             }
-        #===================================================================================================
-        #   Sessions.xml
+            #===================================================================================================
+            #   Sessions.xml
+            #===================================================================================================
             $OSMSessions = @()
             if (Test-Path "$OSBuildPath\Sessions.xml") {
                 OSD-SessionsConvert -OSMediaPath "$OSBuildPath"
@@ -147,63 +162,27 @@ function Get-OSBuilds {
             } else {
                 Write-Verbose "Sessions: $OSBuildPath\info\xml\Sessions.xml (Not Found)"
             }
-        #===================================================================================================
-        #   Adobe
-            $LatestAdobe = @()
-            $LatestAdobe = $OSDUpdates | Sort-Object -Property CreationDate -Descending | `
+            #===================================================================================================
+            #   Verify Updates
+            #===================================================================================================
+            $VerifyUpdates = @()
+            $VerifyUpdates = $OSDUpdates | Sort-Object -Property CreationDate | `
             Where-Object {$_.UpdateOS -like "*$UpdateOS*"} | Where-Object {$_.UpdateBuild -like "*$OSMReleaseId*"} | `
-            Where-Object {$_.UpdateArch -like "*$($Arch)*"} | Where-Object {$_.UpdateGroup -like "*Adobe*"} | `
-            Select-Object -First 1
+            Where-Object {$_.UpdateArch -like "*$($OSMArch)*"} | Where-Object {$_.UpdateGroup -notlike "*Setup*"} | `
+            Where-Object {$_.UpdateGroup -ne ''} | Where-Object {$_.UpdateGroup -ne 'Optional'}
 
-            $InstalledAdobe = $OSMPackage | Where-Object {$_.PackageName -like "*$($LatestAdobe.KBNumber)*"}
-            if ($null -eq $LatestAdobe) {$LatestAdobe = 'Not Applicable'}
-            elseif ($null -eq $InstalledAdobe) {
-                Write-Verbose "LatestAdobe: $($LatestAdobe.Title) (Not Installed)"
-                #$LatestAdobe = "KB$($LatestAdobe.KBNumber)"
-                $LatestAdobe = ''
-            } else {
-                Write-Verbose "LatestAdobe: $($LatestAdobe.Title) (Installed)"
-                $LatestAdobe = 'Latest'
+            $OSMUpdateStatus = 'OK'
+            foreach ($OSMUpdate in $VerifyUpdates) {
+                if ($OSMSessions | Where-Object {$_.KBNumber -like "*$($OSMUpdate.KBNumber)*"}) {
+                    Write-Verbose "Installed: $($OSMUpdate.Title)"
+                } else {
+                    Write-Verbose "Not Installed: $($OSMUpdate.Title)"
+                    $OSMUpdateStatus = 'Update'
+                }
             }
-        #===================================================================================================
-        #   SSU Servicing Stack
-            $LatestSSU = @()
-            $LatestSSU = $OSDUpdates | Sort-Object -Property CreationDate -Descending | `
-            Where-Object {$_.UpdateOS -like "*$UpdateOS*"} | Where-Object {$_.UpdateBuild -like "*$OSMReleaseId*"} | `
-            Where-Object {$_.UpdateArch -like "*$($Arch)*"} | Where-Object {$_.UpdateGroup -like "*SSU*"} | `
-            Select-Object -First 1
-
-            $InstalledSSU = $OSMPackage | Where-Object {$_.PackageName -like "*$($LatestSSU.KBNumber)*"}
-            if ($null -eq $InstalledSSU) {
-                Write-Verbose "LatestSSU: $($LatestSSU.Title) (Not Installed)"
-            # $LatestSSU = "KB$($LatestSSU.KBNumber)"
-                $LatestSSU = ''
-            } else {
-                Write-Verbose "LatestSSU: $($LatestSSU.Title) (Installed)"
-                $LatestSSU = 'Latest'
-            }
-        #===================================================================================================
-        #   LCU Cumulative Update
-            $LatestLCU = @()
-            $LatestLCU = $OSDUpdates | Sort-Object -Property CreationDate -Descending | `
-            Where-Object {$_.UpdateOS -like "*$UpdateOS*"} | Where-Object {$_.UpdateBuild -like "*$OSMReleaseId*"} | `
-            Where-Object {$_.UpdateArch -like "*$($Arch)*"} | Where-Object {$_.UpdateGroup -like "*LCU*"} | `
-            Select-Object -First 1
-
-            $InstalledLCU = $OSMSessions | Where-Object {$_.KBNumber -like "*$($LatestLCU.KBNumber)*"}
-
-            if (!(Test-Path "$OSBuildPath\info\Sessions.xml")) {
-                Write-Verbose "LatestLCU: Sessions.xml required for validation"
-                $LatestLCU = 'Repair'
-            } elseif ($null -eq $InstalledLCU) {
-                Write-Verbose "LatestLCU: $($LatestLCU.Title) (Not Installed)"
-                $LatestLCU = ''
-            } else {
-                Write-Verbose "LatestLCU: $($LatestLCU.Title) (Installed)"
-                $LatestLCU = 'Latest'
-            }
-        #===================================================================================================
-        #   Correct WinSE
+            #===================================================================================================
+            #   Correct WinSE
+            #===================================================================================================
             if (Test-Path "$OSBuildPath\WinPE\setup.wim") {Rename-Item "$OSBuildPath\WinPE\setup.wim" 'winse.wim' -Force | Out-Null}
 
             if (Test-Path "$OSBuildPath\WinPE\info\boot.txt") {Rename-Item "$OSBuildPath\WinPE\info\boot.txt" 'Get-WindowsImage-Boot.txt' -Force | Out-Null}
@@ -234,13 +213,17 @@ function Get-OSBuilds {
             if (Test-Path "$OSBuildPath\WinPE\info\xml\Get-WindowsPackage-winpe.wim.xml") {Rename-Item "$OSBuildPath\WinPE\info\xml\Get-WindowsPackage-winpe.wim.xml" 'Get-WindowsPackage-WinPE.xml' -Force | Out-Null}
             if (Test-Path "$OSBuildPath\WinPE\info\xml\Get-WindowsPackage-winre.wim.xml") {Rename-Item "$OSBuildPath\WinPE\info\xml\Get-WindowsPackage-winre.wim.xml" 'Get-WindowsPackage-WinRE.xml' -Force | Out-Null}
             if (Test-Path "$OSBuildPath\WinPE\info\xml\Get-WindowsPackage-setup.wim.xml") {Rename-Item "$OSBuildPath\WinPE\info\xml\Get-WindowsPackage-setup.wim.xml" 'Get-WindowsPackage-WinSE.xml' -Force | Out-Null}
-        #===================================================================================================
-        #   Create Object
+            #===================================================================================================
+            #   Create Object
+            #===================================================================================================
             $ObjectProperties = @{
                 MediaType           = 'OSBuild'
 
                 ModifiedTime        = [datetime]$OSMWindowsImage.ModifiedTime
                 Name                = $Item.Name
+
+                Updates             = $OSMUpdateStatus
+
                 OSMFamily           = $OSMFamily
                 ImageName           = $OSMImageName
 
@@ -269,25 +252,29 @@ function Get-OSBuilds {
             New-Object -TypeName PSObject -Property $ObjectProperties
             Write-Verbose ""
         }
-    #===================================================================================================
-    #   Output
+        #===================================================================================================
+        #   Results
+        #===================================================================================================
         if ($GridView.IsPresent) {
-            $OSBuilds | Select-Object MediaType,`
-            ModifiedTime,Name,OSMFamily,ImageName,`
+            $OSBuilds | Select-Object MediaType,ModifiedTime,`
+            Updates,`
+            Name,OSMFamily,ImageName,`
             OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
             Languages,`
-            EditionId,InstallationType,Servicing,Cumulative,Adobe,FullName,CreatedTime | `
+            EditionId,InstallationType,Servicing,CreatedTime | `
             Sort-Object -Property Name | Out-GridView -PassThru -Title 'OSBuilds'
         } else {
-            $OSBuilds | Select-Object MediaType,`
+            $OSBuilds | Select-Object MediaType,ModifiedTime,`
+            Updates,`
             ModifiedTime,Name,OSMFamily,ImageName,`
             OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
             Languages,`
-            EditionId,InstallationType,Servicing,Cumulative,Adobe,FullName,CreatedTime | `
+            EditionId,InstallationType,CreatedTime | `
             Sort-Object -Property Name
         }
+        #===================================================================================================
     }
 
     END {}

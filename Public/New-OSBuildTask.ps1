@@ -128,11 +128,10 @@ function New-OSBuildTask {
         }
 
         #===================================================================================================
-        Write-Verbose '19.3.21 Get-OSMedia'
+        Write-Verbose '19.3.26 Get-OSMedia'
         #===================================================================================================
         $OSMedia = @()
-        $OSMedia = Get-OSMedia -ShowLatest | Where-Object {$_.MajorVersion -eq 10}
-        #$OSMedia = Get-OSMedia -ShowLatest
+        $OSMedia = Get-OSMedia -Revision OK -OSMajorVersion 10
 
         if ($TaskName -like "*x64*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x64'}}
         if ($TaskName -like "*x86*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x86'}}

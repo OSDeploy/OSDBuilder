@@ -23,8 +23,8 @@ Update-OSMedia -Name 'Win10 Ent x64 1803 17134.345' -Download
 .PARAMETER Execute
 Execute the Update
 
-.PARAMETER IsLatestMedia
-Hides Superseded OSMedia for each OSMFamily
+.PARAMETER ShowAllOSMedia
+Superseded OSMedia is displayed
 
 .EXAMPLE
 Update-OSMedia -Name 'Win10 Ent x64 1803 17134.345' -Download -Execute
@@ -53,7 +53,7 @@ function Update-OSMedia {
         #==========================================================
         [switch]$Download,
         [switch]$Execute,
-        [switch]$IsLatestMedia,
+        [switch]$ShowAllOSMedia,
         [switch]$OSDInfo,
         [switch]$OSDISO,
         #==========================================================
@@ -103,12 +103,11 @@ function Update-OSMedia {
                     }
                 } else {
                     $BirdBox = @()
-                    if ($IsLatestMedia.IsPresent) {
-                        $BirdBox = Get-OSMedia -IsLatestMedia
-                    } else {
+                    if ($ShowAllOSMedia.IsPresent) {
                         $BirdBox = Get-OSMedia
+                    } else {
+                        $BirdBox = Get-OSMedia -Revision OK -OSMajorVersion 10
                     }
-                    $BirdBox = $BirdBox | Where-Object {$_.MajorVersion -eq 10}
                     $BirdBox = $BirdBox | Out-GridView -PassThru -Title "Select one or more OSMedia to Build (Cancel to Exit) and press OK"
                 }
                 if ($null -eq $BirdBox) {
@@ -145,10 +144,10 @@ function Update-OSMedia {
                 }
             } else {
                 $BirdBox = @()
-                if ($IsLatestMedia.IsPresent) {
-                    $BirdBox = Get-OSMedia -IsLatestMedia
-                } else {
+                if ($ShowAllOSMedia.IsPresent) {
                     $BirdBox = Get-OSMedia
+                } else {
+                    $BirdBox = Get-OSMedia -Revision OK -Updates Update
                 }
                 if ($UpdateNeeded.IsPresent) {
                     if ($BirdBox | Where-Object {$_.MajorVersion -eq 6}) {
@@ -170,7 +169,7 @@ function Update-OSMedia {
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
-                    $Task = Get-OSMedia -ShowLatest | Where-Object {$_.Name -eq $Bird.Name}
+                    $Task = Get-OSMedia -Revision OK | Where-Object {$_.Name -eq $Bird.Name}
 
                     $TaskType = 'OSBuild'
                     $TaskName = 'Taskless'
@@ -267,7 +266,7 @@ function Update-OSMedia {
                     Write-Host "-OSMedia Family:                $TaskOSMFamily"
                     Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
                 }
-                $LatestOSMedia = Get-OSMedia -IsLatestMedia | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
+                $LatestOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
                 if ($LatestOSMedia) {
                     $OSMediaName = $LatestOSMedia.Name
                     $OSMediaPath = $LatestOSMedia.FullName
@@ -631,7 +630,7 @@ function Update-OSMedia {
             $OSDUpdateLCU = @()
             if ($OSMajorVersion -eq 10) {
                 $OSDUpdateLCU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'LCU'}
-                $OSDUpdateLCU = $OSDUpdateLCU | Sort-Object -Property CreationDate | Select-Object -Last 1
+                $OSDUpdateLCU = $OSDUpdateLCU | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateLCU) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
                         Write-Host "Ready       Cumulative      $($Update.Title)"

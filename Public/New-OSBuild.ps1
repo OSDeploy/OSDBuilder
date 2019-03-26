@@ -113,12 +113,11 @@ function New-OSBuild {
                     }
                 } else {
                     $BirdBox = @()
-                    if ($IsLatestMedia.IsPresent) {
-                        $BirdBox = Get-OSMedia -IsLatestMedia
-                    } else {
+                    if ($ShowAllOSMedia.IsPresent) {
                         $BirdBox = Get-OSMedia
+                    } else {
+                        $BirdBox = Get-OSMedia -Revision OK -OSMajorVersion 10
                     }
-                    $BirdBox = $BirdBox | Where-Object {$_.MajorVersion -eq 10}
                     $BirdBox = $BirdBox | Out-GridView -PassThru -Title "Select one or more OSMedia to Build (Cancel to Exit) and press OK"
                 }
                 if ($null -eq $BirdBox) {
@@ -155,10 +154,10 @@ function New-OSBuild {
                 }
             } else {
                 $BirdBox = @()
-                if ($IsLatestMedia.IsPresent) {
-                    $BirdBox = Get-OSMedia -IsLatestMedia
-                } else {
+                if ($ShowAllOSMedia.IsPresent) {
                     $BirdBox = Get-OSMedia
+                } else {
+                    $BirdBox = Get-OSMedia -Revision OK -Updates Update
                 }
                 if ($UpdateNeeded.IsPresent) {
                     if ($BirdBox | Where-Object {$_.MajorVersion -eq 6}) {
@@ -180,7 +179,7 @@ function New-OSBuild {
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
-                    $Task = Get-OSMedia -ShowLatest | Where-Object {$_.Name -eq $Bird.Name}
+                    $Task = Get-OSMedia -Revision OK | Where-Object {$_.Name -eq $Bird.Name}
 
                     $TaskType = 'OSBuild'
                     $TaskName = 'Taskless'
@@ -277,7 +276,7 @@ function New-OSBuild {
                     Write-Host "-OSMedia Family:                $TaskOSMFamily"
                     Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
                 }
-                $LatestOSMedia = Get-OSMedia -IsLatestMedia | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
+                $LatestOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
                 if ($LatestOSMedia) {
                     $OSMediaName = $LatestOSMedia.Name
                     $OSMediaPath = $LatestOSMedia.FullName
@@ -641,7 +640,7 @@ function New-OSBuild {
             $OSDUpdateLCU = @()
             if ($OSMajorVersion -eq 10) {
                 $OSDUpdateLCU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'LCU'}
-                $OSDUpdateLCU = $OSDUpdateLCU | Sort-Object -Property CreationDate | Select-Object -Last 1
+                $OSDUpdateLCU = $OSDUpdateLCU | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateLCU) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
                         Write-Host "Ready       Cumulative      $($Update.Title)"
@@ -772,6 +771,18 @@ function New-OSBuild {
                     } else {
                         Write-Host "Missing     Optional        $($Update.Title)" -ForegroundColor Yellow
                     }
+                }
+            }
+            #===================================================================================================
+            #   Update Check
+            #===================================================================================================
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $LatestOSMedia) {
+                if ($LatestOSMedia.Updates -ne 'OK') {
+                    Write-Host '========================================================================================' -ForegroundColor DarkGray
+                    Write-Warning "This OSMedia does not have the latest Microsoft Updates"
+                    Write-Warning "Use the following command before running New-OSBuild"
+                    Write-Warning "Update-OSMedia -Name `'$OSMediaName`' -Download -Execute"
+                    Write-Host '========================================================================================' -ForegroundColor DarkGray
                 }
             }
             #===================================================================================================

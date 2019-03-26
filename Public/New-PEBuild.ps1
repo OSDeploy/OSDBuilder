@@ -221,7 +221,7 @@ $MDTUnattendPEx86 = @'
                 Write-Host "-OSMedia Family:                $TaskOSMFamily"
                 Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
             }
-            $LatestOSMedia = Get-OSMedia -ShowLatest | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
+            $LatestOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
             if ($LatestOSMedia) {
                 $OSMediaName = $LatestOSMedia.Name
                 $OSMediaPath = $LatestOSMedia.FullName
