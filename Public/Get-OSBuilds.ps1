@@ -258,20 +258,20 @@ function Get-OSBuilds {
         if ($GridView.IsPresent) {
             $OSBuilds | Select-Object MediaType,ModifiedTime,`
             Updates,`
-            Name,OSMFamily,ImageName,`
-            OperatingSystem,Arch,ReleaseId,`
+            Name,OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
-            Languages,`
-            EditionId,InstallationType,Servicing,CreatedTime | `
+            Languages,EditionId,InstallationType,`
+            ImageName,OSMFamily,
+            FullName,CreatedTime | `
             Sort-Object -Property Name | Out-GridView -PassThru -Title 'OSBuilds'
         } else {
             $OSBuilds | Select-Object MediaType,ModifiedTime,`
             Updates,`
-            Name,OSMFamily,ImageName,`
-            OperatingSystem,Arch,ReleaseId,`
+            Name,OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
-            Languages,`
-            EditionId,InstallationType,CreatedTime | `
+            Languages,EditionId,InstallationType,`
+            ImageName,OSMFamily,
+            FullName,CreatedTime | `
             Sort-Object -Property Name
         }
         #===================================================================================================

@@ -181,19 +181,19 @@ function Get-PEBuilds {
         #===================================================================================================
         if ($GridView.IsPresent) {
             $PEBuilds | Select-Object MediaType,ModifiedTime,`
-            Name,OSMFamily,ImageName,`
-            OperatingSystem,Arch,ReleaseId,`
+            Name,OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
-            Languages,`
-            EditionId,InstallationType,FullName,CreatedTime | `
+            Languages,EditionId,InstallationType,`
+            ImageName,OSMFamily,
+            FullName,CreatedTime | `
             Sort-Object -Property Name | Out-GridView -PassThru -Title 'PEBuilds'
         } else {
             $PEBuilds | Select-Object MediaType,ModifiedTime,`
-            Name,OSMFamily,ImageName,`
-            OperatingSystem,Arch,ReleaseId,`
+            Name,OperatingSystem,Arch,ReleaseId,`
             Version,MajorVersion,MinorVersion,Build,UBR,`
-            Languages,`
-            EditionId,InstallationType,FullName,CreatedTime | `
+            Languages,EditionId,InstallationType,`
+            ImageName,OSMFamily,
+            FullName,CreatedTime | `
             Sort-Object -Property Name
         }
         #===================================================================================================
