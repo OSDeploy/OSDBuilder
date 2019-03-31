@@ -319,57 +319,21 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "WinPE (Content Based)" -ForegroundColor Green
-
-        if ($SelectWinPEADK.IsPresent) {
-            #===================================================================================================
-            #   WinPE ADK
-            #===================================================================================================
-            $TaskWinPEADK =@()
-            $TaskWinPEADK = Get-ChildItem -Path "$OSDBuilderContent\WinPE\ADK" *.cab -Recurse | Select-Object -Property Name, FullName
-            foreach ($Pack in $TaskWinPEADK) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
-            $TaskWinPEADK = $TaskWinPEADK | Where-Object {$_.FullName -like "*$($OSMedia.Arch)*"}
-            $TaskWinPEADK = $TaskWinPEADK | Where-Object {$_.FullName -like "*$($OSMedia.ReleaseId)*"}
-            if ($null -eq $TaskWinPEADK) {Write-Warning "WinPE ADK: Add Content to $OSDBuilderContent\WinPE\ADK"}
-            else {
-                $TaskWinPEADK = $TaskWinPEADK | Out-GridView -Title "WinPE.wim ADK Packages: Select ADK Packages to apply and press OK (Esc or Cancel to Skip)" -PassThru
-                if ($null -eq $TaskWinPEADK) {Write-Warning "WinPE.wim ADK Packages: Skipping"}
-            }
-            #===================================================================================================
-            #   WinRE ADK
-            #===================================================================================================
-            $TaskWinREADK =@()
-            $TaskWinREADK = Get-ChildItem -Path "$OSDBuilderContent\WinPE\ADK" *.cab -Recurse | Select-Object -Property Name, FullName
-            foreach ($Pack in $TaskWinREADK) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
-            $TaskWinREADK = $TaskWinREADK | Where-Object {$_.FullName -like "*$($OSMedia.Arch)*"}
-            $TaskWinREADK = $TaskWinREADK | Where-Object {$_.FullName -like "*$($OSMedia.ReleaseId)*"}
-            if ($null -eq $TaskWinREADK) {Write-Warning "WinRE ADK: Add Content to $OSDBuilderContent\WinPE\ADK"}
-            else {
-                $TaskWinREADK = $TaskWinREADK | Out-GridView -Title "WinRE.wim ADK Packages: Select ADK Packages to apply and press OK (Esc or Cancel to Skip)" -PassThru
-                if ($null -eq $TaskWinREADK) {
-                    Write-Warning "WinRE.wim ADK Packages: Skipping"}
-                else {
-                    Write-Warning "If you add too many ADK Packages to WinRE, like .Net and PowerShell"
-                    Write-Warning "You run a risk of your WinRE size increasing considerably"
-                    Write-Warning "If your MBR System or UEFI Recovery Partition are 500MB,"
-                    Write-Warning "your WinRE.wim should not be more than 400MB (100MB Free)"
-                    Write-Warning "Consider changing your Task Sequences to have a 984MB"
-                    Write-Warning "MBR System or UEFI Recovery Partition"
-                }
-            }
-            #===================================================================================================
-            #   WinSE ADK
-            #===================================================================================================
-            $TaskWinSEADK =@()
-            $TaskWinSEADK = Get-ChildItem -Path "$OSDBuilderContent\WinPE\ADK" *.cab -Recurse | Select-Object -Property Name, FullName
-            foreach ($Pack in $TaskWinSEADK) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
-            $TaskWinSEADK = $TaskWinSEADK | Where-Object {$_.FullName -like "*$($OSMedia.Arch)*"}
-            $TaskWinSEADK = $TaskWinSEADK | Where-Object {$_.FullName -like "*$($OSMedia.ReleaseId)*"}
-            if ($null -eq $TaskWinSEADK) {Write-Warning "WinSE ADK: Add Content to $OSDBuilderContent\WinPE\ADK"}
-            else {
-                $TaskWinSEADK = $TaskWinSEADK | Out-GridView -Title "WinSE.wim ADK Packages: Select ADK Packages to apply and press OK (Esc or Cancel to Skip)" -PassThru
-                if ($null -eq $TaskWinSEADK) {Write-Warning "WinSE.wim ADK Packages: Skipping"}
-            }
-        }
+        #===================================================================================================
+        #   WinPE ADK
+        #===================================================================================================
+        $TaskWinPEADK =@()
+        $TaskWinPEADK = Get-TaskWinPEADK
+        #===================================================================================================
+        #   WinRE ADK
+        #===================================================================================================
+        $TaskWinREADK =@()
+        $TaskWinREADK = Get-TaskWinREADK
+        #===================================================================================================
+        #   WinSE ADK
+        #===================================================================================================
+        $TaskWinSEADK =@()
+        $TaskWinSEADK = Get-TaskWinSEADK
         #===================================================================================================
         #   WinPE DaRT
         #===================================================================================================
@@ -499,7 +463,7 @@ function New-OSBuildTask {
             "WinPEExtraFilesSE" = [string[]]$TaskWinSEExtraFiles.FullName;
             "WinPEScriptsPE" = [string[]]$TaskWinPEScripts.FullName;
             "WinPEScriptsRE" = [string[]]$TaskWinREScripts.FullName;
-            "WinPEScriptsSE" = [string[]]$TaskWinSEScripts.FullName
+            "WinPEScriptsSE" = [string[]]$TaskWinSEScripts.FullName;
             "WinPEADKPE" = [string[]]$TaskWinPEADK.FullName;
             "WinPEADKRE" = [string[]]$TaskWinREADK.FullName;
             "WinPEADKSE" = [string[]]$TaskWinSEADK.FullName;

@@ -56,7 +56,7 @@ function OSD-Info-SourceOSMedia {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
-    Write-Verbose '19.1.1 Source OSMedia Windows Image Information'
+    #   OSD-Info-SourceOSMedia
     #===================================================================================================
     Write-Host '========================================================================================' -ForegroundColor DarkGray
     Write-Host "Source OSMedia Windows Image Information" -ForegroundColor Green
@@ -154,4 +154,73 @@ function OSD-Info-TaskInformation {
     if ($LanguagePacks) {foreach ($item in $LanguagePacks)              {Write-Host $item -ForegroundColor DarkGray}}
     Write-Host "-Local Experience Packs:"
     if ($LocalExperiencePacks) {foreach ($item in $LocalExperiencePacks){Write-Host $item -ForegroundColor DarkGray}}
+
+    $CombinedOSMedia = Get-OSMedia | Where-Object {$_.Name -eq "$OSMediaName"}
+
+    $CombinedTask = [ordered]@{
+        "TaskType" = [string]"OSBuild";
+        "TaskName" = [string]"$TaskName Merged Last Run";
+        "TaskVersion" = [string]$TaskVersion;
+        "TaskGuid" = [string]$(New-Guid);
+        "CustomName" = [string]$CustomName;
+        "OSMFamily" = [string]$TaskOSMFamily
+        "OSMGuid" = [string]$CombinedOSMedia.OSMGuid;
+        "Name" = [string]$OSMediaName;
+
+        "ImageName" = [string]$CombinedOSMedia.ImageName;
+        "Arch" = [string]$CombinedOSMedia.Arch;
+        "ReleaseId" = [string]$CombinedOSMedia.ReleaseId;
+        "UBR" = [string]$CombinedOSMedia.UBR;
+        "Languages" = [string[]]$CombinedOSMedia.Languages;
+        "EditionId" = [string]$CombinedOSMedia.EditionId;
+        "InstallationType" = [string]$CombinedOSMedia.InstallationType;
+        "MajorVersion" = [string]$CombinedOSMedia.MajorVersion;
+        "Build" = [string]$CombinedOSMedia.Build;
+        "CreatedTime" = [datetime]$CombinedOSMedia.CreatedTime;
+        "ModifiedTime" = [datetime]$CombinedOSMedia.ModifiedTime;
+
+        "EnableNetFX3" = [string]$EnableNetFX3;
+        "StartLayoutXML" = [string]$StartLayoutXML;
+        "UnattendXML" = [string]$UnattendXML;
+        "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
+        "WinPEDaRT" = [string]$WinPEDaRT;
+
+        "ExtraFiles" = [string[]]$($ExtraFiles | Sort-Object -Unique);
+        "Scripts" = [string[]]$($Scripts | Sort-Object -Unique);
+        "Drivers" = [string[]]$($Drivers | Sort-Object -Unique);
+
+        "AddWindowsPackage" = [string[]]$($Packages | Sort-Object -Unique);
+        "RemoveWindowsPackage" = [string[]]$($RemovePackage | Sort-Object -Unique);
+        "AddFeatureOnDemand" = [string[]]$($FeaturesOnDemand | Sort-Object -Unique);
+        "EnableWindowsOptionalFeature" = [string[]]$($EnableFeature | Sort-Object -Unique);
+        "DisableWindowsOptionalFeature" = [string[]]$($DisableFeature | Sort-Object -Unique);
+        "RemoveAppxProvisionedPackage" = [string[]]$($RemoveAppx | Sort-Object -Unique);
+        "RemoveWindowsCapability" = [string[]]$($RemoveCapability | Sort-Object -Unique);
+
+        "WinPEDrivers" = [string[]]$($WinPEDrivers | Sort-Object -Unique);
+        "WinPEExtraFilesPE" = [string[]]$($WinPEExtraFilesPE | Sort-Object -Unique);
+        "WinPEExtraFilesRE" = [string[]]$($WinPEExtraFilesRE | Sort-Object -Unique);
+        "WinPEExtraFilesSE" = [string[]]$($WinPEExtraFilesSE | Sort-Object -Unique);
+        "WinPEScriptsPE" = [string[]]$($WinPEScriptsPE | Sort-Object -Unique);
+        "WinPEScriptsRE" = [string[]]$($WinPEScriptsRE | Sort-Object -Unique);
+        "WinPEScriptsSE" = [string[]]$($WinPEScriptsSE | Sort-Object -Unique);
+        "WinPEADKPE" = [string[]]$($WinPEADKPE | Select-Object -Unique);
+        "WinPEADKRE" = [string[]]$($WinPEADKRE | Select-Object -Unique);
+        "WinPEADKSE" = [string[]]$($WinPEADKSE | Select-Object -Unique);
+
+        "LangSetAllIntl" = [string]$SetAllIntl;
+        "LangSetInputLocale" = [string]$SetInputLocale;
+        "LangSetSKUIntlDefaults" = [string]$SetSKUIntlDefaults;
+        "LangSetSetupUILang" = [string]$SetSetupUILang;
+        "LangSetSysLocale" = [string]$SetSysLocale;
+        "LangSetUILang" = [string]$SetUILang;
+        "LangSetUILangFallback" = [string]$SetUILangFallback;
+        "LangSetUserLocale" = [string]$SetUserLocale;
+        "LanguageFeature" = [string[]]$($LanguageFeatures | Sort-Object -Unique);
+        "LanguageInterfacePack" = [string[]]$($LanguageInterfacePacks | Sort-Object -Unique);
+        "LanguagePack" = [string[]]$($LanguagePacks | Sort-Object -Unique);
+        "LocalExperiencePacks" = [string[]]$($LocalExperiencePacks | Sort-Object -Unique);
+    }
+    $CombinedTask | ConvertTo-Json | Out-File "$OSDBuilderTasks\OSBuild Last Run.json"
+    $CombinedTask | ConvertTo-Json | Out-File "$($CombinedOSMedia.FullName)\OSBuild.json"
 }
