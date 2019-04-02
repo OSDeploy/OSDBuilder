@@ -339,7 +339,10 @@ function Import-OSMedia {
             #   19.1.1 Install.wim: Dismount
             #===================================================================================================
             Write-Host "Install.wim: Dismount from $MountDirectory" -ForegroundColor Green
-            if ($OSImagePath -like "*.esd") {Remove-Item $TempESD -Force | Out-Null}
+            if ($OSImagePath -like "*.esd") {
+                try {Remove-Item "$TempESD" -Force | Out-Null}
+                catch {Write-Warning "Could not remove $TempESD"}
+            }
 
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage.log"
             Write-Verbose "$CurrentLog"

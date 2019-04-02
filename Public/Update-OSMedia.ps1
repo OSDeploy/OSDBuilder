@@ -1106,12 +1106,27 @@ function Update-OSMedia {
                 if ($OSDInfo.IsPresent) {Show-OSDBuilderInfo -FullName "$WorkingPath"}
 
                 #===================================================================================================
-                Write-Verbose '19.1.1 Stop Transcript'
+                #   Complete Update
                 #===================================================================================================
                 Write-Host "Media: Renaming ""$WorkingPath"" to ""$NewOSMediaName""" -ForegroundColor Green
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Stop-Transcript
-                Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName" -ErrorAction Stop
+                try {
+                    Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName" -ErrorAction SilentlyContinue
+                }
+                catch {
+                    Write-Warning "Could not rename the the Build directory ... Waiting 30 seconds ..."
+                    Start-Sleep -Seconds 30
+                }
+                if (Test-Path "$WorkingPath") {
+                    try {
+                        Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName" -ErrorAction SilentlyContinue
+                    }
+                    catch {
+                        Write-Warning "Could not rename the the Build directory ... Existing"
+                        Exit
+                    }
+                }
             }
         }
     }

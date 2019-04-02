@@ -140,27 +140,48 @@ function OSD-WinPE-Dismount {
         [string]$OSMediaPath
     )
     #===================================================================================================
-    Write-Verbose '19.1.1 OSD-WinPE-Dismount'
+    #   OSD-WinPE-Dismount
     #===================================================================================================
-
     Write-Host "WinPE: Dismount and Save" -ForegroundColor Green
     Write-Verbose '========== OSD-WinPE-Dismount'
     Write-Verbose "OSMediaPath: $OSMediaPath"
+    Start-Sleep -Seconds 10
     
     Write-Verbose "$MountWinPE"
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinPE.log"
     Write-Verbose "$CurrentLog"
-    Dismount-WindowsImage -Path "$MountWinPE" -Save -LogPath "$CurrentLog" | Out-Null
+    try {
+        Dismount-WindowsImage -Path "$MountWinPE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
+    }
+    catch {
+        Write-Warning "Could not dismount WinPE ... Waiting 30 seconds ..."
+        Start-Sleep -Seconds 30
+        Dismount-WindowsImage -Path "$MountWinPE" -Save -LogPath "$CurrentLog" | Out-Null
+    }
     
     Write-Verbose "$MountWinRE"
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinRE.log"
     Write-Verbose "$CurrentLog"
-    Dismount-WindowsImage -Path "$MountWinRE" -Save -LogPath "$CurrentLog" | Out-Null
+    try {
+        Dismount-WindowsImage -Path "$MountWinRE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
+    }
+    catch {
+        Write-Warning "Could not dismount WinRE ... Waiting 30 seconds ..."
+        Start-Sleep -Seconds 30
+        Dismount-WindowsImage -Path "$MountWinRE" -Save -LogPath "$CurrentLog" | Out-Null
+    }
     
     Write-Verbose "$MountWinSE"
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinSE.log"
     Write-Verbose "$CurrentLog"
-    Dismount-WindowsImage -Path "$MountWinSE" -Save -LogPath "$CurrentLog" | Out-Null
+    try {
+        Dismount-WindowsImage -Path "$MountWinSE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
+    }
+    catch {
+        Write-Warning "Could not dismount WinSE ... Waiting 30 seconds ..."
+        Start-Sleep -Seconds 30
+        Dismount-WindowsImage -Path "$MountWinSE" -Save -LogPath "$CurrentLog" | Out-Null
+    }
 }
 
 function OSD-WinPE-Export {

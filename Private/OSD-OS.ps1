@@ -72,13 +72,21 @@ function OSD-OS-DismountWindowsImage {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
-    Write-Verbose '19.1.25 Install.wim Dismount and Save'
+    #   
     #===================================================================================================
     Write-Host "Install.wim: Dismount from $MountDirectory" -ForegroundColor Green
     if ($WaitDismount.IsPresent){[void](Read-Host 'Press Enter to Continue')}
     $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage.log"
     Write-Verbose "$CurrentLog"
-    Dismount-WindowsImage -Path "$MountDirectory" -Save -LogPath "$CurrentLog" | Out-Null
+    Start-Sleep -Seconds 10
+    try {
+        Dismount-WindowsImage -Path "$MountDirectory" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
+    }
+    catch {
+        Write-Warning "Could not dismount Install.wim ... Waiting 30 seconds ..."
+        Start-Sleep -Seconds 30
+        Dismount-WindowsImage -Path "$MountDirectory" -Save -LogPath "$CurrentLog" | Out-Null
+    }
 }
 
 function OSD-OS-ExportWindowsImage {
