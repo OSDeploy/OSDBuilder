@@ -764,6 +764,18 @@ function Update-OSMedia {
                 }
             }
             #===================================================================================================
+            #   Update Check
+            #===================================================================================================
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $LatestOSMedia) {
+                if ($LatestOSMedia.Updates -ne 'OK') {
+                    Write-Host '========================================================================================' -ForegroundColor DarkGray
+                    Write-Warning "This OSMedia does not have the latest Microsoft Updates"
+                    Write-Warning "Use the following command before running New-OSBuild"
+                    Write-Warning "Update-OSMedia -Name `'$OSMediaName`' -Download -Execute"
+                    Write-Host '========================================================================================' -ForegroundColor DarkGray
+                }
+            }
+            #===================================================================================================
             #   Execution Check
             #===================================================================================================
             if ($Execute -eq $False) {Write-Warning "Execution is currently disabled"}

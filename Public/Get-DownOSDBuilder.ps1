@@ -77,6 +77,15 @@ function Get-DownOSDBuilder {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
         Get-OSDBuilder -CreatePaths -HideDetails
+
+        #===================================================================================================
+        #   19.1.1 Validate Administrator Rights
+        #===================================================================================================
+        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Pause
+			Exit
+        }
     }
 
     PROCESS {
