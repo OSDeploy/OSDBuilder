@@ -159,7 +159,7 @@ function OSD-Info-TaskInformation {
 
     $CombinedTask = [ordered]@{
         "TaskType" = [string]"OSBuild";
-        "TaskName" = [string]"Merged Last Run";
+        "TaskName" = [string]$TaskName;
         "TaskVersion" = [string]$TaskVersion;
         "TaskGuid" = [string]$(New-Guid);
         "CustomName" = [string]$CustomName;
