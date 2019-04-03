@@ -12,6 +12,12 @@ function Get-DownOSDBuilder {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]
     PARAM (
         #===================================================================================================
+        #   MediaESD
+        #===================================================================================================
+        [Parameter(ParameterSetName='MediaESD')]
+        [ValidateSet ('GridView','Download')]
+        [string]$MediaESD,
+        #===================================================================================================
         #   OSDUpdateSuperseded
         #===================================================================================================
         [Parameter(ParameterSetName='OSDUpdateSuperseded', Mandatory=$True)]
@@ -77,7 +83,71 @@ function Get-DownOSDBuilder {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
 
+        #===================================================================================================
+        #   MediaESD
+        #===================================================================================================
+        if ($PSCmdlet.ParameterSetName -eq 'MediaESD') {
+            Write-Warning "Select downloads in GridView"
+            Write-Warning "Downloading using BITS Transfer"
+            #===================================================================================================
+            #   Get MediaESDDownloads
+            #===================================================================================================
+            $MediaESDDownloads = @()
+            $MediaESDDownloads = Get-MediaESDDownloads
+            #===================================================================================================
+            #   Sorting
+            #===================================================================================================
+            $MediaESDDownloads = $MediaESDDownloads | Sort-Object -Property Title
+            #===================================================================================================
+            #   Select Updates with GridView
+            #===================================================================================================
+            $MediaESDDownloads = $MediaESDDownloads | Out-GridView -PassThru -Title 'Select ESD Files to Download and press OK'
+            #===================================================================================================
+            #   Download Updates
+            #===================================================================================================
+            if ($MediaESD -eq 'Download') {
+                if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
+                foreach ($Item in $MediaESDDownloads) {
+                    $DownloadPath = "$OSDBuilderPath\MediaESD"
+                    $DownloadFullPath = "$DownloadPath\$($Item.FileName)"
 
+                    if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
+                    if (!(Test-Path $DownloadFullPath)) {
+                        Write-Host "$DownloadFullPath" -ForegroundColor Cyan
+                        Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
+                        if ($WebClient.IsPresent) {							
+                            $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
+                        } else {
+                            Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath
+                        }
+                    }
+
+                    $esdbasename = (Get-Item "$DownloadFullPath").Basename
+                    $esddirectory = "D:\OSDBuilder\PROD\Media\$esdbasename"
+                    
+                    $esdinfo = Get-WindowsImage -ImagePath "$DownloadFullPath"
+                    
+                    Write-Host "Creating $esddirectory" -ForegroundColor Cyan
+                    New-Item -Path "$esddirectory" -Force -ItemType Directory | Out-Null
+                    
+                    foreach ($image in $esdinfo) {
+                        if ($image.ImageName -eq 'Windows Setup Media') {
+                            Write-Host "Expanding $($image.ImageName) ..." -ForegroundColor Cyan
+                            Expand-WindowsImage -ImagePath "$($image.ImagePath)" -ApplyPath "$esddirectory" -Index "$($image.ImageIndex)" -ErrorAction SilentlyContinue | Out-Null
+                        } elseif ($image.ImageName -like "*Windows PE*") {
+                            Write-Host "Exporting $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Fast -ErrorAction SilentlyContinue | Out-Null
+                        } elseif ($image.ImageName -like "*Windows Setup*") {
+                            Write-Host "Exporting $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Fast -Setbootable -ErrorAction SilentlyContinue | Out-Null
+                        } else {
+                            Write-Host "Exporting $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\install.wim" -CompressionType Fast -ErrorAction SilentlyContinue | Out-Null
+                        }
+                    }
+                }
+            }
+        }
 
 
         if ($PSCmdlet.ParameterSetName -eq 'Content') {
@@ -153,6 +223,7 @@ function Get-DownOSDBuilder {
                 }
                 Break
             }
+            $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateOS -eq $UpdateOS}
             #===================================================================================================
             #   UpdateOS
             #===================================================================================================

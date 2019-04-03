@@ -75,7 +75,7 @@ function Import-OSMedia {
         Get-OSDBuilder -CreatePaths -HideDetails
 
         #===================================================================================================
-        Write-Verbose '19.2.12 Checking Drives'
+        #   Import Drives
         #===================================================================================================
         $ImportWims = @()
         $ImportDrives = Get-PSDrive -PSProvider 'FileSystem'
@@ -84,12 +84,21 @@ function Import-OSMedia {
             if (Test-Path "$($ImportDrive.Root)x64\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.Root)x64\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
             if (Test-Path "$($ImportDrive.Root)x86\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.Root)x86\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
         }
+        #===================================================================================================
+        #   Import Media Directory
+        #===================================================================================================
+        $ImportMedia = Get-ChildItem "$OSDBuilderPath\Media" -ErrorAction SilentlyContinue
+        foreach ($ImportDrive in $ImportMedia) {
+            if (Test-Path "$($ImportDrive.FullName)\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.FullName)\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
+        }
+        #===================================================================================================
+        #   Import WIMS
+        #===================================================================================================
         if ($null -eq $ImportWims) {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Warning "Windows Image could not be found on any CD or DVD Drives . . . Exiting!"
             Break
         }
-
         #===================================================================================================
         Write-Verbose '19.1.1 Media: Scan Windows Images'
         #===================================================================================================
