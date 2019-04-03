@@ -108,13 +108,13 @@ function Get-DownOSDBuilder {
             if ($MediaESD -eq 'Download') {
                 if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
                 foreach ($Item in $MediaESDDownloads) {
-                    $DownloadPath = "$OSDBuilderPath\MediaESD"
+                    $DownloadPath = "$OSDBuilderPath\Media"
                     $DownloadFullPath = "$DownloadPath\$($Item.FileName)"
 
                     if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
+                    Write-Host "$DownloadFullPath" -ForegroundColor Cyan
+                    Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
                     if (!(Test-Path $DownloadFullPath)) {
-                        Write-Host "$DownloadFullPath" -ForegroundColor Cyan
-                        Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
                         if ($WebClient.IsPresent) {							
                             $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
                         } else {
@@ -123,7 +123,11 @@ function Get-DownOSDBuilder {
                     }
 
                     $esdbasename = (Get-Item "$DownloadFullPath").Basename
-                    $esddirectory = "D:\OSDBuilder\PROD\Media\$esdbasename"
+                    $esddirectory = "$OSDBuilderPath\Media\$esdbasename"
+
+                    if (Test-Path "$esddirectory") {
+                        Remove-Item "$esddirectory" -Force | Out-Null
+                    }
                     
                     $esdinfo = Get-WindowsImage -ImagePath "$DownloadFullPath"
                     
@@ -132,17 +136,17 @@ function Get-DownOSDBuilder {
                     
                     foreach ($image in $esdinfo) {
                         if ($image.ImageName -eq 'Windows Setup Media') {
-                            Write-Host "Expanding $($image.ImageName) ..." -ForegroundColor Cyan
+                            Write-Host "Expanding Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
                             Expand-WindowsImage -ImagePath "$($image.ImagePath)" -ApplyPath "$esddirectory" -Index "$($image.ImageIndex)" -ErrorAction SilentlyContinue | Out-Null
                         } elseif ($image.ImageName -like "*Windows PE*") {
-                            Write-Host "Exporting $($image.ImageName) ..." -ForegroundColor Cyan
-                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Fast -ErrorAction SilentlyContinue | Out-Null
+                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
                         } elseif ($image.ImageName -like "*Windows Setup*") {
-                            Write-Host "Exporting $($image.ImageName) ..." -ForegroundColor Cyan
-                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Fast -Setbootable -ErrorAction SilentlyContinue | Out-Null
+                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -Setbootable -ErrorAction SilentlyContinue | Out-Null
                         } else {
-                            Write-Host "Exporting $($image.ImageName) ..." -ForegroundColor Cyan
-                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\install.wim" -CompressionType Fast -ErrorAction SilentlyContinue | Out-Null
+                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\install.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
                         }
                     }
                 }
