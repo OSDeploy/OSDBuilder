@@ -221,6 +221,5 @@ function OSD-Info-TaskInformation {
         "LanguagePack" = [string[]]$($LanguagePacks | Sort-Object -Unique);
         "LocalExperiencePacks" = [string[]]$($LocalExperiencePacks | Sort-Object -Unique);
     }
-    $CombinedTask | ConvertTo-Json | Out-File "$OSDBuilderTasks\Merged Last Run.json"
     $CombinedTask | ConvertTo-Json | Out-File "$($CombinedOSMedia.FullName)\OSBuild.json"
 }
