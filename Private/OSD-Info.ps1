@@ -164,7 +164,7 @@ function OSD-Info-TaskInformation {
         "TaskGuid" = [string]$(New-Guid);
         "CustomName" = [string]$CustomName;
         "OSMFamily" = [string]$TaskOSMFamily
-        "OSMGuid" = [string]$TaskOSMGuid;
+        "OSMGuid" = [string]$CombinedOSMedia.OSMGuid;
         "Name" = [string]$OSMediaName;
 
         "ImageName" = [string]$CombinedOSMedia.ImageName;
