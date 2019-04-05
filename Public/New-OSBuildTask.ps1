@@ -96,20 +96,20 @@ function New-OSBuildTask {
         #===================================================================================================
         #   WinPE
         #===================================================================================================
-        [Parameter(ParameterSetName='WinPE')]
+        [Parameter(ParameterSetName='Content')]
         [switch]$ContentWinPEADK,
-        [Parameter(ParameterSetName='WinPE')]
+        [Parameter(ParameterSetName='Content')]
         [switch]$ContentWinPEDart,
-        [Parameter(ParameterSetName='WinPE')]
+        [Parameter(ParameterSetName='Content')]
         [switch]$ContentWinPEDrivers,
-        [Parameter(ParameterSetName='WinPE')]
+        [Parameter(ParameterSetName='Content')]
         [switch]$ContentWinPEExtraFiles,
-        [Parameter(ParameterSetName='WinPE')]
+        [Parameter(ParameterSetName='Content')]
         [switch]$ContentWinPEScripts,
         #===================================================================================================
         #   Language
         #===================================================================================================
-        [Parameter(ParameterSetName='Language')]
+        [Parameter(ParameterSetName='Content')]
         [switch]$ContentLanguagePackages,
 
         #[ValidateSet('ar-SA','bg-BG','zh-CN','zh-TW','hr-HR','cs-CZ','da-DK','nl-NL','en-US','en-GB','et-EE','fi-FI','fr-CA','fr-FR','de-DE','el-GR','he-IL','hu-HU','it-IT','ja-JP','ko-KR','lv-LV','lt-LT','nb-NO','pl-PL','pt-BR','pt-PT','ro-RO','ru-RU','sr-Latn-RS','sk-SK','sl-SI','es-MX','es-ES','sv-SE','th-TH','tr-TR','uk-UA')]
