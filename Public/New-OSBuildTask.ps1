@@ -44,69 +44,103 @@ function New-OSBuildTask {
         [string]$Kind,
         [Parameter(Mandatory)]
         [string]$TaskName,
+        #===================================================================================================
+        #   Basic
+        #===================================================================================================
+        [Parameter(ParameterSetName='Basic')]
         [string]$CustomName,
 
-        [switch]$DisableFeature,
-        [switch]$EnableFeature,
+        [Parameter(ParameterSetName='Basic')]
         [switch]$EnableNetFX3,
-        [switch]$RemoveAppx,
-        [switch]$RemoveCapability,
-        [switch]$RemovePackage,
+
+        [Parameter(ParameterSetName='Basic')]
         [switch]$WinPEAutoExtraFiles,
+
+        [Parameter(ParameterSetName='Basic')]
+        [switch]$RemoveAppx,
+        
+        [Parameter(ParameterSetName='Basic')]
+        [switch]$RemoveCapability,
+
+        [Parameter(ParameterSetName='Basic')]
+        [switch]$RemovePackage,
+
+        [Parameter(ParameterSetName='Basic')]
+        [switch]$DisableFeature,
+
+        [Parameter(ParameterSetName='Basic')]
+        [switch]$EnableFeature,
         #===================================================================================================
-        #   Select
+        #   Content
         #===================================================================================================
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectDrivers,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectExtraFiles,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectFeaturesOnDemand,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectLanguagePackages,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectPackages,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectScripts,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectStartLayoutXML,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectUnattendXML,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectWinPEADK,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectWinPEDart,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectWinPEDrivers,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectWinPEExtraFiles,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SelectWinPEScripts,
+        [Parameter(ParameterSetName='Content')]
+        [switch]$ContentDrivers,
+
+        [Parameter(ParameterSetName='Content')]
+        [switch]$ContentExtraFiles,
+
+        [Parameter(ParameterSetName='Content')]
+        [switch]$ContentFeaturesOnDemand,
+
+        [Parameter(ParameterSetName='Content')]
+        [switch]$ContentPackages,
+        
+        [Parameter(ParameterSetName='Content')]
+        [switch]$ContentScripts,
+        
+        [Parameter(ParameterSetName='Content')]
+        [switch]$ContentStartLayout,
+        
+        [Parameter(ParameterSetName='Content')]
+        [switch]$ContentUnattend,
+        #===================================================================================================
+        #   WinPE
+        #===================================================================================================
+        [Parameter(ParameterSetName='WinPE')]
+        [switch]$ContentWinPEADK,
+        [Parameter(ParameterSetName='WinPE')]
+        [switch]$ContentWinPEDart,
+        [Parameter(ParameterSetName='WinPE')]
+        [switch]$ContentWinPEDrivers,
+        [Parameter(ParameterSetName='WinPE')]
+        [switch]$ContentWinPEExtraFiles,
+        [Parameter(ParameterSetName='WinPE')]
+        [switch]$ContentWinPEScripts,
         #===================================================================================================
         #   Language
         #===================================================================================================
+        [Parameter(ParameterSetName='Language')]
+        [switch]$ContentLanguagePackages,
+
         #[ValidateSet('ar-SA','bg-BG','zh-CN','zh-TW','hr-HR','cs-CZ','da-DK','nl-NL','en-US','en-GB','et-EE','fi-FI','fr-CA','fr-FR','de-DE','el-GR','he-IL','hu-HU','it-IT','ja-JP','ko-KR','lv-LV','lt-LT','nb-NO','pl-PL','pt-BR','pt-PT','ro-RO','ru-RU','sr-Latn-RS','sk-SK','sl-SI','es-MX','es-ES','sv-SE','th-TH','tr-TR','uk-UA')]
         #[ValidateSet('af-ZA','am-ET','as-IN','az-Latn-AZ','be-BY','bn-BD','bn-IN','bs-Latn-BA','ca-ES','ca-ES-valencia','chr-CHER-US','cy-GB','eu-ES','fa-IR','fil-PH','ga-IE','gd-GB','gl-ES','gu-IN','ha-Latn-NG','hi-IN','hy-AM','id-ID','ig-NG','is-IS','ka-GE','kk-KZ','km-KH','kn-IN','kok-IN','ku-ARAB-IQ','ky-KG','lb-LU','lo-LA','mi-NZ','mk-MK','ml-IN','mn-MN','mr-IN','ms-MY','mt-MT','ne-NP','nn-NO','nso-ZA','or-IN','pa-Arab-PK','pa-IN','prs-AF','quc-Latn-GT','quz-PE','rw-RW','sd-Arab-PK','si-LK','sq-AL','sr-Cyrl-BA','sr-Cyrl-RS','sw-KE','ta-IN','te-IN','tg-Cyrl-TJ','ti-ET','tk-TM','tn-ZA','tt-RU','ug-CN','ur-PK','uz-Latn-UZ','vi-VN','wo-SN','xh-ZA','yo-NG','zu-ZA')]
-        [Parameter(ParameterSetName='Advanced')]
+        [Parameter(ParameterSetName='Language')]
         [ValidateSet('ar-SA','bg-BG','zh-CN','zh-TW','hr-HR','cs-CZ','da-DK','nl-NL','en-US','en-GB','et-EE','fi-FI','fr-CA','fr-FR','de-DE','el-GR','he-IL','hu-HU','it-IT','ja-JP','ko-KR','lv-LV','lt-LT','nb-NO','pl-PL','pt-BR','pt-PT','ro-RO','ru-RU','sr-Latn-RS','sk-SK','sl-SI','es-MX','es-ES','sv-SE','th-TH','tr-TR','uk-UA','af-ZA','am-ET','as-IN','az-Latn-AZ','be-BY','bn-BD','bn-IN','bs-Latn-BA','ca-ES','ca-ES-valencia','chr-CHER-US','cy-GB','eu-ES','fa-IR','fil-PH','ga-IE','gd-GB','gl-ES','gu-IN','ha-Latn-NG','hi-IN','hy-AM','id-ID','ig-NG','is-IS','ka-GE','kk-KZ','km-KH','kn-IN','kok-IN','ku-ARAB-IQ','ky-KG','lb-LU','lo-LA','mi-NZ','mk-MK','ml-IN','mn-MN','mr-IN','ms-MY','mt-MT','ne-NP','nn-NO','nso-ZA','or-IN','pa-Arab-PK','pa-IN','prs-AF','quc-Latn-GT','quz-PE','rw-RW','sd-Arab-PK','si-LK','sq-AL','sr-Cyrl-BA','sr-Cyrl-RS','sw-KE','ta-IN','te-IN','tg-Cyrl-TJ','ti-ET','tk-TM','tn-ZA','tt-RU','ug-CN','ur-PK','uz-Latn-UZ','vi-VN','wo-SN','xh-ZA','yo-NG','zu-ZA')]
         [string]$SetAllIntl,
-        [Parameter(ParameterSetName='Advanced')]
+
+        [Parameter(ParameterSetName='Language')]
         [string]$SetInputLocale,
-        [Parameter(ParameterSetName='Advanced')]
+
+        [Parameter(ParameterSetName='Language')]
         [ValidateSet('ar-SA','bg-BG','zh-CN','zh-TW','hr-HR','cs-CZ','da-DK','nl-NL','en-US','en-GB','et-EE','fi-FI','fr-CA','fr-FR','de-DE','el-GR','he-IL','hu-HU','it-IT','ja-JP','ko-KR','lv-LV','lt-LT','nb-NO','pl-PL','pt-BR','pt-PT','ro-RO','ru-RU','sr-Latn-RS','sk-SK','sl-SI','es-MX','es-ES','sv-SE','th-TH','tr-TR','uk-UA','af-ZA','am-ET','as-IN','az-Latn-AZ','be-BY','bn-BD','bn-IN','bs-Latn-BA','ca-ES','ca-ES-valencia','chr-CHER-US','cy-GB','eu-ES','fa-IR','fil-PH','ga-IE','gd-GB','gl-ES','gu-IN','ha-Latn-NG','hi-IN','hy-AM','id-ID','ig-NG','is-IS','ka-GE','kk-KZ','km-KH','kn-IN','kok-IN','ku-ARAB-IQ','ky-KG','lb-LU','lo-LA','mi-NZ','mk-MK','ml-IN','mn-MN','mr-IN','ms-MY','mt-MT','ne-NP','nn-NO','nso-ZA','or-IN','pa-Arab-PK','pa-IN','prs-AF','quc-Latn-GT','quz-PE','rw-RW','sd-Arab-PK','si-LK','sq-AL','sr-Cyrl-BA','sr-Cyrl-RS','sw-KE','ta-IN','te-IN','tg-Cyrl-TJ','ti-ET','tk-TM','tn-ZA','tt-RU','ug-CN','ur-PK','uz-Latn-UZ','vi-VN','wo-SN','xh-ZA','yo-NG','zu-ZA')]
         [string]$SetSKUIntlDefaults,
-        [Parameter(ParameterSetName='Advanced')]
+
+        [Parameter(ParameterSetName='Language')]
         [ValidateSet('ar-SA','bg-BG','zh-CN','zh-TW','hr-HR','cs-CZ','da-DK','nl-NL','en-US','en-GB','et-EE','fi-FI','fr-CA','fr-FR','de-DE','el-GR','he-IL','hu-HU','it-IT','ja-JP','ko-KR','lv-LV','lt-LT','nb-NO','pl-PL','pt-BR','pt-PT','ro-RO','ru-RU','sr-Latn-RS','sk-SK','sl-SI','es-MX','es-ES','sv-SE','th-TH','tr-TR','uk-UA','af-ZA','am-ET','as-IN','az-Latn-AZ','be-BY','bn-BD','bn-IN','bs-Latn-BA','ca-ES','ca-ES-valencia','chr-CHER-US','cy-GB','eu-ES','fa-IR','fil-PH','ga-IE','gd-GB','gl-ES','gu-IN','ha-Latn-NG','hi-IN','hy-AM','id-ID','ig-NG','is-IS','ka-GE','kk-KZ','km-KH','kn-IN','kok-IN','ku-ARAB-IQ','ky-KG','lb-LU','lo-LA','mi-NZ','mk-MK','ml-IN','mn-MN','mr-IN','ms-MY','mt-MT','ne-NP','nn-NO','nso-ZA','or-IN','pa-Arab-PK','pa-IN','prs-AF','quc-Latn-GT','quz-PE','rw-RW','sd-Arab-PK','si-LK','sq-AL','sr-Cyrl-BA','sr-Cyrl-RS','sw-KE','ta-IN','te-IN','tg-Cyrl-TJ','ti-ET','tk-TM','tn-ZA','tt-RU','ug-CN','ur-PK','uz-Latn-UZ','vi-VN','wo-SN','xh-ZA','yo-NG','zu-ZA')]
         [string]$SetSetupUILang,
-        [Parameter(ParameterSetName='Advanced')]
+
+        [Parameter(ParameterSetName='Language')]
         [string]$SetSysLocale,
-        [Parameter(ParameterSetName='Advanced')]
+
+        [Parameter(ParameterSetName='Language')]
         [ValidateSet('ar-SA','bg-BG','zh-CN','zh-TW','hr-HR','cs-CZ','da-DK','nl-NL','en-US','en-GB','et-EE','fi-FI','fr-CA','fr-FR','de-DE','el-GR','he-IL','hu-HU','it-IT','ja-JP','ko-KR','lv-LV','lt-LT','nb-NO','pl-PL','pt-BR','pt-PT','ro-RO','ru-RU','sr-Latn-RS','sk-SK','sl-SI','es-MX','es-ES','sv-SE','th-TH','tr-TR','uk-UA','af-ZA','am-ET','as-IN','az-Latn-AZ','be-BY','bn-BD','bn-IN','bs-Latn-BA','ca-ES','ca-ES-valencia','chr-CHER-US','cy-GB','eu-ES','fa-IR','fil-PH','ga-IE','gd-GB','gl-ES','gu-IN','ha-Latn-NG','hi-IN','hy-AM','id-ID','ig-NG','is-IS','ka-GE','kk-KZ','km-KH','kn-IN','kok-IN','ku-ARAB-IQ','ky-KG','lb-LU','lo-LA','mi-NZ','mk-MK','ml-IN','mn-MN','mr-IN','ms-MY','mt-MT','ne-NP','nn-NO','nso-ZA','or-IN','pa-Arab-PK','pa-IN','prs-AF','quc-Latn-GT','quz-PE','rw-RW','sd-Arab-PK','si-LK','sq-AL','sr-Cyrl-BA','sr-Cyrl-RS','sw-KE','ta-IN','te-IN','tg-Cyrl-TJ','ti-ET','tk-TM','tn-ZA','tt-RU','ug-CN','ur-PK','uz-Latn-UZ','vi-VN','wo-SN','xh-ZA','yo-NG','zu-ZA')]
         [string]$SetUILang,
-        [Parameter(ParameterSetName='Advanced')]
+
+        [Parameter(ParameterSetName='Language')]
         [ValidateSet('ar-SA','bg-BG','zh-CN','zh-TW','hr-HR','cs-CZ','da-DK','nl-NL','en-US','en-GB','et-EE','fi-FI','fr-CA','fr-FR','de-DE','el-GR','he-IL','hu-HU','it-IT','ja-JP','ko-KR','lv-LV','lt-LT','nb-NO','pl-PL','pt-BR','pt-PT','ro-RO','ru-RU','sr-Latn-RS','sk-SK','sl-SI','es-MX','es-ES','sv-SE','th-TH','tr-TR','uk-UA','af-ZA','am-ET','as-IN','az-Latn-AZ','be-BY','bn-BD','bn-IN','bs-Latn-BA','ca-ES','ca-ES-valencia','chr-CHER-US','cy-GB','eu-ES','fa-IR','fil-PH','ga-IE','gd-GB','gl-ES','gu-IN','ha-Latn-NG','hi-IN','hy-AM','id-ID','ig-NG','is-IS','ka-GE','kk-KZ','km-KH','kn-IN','kok-IN','ku-ARAB-IQ','ky-KG','lb-LU','lo-LA','mi-NZ','mk-MK','ml-IN','mn-MN','mr-IN','ms-MY','mt-MT','ne-NP','nn-NO','nso-ZA','or-IN','pa-Arab-PK','pa-IN','prs-AF','quc-Latn-GT','quz-PE','rw-RW','sd-Arab-PK','si-LK','sq-AL','sr-Cyrl-BA','sr-Cyrl-RS','sw-KE','ta-IN','te-IN','tg-Cyrl-TJ','ti-ET','tk-TM','tn-ZA','tt-RU','ug-CN','ur-PK','uz-Latn-UZ','vi-VN','wo-SN','xh-ZA','yo-NG','zu-ZA')]
         [string]$SetUILangFallback,
-        [Parameter(ParameterSetName='Advanced')]
+
+        [Parameter(ParameterSetName='Language')]
         [string]$SetUserLocale
         #===================================================================================================
     )
@@ -136,9 +170,12 @@ function New-OSBuildTask {
         #===================================================================================================
         #   Set Task Name
         #===================================================================================================
+        $Task = @()
+        $ExistingTask = @()
         $TaskName = "$TaskName"
         if ($Kind -eq 'Task') {
             $TaskPath = "$OSDBuilderTasks\OSBuild $TaskName.json"
+            if (Test-Path "$TaskPath") {$ExistingTask = Get-Content "$TaskPath" | ConvertFrom-Json}
         }
         if ($Kind -eq 'Template') {
             $TaskPath = "$OSDBuilderTemplates\OSBuild $TaskName.json"
@@ -168,7 +205,7 @@ function New-OSBuildTask {
         if (Test-Path $TaskPath) {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Warning "Task already exists at $TaskPath"
-            Write-Warning "Content will be overwritten!"
+            Write-Warning "Content will be updated!"
         }
 
         #===================================================================================================
@@ -252,167 +289,534 @@ function New-OSBuildTask {
             if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
         }
         #===================================================================================================
-        #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "Operating System (Parameter Based)" -ForegroundColor Green
         #===================================================================================================
-        #   Install.wim RemoveAppx
-        #===================================================================================================
-        $TaskRemoveAppxProvisionedPackage = @()
-        [array]$TaskRemoveAppxProvisionedPackage = Get-TaskRemoveAppxProvisionedPackage
-        #===================================================================================================
-        #   Install.wim Remove-WindowsPackage
-        #===================================================================================================
-        $TaskRemoveWindowsPackage = @()
-        [array]$TaskRemoveWindowsPackage = Get-TaskRemoveWindowsPackage
-        #===================================================================================================
-        #   Install.wim Remove-WindowsCapability
-        #===================================================================================================
-        $TaskRemoveWindowsCapability = @()
-        [array]$TaskRemoveWindowsCapability = Get-TaskRemoveWindowsCapability
-        #===================================================================================================
-        #   Install.Wim Disable-WindowsOptionalFeature
-        #===================================================================================================
-        $TaskDisableWindowsOptionalFeature = @()
-        [array]$TaskDisableWindowsOptionalFeature = Get-TaskDisableWindowsOptionalFeature
-        #===================================================================================================
-        #   Install.Wim Enable-WindowsOptionalFeature
-        #===================================================================================================
-        $TaskEnableWindowsOptionalFeature = @()
-        [array]$TaskEnableWindowsOptionalFeature = Get-TaskEnableWindowsOptionalFeature
+        #   Basic
         #===================================================================================================
         #===================================================================================================
-        Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "Operating System (Content Based)" -ForegroundColor Green
+        #   CustomName
         #===================================================================================================
-        #   Install.wim Windows Drivers
+        if ($ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
         #===================================================================================================
-        $TaskDrivers =@()
-        [array]$TaskDrivers = Get-TaskDrivers
+        #   EnableNetFX3
         #===================================================================================================
-        #   Install.wim Extra Files
+        if ($ExistingTask.EnableNetFX3 -eq $true) {$EnableNetFX3 = $true}
         #===================================================================================================
-        $TaskExtraFiles =@()
-        [array]$TaskExtraFiles = Get-TaskExtraFiles
+        #   WinPEAutoExtraFiles
         #===================================================================================================
-        #   Install.wim Windows Packages
+        if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
         #===================================================================================================
-        $SelectedWindowsPackages =@()
-        [array]$SelectedWindowsPackages = Get-SelectedWindowsPackages
+        #   RemoveAppx
         #===================================================================================================
-        #   Install.wim PowerShell Scripts
+        Write-Host "RemoveAppx" -ForegroundColor Green
+        if ($ExistingTask.RemoveAppxProvisionedPackage) {
+            foreach ($Item in $ExistingTask.RemoveAppxProvisionedPackage) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $RemoveAppxProvisionedPackage = $null
+        if ($RemoveAppx.IsPresent) {
+            $RemoveAppxProvisionedPackage = (Get-TaskRemoveAppxProvisionedPackage).PackageName
+            $RemoveAppxProvisionedPackage = [array]$RemoveAppxProvisionedPackage + [array]$ExistingTask.RemoveAppxProvisionedPackage
+            $RemoveAppxProvisionedPackage = $RemoveAppxProvisionedPackage | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.RemoveAppxProvisionedPackage) {$RemoveAppxProvisionedPackage = $ExistingTask.RemoveAppxProvisionedPackage}
+            #Write-Host "RemoveAppx: Select Appx Provisioned Packages to remove using Remove-AppxProvisionedPackage" -ForegroundColor Gray
+        }
         #===================================================================================================
-        $TaskScripts =@()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$TaskScripts = Get-TaskScripts}
+        #   RemoveCapability
         #===================================================================================================
-        #   Install.wim Start Layout
+        Write-Host "RemoveCapability" -ForegroundColor Green
+        if ($ExistingTask.RemoveWindowsCapability) {
+            foreach ($Item in $ExistingTask.RemoveWindowsCapability) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $RemoveWindowsCapability = $null
+        if ($RemoveCapability.IsPresent) {
+            $RemoveWindowsCapability = (Get-TaskRemoveWindowsCapability).Name
+            $RemoveWindowsCapability = [array]$RemoveWindowsCapability + [array]$ExistingTask.RemoveWindowsCapability
+            $RemoveWindowsCapability = $RemoveWindowsCapability | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.RemoveWindowsCapability) {$RemoveWindowsCapability = $ExistingTask.RemoveWindowsCapability}
+            #Write-Host "RemoveCapability: Select Windows Capabilities to remove using Remove-WindowsCapability" -ForegroundColor Gray
+        }
         #===================================================================================================
-        $TaskStartLayoutXML =@()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$TaskStartLayoutXML = Get-TaskStartLayoutXML}
+        #   RemovePackage
         #===================================================================================================
-        #   Install.wim Unattend.xml
+        Write-Host "RemovePackage" -ForegroundColor Green
+        if ($ExistingTask.RemoveWindowsPackage) {
+            foreach ($Item in $ExistingTask.RemoveWindowsPackage) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $RemoveWindowsPackage = $null
+        if ($RemovePackage.IsPresent) {
+            $RemoveWindowsPackage = (Get-TaskRemoveWindowsPackage).PackageName
+            $RemoveWindowsPackage = [array]$RemoveWindowsPackage + [array]$ExistingTask.RemoveWindowsPackage
+            $RemoveWindowsPackage = $RemoveWindowsPackage | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.RemoveWindowsPackage) {$RemoveWindowsPackage = $ExistingTask.RemoveWindowsPackage}
+            #Write-Host "RemovePackage: Select Windows Packages to remove using Remove-WindowsPackage" -ForegroundColor Gray
+        }
         #===================================================================================================
-        $TaskUnattendXML =@()
-        if ($OSMedia.MajorVersion -eq 10) {$TaskUnattendXML = Get-TaskUnattendXML}
+        #   DisableFeature
+        #===================================================================================================
+        Write-Host "DisableFeature" -ForegroundColor Green
+        if ($ExistingTask.DisableWindowsOptionalFeature) {
+            foreach ($Item in $ExistingTask.DisableWindowsOptionalFeature) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $DisableWindowsOptionalFeature = $null
+        if ($DisableFeature.IsPresent) {
+            $DisableWindowsOptionalFeature = (Get-TaskDisableWindowsOptionalFeature).FeatureName
+            $DisableWindowsOptionalFeature = [array]$DisableWindowsOptionalFeature + [array]$ExistingTask.DisableWindowsOptionalFeature
+            $DisableWindowsOptionalFeature = $DisableWindowsOptionalFeature | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.DisableWindowsOptionalFeature) {$DisableWindowsOptionalFeature = $ExistingTask.DisableWindowsOptionalFeature}
+            #Write-Host "DisableFeature: Select Windows Optional Features to disable using Disable-WindowsOptionalFeature" -ForegroundColor Gray
+        }
+        #===================================================================================================
+        #   EnableFeature
+        #===================================================================================================
+        Write-Host "EnableFeature" -ForegroundColor Green
+        if ($ExistingTask.EnableWindowsOptionalFeature) {
+            foreach ($Item in $ExistingTask.EnableWindowsOptionalFeature) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $EnableWindowsOptionalFeature = $null
+        if ($EnableFeature.IsPresent) {
+            [array]$EnableWindowsOptionalFeature = (Get-TaskEnableWindowsOptionalFeature).FeatureName
+            
+            $EnableWindowsOptionalFeature = [array]$EnableWindowsOptionalFeature + [array]$ExistingTask.EnableWindowsOptionalFeature
+            $EnableWindowsOptionalFeature = $EnableWindowsOptionalFeature | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.EnableWindowsOptionalFeature) {$EnableWindowsOptionalFeature = $ExistingTask.EnableWindowsOptionalFeature}
+            #Write-Host "EnableFeature: Select Windows Optional Features to enable using Enable-WindowsOptionalFeature" -ForegroundColor Gray
+        }
+        #===================================================================================================
+        #   Content
+        #===================================================================================================
+        #===================================================================================================
+        #   Content Drivers
+        #===================================================================================================
+        Write-Host "Drivers" -ForegroundColor Green
+        if ($ExistingTask.Drivers) {
+            foreach ($Item in $ExistingTask.Drivers) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $Drivers = $null
+        if ($ContentDrivers.IsPresent) {
+            [array]$Drivers = (Get-TaskContentDrivers).FullName
+            
+            $Drivers = [array]$Drivers + [array]$ExistingTask.Drivers
+            $Drivers = $Drivers | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.Drivers) {$Drivers = $ExistingTask.Drivers}
+        }
+        #===================================================================================================
+        #   Content ExtraFiles
+        #===================================================================================================
+        Write-Host "ExtraFiles" -ForegroundColor Green
+        if ($ExistingTask.ExtraFiles) {
+            foreach ($Item in $ExistingTask.ExtraFiles) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $ExtraFiles = $null
+        if ($ContentExtraFiles.IsPresent) {
+            [array]$ExtraFiles = (Get-TaskContentExtraFiles).FullName
+            
+            $ExtraFiles = [array]$ExtraFiles + [array]$ExistingTask.ExtraFiles
+            $ExtraFiles = $ExtraFiles | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.ExtraFiles) {$ExtraFiles = $ExistingTask.ExtraFiles}
+        }
+        #===================================================================================================
+        #   Content Scripts
+        #===================================================================================================
+        Write-Host "Scripts" -ForegroundColor Green
+        if ($ExistingTask.Scripts) {
+            foreach ($Item in $ExistingTask.Scripts) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $Scripts = $null
+        if ($ContentScripts.IsPresent) {
+            [array]$Scripts = (Get-TaskContentScripts).FullName
+            
+            $Scripts = [array]$Scripts + [array]$ExistingTask.Scripts
+            $Scripts = $Scripts | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.Scripts) {$Scripts = $ExistingTask.Scripts}
+        }
+        #===================================================================================================
+        #   Content StartLayout
+        #===================================================================================================
+        Write-Host "StartLayout" -ForegroundColor Green
+        if ($ExistingTask.StartLayoutXML) {
+            foreach ($Item in $ExistingTask.StartLayoutXML) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $StartLayoutXML = $null
+        if ($ContentStartLayout.IsPresent) {
+            if ($OSMedia.MajorVersion -eq 10) {$StartLayoutXML = (Get-TaskContentStartLayoutXML).FullName}
+        } else {
+            if ($ExistingTask.StartLayoutXML) {$StartLayoutXML = $ExistingTask.StartLayoutXML}
+        }
+        if (!($StartLayoutXML)) {if ($ExistingTask.StartLayoutXML) {$StartLayoutXML = $ExistingTask.StartLayoutXML}}
+        #===================================================================================================
+        #   Content Unattend
+        #===================================================================================================
+        Write-Host "Unattend" -ForegroundColor Green
+        if ($ExistingTask.UnattendXML) {
+            foreach ($Item in $ExistingTask.UnattendXML) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $UnattendXML = $null
+        if ($ContentUnattend.IsPresent) {
+            if ($OSMedia.MajorVersion -eq 10) {[string]$UnattendXML = (Get-TaskContentUnattendXML).FullName}
+        } else {
+            if ($ExistingTask.UnattendXML) {$UnattendXML = $ExistingTask.UnattendXML}
+        }
+        if (!($UnattendXML)) {if ($ExistingTask.UnattendXML) {$UnattendXML = $ExistingTask.UnattendXML}}
+        #===================================================================================================
+        #   Content Packages
+        #===================================================================================================
+        Write-Host "Packages" -ForegroundColor Green
+        if ($ExistingTask.AddWindowsPackage) {
+            foreach ($Item in $ExistingTask.AddWindowsPackage) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $AddWindowsPackage = $null
+        if ($ContentPackages.IsPresent) {
+            [array]$AddWindowsPackage = (Get-TaskContentAddWindowsPackage).FullName
+            
+            $AddWindowsPackage = [array]$AddWindowsPackage + [array]$ExistingTask.AddWindowsPackage
+            $AddWindowsPackage = $AddWindowsPackage | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.AddWindowsPackage) {$AddWindowsPackage = $ExistingTask.AddWindowsPackage}
+        }
+        #===================================================================================================
+        #   IsoExtract
+        #===================================================================================================
+        if ($OSMedia.MajorVersion -eq 10) {
+            if ($ContentFeaturesOnDemand.IsPresent -or $ContentLanguagePackages.IsPresent) {
+                #===================================================================================================
+                #   ContentIsoExtract
+                #===================================================================================================
+                Write-Warning "Generating IsoExtract Content ... This may take a while"
+                $ContentIsoExtract = @()
+                [array]$ContentIsoExtract = Get-TaskContentIsoExtract
+                #===================================================================================================
+                #   AddFeatureOnDemand
+                #===================================================================================================
+                Write-Host "FeatureOnDemand" -ForegroundColor Green
+                if ($ExistingTask.AddFeatureOnDemand) {
+                    foreach ($Item in $ExistingTask.AddFeatureOnDemand) {
+                        Write-Host "$Item" -ForegroundColor DarkGray
+                    }
+                }
+                $AddFeatureOnDemand = $null
+                if ($ContentFeaturesOnDemand.IsPresent) {
+                    [array]$AddFeatureOnDemand = (Get-TaskContentAddFeatureOnDemand).FullName
+                    
+                    $AddFeatureOnDemand = [array]$AddFeatureOnDemand + [array]$ExistingTask.AddFeatureOnDemand
+                    $AddFeatureOnDemand = $AddFeatureOnDemand | Sort-Object -Unique
+                } else {
+                    if ($ExistingTask.AddFeatureOnDemand) {$AddFeatureOnDemand = $ExistingTask.AddFeatureOnDemand}
+                }
+                #===================================================================================================
+                #   LanguagePack
+                #===================================================================================================
+                Write-Host "LanguagePack" -ForegroundColor Green
+                if ($ExistingTask.LanguagePack) {
+                    foreach ($Item in $ExistingTask.LanguagePack) {
+                        Write-Host "$Item" -ForegroundColor DarkGray
+                    }
+                }
+                $LanguagePack = $null
+                if ($ContentLanguagePackages.IsPresent) {
+                    [array]$LanguagePack = (Get-TaskContentLanguagePack).FullName
+                    
+                    $LanguagePack = [array]$LanguagePack + [array]$ExistingTask.LanguagePack
+                    $LanguagePack = $LanguagePack | Sort-Object -Unique
+                } else {
+                    if ($ExistingTask.LanguagePack) {$LanguagePack = $ExistingTask.LanguagePack}
+                }
+                #===================================================================================================
+                #   LanguageFeature
+                #===================================================================================================
+                Write-Host "LanguageFeature" -ForegroundColor Green
+                if ($ExistingTask.LanguageFeature) {
+                    foreach ($Item in $ExistingTask.LanguageFeature) {
+                        Write-Host "$Item" -ForegroundColor DarkGray
+                    }
+                }
+                $LanguageFeature = $null
+                if ($ContentLanguagePackages.IsPresent) {
+                    [array]$LanguageFeature = (Get-TaskContentLanguageFeature).FullName
+                    
+                    $LanguageFeature = [array]$LanguageFeature + [array]$ExistingTask.LanguageFeature
+                    $LanguageFeature = $LanguageFeature | Sort-Object -Unique
+                } else {
+                    if ($ExistingTask.LanguageFeature) {$LanguageFeature = $ExistingTask.LanguageFeature}
+                }
+                #===================================================================================================
+                #   LanguageInterfacePack
+                #===================================================================================================
+                Write-Host "LanguageInterfacePack" -ForegroundColor Green
+                if ($ExistingTask.LanguageInterfacePack) {
+                    foreach ($Item in $ExistingTask.LanguageInterfacePack) {
+                        Write-Host "$Item" -ForegroundColor DarkGray
+                    }
+                }
+                $LanguageInterfacePack = $null
+                if ($ContentLanguagePackages.IsPresent) {
+                    [array]$LanguageInterfacePack = (Get-TaskContentLanguageInterfacePack).FullName
+                    
+                    $LanguageInterfacePack = [array]$LanguageInterfacePack + [array]$ExistingTask.LanguageInterfacePack
+                    $LanguageInterfacePack = $LanguageInterfacePack | Sort-Object -Unique
+                } else {
+                    if ($ExistingTask.LanguageInterfacePack) {$LanguageInterfacePack = $ExistingTask.LanguageInterfacePack}
+                }
+                #===================================================================================================
+                #   LocalExperiencePacks
+                #===================================================================================================
+                Write-Host "LocalExperiencePacks" -ForegroundColor Green
+                if ($ExistingTask.LocalExperiencePacks) {
+                    foreach ($Item in $ExistingTask.LocalExperiencePacks) {
+                        Write-Host "$Item" -ForegroundColor DarkGray
+                    }
+                }
+                $LocalExperiencePacks = $null
+                if ($ContentLanguagePackages.IsPresent) {
+                    [array]$LocalExperiencePacks = (Get-TaskContentLocalExperiencePacks).FullName
+                    
+                    $LocalExperiencePacks = [array]$LocalExperiencePacks + [array]$ExistingTask.LocalExperiencePacks
+                    $LocalExperiencePacks = $LocalExperiencePacks | Sort-Object -Unique
+                } else {
+                    if ($ExistingTask.LocalExperiencePacks) {$LocalExperiencePacks = $ExistingTask.LocalExperiencePacks}
+                }
+                #===================================================================================================
+            }
+        }
         #===================================================================================================
         #   WinPE Configuration
         #===================================================================================================
-        Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "WinPE (Content Based)" -ForegroundColor Green
+        #   Content WinPEDaRT
         #===================================================================================================
-        #   WinPE ADK
+        Write-Host "WinPEDaRT" -ForegroundColor Green
+        if ($ExistingTask.WinPEDaRT) {
+            foreach ($Item in $ExistingTask.WinPEDaRT) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEDaRT = $null
+        if ($ContentWinPEDaRT.IsPresent) {
+            if ($OSMedia.MajorVersion -eq 10) {
+                [string]$WinPEDaRT = (Get-TaskWinPEDaRT).FullName
+            }
+        }
+        if ($null -eq $WinPEDaRT) {if ($ExistingTask.WinPEDaRT) {$WinPEDaRT = $ExistingTask.WinPEDaRT}}
         #===================================================================================================
-        $TaskWinPEADK =@()
-        $TaskWinPEADK = Get-TaskWinPEADK
+        #   WinPEADKPE
         #===================================================================================================
-        #   WinRE ADK
+        Write-Host "WinPEADKPE" -ForegroundColor Green
+        if ($ExistingTask.WinPEADKPE) {
+            foreach ($Item in $ExistingTask.WinPEADKPE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEADKPE = $null
+        if ($ContentWinPEADK.IsPresent) {
+            [array]$WinPEADKPE = (Get-TaskWinPEADKPE).FullName
+            
+            $WinPEADKPE = [array]$WinPEADKPE + [array]$ExistingTask.WinPEADKPE
+            $WinPEADKPE = $WinPEADKPE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEADKPE) {$WinPEADKPE = $ExistingTask.WinPEADKPE}
+        }
         #===================================================================================================
-        $TaskWinREADK =@()
-        $TaskWinREADK = Get-TaskWinREADK
+        #   WinPEADKRE
         #===================================================================================================
-        #   WinSE ADK
+        Write-Host "WinPEADKRE" -ForegroundColor Green
+        if ($ExistingTask.WinPEADKRE) {
+            foreach ($Item in $ExistingTask.WinPEADKRE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEADKRE = $null
+        if ($ContentWinPEADK.IsPresent) {
+            [array]$WinPEADKRE = (Get-TaskWinPEADKRE).FullName
+            
+            $WinPEADKRE = [array]$WinPEADKRE + [array]$ExistingTask.WinPEADKRE
+            $WinPEADKRE = $WinPEADKRE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEADKRE) {$WinPEADKRE = $ExistingTask.WinPEADKRE}
+        }
         #===================================================================================================
-        $TaskWinSEADK =@()
-        $TaskWinSEADK = Get-TaskWinSEADK
+        #   WinPEADKSE
         #===================================================================================================
-        #   WinPE DaRT
+        Write-Host "WinPEADKSE" -ForegroundColor Green
+        if ($ExistingTask.WinPEADKSE) {
+            foreach ($Item in $ExistingTask.WinPEADKSE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEADKSE = $null
+        if ($ContentWinPEADK.IsPresent) {
+            [array]$WinPEADKSE = (Get-TaskWinPEADKSE).FullName
+            
+            $WinPEADKSE = [array]$WinPEADKSE + [array]$ExistingTask.WinPEADKSE
+            $WinPEADKSE = $WinPEADKSE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEADKSE) {$WinPEADKSE = $ExistingTask.WinPEADKSE}
+        }
         #===================================================================================================
-        $SelectedWinPEDaRT =@()
-        $SelectedWinPEDaRT = Get-SelectedWinPEDaRT
+        #   WinPEDrivers
         #===================================================================================================
-        #   WinPE Drivers
+        Write-Host "WinPEDrivers" -ForegroundColor Green
+        if ($ExistingTask.WinPEDrivers) {
+            foreach ($Item in $ExistingTask.WinPEDrivers) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEDrivers = $null
+        if ($ContentWinPEDrivers.IsPresent) {
+            [array]$WinPEDrivers = (Get-TaskWinPEDrivers).FullName
+            
+            $WinPEDrivers = [array]$WinPEDrivers + [array]$ExistingTask.WinPEDrivers
+            $WinPEDrivers = $WinPEDrivers | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEDrivers) {$WinPEDrivers = $ExistingTask.WinPEDrivers}
+        }
         #===================================================================================================
-        $TaskWinPEDrivers =@()
-        [array]$TaskWinPEDrivers = Get-TaskWinPEDrivers
+        #   WinPEExtraFilesPE
         #===================================================================================================
-        #   WinPE Extra Files
+        Write-Host "WinPEExtraFilesPE" -ForegroundColor Green
+        if ($ExistingTask.WinPEExtraFilesPE) {
+            foreach ($Item in $ExistingTask.WinPEExtraFilesPE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEExtraFilesPE = $null
+        if ($ContentWinPEExtraFiles.IsPresent) {
+            [array]$WinPEExtraFilesPE = (Get-TaskWinPEExtraFilesPE).FullName
+            
+            $WinPEExtraFilesPE = [array]$WinPEExtraFilesPE + [array]$ExistingTask.WinPEExtraFilesPE
+            $WinPEExtraFilesPE = $WinPEExtraFilesPE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEExtraFilesPE) {$WinPEExtraFilesPE = $ExistingTask.WinPEExtraFilesPE}
+        }
         #===================================================================================================
-        $TaskWinPEExtraFiles =@()
-        [array]$TaskWinPEExtraFiles = Get-TaskWinPEExtraFiles
+        #   WinPEExtraFilesRE
         #===================================================================================================
-        #   WinRE Extra Files
+        Write-Host "WinPEExtraFilesRE" -ForegroundColor Green
+        if ($ExistingTask.WinPEExtraFilesRE) {
+            foreach ($Item in $ExistingTask.WinPEExtraFilesRE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEExtraFilesRE = $null
+        if ($ContentWinPEExtraFiles.IsPresent) {
+            [array]$WinPEExtraFilesRE = (Get-TaskWinPEExtraFilesRE).FullName
+            
+            $WinPEExtraFilesRE = [array]$WinPEExtraFilesRE + [array]$ExistingTask.WinPEExtraFilesRE
+            $WinPEExtraFilesRE = $WinPEExtraFilesRE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEExtraFilesRE) {$WinPEExtraFilesRE = $ExistingTask.WinPEExtraFilesRE}
+        }
         #===================================================================================================
-        $TaskWinREExtraFiles =@()
-        [array]$TaskWinREExtraFiles = Get-TaskWinREExtraFiles
+        #   WinPEExtraFilesSE
         #===================================================================================================
-        #   WinSE Extra Files
+        Write-Host "WinPEExtraFilesSE" -ForegroundColor Green
+        if ($ExistingTask.WinPEExtraFilesSE) {
+            foreach ($Item in $ExistingTask.WinPEExtraFilesSE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEExtraFilesSE = $null
+        if ($ContentWinPEExtraFiles.IsPresent) {
+            [array]$WinPEExtraFilesSE = (Get-TaskWinPEExtraFilesSE).FullName
+            
+            $WinPEExtraFilesSE = [array]$WinPEExtraFilesSE + [array]$ExistingTask.WinPEExtraFilesSE
+            $WinPEExtraFilesSE = $WinPEExtraFilesSE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEExtraFilesSE) {$WinPEExtraFilesSE = $ExistingTask.WinPEExtraFilesSE}
+        }
         #===================================================================================================
-        $TaskWinSEExtraFiles =@()
-        [array]$TaskWinSEExtraFiles = Get-TaskWinSEExtraFiles
+        #   WinPEScriptsPE
         #===================================================================================================
-        #   WinPE Scripts
+        Write-Host "WinPEScriptsPE" -ForegroundColor Green
+        if ($ExistingTask.WinPEScriptsPE) {
+            foreach ($Item in $ExistingTask.WinPEScriptsPE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEScriptsPE = $null
+        if ($ContentWinPEScripts.IsPresent) {
+            [array]$WinPEScriptsPE = (Get-TaskWinPEScriptsPE).FullName
+            
+            $WinPEScriptsPE = [array]$WinPEScriptsPE + [array]$ExistingTask.WinPEScriptsPE
+            $WinPEScriptsPE = $WinPEScriptsPE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEScriptsPE) {$WinPEScriptsPE = $ExistingTask.WinPEScriptsPE}
+        }
         #===================================================================================================
-        $TaskWinPEScripts =@()
-        [array]$TaskWinPEScripts = Get-TaskWinPEScripts
+        #   WinPEScriptsRE
         #===================================================================================================
-        #   WinRE Scripts
+        Write-Host "WinPEScriptsRE" -ForegroundColor Green
+        if ($ExistingTask.WinPEScriptsRE) {
+            foreach ($Item in $ExistingTask.WinPEScriptsRE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEScriptsRE = $null
+        if ($ContentWinPEScripts.IsPresent) {
+            [array]$WinPEScriptsRE = (Get-TaskWinPEScriptsRE).FullName
+            
+            $WinPEScriptsRE = [array]$WinPEScriptsRE + [array]$ExistingTask.WinPEScriptsRE
+            $WinPEScriptsRE = $WinPEScriptsRE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEScriptsRE) {$WinPEScriptsRE = $ExistingTask.WinPEScriptsRE}
+        }
         #===================================================================================================
-        $TaskWinREScripts =@()
-        [array]$TaskWinREScripts = Get-TaskWinREScripts
+        #   WinPEScriptsSE
         #===================================================================================================
-        #   WinSE Scripts
+        Write-Host "WinPEScriptsSE" -ForegroundColor Green
+        if ($ExistingTask.WinPEScriptsSE) {
+            foreach ($Item in $ExistingTask.WinPEScriptsSE) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEScriptsSE = $null
+        if ($ContentWinPEScripts.IsPresent) {
+            [array]$WinPEScriptsSE = (Get-TaskWinPEScriptsSE).FullName
+            
+            $WinPEScriptsSE = [array]$WinPEScriptsSE + [array]$ExistingTask.WinPEScriptsSE
+            $WinPEScriptsSE = $WinPEScriptsSE | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEScriptsSE) {$WinPEScriptsSE = $ExistingTask.WinPEScriptsSE}
+        }
         #===================================================================================================
-        $TaskWinSEScripts =@()
-        [array]$TaskWinSEScripts = Get-TaskWinSEScripts
-        #===================================================================================================
-        #   Operating System Add-Ons
-        #===================================================================================================
-        Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "IsoExtract and Languages (Content Based)" -ForegroundColor Green
-        #===================================================================================================
-        #   Install.wim IsoExtract Content
-        #===================================================================================================
-        $ContentIsoExtract = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$ContentIsoExtract = Get-ContentIsoExtract}
-        #===================================================================================================
-        #   Install.wim Features On Demand
-        #===================================================================================================
-        $SelectedFeaturesOnDemand  = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedFeaturesOnDemand = Get-SelectedFeaturesOnDemand}
-        #===================================================================================================
-        #   Install.wim Language Packs
-        #===================================================================================================
-        $SelectedLanguagePacks  = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguagePacks = Get-SelectedLanguagePacks}
-        #===================================================================================================
-        #   Install.wim Language Interface Packs
-        #===================================================================================================
-        $SelectedLanguageInterfacePacks  = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguageInterfacePacks = Get-SelectedLanguageInterfacePacks}
-        #===================================================================================================
-        #   Install.wim Language Features On Demand
-        #===================================================================================================
-        $SelectedLanguageFeaturesOnDemand  = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLanguageFeaturesOnDemand = Get-SelectedLanguageFeaturesOnDemand}
-        #===================================================================================================
-        #   Install.wim Local Experience Packs
-        #===================================================================================================
-        $SelectedLocalExperiencePacks = @()
-        if ($OSMedia.MajorVersion -eq 10) {[array]$SelectedLocalExperiencePacks = Get-SelectedLocalExperiencePacks}
-        #===================================================================================================
-        #   Install.wim NetFX
+        #   Corrections
         #===================================================================================================
         if ($OSMedia.MajorVersion -eq 6) {$EnableNetFX3 = $false}
+        if ($null -eq $LangSetAllIntl) {if ($ExistingTask.LangSetAllIntl) {$LangSetAllIntl = $ExistingTask.LangSetAllIntl}}
+        if ($null -eq $SetInputLocale) {if ($ExistingTask.SetInputLocale) {$SetInputLocale = $ExistingTask.SetInputLocale}}
+        if ($null -eq $SetSKUIntlDefaults) {if ($ExistingTask.SetSKUIntlDefaults) {$SetSKUIntlDefaults = $ExistingTask.SetSKUIntlDefaults}}
+        if ($null -eq $SetSetupUILang) {if ($ExistingTask.SetSetupUILang) {$SetSetupUILang = $ExistingTask.SetSetupUILang}}
+        if ($null -eq $SetSysLocale) {if ($ExistingTask.SetSysLocale) {$SetSysLocale = $ExistingTask.SetSysLocale}}
+        if ($null -eq $SetUILang) {if ($ExistingTask.SetUILang) {$SetUILang = $ExistingTask.SetUILang}}
+        if ($null -eq $SetUILangFallback) {if ($ExistingTask.SetUILangFallback) {$SetUILang = $ExistingTask.SetUILangFallback}}
+        if ($null -eq $SetUserLocale) {if ($ExistingTask.SetUserLocale) {$SetUserLocale = $ExistingTask.SetUserLocale}}
         #===================================================================================================
         Write-Verbose '19.2.12 Build Task'
         #===================================================================================================
@@ -438,36 +842,49 @@ function New-OSBuildTask {
             "Build" = [string]$OSMedia.Build;
             "CreatedTime" = [datetime]$OSMedia.CreatedTime;
             "ModifiedTime" = [datetime]$OSMedia.ModifiedTime;
-
+            #===================================================================================================
+            #   Parameters
+            #===================================================================================================
             "EnableNetFX3" = [string]$EnableNetFX3;
-            "StartLayoutXML" = [string]$TaskStartLayoutXML.FullName;
-            "UnattendXML" = [string]$TaskUnattendXML.FullName;
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
-            "WinPEDaRT" = [string]$SelectedWinPEDaRT.FullName;
-
-            "ExtraFiles" = [string[]]$TaskExtraFiles.FullName;
-            "Scripts" = [string[]]$TaskScripts.FullName;
-            "Drivers" = [string[]]$TaskDrivers.FullName;
-
-            "AddWindowsPackage" = [string[]]$SelectedWindowsPackages.FullName;
-            "RemoveWindowsPackage" = [string[]]$TaskRemoveWindowsPackage.PackageName;
-            "AddFeatureOnDemand" = [string[]]$SelectedFeaturesOnDemand.FullName;
-            "EnableWindowsOptionalFeature" = [string[]]$TaskEnableWindowsOptionalFeature.FeatureName;
-            "DisableWindowsOptionalFeature" = [string[]]$TaskDisableWindowsOptionalFeature.FeatureName;
-            "RemoveAppxProvisionedPackage" = [string[]]$TaskRemoveAppxProvisionedPackage.PackageName;
-            "RemoveWindowsCapability" = [string[]]$TaskRemoveWindowsCapability.Name;
-
-            "WinPEDrivers" = [string[]]$TaskWinPEDrivers.FullName;
-            "WinPEExtraFilesPE" = [string[]]$TaskWinPEExtraFiles.FullName;
-            "WinPEExtraFilesRE" = [string[]]$TaskWinREExtraFiles.FullName;
-            "WinPEExtraFilesSE" = [string[]]$TaskWinSEExtraFiles.FullName;
-            "WinPEScriptsPE" = [string[]]$TaskWinPEScripts.FullName;
-            "WinPEScriptsRE" = [string[]]$TaskWinREScripts.FullName;
-            "WinPEScriptsSE" = [string[]]$TaskWinSEScripts.FullName;
-            "WinPEADKPE" = [string[]]$TaskWinPEADK.FullName;
-            "WinPEADKRE" = [string[]]$TaskWinREADK.FullName;
-            "WinPEADKSE" = [string[]]$TaskWinSEADK.FullName;
-
+            #===================================================================================================
+            #   Internal
+            #===================================================================================================
+            "RemoveAppxProvisionedPackage" = [string[]]$RemoveAppxProvisionedPackage;
+            "RemoveWindowsCapability" = [string[]]$RemoveWindowsCapability;
+            "RemoveWindowsPackage" = [string[]]$RemoveWindowsPackage;
+            "DisableWindowsOptionalFeature" = [string[]]$DisableWindowsOptionalFeature;
+            "EnableWindowsOptionalFeature" = [string[]]$EnableWindowsOptionalFeature;
+            #===================================================================================================
+            #   Content
+            #===================================================================================================
+            "Drivers" = [string[]]$Drivers;
+            "ExtraFiles" = [string[]]$ExtraFiles;
+            "Scripts" = [string[]]$Scripts;
+            "StartLayoutXML" = [string]$StartLayoutXML;
+            "UnattendXML" = [string]$UnattendXML;
+            #===================================================================================================
+            #   Content Packages
+            #===================================================================================================
+            "AddWindowsPackage" = [string[]]$AddWindowsPackage;
+            "AddFeatureOnDemand" = [string[]]$AddFeatureOnDemand;
+            #===================================================================================================
+            #   Content WinPE
+            #===================================================================================================
+            "WinPEADKPE" = [string[]]$WinPEADKPE;
+            "WinPEADKRE" = [string[]]$WinPEADKRE;
+            "WinPEADKSE" = [string[]]$WinPEADKSE;
+            "WinPEDaRT" = [string]$WinPEDaRT;
+            "WinPEDrivers" = [string[]]$WinPEDrivers;
+            "WinPEExtraFilesPE" = [string[]]$WinPEExtraFilesPE;
+            "WinPEExtraFilesRE" = [string[]]$WinPEExtraFilesRE;
+            "WinPEExtraFilesSE" = [string[]]$WinPEExtraFilesSE;
+            "WinPEScriptsPE" = [string[]]$WinPEScriptsPE;
+            "WinPEScriptsRE" = [string[]]$WinPEScriptsRE;
+            "WinPEScriptsSE" = [string[]]$WinPEScriptsSE;
+            #===================================================================================================
+            #   Language
+            #===================================================================================================
             "LangSetAllIntl" = [string]$SetAllIntl;
             "LangSetInputLocale" = [string]$SetInputLocale;
             "LangSetSKUIntlDefaults" = [string]$SetSKUIntlDefaults;
@@ -476,10 +893,13 @@ function New-OSBuildTask {
             "LangSetUILang" = [string]$SetUILang;
             "LangSetUILangFallback" = [string]$SetUILangFallback;
             "LangSetUserLocale" = [string]$SetUserLocale;
-            "LanguageFeature" = [string[]]$SelectedLanguageFeaturesOnDemand.FullName;
-            "LanguageInterfacePack" = [string[]]$SelectedLanguageInterfacePacks.FullName;
-            "LanguagePack" = [string[]]$SelectedLanguagePacks.FullName;
-            "LocalExperiencePacks" = [string[]]$SelectedLocalExperiencePacks.FullName;
+            #===================================================================================================
+            #   Language Packages
+            #===================================================================================================
+            "LanguagePack" = [string[]]$LanguagePack;
+            "LanguageInterfacePack" = [string[]]$LanguageInterfacePack;
+            "LocalExperiencePacks" = [string[]]$LocalExperiencePacks;
+            "LanguageFeature" = [string[]]$LanguageFeature;
         }
 
         #===================================================================================================

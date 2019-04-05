@@ -155,7 +155,7 @@ function OSD-Info-TaskInformation {
     Write-Host "-Local Experience Packs:"
     if ($LocalExperiencePacks) {foreach ($item in $LocalExperiencePacks){Write-Host $item -ForegroundColor DarkGray}}
 
-    $CombinedOSMedia = Get-OSMedia | Where-Object {$_.Name -eq "$OSMediaName"}
+    $CombinedOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
 
     $CombinedTask = [ordered]@{
         "TaskType" = [string]"OSBuild";

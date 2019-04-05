@@ -102,15 +102,18 @@ function Get-OSDBuilder {
         $OSDBuilderTasks
         $OSDBuilderTemplates
         $OSDBuilderContent
+        "$OSDBuilderContent\ADK"
+        "$OSDBuilderContent\ADK\Windows 10 1809\Windows Preinstallation Environment"
+        "$OSDBuilderContent\DaRT"
         "$OSDBuilderContent\Drivers"
         "$OSDBuilderContent\ExtraFiles"
-        #"$OSDBuilderContent\ExtraFiles\Win10 x64 1809"
         "$OSDBuilderContent\IsoExtract"
+        "$OSDBuilderContent\IsoExtract\Windows 10 1809 FOD x64"
+        "$OSDBuilderContent\IsoExtract\Windows 10 1809 Language"
+        "$OSDBuilderContent\IsoExtract\Windows Server 2019 1809 FOD x64"
+        "$OSDBuilderContent\IsoExtract\Windows Server 2019 1809 Language"
         "$OSDBuilderContent\LanguagePacks"
         "$OSDBuilderContent\Mount"
-        "$OSDBuilderContent\MS ADK"
-        "$OSDBuilderContent\MS ADK\Windows 10 1809\Windows Preinstallation Environment"
-        "$OSDBuilderContent\MS DaRT"
         "$OSDBuilderContent\OneDrive"
         "$OSDBuilderContent\OSDUpdate"
         "$OSDBuilderContent\Packages"
@@ -171,7 +174,7 @@ function Get-OSDBuilder {
             else                                        {Write-Host "Templates:         $OSDBuilderTemplates (does not exist)" -ForegroundColor Gray}
         if (Test-Path "$OSDBuilderContent")             {Write-Host "Content:           $OSDBuilderContent" -ForegroundColor Gray}
             else                                        {Write-Host "Content:           $OSDBuilderContent (does not exist)" -ForegroundColor Gray}
-        if (Test-Path "$OSDBuilderContent\Drivers")     {Write-Host "-Drivers:          $OSDBuilderContent\Drivers" -ForegroundColor DarkGray}
+<#         if (Test-Path "$OSDBuilderContent\Drivers")     {Write-Host "-Drivers:          $OSDBuilderContent\Drivers" -ForegroundColor DarkGray}
             else                                        {Write-Host "-Drivers:          $OSDBuilderContent\Drivers (does not exist)" -ForegroundColor DarkGray}
         if (Test-Path "$OSDBuilderContent\ExtraFiles")  {Write-Host "-Extra Files:      $OSDBuilderContent\ExtraFiles" -ForegroundColor DarkGray}
             else                                        {Write-Host "-Extra Files:      $OSDBuilderContent\ExtraFiles (does not exist)" -ForegroundColor DarkGray}
@@ -179,10 +182,10 @@ function Get-OSDBuilder {
             else                                        {Write-Host "-IsoExtract:       $OSDBuilderContent\IsoExtract (does not exist)" -ForegroundColor DarkGray}
         if (Test-Path "$OSDBuilderContent\Mount")       {Write-Host "-MountPath:        $OSDBuilderContent\Mount" -ForegroundColor DarkGray}
             else                                        {Write-Host "-MountPath:        $OSDBuilderContent\Mount (does not exist)" -ForegroundColor DarkGray}
-        if (Test-Path "$OSDBuilderContent\MS ADK")      {Write-Host "-MS ADK:           $OSDBuilderContent\MS ADK" -ForegroundColor DarkGray}
-            else                                        {Write-Host "-MS ADK:           $OSDBuilderContent\MS ADK (does not exist)" -ForegroundColor DarkGray}
-        if (Test-Path "$OSDBuilderContent\MS DaRT")     {Write-Host "-MS DaRT:          $OSDBuilderContent\MS DaRT" -ForegroundColor DarkGray}
-            else                                        {Write-Host "-MS DaRT:          $OSDBuilderContent\MS DaRT (does not exist)" -ForegroundColor DarkGray}
+        if (Test-Path "$OSDBuilderContent\ADK")         {Write-Host "-ADK:              $OSDBuilderContent\ADK" -ForegroundColor DarkGray}
+            else                                        {Write-Host "-ADK:              $OSDBuilderContent\ADK (does not exist)" -ForegroundColor DarkGray}
+        if (Test-Path "$OSDBuilderContent\DaRT")        {Write-Host "-DaRT:             $OSDBuilderContent\DaRT" -ForegroundColor DarkGray}
+            else                                        {Write-Host "-DaRT:             $OSDBuilderContent\DaRT (does not exist)" -ForegroundColor DarkGray}
         if (Test-Path "$OSDBuilderContent\OneDrive")    {Write-Host "-OneDrive:         $OSDBuilderContent\OneDrive" -ForegroundColor DarkGray}
             else                                        {Write-Host "-OneDrive:         $OSDBuilderContent\OneDrive (does not exist)" -ForegroundColor DarkGray}
         if (Test-Path "$OSDBuilderContent\OSDUpdate")   {Write-Host "-OSDUpdate:        $OSDBuilderContent\OSDUpdate" -ForegroundColor Gray}
@@ -194,7 +197,7 @@ function Get-OSDBuilder {
         if (Test-Path "$OSDBuilderContent\StartLayout") {Write-Host "-Start Layouts:    $OSDBuilderContent\StartLayout" -ForegroundColor DarkGray}
             else                                        {Write-Host "-Start Layouts:    $OSDBuilderContent\StartLayout (does not exist)" -ForegroundColor DarkGray}
         if (Test-Path "$OSDBuilderContent\Unattend")    {Write-Host "-Unattend XML:     $OSDBuilderContent\Unattend" -ForegroundColor DarkGray}
-            else                                        {Write-Host "-Unattend XML:     $OSDBuilderContent\Unattend (does not exist)" -ForegroundColor DarkGray}
+            else                                        {Write-Host "-Unattend XML:     $OSDBuilderContent\Unattend (does not exist)" -ForegroundColor DarkGray} #>
         Write-Host ""
     }
     #===================================================================================================
