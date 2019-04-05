@@ -270,7 +270,7 @@ function Get-DownOSDBuilder {
             #   Download Updates
             #===================================================================================================
             if ($Download.IsPresent) {
-				if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
+                if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
                 foreach ($Update in $OSDUpdates) {
                     $DownloadPath = "$OSDBuilderPath\Content\OSDUpdate\$($Update.Catalog)\$($Update.Title)"
                     $DownloadFullPath = "$DownloadPath\$($Update.FileName)"

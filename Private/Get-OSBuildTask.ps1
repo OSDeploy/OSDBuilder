@@ -14,12 +14,10 @@ function Get-OSBuildTask {
         Get-OSDBuilder -CreatePaths -HideDetails
 
         #===================================================================================================
-        Write-Verbose '19.4.3 Gather All OSBuildTask'
+        Write-Verbose '19.1.1 Gather All OSBuildTask'
         #===================================================================================================
         $AllOSBuildTasks = @()
         $AllOSBuildTasks = Get-ChildItem -Path "$OSDBuilderTasks" OSBuild*.json -File | Select-Object -Property *
-        $AllOSBuildTasks = $AllOSBuildTasks | Where-Object {$_.Name -notlike "*Merged Last Run*"}
-        #===================================================================================================
     }
 
     PROCESS {
