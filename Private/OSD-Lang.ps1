@@ -158,6 +158,7 @@ function Update-WinSELangIni {
         Start-Sleep -Seconds 30
         Dismount-WindowsImage -Path "$MountWinSELangIni" -Save -LogPath "$CurrentLog" | Out-Null
     }
+    if (Test-Path "$MountWinSELangIni") {Remove-Item -Path "$MountWinSELangIni" -Force -Recurse | Out-Null}
 
     Write-Host "Install.wim: Updating Boot.wim Index 2 with updated Lang.ini" -ForegroundColor Green
     $MountBootLangIni = Join-Path $OSDBuilderContent\Mount "bootlangini$((Get-Date).ToString('hhmmss'))"
@@ -178,6 +179,7 @@ function Update-WinSELangIni {
         Start-Sleep -Seconds 30
         Dismount-WindowsImage -Path "$MountBootLangIni" -Save -LogPath "$CurrentLog" | Out-Null
     }
+    if (Test-Path "$MountBootLangIni") {Remove-Item -Path "$MountBootLangIni" -Force -Recurse | Out-Null}
 }
 
 function Copy-OSDLanguageSources {
@@ -185,11 +187,11 @@ function Copy-OSDLanguageSources {
     PARAM ()
     if ($OSMajorVersion -ne 10) {Return}
     Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "Install.wim: Language Features"	-ForegroundColor Green
+    Write-Host "Install.wim: Language Sources"	-ForegroundColor Green
     
     foreach ($LanguageSource in $LanguageCopySources) {
         $CurrentLanguageSource = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $LanguageSource} | Select-Object -Property FullName
         Write-Host "Copying Language Resources from $($CurrentLanguageSource.FullName)" -ForegroundColor DarkGray
-        robocopy "$($CurrentLanguageSource.FullName)\OS" "$OS" *.* /e /ndl /xc /xn /xo /xf /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-LanguageSources.log" | Out-Null
+        robocopy "$($CurrentLanguageSource.FullName)\OS" "$OS" *.* /e /xf *.wim /ndl /xc /xn /xo /xf /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-LanguageSources.log" | Out-Null
     }
 }
