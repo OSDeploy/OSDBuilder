@@ -654,7 +654,7 @@ function New-OSBuildTask {
             $WinPEADKPE = [array]$WinPEADKPE + [array]$ExistingTask.WinPEADKPE
             $WinPEADKPE = $WinPEADKPE | Sort-Object -Unique | Sort-Object Length
         } else {
-            if ($ExistingTask.WinPEADKPE) {$WinPEADKPE = $ExistingTask.WinPEADKPE | Sort-Object Length -Unique}
+            if ($ExistingTask.WinPEADKPE) {$WinPEADKPE = $ExistingTask.WinPEADKPE | Sort-Object Length}
         }
         #===================================================================================================
         #   WinPEADKRE
@@ -672,7 +672,7 @@ function New-OSBuildTask {
             $WinPEADKRE = [array]$WinPEADKRE + [array]$ExistingTask.WinPEADKRE
             $WinPEADKRE = $WinPEADKRE | Sort-Object -Unique | Sort-Object Length
         } else {
-            if ($ExistingTask.WinPEADKRE) {$WinPEADKRE = $ExistingTask.WinPEADKRE | Sort-Object Length -Unique}
+            if ($ExistingTask.WinPEADKRE) {$WinPEADKRE = $ExistingTask.WinPEADKRE | Sort-Object Length}
         }
         #===================================================================================================
         #   WinPEADKSE
@@ -690,7 +690,7 @@ function New-OSBuildTask {
             $WinPEADKSE = [array]$WinPEADKSE + [array]$ExistingTask.WinPEADKSE
             $WinPEADKSE = $WinPEADKSE | Sort-Object -Unique | Sort-Object Length
         } else {
-            if ($ExistingTask.WinPEADKSE) {$WinPEADKSE = $ExistingTask.WinPEADKSE | Sort-Object Length -Unique}
+            if ($ExistingTask.WinPEADKSE) {$WinPEADKSE = $ExistingTask.WinPEADKSE | Sort-Object Length}
         }
         #===================================================================================================
         #   WinPEDrivers
