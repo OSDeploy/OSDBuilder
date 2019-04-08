@@ -130,4 +130,52 @@ function OSD-Lang-LanguageSettings {
     Write-Host '========================================================================================' -ForegroundColor DarkGray
     Write-Host "Install.wim: Generating Updated Lang.ini" -ForegroundColor Green
     Dism /Image:"$MountDirectory" /Gen-LangIni /Distribution:"$OS" /LogPath:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dism-gen-langini.log" | Out-Null
+
+    Update-WinSELangIni -OSMediaPath "$WorkingPath"
+}
+
+function Update-WinSELangIni {
+    [CmdletBinding()]
+    PARAM (
+        [string]$OSMediaPath
+    )
+    Write-Host "Install.wim: Updating WinSE.wim with updated Lang.ini" -ForegroundColor Green
+    $MountWinSELangIni = Join-Path $OSDBuilderContent\Mount "winselangini$((Get-Date).ToString('hhmmss'))"
+    if (!(Test-Path "$MountWinSELangIni")) {New-Item "$MountWinSELangIni" -ItemType Directory -Force | Out-Null}
+
+    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-WinSELangIni.log"
+    Mount-WindowsImage -ImagePath "$OSMediaPath\WinPE\winse.wim" -Index 1 -Path "$MountWinSELangIni" -LogPath "$CurrentLog" | Out-Null
+
+    Copy-Item -Path "$OS\Sources\lang.ini" -Destination "$MountWinSELangIni\Sources" -Force | Out-Null
+
+    Start-Sleep -Seconds 10
+    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WinSELangIni.log"
+    try {
+        Dismount-WindowsImage -Path "$MountWinSELangIni" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
+    }
+    catch {
+        Write-Warning "Could not dismount WinSE.wim ... Waiting 30 seconds ..."
+        Start-Sleep -Seconds 30
+        Dismount-WindowsImage -Path "$MountWinSELangIni" -Save -LogPath "$CurrentLog" | Out-Null
+    }
+
+    Write-Host "Install.wim: Updating Boot.wim Index 2 with updated Lang.ini" -ForegroundColor Green
+    $MountBootLangIni = Join-Path $OSDBuilderContent\Mount "bootlangini$((Get-Date).ToString('hhmmss'))"
+    if (!(Test-Path "$MountBootLangIni")) {New-Item "$MountBootLangIni" -ItemType Directory -Force | Out-Null}
+
+    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-BootLangIni.log"
+    Mount-WindowsImage -ImagePath "$OS\Sources\boot.wim" -Index 2 -Path "$MountBootLangIni" -LogPath "$CurrentLog" | Out-Null
+
+    Copy-Item -Path "$OS\Sources\lang.ini" -Destination "$MountBootLangIni\Sources" -Force | Out-Null
+
+    Start-Sleep -Seconds 10
+    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-BootLangIni.log"
+    try {
+        Dismount-WindowsImage -Path "$MountBootLangIni" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
+    }
+    catch {
+        Write-Warning "Could not dismount Boot.wim ... Waiting 30 seconds ..."
+        Start-Sleep -Seconds 30
+        Dismount-WindowsImage -Path "$MountBootLangIni" -Save -LogPath "$CurrentLog" | Out-Null
+    }
 }

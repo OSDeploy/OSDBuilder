@@ -492,105 +492,112 @@ function New-OSBuildTask {
         #   IsoExtract
         #===================================================================================================
         if ($OSMedia.MajorVersion -eq 10) {
-            if ($ContentFeaturesOnDemand.IsPresent -or $ContentLanguagePackages.IsPresent) {
-                #===================================================================================================
-                #   ContentIsoExtract
-                #===================================================================================================
-                Write-Warning "Generating IsoExtract Content ... This may take a while"
-                $ContentIsoExtract = @()
-                [array]$ContentIsoExtract = Get-TaskContentIsoExtract
-                #===================================================================================================
-                #   AddFeatureOnDemand
-                #===================================================================================================
-                Write-Host "FeatureOnDemand" -ForegroundColor Green
-                if ($ExistingTask.AddFeatureOnDemand) {
-                    foreach ($Item in $ExistingTask.AddFeatureOnDemand) {
-                        Write-Host "$Item" -ForegroundColor DarkGray
-                    }
+            #if ($ContentFeaturesOnDemand.IsPresent -or $ContentLanguagePackages.IsPresent) {
+            #===================================================================================================
+            #   ContentIsoExtract
+            #===================================================================================================
+            Write-Warning "Generating IsoExtract Content ... This may take a while"
+            $ContentIsoExtract = @()
+            [array]$ContentIsoExtract = Get-TaskContentIsoExtract
+
+            $ContentIsoExtractWinPE = @()
+            $ContentIsoExtractWinPE = $ContentIsoExtract | Where-Object {$_.FullName -like "*Windows Preinstallation Environment*"}
+
+            $ContentIsoExtract = $ContentIsoExtract | Where-Object {$_.FullName -notlike "*Windows Preinstallation Environment*"}
+            if ($OSMedia.InstallationType -eq 'Client') {$ContentIsoExtract = $ContentIsoExtract | Where-Object {$_.FullName -notlike "*Windows Server*"}}
+            if ($OSMedia.InstallationType -like "*Server*") {$ContentIsoExtract = $ContentIsoExtract | Where-Object {$_.FullName -like "*Windows Server*"}}
+            #===================================================================================================
+            #   AddFeatureOnDemand
+            #===================================================================================================
+            Write-Host "FeatureOnDemand" -ForegroundColor Green
+            if ($ExistingTask.AddFeatureOnDemand) {
+                foreach ($Item in $ExistingTask.AddFeatureOnDemand) {
+                    Write-Host "$Item" -ForegroundColor DarkGray
                 }
-                $AddFeatureOnDemand = $null
-                if ($ContentFeaturesOnDemand.IsPresent) {
-                    [array]$AddFeatureOnDemand = (Get-TaskContentAddFeatureOnDemand).FullName
-                    
-                    $AddFeatureOnDemand = [array]$AddFeatureOnDemand + [array]$ExistingTask.AddFeatureOnDemand
-                    $AddFeatureOnDemand = $AddFeatureOnDemand | Sort-Object -Unique
-                } else {
-                    if ($ExistingTask.AddFeatureOnDemand) {$AddFeatureOnDemand = $ExistingTask.AddFeatureOnDemand}
-                }
-                #===================================================================================================
-                #   LanguagePack
-                #===================================================================================================
-                Write-Host "LanguagePack" -ForegroundColor Green
-                if ($ExistingTask.LanguagePack) {
-                    foreach ($Item in $ExistingTask.LanguagePack) {
-                        Write-Host "$Item" -ForegroundColor DarkGray
-                    }
-                }
-                $LanguagePack = $null
-                if ($ContentLanguagePackages.IsPresent) {
-                    [array]$LanguagePack = (Get-TaskContentLanguagePack).FullName
-                    
-                    $LanguagePack = [array]$LanguagePack + [array]$ExistingTask.LanguagePack
-                    $LanguagePack = $LanguagePack | Sort-Object -Unique
-                } else {
-                    if ($ExistingTask.LanguagePack) {$LanguagePack = $ExistingTask.LanguagePack}
-                }
-                #===================================================================================================
-                #   LanguageFeature
-                #===================================================================================================
-                Write-Host "LanguageFeature" -ForegroundColor Green
-                if ($ExistingTask.LanguageFeature) {
-                    foreach ($Item in $ExistingTask.LanguageFeature) {
-                        Write-Host "$Item" -ForegroundColor DarkGray
-                    }
-                }
-                $LanguageFeature = $null
-                if ($ContentLanguagePackages.IsPresent) {
-                    [array]$LanguageFeature = (Get-TaskContentLanguageFeature).FullName
-                    
-                    $LanguageFeature = [array]$LanguageFeature + [array]$ExistingTask.LanguageFeature
-                    $LanguageFeature = $LanguageFeature | Sort-Object -Unique
-                } else {
-                    if ($ExistingTask.LanguageFeature) {$LanguageFeature = $ExistingTask.LanguageFeature}
-                }
-                #===================================================================================================
-                #   LanguageInterfacePack
-                #===================================================================================================
-                Write-Host "LanguageInterfacePack" -ForegroundColor Green
-                if ($ExistingTask.LanguageInterfacePack) {
-                    foreach ($Item in $ExistingTask.LanguageInterfacePack) {
-                        Write-Host "$Item" -ForegroundColor DarkGray
-                    }
-                }
-                $LanguageInterfacePack = $null
-                if ($ContentLanguagePackages.IsPresent) {
-                    [array]$LanguageInterfacePack = (Get-TaskContentLanguageInterfacePack).FullName
-                    
-                    $LanguageInterfacePack = [array]$LanguageInterfacePack + [array]$ExistingTask.LanguageInterfacePack
-                    $LanguageInterfacePack = $LanguageInterfacePack | Sort-Object -Unique
-                } else {
-                    if ($ExistingTask.LanguageInterfacePack) {$LanguageInterfacePack = $ExistingTask.LanguageInterfacePack}
-                }
-                #===================================================================================================
-                #   LocalExperiencePacks
-                #===================================================================================================
-                Write-Host "LocalExperiencePacks" -ForegroundColor Green
-                if ($ExistingTask.LocalExperiencePacks) {
-                    foreach ($Item in $ExistingTask.LocalExperiencePacks) {
-                        Write-Host "$Item" -ForegroundColor DarkGray
-                    }
-                }
-                $LocalExperiencePacks = $null
-                if ($ContentLanguagePackages.IsPresent) {
-                    [array]$LocalExperiencePacks = (Get-TaskContentLocalExperiencePacks).FullName
-                    
-                    $LocalExperiencePacks = [array]$LocalExperiencePacks + [array]$ExistingTask.LocalExperiencePacks
-                    $LocalExperiencePacks = $LocalExperiencePacks | Sort-Object -Unique
-                } else {
-                    if ($ExistingTask.LocalExperiencePacks) {$LocalExperiencePacks = $ExistingTask.LocalExperiencePacks}
-                }
-                #===================================================================================================
             }
+            $AddFeatureOnDemand = $null
+            if ($ContentFeaturesOnDemand.IsPresent) {
+                [array]$AddFeatureOnDemand = (Get-TaskContentAddFeatureOnDemand).FullName
+                
+                $AddFeatureOnDemand = [array]$AddFeatureOnDemand + [array]$ExistingTask.AddFeatureOnDemand
+                $AddFeatureOnDemand = $AddFeatureOnDemand | Sort-Object -Unique
+            } else {
+                if ($ExistingTask.AddFeatureOnDemand) {$AddFeatureOnDemand = $ExistingTask.AddFeatureOnDemand}
+            }
+            #===================================================================================================
+            #   LanguagePack
+            #===================================================================================================
+            Write-Host "LanguagePack" -ForegroundColor Green
+            if ($ExistingTask.LanguagePack) {
+                foreach ($Item in $ExistingTask.LanguagePack) {
+                    Write-Host "$Item" -ForegroundColor DarkGray
+                }
+            }
+            $LanguagePack = $null
+            if ($ContentLanguagePackages.IsPresent) {
+                [array]$LanguagePack = (Get-TaskContentLanguagePack).FullName
+                
+                $LanguagePack = [array]$LanguagePack + [array]$ExistingTask.LanguagePack
+                $LanguagePack = $LanguagePack | Sort-Object -Unique
+            } else {
+                if ($ExistingTask.LanguagePack) {$LanguagePack = $ExistingTask.LanguagePack}
+            }
+            #===================================================================================================
+            #   LanguageFeature
+            #===================================================================================================
+            Write-Host "LanguageFeature" -ForegroundColor Green
+            if ($ExistingTask.LanguageFeature) {
+                foreach ($Item in $ExistingTask.LanguageFeature) {
+                    Write-Host "$Item" -ForegroundColor DarkGray
+                }
+            }
+            $LanguageFeature = $null
+            if ($ContentLanguagePackages.IsPresent) {
+                [array]$LanguageFeature = (Get-TaskContentLanguageFeature).FullName
+                
+                $LanguageFeature = [array]$LanguageFeature + [array]$ExistingTask.LanguageFeature
+                $LanguageFeature = $LanguageFeature | Sort-Object -Unique
+            } else {
+                if ($ExistingTask.LanguageFeature) {$LanguageFeature = $ExistingTask.LanguageFeature}
+            }
+            #===================================================================================================
+            #   LanguageInterfacePack
+            #===================================================================================================
+            Write-Host "LanguageInterfacePack" -ForegroundColor Green
+            if ($ExistingTask.LanguageInterfacePack) {
+                foreach ($Item in $ExistingTask.LanguageInterfacePack) {
+                    Write-Host "$Item" -ForegroundColor DarkGray
+                }
+            }
+            $LanguageInterfacePack = $null
+            if ($ContentLanguagePackages.IsPresent) {
+                [array]$LanguageInterfacePack = (Get-TaskContentLanguageInterfacePack).FullName
+                
+                $LanguageInterfacePack = [array]$LanguageInterfacePack + [array]$ExistingTask.LanguageInterfacePack
+                $LanguageInterfacePack = $LanguageInterfacePack | Sort-Object -Unique
+            } else {
+                if ($ExistingTask.LanguageInterfacePack) {$LanguageInterfacePack = $ExistingTask.LanguageInterfacePack}
+            }
+            #===================================================================================================
+            #   LocalExperiencePacks
+            #===================================================================================================
+            Write-Host "LocalExperiencePacks" -ForegroundColor Green
+            if ($ExistingTask.LocalExperiencePacks) {
+                foreach ($Item in $ExistingTask.LocalExperiencePacks) {
+                    Write-Host "$Item" -ForegroundColor DarkGray
+                }
+            }
+            $LocalExperiencePacks = $null
+            if ($ContentLanguagePackages.IsPresent) {
+                [array]$LocalExperiencePacks = (Get-TaskContentLocalExperiencePacks).FullName
+                
+                $LocalExperiencePacks = [array]$LocalExperiencePacks + [array]$ExistingTask.LocalExperiencePacks
+                $LocalExperiencePacks = $LocalExperiencePacks | Sort-Object -Unique
+            } else {
+                if ($ExistingTask.LocalExperiencePacks) {$LocalExperiencePacks = $ExistingTask.LocalExperiencePacks}
+            }
+            #===================================================================================================
+            #}
         }
         #===================================================================================================
         #   WinPE Configuration
@@ -624,9 +631,9 @@ function New-OSBuildTask {
             [array]$WinPEADKPE = (Get-TaskWinPEADKPE).FullName
             
             $WinPEADKPE = [array]$WinPEADKPE + [array]$ExistingTask.WinPEADKPE
-            $WinPEADKPE = $WinPEADKPE | Sort-Object -Unique
+            $WinPEADKPE = $WinPEADKPE | Sort-Object -Unique | Sort-Object Length
         } else {
-            if ($ExistingTask.WinPEADKPE) {$WinPEADKPE = $ExistingTask.WinPEADKPE}
+            if ($ExistingTask.WinPEADKPE) {$WinPEADKPE = $ExistingTask.WinPEADKPE | Sort-Object Length -Unique}
         }
         #===================================================================================================
         #   WinPEADKRE
@@ -642,9 +649,9 @@ function New-OSBuildTask {
             [array]$WinPEADKRE = (Get-TaskWinPEADKRE).FullName
             
             $WinPEADKRE = [array]$WinPEADKRE + [array]$ExistingTask.WinPEADKRE
-            $WinPEADKRE = $WinPEADKRE | Sort-Object -Unique
+            $WinPEADKRE = $WinPEADKRE | Sort-Object -Unique | Sort-Object Length
         } else {
-            if ($ExistingTask.WinPEADKRE) {$WinPEADKRE = $ExistingTask.WinPEADKRE}
+            if ($ExistingTask.WinPEADKRE) {$WinPEADKRE = $ExistingTask.WinPEADKRE | Sort-Object Length -Unique}
         }
         #===================================================================================================
         #   WinPEADKSE
@@ -660,9 +667,9 @@ function New-OSBuildTask {
             [array]$WinPEADKSE = (Get-TaskWinPEADKSE).FullName
             
             $WinPEADKSE = [array]$WinPEADKSE + [array]$ExistingTask.WinPEADKSE
-            $WinPEADKSE = $WinPEADKSE | Sort-Object -Unique
+            $WinPEADKSE = $WinPEADKSE | Sort-Object -Unique | Sort-Object Length
         } else {
-            if ($ExistingTask.WinPEADKSE) {$WinPEADKSE = $ExistingTask.WinPEADKSE}
+            if ($ExistingTask.WinPEADKSE) {$WinPEADKSE = $ExistingTask.WinPEADKSE | Sort-Object Length -Unique}
         }
         #===================================================================================================
         #   WinPEDrivers
@@ -770,7 +777,7 @@ function New-OSBuildTask {
             $WinPEScriptsRE = [array]$WinPEScriptsRE + [array]$ExistingTask.WinPEScriptsRE
             $WinPEScriptsRE = $WinPEScriptsRE | Sort-Object -Unique
         } else {
-            if ($ExistingTask.WinPEScriptsRE) {$WinPEScriptsRE = $ExistingTask.WinPEScriptsRE}
+            if ($ExistingTask.WinPEScriptsRE) {$WinPEScriptsRE = $ExistingTask.$WinPEScriptsRE}
         }
         #===================================================================================================
         #   WinPEScriptsSE

@@ -25,6 +25,7 @@ function OSD-WinPE-ExportWims {
     Export-WindowsImage -SourceImagePath "$OSMediaPath\OS\sources\boot.wim" -SourceIndex 2 -DestinationImagePath "$OSMediaPath\WinPE\winse.wim" -LogPath "$CurrentLog" | Out-Null
 }
 
+
 function OSD-WinPE-Mount {
     [CmdletBinding()]
     PARAM (
@@ -379,7 +380,7 @@ function OSD-WinPE-ADK {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
-    Write-Verbose '19.1.1 WinPE WIM ADK Optional Components'
+    Write-Verbose '19.4.6 WinPE WIM ADK Optional Components'
     #   OSBuild Only
     #===================================================================================================
     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -387,6 +388,7 @@ function OSD-WinPE-ADK {
     if ([string]::IsNullOrEmpty($WinPEADKPE) -or [string]::IsNullOrWhiteSpace($WinPEADKPE)) {
         # Do Nothing
     } else {
+        $WinPEADKPE = $WinPEADKPE | Sort-Object Length
         foreach ($PackagePath in $WinPEADKPE) {
             if ($PackagePath -like "*WinPE-NetFx*") {
                 Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
@@ -411,7 +413,7 @@ function OSD-WinPE-ADK {
         }
     }
     #===================================================================================================
-    Write-Verbose '19.1.1 WinRE WIM ADK Optional Components'
+    Write-Verbose '19.4.6 WinRE WIM ADK Optional Components'
     #   OSBuild Only
     #===================================================================================================
     #Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -419,6 +421,7 @@ function OSD-WinPE-ADK {
     if ([string]::IsNullOrEmpty($WinPEADKRE) -or [string]::IsNullOrWhiteSpace($WinPEADKRE)) {
         # Do Nothing
     } else {
+        $WinPEADKRE = $WinPEADKRE | Sort-Object Length
         foreach ($PackagePath in $WinPEADKRE) {
             if ($PackagePath -like "*WinPE-NetFx*") {
                 Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
@@ -443,7 +446,7 @@ function OSD-WinPE-ADK {
         }
     }
     #===================================================================================================
-    Write-Verbose '19.1.1 Setup WIM ADK Optional Components'
+    Write-Verbose '19.4.6 Setup WIM ADK Optional Components'
     #   OSBuild Only
     #===================================================================================================
     #Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -451,6 +454,7 @@ function OSD-WinPE-ADK {
     if ([string]::IsNullOrEmpty($WinPEADKSE) -or [string]::IsNullOrWhiteSpace($WinPEADKSE)) {
         # Do Nothing
     } else {
+        $WinPEADKSE = $WinPEADKSE | Sort-Object Length
         foreach ($PackagePath in $WinPEADKSE) {
             if ($PackagePath -like "*WinPE-NetFx*") {
                 Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray

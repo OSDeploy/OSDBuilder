@@ -32,14 +32,18 @@ function Get-TaskWinPEADKPE {
     if ($OSMedia.Arch -eq 'x86') {$WinPEADKPE = $WinPEADKPE | Where-Object {$_.FullName -like "*x86*"}
     } else {$WinPEADKPE = $WinPEADKPE | Where-Object {($_.FullName -like "*x64*") -or ($_.FullName -like "*amd64*")}}
 
-    if ($null -eq $WinPEADKPE) {Write-Warning "WinPEADKPE: Add Content to $OSDBuilderContent\ADK"}
+    $WinPEADKPEIE = @()
+    $WinPEADKPEIE = $ContentIsoExtractWinPE | Select-Object -Property Name, FullName
+    [array]$WinPEADKPE = [array]$WinPEADKPE + [array]$WinPEADKPEIE
+
+    if ($null -eq $WinPEADKPE) {Write-Warning "WinPE.wim ADK Packages: Add Content to $OSDBuilderContent\ADK"}
     else {
         if ($ExistingTask.WinPEADKPE) {
             foreach ($Item in $ExistingTask.WinPEADKPE) {
                 $WinPEADKPE = $WinPEADKPE | Where-Object {$_.FullName -ne $Item}
             }
         }
-        $WinPEADKPE = $WinPEADKPE | Out-GridView -Title "WinPEADKPE: Select ADK Packages to apply and press OK (Esc or Cancel to Skip)" -PassThru
+        $WinPEADKPE = $WinPEADKPE | Out-GridView -Title "WinPE.wim ADK Packages: Select ADK Packages to apply and press OK (Esc or Cancel to Skip)" -PassThru
     }
     foreach ($Item in $WinPEADKPE) {Write-Host "$($Item.FullName)" -ForegroundColor White}
     Return $WinPEADKPE
@@ -51,11 +55,16 @@ function Get-TaskWinPEADKRE {
     [CmdletBinding()]
     PARAM ()
     $WinPEADKRE = Get-ChildItem -Path ("$OSDBuilderContent\WinPE\ADK\*","$OSDBuilderContent\ADK\*\Windows Preinstallation Environment\*\WinPE_OCs") *.cab -Recurse -ErrorAction SilentlyContinue | Select-Object -Property Name, FullName
+    
     foreach ($Pack in $WinPEADKRE) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
     $WinPEADKRE = $WinPEADKRE | Where-Object {$_.FullName -like "*$($OSMedia.ReleaseId)*"}
 
     if ($OSMedia.Arch -eq 'x86') {$WinPEADKRE = $WinPEADKRE | Where-Object {$_.FullName -like "*x86*"}
     } else {$WinPEADKRE = $WinPEADKRE | Where-Object {($_.FullName -like "*x64*") -or ($_.FullName -like "*amd64*")}}
+
+    $WinPEADKREIE = @()
+    $WinPEADKREIE = $ContentIsoExtractWinPE | Select-Object -Property Name, FullName
+    [array]$WinPEADKRE = [array]$WinPEADKRE + [array]$WinPEADKREIE
 
     if ($null -eq $WinPEADKRE) {Write-Warning "WinRE.wim ADK Packages: Add Content to $OSDBuilderContent\ADK"}
     else {
@@ -81,12 +90,16 @@ function Get-TaskWinPEADKSE {
     #===================================================================================================
     [CmdletBinding()]
     PARAM ()
-    $WinPEADKSE = Get-ChildItem -Path ("$OSDBuilderContent\WinPE\ADK\*","$OSDBuilderContent\ADK\*\Windows Preinstallation Environment\*\WinPE_OCs") *.cab -Recurse -ErrorAction SilentlyContinue | Select-Object -Property Name, FullName
+    $WinPEADKSE = Get-ChildItem -Path ("$OSDBuilderContent\WinPE\ADK\*","$OSDBuilderContent\ADK\*\Windows Preinstallation Environment\*\WinPE_OCs","$ContentIsoExtractWinPE") *.cab -Recurse -ErrorAction SilentlyContinue | Select-Object -Property Name, FullName
     foreach ($Pack in $WinPEADKSE) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
     $WinPEADKSE = $WinPEADKSE | Where-Object {$_.FullName -like "*$($OSMedia.ReleaseId)*"}
 
     if ($OSMedia.Arch -eq 'x86') {$WinPEADKSE = $WinPEADKSE | Where-Object {$_.FullName -like "*x86*"}
     } else {$WinPEADKSE = $WinPEADKSE | Where-Object {($_.FullName -like "*x64*") -or ($_.FullName -like "*amd64*")}}
+
+    $WinPEADKSEIE = @()
+    $WinPEADKSEIE = $ContentIsoExtractWinPE | Select-Object -Property Name, FullName
+    [array]$WinPEADKSE = [array]$WinPEADKSE + [array]$WinPEADKSEIE
 
     if ($null -eq $WinPEADKSE) {Write-Warning "WinSE.wim ADK Packages: Add Content to $OSDBuilderContent\ADK"}
     else {
