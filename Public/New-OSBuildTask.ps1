@@ -126,7 +126,10 @@ function New-OSBuildTask {
         [string]$SetUILangFallback,
 
         [Parameter(ParameterSetName='All')]
-        [string]$SetUserLocale
+        [string]$SetUserLocale,
+
+        [Parameter(ParameterSetName='All')]
+        [switch]$SourcesLanguageCopy
         #===================================================================================================
     )
 
@@ -224,7 +227,7 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "Source OSMedia Windows Image Information" -ForegroundColor Green
-        Write-Host "-OSMedia Chain:                 $($OSMedia.OSMFamily)"
+        Write-Host "-OSMedia Family:                $($OSMedia.OSMFamily)"
         Write-Host "-OSMedia Guid:                  $($OSMedia.OSMGuid)"
         Write-Host "-OSMedia Name:                  $($OSMedia.Name)"
         Write-Host "-OSMedia FullName:              $($OSMedia.FullName)"
@@ -600,6 +603,24 @@ function New-OSBuildTask {
             #}
         }
         #===================================================================================================
+        #   SourcesLanguageCopy
+        #===================================================================================================
+        Write-Host "SourcesLanguageCopy" -ForegroundColor Green
+        if ($ExistingTask.LanguageCopySources) {
+            foreach ($Item in $ExistingTask.LanguageCopySources) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $LanguageCopySources = $null
+        if ($SourcesLanguageCopy.IsPresent) {
+            [array]$LanguageCopySources = (Get-TaskContentLanguageCopySources).OSMFamily
+            
+            $LanguageCopySources = [array]$LanguageCopySources + [array]$ExistingTask.LanguageCopySources
+            $LanguageCopySources = $LanguageCopySources | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.LanguageCopySources) {$LanguageCopySources = $ExistingTask.LanguageCopySources}
+        }
+        #===================================================================================================
         #   WinPE Configuration
         #===================================================================================================
         #   Content WinPEDaRT
@@ -801,7 +822,7 @@ function New-OSBuildTask {
         #   Corrections
         #===================================================================================================
         if ($OSMedia.MajorVersion -eq 6) {$EnableNetFX3 = $false}
-        if ($null -eq $LangSetAllIntl) {if ($ExistingTask.LangSetAllIntl) {$LangSetAllIntl = $ExistingTask.LangSetAllIntl}}
+        if ($null -eq $SetAllIntl) {if ($ExistingTask.SetAllIntl) {$SetAllIntl = $ExistingTask.SetAllIntl}}
         if ($null -eq $SetInputLocale) {if ($ExistingTask.SetInputLocale) {$SetInputLocale = $ExistingTask.SetInputLocale}}
         if ($null -eq $SetSKUIntlDefaults) {if ($ExistingTask.SetSKUIntlDefaults) {$SetSKUIntlDefaults = $ExistingTask.SetSKUIntlDefaults}}
         if ($null -eq $SetSetupUILang) {if ($ExistingTask.SetSetupUILang) {$SetSetupUILang = $ExistingTask.SetSetupUILang}}
@@ -892,6 +913,8 @@ function New-OSBuildTask {
             "LanguageInterfacePack" = [string[]]$LanguageInterfacePack;
             "LocalExperiencePacks" = [string[]]$LocalExperiencePacks;
             "LanguageFeature" = [string[]]$LanguageFeature;
+            "LanguageCopySources" = [string[]]$LanguageCopySources;
+
         }
 
         #===================================================================================================

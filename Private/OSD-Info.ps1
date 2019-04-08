@@ -154,6 +154,8 @@ function OSD-Info-TaskInformation {
     if ($LanguagePacks) {foreach ($item in $LanguagePacks)              {Write-Host $item -ForegroundColor DarkGray}}
     Write-Host "-Local Experience Packs:"
     if ($LocalExperiencePacks) {foreach ($item in $LocalExperiencePacks){Write-Host $item -ForegroundColor DarkGray}}
+    Write-Host "-Language Sources Copy:"
+    if ($LanguageCopySources) {foreach ($item in $LanguageCopySources){Write-Host $item -ForegroundColor DarkGray}}
 
     $CombinedOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
 

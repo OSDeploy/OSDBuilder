@@ -179,3 +179,17 @@ function Update-WinSELangIni {
         Dismount-WindowsImage -Path "$MountBootLangIni" -Save -LogPath "$CurrentLog" | Out-Null
     }
 }
+
+function Copy-OSDLanguageSources {
+    [CmdletBinding()]
+    PARAM ()
+    if ($OSMajorVersion -ne 10) {Return}
+    Write-Host '========================================================================================' -ForegroundColor DarkGray
+    Write-Host "Install.wim: Language Features"	-ForegroundColor Green
+    
+    foreach ($LanguageSource in $LanguageCopySources) {
+        $CurrentLanguageSource = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $LanguageSource} | Select-Object -Property FullName
+        Write-Host "Copying Language Resources from $($CurrentLanguageSource.FullName)" -ForegroundColor DarkGray
+        robocopy "$($CurrentLanguageSource.FullName)\OS" "$OS" *.* /e /ndl /xc /xn /xo /xf /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-LanguageSources.log" | Out-Null
+    }
+}

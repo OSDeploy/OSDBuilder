@@ -239,6 +239,7 @@ function New-OSBuild {
                 $LanguagePacks = $Task.LanguagePack
                 $LanguageInterfacePacks = $Task.LanguageInterfacePack
                 $LocalExperiencePacks = $Task.LocalExperiencePacks
+                $LanguageCopySources = $Task.LanguageCopySources
                 
                 if (!($TaskName -eq 'Taskless')) {OSD-Info-TaskInformation}
             }
@@ -354,6 +355,7 @@ function New-OSBuild {
                     $LanguagePacks += @($Task.LanguagePack | Where-Object {$_})
                     $LanguageInterfacePacks += @($Task.LanguageInterfacePack | Where-Object {$_})
                     $LocalExperiencePacks += @($Task.LocalExperiencePacks | Where-Object {$_})
+                    $LanguageCopySources += @($Task.LanguageCopySources | Where-Object {$_})
                 }
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
@@ -967,6 +969,7 @@ function New-OSBuild {
                     if ($LanguageInterfacePacks) {OSD-Lang-LanguageInterfacePacks}
                     if ($LocalExperiencePacks) {OSD-Lang-LocalExperiencePacks}
                     if ($LanguageFeatures) {OSD-Lang-LanguageFeatures}
+                    if ($LanguageCopySources) {Copy-OSDLanguageSources}
                     if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks) {
                         OSD-Lang-LanguageSettings
                         OSD-Updates-LCUForce
