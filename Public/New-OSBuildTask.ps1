@@ -8,20 +8,20 @@ Creates a JSON Task for use with New-OSBuild
 .LINK
 http://osdbuilder.com/docs/functions/osbuild/new-osbuildtask
 
+.PARAMETER Kind
+Task or Template
+
 .PARAMETER TaskName
 Name of the Task to create
 
 .PARAMETER CustomName
 Custom Name of the OSBuild
 
-.PARAMETER DisableFeature
-Disables an Enabled Windows Optional Feature
-
 .PARAMETER EnableNetFX3
 Enables NetFX3 in the OSBuild
 
-.PARAMETER EnableFeature
-Enables a Disabled Windows Optional Feature
+.PARAMETER WinPEAutoExtraFiles
+Adds WinPE Auto Extra Files
 
 .PARAMETER RemoveAppx
 Displays a GridView to select Appx Provisioned Packages to Remove
@@ -32,9 +32,74 @@ Displays a GridView to select Windows Capabilities to Remove
 .PARAMETER RemovePackage
 Displays a GridView to select Windows Packages to Remove
 
-.PARAMETER WinPEAutoExtraFiles
-Adds WinPE Auto Extra Files
+.PARAMETER DisableFeature
+Disables an Enabled Windows Optional Feature
 
+.PARAMETER EnableFeature
+Enables a Disabled Windows Optional Feature
+
+.PARAMETER ContentDrivers
+Select Content Drivers
+
+.PARAMETER ContentExtraFiles
+Select Content Extra Files
+
+.PARAMETER ContentFeaturesOnDemand
+Select Content FeaturesOnDemand
+
+.PARAMETER ContentPackages
+Select Content Packages
+
+.PARAMETER ContentScripts
+Select Content Scripts
+
+.PARAMETER ContentStartLayout
+Select Content StartLayout
+
+.PARAMETER ContentUnattend
+Select Content Unattend
+
+.PARAMETER ContentWinPEADK
+Select Content WinPE ADK
+
+.PARAMETER ContentWinPEDart
+Select Content WinPE Dart
+
+.PARAMETER ContentWinPEDrivers
+Select Content WinPE Drivers
+
+.PARAMETER ContentWinPEExtraFiles
+Select Content WinPE ExtraFiles
+
+.PARAMETER ContentLanguagePackages
+Select Content Language Packages
+
+.PARAMETER SetAllIntl
+Dism SetAllIntl
+
+.PARAMETER SetInputLocale
+Dism SetInputLocale
+
+.PARAMETER SetSKUIntlDefaults
+Dism SetSKUIntlDefaults
+
+.PARAMETER SetSetupUILang
+Dism SetSetupUILang
+
+.PARAMETER SetSysLocale
+Dism SetSysLocale
+
+.PARAMETER SetUILang
+Dism SetUILang
+
+.PARAMETER SetUILangFallback
+Dism SetUILangFallback
+
+.PARAMETER SetUserLocale
+Dism SetUserLocale
+
+.PARAMETER SourcesLanguageCopy
+Copy OSMedia Languages into Sources
 #>
 function New-OSBuildTask {
     [CmdletBinding(DefaultParameterSetName='Basic')]
@@ -159,17 +224,23 @@ function New-OSBuildTask {
         #   Set Task Name
         #===================================================================================================
         $Task = @()
-        $ExistingTask = @()
         $TaskName = "$TaskName"
         if ($Kind -eq 'Task') {
             $TaskPath = "$OSDBuilderTasks\OSBuild $TaskName.json"
-            if (Test-Path "$TaskPath") {$ExistingTask = Get-Content "$TaskPath" | ConvertFrom-Json}
         }
         if ($Kind -eq 'Template') {
             $TaskPath = "$OSDBuilderTemplates\OSBuild $TaskName.json"
         }
+        
+        $ExistingTask = @()
+        if (Test-Path "$TaskPath") {
+            Write-Host '========================================================================================' -ForegroundColor DarkGray
+            Write-Warning "Task already exists at $TaskPath"
+            Write-Warning "Content will be updated!"
+            $ExistingTask = Get-Content "$TaskPath" | ConvertFrom-Json
+        }
         #===================================================================================================
-        #   Set Task Name
+        #   Task Information
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "New-OSBuild $Kind Information" -ForegroundColor Green
@@ -186,16 +257,6 @@ function New-OSBuildTask {
         Write-Host "-SetUILangFallback:             $SetUILangFallback"
         Write-Host "-SetUserLocale:                 $SetUserLocale"
         Write-Host "-WinPEAutoExtraFiles:           $WinPEAutoExtraFiles"
-
-        #===================================================================================================
-        Write-Verbose '19.1.1 Validate Task'
-        #===================================================================================================
-        if (Test-Path $TaskPath) {
-            Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Warning "Task already exists at $TaskPath"
-            Write-Warning "Content will be updated!"
-        }
-
         #===================================================================================================
         Write-Verbose '19.3.26 Get-OSMedia'
         #===================================================================================================
@@ -250,7 +311,6 @@ function New-OSBuildTask {
         Write-Host "-WimBoot:                       $($WindowsImage.WIMBoot)"
         Write-Host "-Created Time:                  $($OSMedia.CreatedTime)"
         Write-Host "-Modified Time:                 $($OSMedia.ModifiedTime)"
-        
         #===================================================================================================
         Write-Verbose '19.1.1 Validate Registry CurrentVersion.xml'
         #===================================================================================================
@@ -263,7 +323,6 @@ function New-OSBuildTask {
                 }
             }
         }
-
         #===================================================================================================
         Write-Verbose '19.1.1 Set OSMedia.ReleaseId'
         #===================================================================================================
@@ -280,7 +339,6 @@ function New-OSBuildTask {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         #===================================================================================================
         #   Basic
-        #===================================================================================================
         #===================================================================================================
         #   CustomName
         #===================================================================================================
