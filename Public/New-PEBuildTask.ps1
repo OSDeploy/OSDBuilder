@@ -14,7 +14,7 @@ Wim to use for the PEBuild
 .PARAMETER TaskName
 Name of the Task to create
 
-.PARAMETER DeploymentShare
+.PARAMETER MDTDeploymentShare
 MDT DeployRoot Full Path
 
 .PARAMETER AutoExtraFiles
@@ -32,14 +32,14 @@ function New-PEBuildTask {
         [string]$TaskName,
         #==========================================================
         [Parameter(Mandatory,ParameterSetName='MDT')]
-        [string]$DeploymentShare,
+        [string]$MDTDeploymentShare,
         #==========================================================
         [Parameter(Mandatory,ParameterSetName='WinPE')]
         [Parameter(Mandatory,ParameterSetName='MDT')]
         [ValidateSet('WinRE','WinPE')]
         [string]$SourceWim,
         #==========================================================
-        [switch]$AutoExtraFiles,
+        [switch]$WinPEAutoExtraFiles,
         [string]$CustomName,
         [ValidateSet('64','128','256','512')]
         [string]$ScratchSpace = '128',
@@ -101,7 +101,7 @@ function New-PEBuildTask {
         Write-Host "-WinPE Output:                  $WinPEOutput"
         Write-Host "-Custom Name:                   $CustomName"
         Write-Host "-Wim File:                      $SourceWim"
-        Write-Host "-Deployment Share:              $DeploymentShare"
+        Write-Host "-Deployment Share:              $MDTDeploymentShare"
         Write-Host "-Scratch Space:                 $ScratchSpace"
         #===================================================================================================
         Write-Verbose '19.3.26 Get-OSMedia'
@@ -182,16 +182,6 @@ function New-PEBuildTask {
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #===================================================================================================
-        #   Basic
-        #===================================================================================================
-        #   CustomName
-        #===================================================================================================
-        if ($ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
-        #===================================================================================================
-        #   WinPEAutoExtraFiles
-        #===================================================================================================
-        if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
         #===================================================================================================
         #   Content WinPEDaRT
         #===================================================================================================
@@ -292,17 +282,27 @@ function New-PEBuildTask {
             if ($ExistingTask.WinPEScripts) {$WinPEScripts = $ExistingTask.WinPEScripts}
         }
         #===================================================================================================
-        Write-Verbose '19.2.12 Build Task'
+        #   Parameters
+        #===================================================================================================
+        if (!($CustomName) -and $ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
+        if (!($MDTDeploymentShare) -and $ExistingTask.MDTDeploymentShare) {$MDTDeploymentShare = $ExistingTask.MDTDeploymentShare}
+        if (!($ScratchSpace) -and $ExistingTask.ScratchSpace) {$ScratchSpace = $ExistingTask.ScratchSpace}
+        if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
+        #===================================================================================================
+        #   PEBuildTask
         #===================================================================================================
         $Task = [ordered]@{
             "TaskType" = [string]'PEBuild';
-            "TaskName" = [string]$TaskName;
             "TaskVersion" = [string]$OSDBuilderVersion;
             "TaskGuid" = [string]$(New-Guid);
 
+            "TaskName" = [string]$TaskName;
+            "CustomName" = [string]$CustomName;
+            #===================================================================================================
+            #   OSMedia
+            #===================================================================================================
             "OSMFamily" = [string]$OSMedia.OSMFamily;
             "OSMGuid" = [string]$OSMedia.OSMGuid;
-
             "Name" = [string]$OSMedia.Name;
             "ImageName" = [string]$OSMedia.ImageName;
             "Arch" = [string]$OSMedia.Arch;
@@ -315,15 +315,25 @@ function New-PEBuildTask {
             "Build" = [string]$OSMedia.Build;
             "CreatedTime" = [datetime]$OSMedia.CreatedTime;
             "ModifiedTime" = [datetime]$OSMedia.ModifiedTime;
-
+            #===================================================================================================
+            #   String
+            #===================================================================================================
             "WinPEOutput" = [string]$WinPEOutput;
-            "CustomName" = [string]$CustomName;
-            "MDTDeploymentShare" = [string]$DeploymentShare;
-            "ScratchSpace" = [string]$ScratchSpace;
             "SourceWim" = [string]$SourceWim;
-            "WinPEADK" = [string[]]$WinPEADK;
-            "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
+            "MDTDeploymentShare" = [string]$MDTDeploymentShare;
             "WinPEDaRT" = [string]$WinPEDaRT;
+            #===================================================================================================
+            #   Switch
+            #===================================================================================================
+            "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
+            #===================================================================================================
+            #   Int
+            #===================================================================================================
+            "ScratchSpace" = [string]$ScratchSpace;
+            #===================================================================================================
+            #   Array
+            #===================================================================================================
+            "WinPEADK" = [string[]]$WinPEADK;
             "WinPEDrivers" = [string[]]$WinPEDrivers;
             "WinPEExtraFiles" = [string[]]$WinPEExtraFiles;
             "WinPEScripts" = [string[]]$WinPEScripts;

@@ -832,7 +832,7 @@ function Update-OSMedia {
                     if ($WinPEDaRT) {OSD-WinPE-DaRT}
                     if ($WinPEAutoExtraFiles -eq $true) {OSD-WinPE-AutoExtraFiles}
                     if ($WinPEExtraFilesPE -or $WinPEExtraFilesRE -or $WinPEExtraFilesSE) {OSD-WinPE-ExtraFiles}
-                    if ($WinPEDrivers) {OSD-WinPE-Drivers}
+                    if ($WinPEDrivers) {Use-OSBuildDriversWinPE}
                     if ($WinPEADKPE -or $WinPEADKRE -or $WinPEADKSE) {OSD-WinPE-ADK}
                     if ($WinPEScriptsPE -or $WinPEScriptsRE -or $WinPEScriptsSE) {OSD-WinPE-Scripts}
                     #OSD-UpdatesPE-SSUForce
@@ -970,8 +970,8 @@ function Update-OSMedia {
                     if ($RemoveCapability) {OSD-OSBuild-RemoveCapability}
                     if ($DisableFeature) {OSD-OSBuild-DisableWindowsOptionalFeature}
                     if ($Packages) {OSD-OSBuild-Packages}
-                    OSD-Drivers
-                    OSD-ExtraFiles
+                    Use-OSBuildDrivers
+                    Use-OSBuildExtraFiles
                     if ($StartLayoutXML) {OSD-OSBuild-StartLayout}
                     if ($UnattendXML) {OSD-OSBuild-Unattend}
                     OSD-Scripts

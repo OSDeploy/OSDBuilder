@@ -338,20 +338,6 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         #===================================================================================================
-        #   Basic
-        #===================================================================================================
-        #   CustomName
-        #===================================================================================================
-        if ($ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
-        #===================================================================================================
-        #   EnableNetFX3
-        #===================================================================================================
-        if ($ExistingTask.EnableNetFX3 -eq $true) {$EnableNetFX3 = $true}
-        #===================================================================================================
-        #   WinPEAutoExtraFiles
-        #===================================================================================================
-        if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
-        #===================================================================================================
         #   RemoveAppx
         #===================================================================================================
         Write-Host "RemoveAppx" -ForegroundColor Green
@@ -877,6 +863,12 @@ function New-OSBuildTask {
             if ($ExistingTask.WinPEScriptsSE) {$WinPEScriptsSE = $ExistingTask.WinPEScriptsSE}
         }
         #===================================================================================================
+        #   CustomName
+        #===================================================================================================
+        if (!($CustomName) -and $ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
+        if ($ExistingTask.EnableNetFX3 -eq $true) {$EnableNetFX3 = $true}
+        if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
+        #===================================================================================================
         #   Corrections
         #===================================================================================================
         if ($OSMedia.MajorVersion -eq 6) {$EnableNetFX3 = $false}
@@ -889,16 +881,18 @@ function New-OSBuildTask {
         if ($null -eq $SetUILangFallback) {if ($ExistingTask.SetUILangFallback) {$SetUILang = $ExistingTask.SetUILangFallback}}
         if ($null -eq $SetUserLocale) {if ($ExistingTask.SetUserLocale) {$SetUserLocale = $ExistingTask.SetUserLocale}}
         #===================================================================================================
-        Write-Verbose '19.2.12 Build Task'
+        #   OSBuildTask
         #===================================================================================================
         $Task = [ordered]@{
             "TaskType" = [string]"OSBuild";
-            "TaskName" = [string]$TaskName;
             "TaskVersion" = [string]$OSDBuilderVersion;
             "TaskGuid" = [string]$(New-Guid);
             
+            "TaskName" = [string]$TaskName;
             "CustomName" = [string]$CustomName;
-
+            #===================================================================================================
+            #   OSMedia
+            #===================================================================================================
             "OSMFamily" = [string]$OSMedia.OSMFamily;
             "OSMGuid" = [string]$OSMedia.OSMGuid;
             "Name" = [string]$OSMedia.Name;
@@ -914,7 +908,7 @@ function New-OSBuildTask {
             "CreatedTime" = [datetime]$OSMedia.CreatedTime;
             "ModifiedTime" = [datetime]$OSMedia.ModifiedTime;
             #===================================================================================================
-            #   Parameters
+            #   Switch
             #===================================================================================================
             "EnableNetFX3" = [string]$EnableNetFX3;
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
