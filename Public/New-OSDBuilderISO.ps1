@@ -12,11 +12,11 @@ http://osdbuilder.com/docs/functions/new-osdbuilderiso
 Full Path of the OSDBuilder Media
 #>
 function New-OSDBuilderISO {
-[CmdletBinding()]
-PARAM (
-    [Parameter(ValueFromPipelineByPropertyName)]
-    [string[]]$FullName
-)
+    [CmdletBinding()]
+    PARAM (
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string[]]$FullName
+    )
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
