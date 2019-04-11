@@ -14,7 +14,7 @@ Wim to use for the PEBuild
 .PARAMETER TaskName
 Name of the Task to create
 
-.PARAMETER DeploymentShare
+.PARAMETER MDTDeploymentShare
 MDT DeployRoot Full Path
 
 .PARAMETER AutoExtraFiles
@@ -32,18 +32,25 @@ function New-PEBuildTask {
         [string]$TaskName,
         #==========================================================
         [Parameter(Mandatory,ParameterSetName='MDT')]
-        [string]$DeploymentShare,
+        [string]$MDTDeploymentShare,
         #==========================================================
         [Parameter(Mandatory,ParameterSetName='WinPE')]
         [Parameter(Mandatory,ParameterSetName='MDT')]
         [ValidateSet('WinRE','WinPE')]
         [string]$SourceWim,
         #==========================================================
-        [switch]$AutoExtraFiles,
+        [switch]$WinPEAutoExtraFiles,
         [string]$CustomName,
         [ValidateSet('64','128','256','512')]
-        [string]$ScratchSpace = '128'
-        #==========================================================
+        [string]$ScratchSpace = '128',
+        #===================================================================================================
+        #   WinPE Content
+        #===================================================================================================
+        [switch]$ContentWinPEADK,
+        [switch]$ContentWinPEDart,
+        [switch]$ContentWinPEDrivers,
+        [switch]$ContentWinPEExtraFiles,
+        [switch]$ContentWinPEScripts
     )
 
     BEGIN {
@@ -68,15 +75,25 @@ function New-PEBuildTask {
             Pause
 			Exit
         }
-
         #===================================================================================================
-        Write-Verbose '19.1.1 Information'
+        #   Set Task Name
         #===================================================================================================
         $WinPEOutput = $($PsCmdlet.ParameterSetName)
         if ($WinPEOutput -eq 'Recovery') {$SourceWim = 'WinRE'}
 
         $TaskName = "$TaskName"
         $TaskPath = "$OSDBuilderTasks\$WinPEOutput $TaskName.json"
+
+        $ExistingTask = @()
+        if (Test-Path "$TaskPath") {
+            Write-Host '========================================================================================' -ForegroundColor DarkGray
+            Write-Warning "Task already exists at $TaskPath"
+            Write-Warning "Content will be updated!"
+            $ExistingTask = Get-Content "$TaskPath" | ConvertFrom-Json
+        }
+        #===================================================================================================
+        #   Task Information
+        #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "New-PEBuild Task Settings" -ForegroundColor Green
         Write-Host "-Task Name:                     $TaskName"
@@ -84,18 +101,8 @@ function New-PEBuildTask {
         Write-Host "-WinPE Output:                  $WinPEOutput"
         Write-Host "-Custom Name:                   $CustomName"
         Write-Host "-Wim File:                      $SourceWim"
-        Write-Host "-Deployment Share:              $DeploymentShare"
+        Write-Host "-Deployment Share:              $MDTDeploymentShare"
         Write-Host "-Scratch Space:                 $ScratchSpace"
-
-        #===================================================================================================
-        Write-Verbose '19.1.1 Validate Task'
-        #===================================================================================================
-        if (Test-Path $TaskPath) {
-            Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Warning "Task already exists at $TaskPath"
-            Write-Warning "Content will be overwritten!"
-        }
-
         #===================================================================================================
         Write-Verbose '19.3.26 Get-OSMedia'
         #===================================================================================================
@@ -161,79 +168,141 @@ function New-PEBuildTask {
                 Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
             }
         }
-
         #===================================================================================================
-        Write-Verbose '19.1.1 Set ReleaseId'
+        Write-Verbose '19.1.1 Set OSMedia.ReleaseId'
         #===================================================================================================
-        if ($null -eq $ReleaseId) {
-            if ($OSBuild -eq 7601) {$ReleaseId = 7601}
-            if ($OSBuild -eq 10240) {$ReleaseId = 1507}
-            if ($OSBuild -eq 14393) {$ReleaseId = 1607}
-            if ($OSBuild -eq 15063) {$ReleaseId = 1703}
-            if ($OSBuild -eq 16299) {$ReleaseId = 1709}
-            if ($OSBuild -eq 17134) {$ReleaseId = 1803}
-            if ($OSBuild -eq 17763) {$ReleaseId = 1809}
+        if ($null -eq $($OSMedia.ReleaseId)) {
+            if ($($OSMedia.Build) -eq 7601) {$OSMedia.ReleaseId = 7601}
+            if ($($OSMedia.Build) -eq 10240) {$OSMedia.ReleaseId = 1507}
+            if ($($OSMedia.Build) -eq 14393) {$OSMedia.ReleaseId = 1607}
+            if ($($OSMedia.Build) -eq 15063) {$OSMedia.ReleaseId = 1703}
+            if ($($OSMedia.Build) -eq 16299) {$OSMedia.ReleaseId = 1709}
+            if ($($OSMedia.Build) -eq 17134) {$OSMedia.ReleaseId = 1803}
+            if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
         }
+        #===================================================================================================
+        Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #===================================================================================================
+        #   Content WinPEDaRT
+        #===================================================================================================
+        Write-Host "WinPEDaRT" -ForegroundColor Green
+        if ($ExistingTask.WinPEDaRT) {
+            foreach ($Item in $ExistingTask.WinPEDaRT) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEDaRT = $null
+        if ($ContentWinPEDaRT.IsPresent) {
+            if ($OSMedia.MajorVersion -eq 10) {
+                [string]$WinPEDaRT = (Get-TaskWinPEDaRT).FullName
+            }
+        }
+        if ($null -eq $WinPEDaRT) {if ($ExistingTask.WinPEDaRT) {$WinPEDaRT = $ExistingTask.WinPEDaRT}}
+        #===================================================================================================
+        #   ContentIsoExtract
+        #===================================================================================================
+        if ($ContentWinPEADK.IsPresent) {
+            Write-Warning "Generating IsoExtract Content ... This may take a while"
+            $ContentIsoExtract = @()
+            [array]$ContentIsoExtract = Get-TaskContentIsoExtract
 
+            $ContentIsoExtractWinPE = @()
+            $ContentIsoExtractWinPE = $ContentIsoExtract | Where-Object {$_.FullName -like "*Windows Preinstallation Environment*"}
+        }
         #===================================================================================================
-        Write-Verbose '19.1.1 WinPE DaRT'
+        #   WinPEADK
         #===================================================================================================
-        $SelectedWinPEDaRT =@()
-        $SelectedWinPEDaRT = Get-ChildItem -Path "$OSDBuilderContent\WinPE\DaRT" *.cab -Recurse | Select-Object -Property Name, FullName
-        foreach ($Pack in $SelectedWinPEDaRT) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
-        $SelectedWinPEDaRT = $SelectedWinPEDaRT | Where-Object {$_.FullName -like "*$OSArchitecture*"}
-        $SelectedWinPEDaRT = $SelectedWinPEDaRT | Out-GridView -Title "Select a WinPE DaRT Package to apply and press OK (Esc or Cancel to Skip)" -OutputMode Single
-        if($null -eq $SelectedWinPEDaRT) {Write-Warning "Skipping WinPE DaRT"}
+        Write-Host "WinPEADK" -ForegroundColor Green
+        if ($ExistingTask.WinPEADK) {
+            foreach ($Item in $ExistingTask.WinPEADK) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEADK = $null
+        if ($ContentWinPEADK.IsPresent) {
+            [array]$WinPEADK = (Get-TaskWinPEADK).FullName
+            
+            $WinPEADK = [array]$WinPEADK + [array]$ExistingTask.WinPEADK
+            $WinPEADK = $WinPEADK | Sort-Object -Unique | Sort-Object Length
+        } else {
+            if ($ExistingTask.WinPEADK) {$WinPEADK = $ExistingTask.WinPEADK | Sort-Object Length}
+        }
         #===================================================================================================
-        Write-Verbose '19.1.1 WinPE Drivers'
+        #   WinPEDrivers
         #===================================================================================================
-        $SelectedWinPEDrivers =@()
-        $SelectedWinPEDrivers = Get-ChildItem -Path "$OSDBuilderContent\WinPE\Drivers" -Directory | Select-Object -Property Name, FullName
-        $SelectedWinPEDrivers = $SelectedWinPEDrivers | Where-Object {(Get-ChildItem $_.FullName | Measure-Object).Count -gt 0}
-        foreach ($Pack in $SelectedWinPEDrivers) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
-        $SelectedWinPEDrivers = $SelectedWinPEDrivers | Out-GridView -Title "Select WinPE Drivers to apply and press OK (Esc or Cancel to Skip)" -PassThru
-        if($null -eq $SelectedWinPEDrivers) {Write-Warning "Skipping WinPE Drivers"}
+        Write-Host "WinPEDrivers" -ForegroundColor Green
+        if ($ExistingTask.WinPEDrivers) {
+            foreach ($Item in $ExistingTask.WinPEDrivers) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEDrivers = $null
+        if ($ContentWinPEDrivers.IsPresent) {
+            [array]$WinPEDrivers = (Get-TaskWinPEDrivers).FullName
+            
+            $WinPEDrivers = [array]$WinPEDrivers + [array]$ExistingTask.WinPEDrivers
+            $WinPEDrivers = $WinPEDrivers | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEDrivers) {$WinPEDrivers = $ExistingTask.WinPEDrivers}
+        }
         #===================================================================================================
-        Write-Verbose '19.1.1 WinPE Scripts'
+        #   WinPEExtraFiles
         #===================================================================================================
-        $SelectedWinPEScripts =@()
-        $SelectedWinPEScripts = Get-ChildItem -Path "$OSDBuilderContent\WinPE\Scripts" *.ps1 | Select-Object -Property Name, FullName
-        foreach ($Pack in $SelectedWinPEScripts) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
-        $SelectedWinPEScripts = $SelectedWinPEScripts | Out-GridView -Title "Select WinPE PowerShell Scripts to execute and press OK (Esc or Cancel to Skip)" -PassThru
-        if($null -eq $SelectedWinPEScripts) {Write-Warning "Skipping WinPE PowerShell Scripts"}
+        Write-Host "WinPEExtraFiles" -ForegroundColor Green
+        if ($ExistingTask.WinPEExtraFiles) {
+            foreach ($Item in $ExistingTask.WinPEExtraFiles) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEExtraFiles = $null
+        if ($ContentWinPEExtraFiles.IsPresent) {
+            [array]$WinPEExtraFiles = (Get-TaskWinPEExtraFiles).FullName
+            
+            $WinPEExtraFiles = [array]$WinPEExtraFiles + [array]$ExistingTask.WinPEExtraFiles
+            $WinPEExtraFiles = $WinPEExtraFiles | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEExtraFiles) {$WinPEExtraFiles = $ExistingTask.WinPEExtraFiles}
+        }
         #===================================================================================================
-        Write-Verbose '19.1.1 WinPE Extra Files'
+        #   WinPEScripts
         #===================================================================================================
-        $SelectedWinPEExtraFiles =@()
-        $SelectedWinPEExtraFiles = Get-ChildItem -Path "$OSDBuilderContent\WinPE\ExtraFiles" -Directory | Select-Object -Property Name, FullName
-        $SelectedWinPEExtraFiles = $SelectedWinPEExtraFiles | Where-Object {(Get-ChildItem $_.FullName | Measure-Object).Count -gt 0}
-        foreach ($Pack in $SelectedWinPEExtraFiles) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
-        $SelectedWinPEExtraFiles = $SelectedWinPEExtraFiles | Out-GridView -Title "Select WinPE Extra Files to apply and press OK (Esc or Cancel to Skip)" -PassThru
-        if($null -eq $SelectedWinPEExtraFiles) {Write-Warning "Skipping WinPE Extra Files"}
-
+        Write-Host "WinPEScripts" -ForegroundColor Green
+        if ($ExistingTask.WinPEScripts) {
+            foreach ($Item in $ExistingTask.WinPEScripts) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $WinPEScripts = $null
+        if ($ContentWinPEScripts.IsPresent) {
+            [array]$WinPEScripts = (Get-TaskWinPEScripts).FullName
+            
+            $WinPEScripts = [array]$WinPEScripts + [array]$ExistingTask.WinPEScripts
+            $WinPEScripts = $WinPEScripts | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.WinPEScripts) {$WinPEScripts = $ExistingTask.WinPEScripts}
+        }
         #===================================================================================================
-        Write-Verbose '19.1.1 Setup ADK Packages'
+        #   Parameters
         #===================================================================================================
-        $SelectedWinPEADKPkgs =@()
-        $SelectedWinPEADKPkgs = Get-ChildItem -Path "$OSDBuilderContent\WinPE\ADK" *.cab -Recurse | Select-Object -Property Name, FullName
-        foreach ($Pack in $SelectedWinPEADKPkgs) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
-        $SelectedWinPEADKPkgs = $SelectedWinPEADKPkgs | Where-Object {$_.FullName -like "*$OSArchitecture*"}
-        $SelectedWinPEADKPkgs = $SelectedWinPEADKPkgs | Where-Object {$_.FullName -like "*$ReleaseId*"}
-        $SelectedWinPEADKPkgs = $SelectedWinPEADKPkgs | Out-GridView -Title "Select WinPE ADK Packages to apply and press OK (Esc or Cancel to Skip)" -PassThru
-        if($null -eq $SelectedWinPEADKPkgs) {Write-Warning "Skipping WinPE ADK Packages"}
-        
+        if (!($CustomName) -and $ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
+        if (!($MDTDeploymentShare) -and $ExistingTask.MDTDeploymentShare) {$MDTDeploymentShare = $ExistingTask.MDTDeploymentShare}
+        if (!($ScratchSpace) -and $ExistingTask.ScratchSpace) {$ScratchSpace = $ExistingTask.ScratchSpace}
+        if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
         #===================================================================================================
-        Write-Verbose '19.2.12 Build Task'
+        #   PEBuildTask
         #===================================================================================================
         $Task = [ordered]@{
             "TaskType" = [string]'PEBuild';
-            "TaskName" = [string]$TaskName;
             "TaskVersion" = [string]$OSDBuilderVersion;
             "TaskGuid" = [string]$(New-Guid);
 
+            "TaskName" = [string]$TaskName;
+            "CustomName" = [string]$CustomName;
+            #===================================================================================================
+            #   OSMedia
+            #===================================================================================================
             "OSMFamily" = [string]$OSMedia.OSMFamily;
             "OSMGuid" = [string]$OSMedia.OSMGuid;
-
             "Name" = [string]$OSMedia.Name;
             "ImageName" = [string]$OSMedia.ImageName;
             "Arch" = [string]$OSMedia.Arch;
@@ -246,18 +315,28 @@ function New-PEBuildTask {
             "Build" = [string]$OSMedia.Build;
             "CreatedTime" = [datetime]$OSMedia.CreatedTime;
             "ModifiedTime" = [datetime]$OSMedia.ModifiedTime;
-
+            #===================================================================================================
+            #   String
+            #===================================================================================================
             "WinPEOutput" = [string]$WinPEOutput;
-            "CustomName" = [string]$CustomName;
-            "MDTDeploymentShare" = [string]$DeploymentShare;
-            "ScratchSpace" = [string]$ScratchSpace;
             "SourceWim" = [string]$SourceWim;
-            "WinPEAutoExtraFiles" = [string]$AutoExtraFiles;
-            "WinPEExtraFiles" = [string[]]$SelectedWinPEExtraFiles.FullName;
-            "WinPEADK" = [string[]]$SelectedWinPEADKPkgs.FullName;
-            "WinPEDaRT" = [string]$SelectedWinPEDaRT.FullName;
-            "WinPEDrivers" = [string[]]$SelectedWinPEDrivers.FullName;
-            "WinPEScripts" = [string[]]$SelectedWinPEScripts.FullName;
+            "MDTDeploymentShare" = [string]$MDTDeploymentShare;
+            "WinPEDaRT" = [string]$WinPEDaRT;
+            #===================================================================================================
+            #   Switch
+            #===================================================================================================
+            "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
+            #===================================================================================================
+            #   Int
+            #===================================================================================================
+            "ScratchSpace" = [string]$ScratchSpace;
+            #===================================================================================================
+            #   Array
+            #===================================================================================================
+            "WinPEADK" = [string[]]$WinPEADK;
+            "WinPEDrivers" = [string[]]$WinPEDrivers;
+            "WinPEExtraFiles" = [string[]]$WinPEExtraFiles;
+            "WinPEScripts" = [string[]]$WinPEScripts;
         }
 
         #===================================================================================================

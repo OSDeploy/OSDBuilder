@@ -1,4 +1,4 @@
-function OSD-ExtraFiles {
+function Use-OSBuildExtraFiles {
     [CmdletBinding()]
     PARAM ()
     Write-Host '========================================================================================' -ForegroundColor DarkGray

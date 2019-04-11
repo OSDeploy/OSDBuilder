@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.4.9.0'
+ModuleVersion = '19.4.11.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -70,6 +70,7 @@ FunctionsToExport = 'Get-OSDBuilder',
                     'Get-PEBuilds','New-PEBuild','New-PEBuildTask',
                     'New-OSDBuilderISO','New-OSDBuilderUSB','Show-OSDBuilderInfo',
                     'Get-DownOSDBuilder',
+                    'New-OSBuildMultiLang',
                     'New-OSDBuilderVHD'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
