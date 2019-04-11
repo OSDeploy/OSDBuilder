@@ -101,16 +101,12 @@ function New-OSBuildMultiLang {
                     Write-Host "$($Media.ImageName) $LangMultiDefaultName is already processed as Index 1" -ForegroundColor Green
                 } else {
                     Write-Host "Processing $($Media.ImageName) $LangMultiLanguage" -ForegroundColor Green
-                    
-                    #Dism /Image:"$TempMount" /Gen-LangIni /Distribution:"$DestinationFullName\OS"
 
                     Write-Host "Dism /Image:"$TempMount" /Set-AllIntl:$LangMultiLanguage" -ForegroundColor Cyan
                     Dism /Image:"$TempMount" /Set-AllIntl:$LangMultiLanguage
 
                     Write-Host "Dism /Image:"$TempMount" /Get-Intl" -ForegroundColor Cyan
                     Dism /Image:"$TempMount" /Get-Intl
-
-                    #Dism /Image:"$TempMount" /Gen-LangIni /Distribution:"$DestinationFullName\OS"
                     
                     Write-Warning "Waiting 10 seconds for processes to complete before Save-WindowsImage ..."
                     Start-Sleep -Seconds 10
