@@ -1,15 +1,15 @@
 <#
 .SYNOPSIS
-BETA ONLY
+Separates an OSBuild with Language Packs into separate Image Indexes
 
 .DESCRIPTION
-BETA ONLY
+Separates an OSBuild with Language Packs into separate Image Indexes.  This will create a new OSBuild
 
 .LINK
 http://osdbuilder.com/docs/functions/osbuild/new-osbuildmultilang
 
 .PARAMETER CustomName
-Name of the OSBuild to create.  MultiLang will be appended to the Custom Name
+Name of the new OSBuild MultiLang to create.  MultiLang will be appended to the end of CustomName
 #>
 function New-OSBuildMultiLang {
     [CmdletBinding()]
