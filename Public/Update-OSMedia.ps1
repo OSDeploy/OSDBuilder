@@ -229,7 +229,6 @@ function Update-OSMedia {
                 $LanguagePacks = $Task.LanguagePack
                 $LanguageInterfacePacks = $Task.LanguageInterfacePack
                 $LocalExperiencePacks = $Task.LocalExperiencePacks
-                $LanguageCopySources = $Task.LanguageCopySources
                 
                 if (!($TaskName -eq 'Taskless')) {OSD-Info-TaskInformation}
             }
@@ -345,7 +344,6 @@ function Update-OSMedia {
                     $LanguagePacks += @($Task.LanguagePack | Where-Object {$_})
                     $LanguageInterfacePacks += @($Task.LanguageInterfacePack | Where-Object {$_})
                     $LocalExperiencePacks += @($Task.LocalExperiencePacks | Where-Object {$_})
-                    $LanguageCopySources += @($Task.LanguageCopySources | Where-Object {$_})
                 }
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
@@ -834,7 +832,7 @@ function Update-OSMedia {
                     if ($WinPEDaRT) {OSD-WinPE-DaRT}
                     if ($WinPEAutoExtraFiles -eq $true) {OSD-WinPE-AutoExtraFiles}
                     if ($WinPEExtraFilesPE -or $WinPEExtraFilesRE -or $WinPEExtraFilesSE) {OSD-WinPE-ExtraFiles}
-                    if ($WinPEDrivers) {Use-OSBuildDriversWinPE}
+                    if ($WinPEDrivers) {OSD-WinPE-Drivers}
                     if ($WinPEADKPE -or $WinPEADKRE -or $WinPEADKSE) {OSD-WinPE-ADK}
                     if ($WinPEScriptsPE -or $WinPEScriptsRE -or $WinPEScriptsSE) {OSD-WinPE-Scripts}
                     #OSD-UpdatesPE-SSUForce
@@ -959,7 +957,6 @@ function Update-OSMedia {
                     if ($LanguageInterfacePacks) {OSD-Lang-LanguageInterfacePacks}
                     if ($LocalExperiencePacks) {OSD-Lang-LocalExperiencePacks}
                     if ($LanguageFeatures) {OSD-Lang-LanguageFeatures}
-                    if ($LanguageCopySources) {Copy-OSDLanguageSources}
                     if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks) {
                         OSD-Lang-LanguageSettings
                         OSD-Updates-LCUForce
@@ -973,8 +970,8 @@ function Update-OSMedia {
                     if ($RemoveCapability) {OSD-OSBuild-RemoveCapability}
                     if ($DisableFeature) {OSD-OSBuild-DisableWindowsOptionalFeature}
                     if ($Packages) {OSD-OSBuild-Packages}
-                    Use-OSBuildDrivers
-                    Use-OSBuildExtraFiles
+                    OSD-Drivers
+                    OSD-ExtraFiles
                     if ($StartLayoutXML) {OSD-OSBuild-StartLayout}
                     if ($UnattendXML) {OSD-OSBuild-Unattend}
                     OSD-Scripts

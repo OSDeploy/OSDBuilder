@@ -1,7 +1,4 @@
-function Use-OSBuildDrivers {
-    #===================================================================================================
-    #   Use-OSBuildDrivers
-    #===================================================================================================
+function OSD-Drivers {
     [CmdletBinding()]
     PARAM ()
     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -35,10 +32,7 @@ function Use-OSBuildDrivers {
     }
 }
 
-function Use-OSBuildDriversWinPE {
-    #===================================================================================================
-    #   Use-OSBuildDriversWinPE
-    #===================================================================================================
+function OSD-WinPE-Drivers {
     [CmdletBinding()]
     PARAM ()
     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -59,4 +53,19 @@ function Use-OSBuildDriversWinPE {
     } else {
         Write-Host "No Task WinPE Drivers were processed" -ForegroundColor DarkGray
     }
+
+<#     Write-Host '========================================================================================' -ForegroundColor DarkGray
+    Write-Host "WinPE: Template WinPE Drivers" -ForegroundColor Green
+
+    $AOSBDriversWinPE = @()
+    $AOSBDriversWinPE = Get-ChildItem ("$OSDBuilderTemplates\DriversWinPE\AutoApply\Global\*","$OSDBuilderTemplates\DriversWinPE\AutoApply\Global $OSArchitecture\*") | Where-Object {$_.PSIsContainer -eq $true} | Select-Object -Property FullName
+    if ($ReleaseId -eq 7601) {
+        [array]$AOSBDriversWinPE += Get-ChildItem ("$OSDBuilderTemplates\DriversWinPE\AutoApply\WinPE 3\*","$OSDBuilderTemplates\DriversWinPE\AutoApply\WinPE 3 $OSArchitecture\*") | Where-Object {$_.PSIsContainer -eq $true} | Select-Object -Property FullName
+    } else {
+        if ($OSInstallationType -eq 'Client') {
+            [array]$AOSBDriversWinPE += Get-ChildItem ("$OSDBuilderTemplates\DriversWinPE\AutoApply\WinPE 10\*","$OSDBuilderTemplates\DriversWinPE\AutoApply\WinPE 10 $OSArchitecture\*","$OSDBuilderTemplates\DriversWinPE\AutoApply\WinPE 10 $OSArchitecture $ReleaseId\*") | Where-Object {$_.PSIsContainer -eq $true} | Select-Object -Property FullName
+        } else {
+            [array]$AOSBDriversWinPE += Get-ChildItem ("$OSDBuilderTemplates\DriversWinPE\AutoApply\WinPE Server\*","$OSDBuilderTemplates\DriversWinPE\AutoApply\WinPE Server $ReleaseId\*") | Where-Object {$_.PSIsContainer -eq $true} | Select-Object -Property FullName
+        }
+    } #>
 }
