@@ -1,9 +1,21 @@
-function Use-MagicSaucePreview {
+<#
+.SYNOPSIS
+BETA ONLY
+
+.DESCRIPTION
+BETA ONLY
+
+.LINK
+http://osdbuilder.com/docs/functions/osbuild/split-osbuild
+
+.PARAMETER CustomName
+Name of the OSBuild to create.  MultiIndex will be appended to the Custom Name
+#>
+function Split-OSBuildMultiLang {
     [CmdletBinding()]
     PARAM (
         [Parameter(Mandatory)]
-        [string]$CustomName,
-        [string]$LicenseKey
+        [string]$CustomName
     )
 
     BEGIN {

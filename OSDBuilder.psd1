@@ -70,7 +70,7 @@ FunctionsToExport = 'Get-OSDBuilder',
                     'Get-PEBuilds','New-PEBuild','New-PEBuildTask',
                     'New-OSDBuilderISO','New-OSDBuilderUSB','Show-OSDBuilderInfo',
                     'Get-DownOSDBuilder',
-                    'Use-MagicSaucePreview',
+                    'New-OSBuildMultiLang',
                     'New-OSDBuilderVHD'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
