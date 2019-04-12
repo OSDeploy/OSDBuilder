@@ -1127,7 +1127,7 @@ function Update-OSMedia {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Stop-Transcript
                 try {
-                    Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName" -ErrorAction SilentlyContinue
+                    Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName"
                 }
                 catch {
                     Write-Warning "Could not rename the the Build directory ... Waiting 30 seconds ..."
@@ -1135,7 +1135,7 @@ function Update-OSMedia {
                 }
                 if (Test-Path "$WorkingPath") {
                     try {
-                        Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName" -ErrorAction SilentlyContinue
+                        Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName"
                     }
                     catch {
                         Write-Warning "Could not rename the the Build directory ... Existing"
