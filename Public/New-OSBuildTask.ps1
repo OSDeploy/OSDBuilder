@@ -104,9 +104,9 @@ Copy OSMedia Languages into Sources
 function New-OSBuildTask {
     [CmdletBinding(DefaultParameterSetName='Basic')]
     PARAM (
-        [Parameter(Mandatory)]
-        [ValidateSet('Task','Template')]
-        [string]$Kind,
+        #[Parameter(Mandatory)]
+        [ValidateSet('Task','Template','GlobalTemplate')]
+        [string]$SaveAs = 'Task',
         [Parameter(Mandatory)]
         [string]$TaskName,
         #===================================================================================================
@@ -225,12 +225,9 @@ function New-OSBuildTask {
         #===================================================================================================
         $Task = @()
         $TaskName = "$TaskName"
-        if ($Kind -eq 'Task') {
-            $TaskPath = "$OSDBuilderTasks\OSBuild $TaskName.json"
-        }
-        if ($Kind -eq 'Template') {
-            $TaskPath = "$OSDBuilderTemplates\OSBuild $TaskName.json"
-        }
+        if ($SaveAs -eq 'Task') {$TaskPath = "$OSDBuilderTasks\OSBuild $TaskName.json"}
+        if ($SaveAs -eq 'Template') {$TaskPath = "$OSDBuilderTemplates\OSBuild $TaskName.json"}
+        if ($SaveAs -eq 'Global Template') {$TaskPath = "$OSDBuilderTemplates\OSBuild Global $TaskName.json"}
         
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
@@ -243,9 +240,9 @@ function New-OSBuildTask {
         #   Task Information
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "New-OSBuild $Kind Information" -ForegroundColor Green
-        Write-Host "-$Kind Name:                    $TaskName"
-        Write-Host "-$Kind Path:                    $TaskPath"
+        Write-Host "New-OSBuild $SaveAs Information" -ForegroundColor Green
+        Write-Host "-$SaveAs Name:                  $TaskName"
+        Write-Host "-$SaveAs Path:                  $TaskPath"
         Write-Host "-Custom Name:                   $CustomName"
         Write-Host "-DotNet 3.5:                    $EnableNetFX3"
         Write-Host "-SetAllIntl:                    $SetAllIntl"
