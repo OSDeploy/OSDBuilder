@@ -8,9 +8,6 @@ Creates a JSON Task for use with New-OSBuild
 .LINK
 http://osdbuilder.com/docs/functions/osbuild/new-osbuildtask
 
-.PARAMETER Kind
-Task or Template
-
 .PARAMETER TaskName
 Name of the Task to create
 
@@ -74,6 +71,9 @@ Select Content WinPE ExtraFiles
 .PARAMETER ContentLanguagePackages
 Select Content Language Packages
 
+.PARAMETER SaveAs
+Task or Template.  Default is Task
+
 .PARAMETER SetAllIntl
 Dism SetAllIntl
 
@@ -105,7 +105,7 @@ function New-OSBuildTask {
     [CmdletBinding(DefaultParameterSetName='Basic')]
     PARAM (
         #[Parameter(Mandatory)]
-        [ValidateSet('Task','Template','GlobalTemplate')]
+        [ValidateSet('Task','Template')]
         [string]$SaveAs = 'Task',
         [Parameter(Mandatory)]
         [string]$TaskName,
@@ -227,7 +227,7 @@ function New-OSBuildTask {
         $TaskName = "$TaskName"
         if ($SaveAs -eq 'Task') {$TaskPath = "$OSDBuilderTasks\OSBuild $TaskName.json"}
         if ($SaveAs -eq 'Template') {$TaskPath = "$OSDBuilderTemplates\OSBuild $TaskName.json"}
-        if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$OSDBuilderTemplates\OSBuild Global $TaskName.json"}
+        #if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$OSDBuilderTemplates\OSBuild Global $TaskName.json"}
         
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
