@@ -227,7 +227,7 @@ function New-OSBuildTask {
         $TaskName = "$TaskName"
         if ($SaveAs -eq 'Task') {$TaskPath = "$OSDBuilderTasks\OSBuild $TaskName.json"}
         if ($SaveAs -eq 'Template') {$TaskPath = "$OSDBuilderTemplates\OSBuild $TaskName.json"}
-        if ($SaveAs -eq 'Global Template') {$TaskPath = "$OSDBuilderTemplates\OSBuild Global $TaskName.json"}
+        if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$OSDBuilderTemplates\OSBuild Global $TaskName.json"}
         
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
