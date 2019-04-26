@@ -289,7 +289,7 @@ function Get-DownOSDBuilder {
                     }
                 }
             } else {
-                Return $OSDUpdates | Select-Object -Property Title
+                Return $OSDUpdates | Select-Object -Property Catalog, OSDVersion, OSDStatus, UpdateOS, UpdateBuild, UpdateArch, UpdateGroup, CreationDate, KBNumber, Title
             }
         }
     }
