@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.4.26.0'
+ModuleVersion = '19.5.7.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -25,7 +25,7 @@ CompanyName = 'osdeploy.com'
 Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Offline Servicing for Windows 7 x64 SP1, Windows 10, Windows Server 2012 R2, Windows Server 2016, and Windows Server 2019'
+Description = 'Hello MMSMOA ... OSDBuilder is Offline Servicing for Windows 10, Windows Server 2016, and Windows Server 2019.  Windows 7 and Windows Server 2012 R2 have limited capabilities'
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '5.0'
