@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.5.21.0'
+ModuleVersion = '19.5.21.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,12 +26,14 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @' 
-19.5.21.0: KB4495618 removed from Server 2019 OSDUpdate Catalog as these updates are part of KB4499405
+19.5.21.2 - Added Windows 10 1803 Dynamic Update KB4503900
+19.5.21.1 - Windows 10 1903 ESD Images are ready (Get-DownOSDBuilder -MediaESD Download)
+19.5.21.0 - KB4495618 removed from Server 2019 OSDUpdate Catalog as these updates are part of KB4499405
 
 WSUS Update Catalogs:
 These are contained within this PowerShell Module, so regular Module updating is needed to
 ensure you receive the latest Microsoft Updates.  Updates published in WSUS will be different
-from Microsoft Update Catalog website
+from Microsoft Update Catalog website due to Preview Releases
 
 OSMedia (Update):
  * Windows 10
