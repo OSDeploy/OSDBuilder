@@ -164,7 +164,7 @@ function New-PEBuildTask {
         if (Test-Path "$OSSourcePath\info\xml\CurrentVersion.xml") {
             $RegCurrentVersion = Import-Clixml -Path "$OSSourcePath\info\xml\CurrentVersion.xml"
             $ReleaseId = $($RegCurrentVersion.ReleaseId)
-            if ($ReleaseId -gt 1809) {
+            if ($ReleaseId -gt 1903) {
                 Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
             }
         }
@@ -179,6 +179,7 @@ function New-PEBuildTask {
             if ($($OSMedia.Build) -eq 16299) {$OSMedia.ReleaseId = 1709}
             if ($($OSMedia.Build) -eq 17134) {$OSMedia.ReleaseId = 1803}
             if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
+            if ($($OSMedia.Build) -eq 18362) {$OSMedia.ReleaseId = 1903}
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray

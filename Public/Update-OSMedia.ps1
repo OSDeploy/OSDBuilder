@@ -410,7 +410,7 @@ function Update-OSMedia {
             if (Test-Path "$OSMediaPath\info\xml\CurrentVersion.xml") {
                 $RegCurrentVersion = Import-Clixml -Path "$OSMediaPath\info\xml\CurrentVersion.xml"
                 $ReleaseId = $($RegCurrentVersion.ReleaseId)
-                if ($ReleaseId -gt 1809) {
+                if ($ReleaseId -gt 1903) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
                 }
@@ -428,6 +428,7 @@ function Update-OSMedia {
                 if ($OSBuild -eq 16299) {$ReleaseId = 1709}
                 if ($OSBuild -eq 17134) {$ReleaseId = 1803}
                 if ($OSBuild -eq 17763) {$ReleaseId = 1809}
+				if ($OSBuild -eq 18362) {$ReleaseId = 1903}
             }
             #===================================================================================================
             #   Operating System
@@ -1074,6 +1075,7 @@ function Update-OSMedia {
                 if ($OSBuild -eq 16299) {$ReleaseId = 1709}
                 if ($OSBuild -eq 17134) {$ReleaseId = 1803}
                 if ($OSBuild -eq 17763) {$ReleaseId = 1809}
+				if ($OSBuild -eq 18362) {$ReleaseId = 1903}
 
 
                 if ($OSMajorVersion -eq 10) {

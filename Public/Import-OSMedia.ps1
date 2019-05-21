@@ -248,7 +248,7 @@ function Import-OSMedia {
                 $ReleaseId = $($RegCurrentVersion.ReleaseId)
                 $RegCurrentVersionUBR = $($RegCurrentVersion.UBR)
                 $UBR = "$OSBuild.$RegCurrentVersionUBR"
-                if ($ReleaseId -gt 1809) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
+                if ($ReleaseId -gt 1903) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
                 $OSMediaName = "$OSImageName $OSArchitecture $ReleaseId $UBR $OSLanguages"
             } else {
                 $UBR = "$OSBuild.$OSSPBuild"

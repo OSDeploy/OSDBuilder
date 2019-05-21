@@ -315,7 +315,7 @@ function New-OSBuildTask {
             if (Test-Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml") {
                 $RegCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
                 $OSMedia.ReleaseId = $($RegCurrentVersion.ReleaseId)
-                if ($($OSMedia.ReleaseId) -gt 1809) {
+                if ($($OSMedia.ReleaseId) -gt 1903) {
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
                 }
             }
@@ -331,6 +331,7 @@ function New-OSBuildTask {
             if ($($OSMedia.Build) -eq 16299) {$OSMedia.ReleaseId = 1709}
             if ($($OSMedia.Build) -eq 17134) {$OSMedia.ReleaseId = 1803}
             if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
+            if ($($OSMedia.Build) -eq 18362) {$OSMedia.ReleaseId = 1903}
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
