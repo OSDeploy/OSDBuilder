@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.5.20.0'
+ModuleVersion = '19.5.21.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,16 +26,25 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @' 
-OSDBuilder is used for Updating and Customizing
+Latest Changes:
+19.5.21.0 Server 2019 removed KB4495618 from Catalogs as KB4499405 includes the updates
+
+WSUS Update Catalogs:
+These are contained within this PowerShell Module, so regular Module updating is needed to
+ensure you receive the latest Microsoft Updates.  Updates published in WSUS will be different
+from Microsoft Update Catalog website
+
+OSMedia (Update):
  * Windows 10
  * Windows Server 2016
  * Windows Server 2019
-
- OSDBuilder can be used for Updating
  * Windows 7 SP1 7601
  * Windows Server 2012 R2
- 
-Update Catalogs are contained with the Module.  Update to the latest Module for the latest Microsoft Updates
+
+ OSBuild (Customize):
+ * Windows 10
+ * Windows Server 2016
+ * Windows Server 2019
 '@
 
 # Minimum version of the Windows PowerShell engine required by this module
