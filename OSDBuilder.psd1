@@ -26,8 +26,7 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @' 
-Latest Changes:
-19.5.21.0 Server 2019 removed KB4495618 from Catalogs as KB4499405 includes the updates
+19.5.21.0: KB4495618 removed from Server 2019 OSDUpdate Catalog as these updates are part of KB4499405
 
 WSUS Update Catalogs:
 These are contained within this PowerShell Module, so regular Module updating is needed to
