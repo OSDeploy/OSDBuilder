@@ -2,10 +2,13 @@ function OSD-UpdatesPE-Setup {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
+    #   StartTime
+    #===================================================================================================
+    $StartTime = Get-Date
+    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "Media: Setup Update - $((Get-Date).ToString('yyyy-MM-dd-HHmmss'))" -ForegroundColor Green
+    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] Media: Setup Update" -ForegroundColor Green
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -20,16 +23,24 @@ function OSD-UpdatesPE-Setup {
             }
         }
     }
+    #===================================================================================================
+    #   Duration
+    #===================================================================================================
+    $Duration = $(Get-Date) - $StartTime
+    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
 
 function OSD-UpdatesPE-Seven {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
+    #   StartTime
+    #===================================================================================================
+    $StartTime = Get-Date
+    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "Media: Seven Updates - $((Get-Date).ToString('yyyy-MM-dd-HHmmss'))" -ForegroundColor Green
+    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] Media: Seven Updates" -ForegroundColor Green
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -37,13 +48,13 @@ function OSD-UpdatesPE-Seven {
         if ($Update.UpdateGroup -eq 'SSU' -or $Update.UpdateGroup -eq 'LCU') {
             $UpdateWinPESeven = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
             if (Test-Path "$UpdateWinPESeven") {
-                Write-Host "$UpdateWinPESeven" -ForegroundColor DarkGray
+                Write-Host "$UpdateWinPESeven" -ForegroundColor Gray
     
                 if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
                     Write-Warning "WinSE.wim KB$($Update.KBNumber) is already installed"
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinSE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
                 }
     
@@ -51,7 +62,7 @@ function OSD-UpdatesPE-Seven {
                     Write-Warning "WinPE.wim KB$($Update.KBNumber) is already installed"
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinPE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
                 }
     
@@ -59,7 +70,7 @@ function OSD-UpdatesPE-Seven {
                     Write-Warning "WinRE.wim KB$($Update.KBNumber) is already installed"
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinRE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
                 }
             } else {
@@ -67,6 +78,11 @@ function OSD-UpdatesPE-Seven {
             }
         }
     }
+    #===================================================================================================
+    #   Duration
+    #===================================================================================================
+    $Duration = $(Get-Date) - $StartTime
+    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
 
 function OSD-UpdatesPE-SSU {
@@ -77,10 +93,13 @@ function OSD-UpdatesPE-SSU {
     #===================================================================================================
     if ($OSMajorVersion -ne 10) {Return}
     #===================================================================================================
+    #   StartTime
+    #===================================================================================================
+    $StartTime = Get-Date
+    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "WinPE: (SSU) Servicing Stack Update - $((Get-Date).ToString('yyyy-MM-dd-HHmmss'))" -ForegroundColor Green
+    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] WinPE: (SSU) Servicing Stack Update" -ForegroundColor Green
     #===================================================================================================
     #   Parameters
     #===================================================================================================
@@ -94,13 +113,13 @@ function OSD-UpdatesPE-SSU {
     foreach ($Update in $OSDUpdateSSU) {
         $UpdateSSU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
         if (Test-Path "$UpdateSSU") {
-            Write-Host "$UpdateSSU" -ForegroundColor DarkGray
+            Write-Host "$UpdateSSU" -ForegroundColor Gray
 
             if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
                 Write-Warning "WinPE.wim KB$($Update.KBNumber) is already installed"
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinPE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -113,7 +132,7 @@ function OSD-UpdatesPE-SSU {
                 Write-Warning "WinRE.wim KB$($Update.KBNumber) is already installed"
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinRE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -126,7 +145,7 @@ function OSD-UpdatesPE-SSU {
                 Write-Warning "WinSE.wim KB$($Update.KBNumber) is already installed"
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinSE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -138,6 +157,11 @@ function OSD-UpdatesPE-SSU {
             Write-Warning "Not Found: $UpdateSSU"
         }
     }
+    #===================================================================================================
+    #   Duration
+    #===================================================================================================
+    $Duration = $(Get-Date) - $StartTime
+    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
 
 function OSD-UpdatesPE-SSUForce {
@@ -148,10 +172,13 @@ function OSD-UpdatesPE-SSUForce {
     #===================================================================================================
     if ($OSMajorVersion -ne 10) {Return}
     #===================================================================================================
+    #   StartTime
+    #===================================================================================================
+    $StartTime = Get-Date
+    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "WinPE: (SSU) Servicing Stack Update Forced - $((Get-Date).ToString('yyyy-MM-dd-HHmmss'))" -ForegroundColor Green
+    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] WinPE: (SSU) Servicing Stack Update Forced" -ForegroundColor Green
     #===================================================================================================
     #   Parameters
     #===================================================================================================
@@ -166,9 +193,9 @@ function OSD-UpdatesPE-SSUForce {
         $UpdateSSU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
 
         if (Test-Path "$UpdateSSU") {
-            Write-Host "$UpdateSSU" -ForegroundColor DarkGray
+            Write-Host "$UpdateSSU" -ForegroundColor Gray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinPE.log"
-            Write-Verbose "$CurrentLog"
+            Write-Verbose "CurrentLog: $CurrentLog"
             Try {Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
@@ -177,7 +204,7 @@ function OSD-UpdatesPE-SSUForce {
             }
 
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinRE.log"
-            Write-Verbose "$CurrentLog"
+            Write-Verbose "CurrentLog: $CurrentLog"
             Try {Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
@@ -186,7 +213,7 @@ function OSD-UpdatesPE-SSUForce {
             }
 
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinSE.log"
-            Write-Verbose "$CurrentLog"
+            Write-Verbose "CurrentLog: $CurrentLog"
             Try {Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
@@ -197,6 +224,11 @@ function OSD-UpdatesPE-SSUForce {
             Write-Warning "Not Found: $UpdateSSU ... Skipping Update"
         }
     }
+    #===================================================================================================
+    #   Duration
+    #===================================================================================================
+    $Duration = $(Get-Date) - $StartTime
+    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
 
 function OSD-UpdatesPE-LCU {
@@ -207,10 +239,13 @@ function OSD-UpdatesPE-LCU {
     #===================================================================================================
     #if ($OSMajorVersion -ne 10) {Return}
     #===================================================================================================
+    #   StartTime
+    #===================================================================================================
+    $StartTime = Get-Date
+    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "WinPE: (LCU) Latest Cumulative Update - $((Get-Date).ToString('yyyy-MM-dd-HHmmss'))" -ForegroundColor Green
+    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] WinPE: (LCU) Latest Cumulative Update" -ForegroundColor Green
     #===================================================================================================
     #   Parameters
     #===================================================================================================
@@ -218,17 +253,17 @@ function OSD-UpdatesPE-LCU {
         Write-Warning "Skip: -SkipUpdates Parameter was used"
         Return
     }
-    if ($OSBuild -eq 18362) {
+<#     if ($OSBuild -eq 18362) {
         Write-Warning "Skip: Windows 10 1903 LCU error 0x80070002"
         Return
-    }
+    } #>
     #===================================================================================================
     #   Execute
     #===================================================================================================
     foreach ($Update in $OSDUpdateLCU) {
         $UpdateLCU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
         if (Test-Path "$UpdateLCU") {
-            Write-Host "$UpdateLCU" -ForegroundColor DarkGray
+            Write-Host "$UpdateLCU" -ForegroundColor Gray
 
             #if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {}
             $SessionsXmlWinPE = "$MountWinPE\Windows\Servicing\Sessions\Sessions.xml"
@@ -238,22 +273,22 @@ function OSD-UpdatesPE-LCU {
                     Write-Warning "WinPE.wim KB$($Update.KBNumber) is already installed"
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinPE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                     #Dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$UpdateLCU" /LogPath:"$CurrentLog"
                     if (!($OSVersion -like "6.1.7601.*")) {
                         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
-                        Write-Verbose "$CurrentLog"
+                        Write-Verbose "CurrentLog: $CurrentLog"
                         Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                     }
                 }
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinPE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                 }
             }
@@ -266,21 +301,21 @@ function OSD-UpdatesPE-LCU {
                     Write-Warning "WinRE.wim KB$($Update.KBNumber) is already installed"
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinRE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                     if (!($OSVersion -like "6.1.7601.*")) {
                         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
-                        Write-Verbose "$CurrentLog"
+                        Write-Verbose "CurrentLog: $CurrentLog"
                         Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                     }
                 }
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinRE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                 }
             }
@@ -293,21 +328,21 @@ function OSD-UpdatesPE-LCU {
                     Write-Warning "WinSE.wim KB$($Update.KBNumber) is already installed"
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinSE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                     if (!($OSVersion -like "6.1.7601.*")) {
                         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
-                        Write-Verbose "$CurrentLog"
+                        Write-Verbose "CurrentLog: $CurrentLog"
                         Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                     }
                 }
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinSE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                 }
             }
@@ -315,6 +350,11 @@ function OSD-UpdatesPE-LCU {
             Write-Warning "Not Found: $UpdateLCU"
         }
     }
+    #===================================================================================================
+    #   Duration
+    #===================================================================================================
+    $Duration = $(Get-Date) - $StartTime
+    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
 function OSD-UpdatesPE-LCUForce {
     [CmdletBinding()]
@@ -324,10 +364,13 @@ function OSD-UpdatesPE-LCUForce {
     #===================================================================================================
     #if ($OSMajorVersion -ne 10) {Return}
     #===================================================================================================
+    #   StartTime
+    #===================================================================================================
+    $StartTime = Get-Date
+    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "WinPE: (LCU) Latest Cumulative Update Forced - $((Get-Date).ToString('yyyy-MM-dd-HHmmss'))" -ForegroundColor Green
+    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] WinPE: (LCU) Latest Cumulative Update Forced" -ForegroundColor Green
     #===================================================================================================
     #   Parameters
     #===================================================================================================
@@ -335,10 +378,10 @@ function OSD-UpdatesPE-LCUForce {
         Write-Warning "Skip: -SkipUpdates Parameter was used"
         Return
     }
-    if ($OSBuild -eq 18362) {
+<#     if ($OSBuild -eq 18362) {
         Write-Warning "Skip: Windows 10 1903 LCU error 0x80070002"
         Return
-    }
+    } #>
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -346,34 +389,34 @@ function OSD-UpdatesPE-LCUForce {
         foreach ($Update in $OSDUpdateLCU) {
             $UpdateLCU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
             if (Test-Path "$UpdateLCU") {
-                Write-Host "$UpdateLCU" -ForegroundColor DarkGray
+                Write-Host "$UpdateLCU" -ForegroundColor Gray
 
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinPE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                 #Dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$UpdateLCU" /LogPath:"$CurrentLog"
 
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                 }
 
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinRE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                 }
 
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinSE.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
-                    Write-Verbose "$CurrentLog"
+                    Write-Verbose "CurrentLog: $CurrentLog"
                     Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                 }
             } else {
@@ -381,6 +424,9 @@ function OSD-UpdatesPE-LCUForce {
             }
         }
     }
+    #===================================================================================================
+    #   Duration
+    #===================================================================================================
+    $Duration = $(Get-Date) - $StartTime
+    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
-
-

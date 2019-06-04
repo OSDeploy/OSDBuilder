@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.5.22.0'
+ModuleVersion = '19.6.3.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -25,7 +25,8 @@ CompanyName = 'osdeploy.com'
 Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = @' 
+Description = @'
+19.6.3.0 - Win10 1903 New Updates and WinPE CU Restored.  Adding TimeStamp and Duration to Console Output
 19.5.22.0 - Disabled Windows 10 1903 WinPE LCU
 19.5.21.2 - Added Windows 10 1803 Dynamic Update KB4503900
 19.5.21.1 - Windows 10 1903 ESD Images are ready (Get-DownOSDBuilder -MediaESD Download)

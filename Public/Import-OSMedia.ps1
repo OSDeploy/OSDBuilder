@@ -66,7 +66,7 @@ function Import-OSMedia {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
             Pause
-			Exit
+            Exit
         }
 
         #===================================================================================================
@@ -207,26 +207,14 @@ function Import-OSMedia {
                 Write-Host "Image: Export Install.esd Index $OSImageIndex to $TempESD" -ForegroundColor Green
                 
                 $CurrentLog = "$env:Temp\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Export-WindowsImage -SourceImagePath "$OSImagePath" -SourceIndex $OSImageIndex -DestinationImagePath "$TempESD" -CheckIntegrity -CompressionType max -LogPath "$CurrentLog" | Out-Null
             } else {
                 $InstallWimType = "wim"
             }
 
-            #===================================================================================================
-            #   19.1.1 Image: Mount Windows Image'
-            #===================================================================================================
-            #Write-Host '========================================================================================' -ForegroundColor DarkGray
             $MountDirectory = Join-Path $OSDBuilderContent\Mount "os$((Get-Date).ToString('HHmmss'))"
-            if (!(Test-Path "$MountDirectory")) {New-Item "$MountDirectory" -ItemType Directory -Force | Out-Null}
-
-            if ($InstallWimType -eq "esd") {
-                Write-Host "Image: Mount $TempESD (Index 1) to $MountDirectory" -ForegroundColor Green
-                Mount-WindowsImage -ImagePath "$TempESD" -Index '1' -Path "$MountDirectory" -ReadOnly | Out-Null
-            } else {
-                Write-Host "Image: Mount $OSImagePath (Index $OSImageIndex) to $MountDirectory" -ForegroundColor Green
-                Mount-WindowsImage -ImagePath "$OSImagePath" -Index $OSImageIndex -Path "$MountDirectory" -ReadOnly | Out-Null
-            }
+            Mount-ImportOSMedia
 
             #===================================================================================================
             #   19.1.1 Image: Get Registry and UBR'
@@ -327,11 +315,11 @@ function Import-OSMedia {
 
             if ($InstallWimType -eq "esd") {            
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Export-WindowsImage -SourceImagePath "$TempESD" -SourceIndex 1 -DestinationImagePath "$OS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
             } else {            
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Export-WindowsImage -SourceImagePath "$OSImagePath" -SourceIndex $OSImageIndex -DestinationImagePath "$OS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
             }
 
@@ -341,7 +329,7 @@ function Import-OSMedia {
             OSD-AutoExtraFilesBackup -OSMediaPath "$OSMediaPath"
             OSD-SessionsCopy -OSMediaPath "$OSMediaPath"
             OSD-OS-Inventory -OSMediaPath "$OSMediaPath"
-            OSD-WinPE-ExportWims -OSMediaPath "$OSMediaPath"
+            Export-WinPEWims -OSMediaPath "$OSMediaPath"
             OSD-WinPE-ExportInventory -OSMediaPath "$OSMediaPath"
 
             #===================================================================================================
@@ -354,7 +342,7 @@ function Import-OSMedia {
             }
 
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage.log"
-            Write-Verbose "$CurrentLog"
+            Write-Verbose "CurrentLog: $CurrentLog"
             Dismount-WindowsImage -Discard -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null
 
             #===================================================================================================

@@ -1,95 +1,15 @@
-function OSD-WinPE-ExportWims {
-    [CmdletBinding()]
-    PARAM (
-        [string]$OSMediaPath
-    )
-    Write-Host "WinPE: Export WIMs to $OSMediaPath\WinPE" -ForegroundColor Green
-    Write-Verbose "OSMediaPath: $OSMediaPath"
-
-    Write-Verbose "$OSMediaPath\WinPE\boot.wim"
-    Copy-Item -Path "$OSMediaPath\OS\sources\boot.wim" -Destination "$OSMediaPath\WinPE\boot.wim" -Force
-
-    Write-Verbose "$OSMediaPath\WinPE\winpe.wim"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinPE.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$OSMediaPath\OS\sources\boot.wim" -SourceIndex 1 -DestinationImagePath "$OSMediaPath\WinPE\winpe.wim" -LogPath "$CurrentLog" | Out-Null
-
-    Write-Verbose "$OSMediaPath\WinPE\winre.wim"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinRE.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$MountDirectory\Windows\System32\Recovery\winre.wim" -SourceIndex 1 -DestinationImagePath "$OSMediaPath\WinPE\winre.wim" -LogPath "$CurrentLog" | Out-Null
-
-    Write-Verbose "$OSMediaPath\WinPE\winse.wim"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinSE.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$OSMediaPath\OS\sources\boot.wim" -SourceIndex 2 -DestinationImagePath "$OSMediaPath\WinPE\winse.wim" -LogPath "$CurrentLog" | Out-Null
-}
-
-
-function OSD-WinPE-Mount {
+function Export-WinPEPackageInventory {
     [CmdletBinding()]
     PARAM (
         [string]$OSMediaPath
     )
     #===================================================================================================
-    Write-Verbose '19.1.1 Mount WinPE'
-    #===================================================================================================
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-
-    Write-Host "WinPE: Mount WIMs" -ForegroundColor Green
-    Write-Verbose '========== OSD-WinPE-Mount'
-    Write-Verbose "OSMediaPath: $OSMediaPath"
-    Write-Verbose "MountWinPE: $MountWinPE"
-    Write-Verbose "MountWinRE: $MountWinRE"
-    Write-Verbose "MountWinSE: $MountWinSE"
-
-    Write-Verbose "$MountWinPE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-WindowsImage-WinPE.log"
-    Write-Verbose "$CurrentLog"
-    Mount-WindowsImage -ImagePath "$OSMediaPath\WimTemp\winpe.wim" -Index 1 -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
-
-    Write-Verbose "$MountWinRE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-WindowsImage-WinRE.log"
-    Write-Verbose "$CurrentLog"
-    Mount-WindowsImage -ImagePath "$OSMediaPath\WimTemp\winre.wim" -Index 1 -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
-	
-    Write-Verbose "$MountWinSE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-WindowsImage-WinSE.log"
-    Write-Verbose "$CurrentLog"
-    Mount-WindowsImage -ImagePath "$OSMediaPath\WimTemp\winse.wim" -Index 1 -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
-}
-
-function OSD-WinPE-Sources {
-    [CmdletBinding()]
-    PARAM (
-        [string]$OSMediaPath
-    )
-    #===================================================================================================
-    Write-Verbose '19.1.1 OSD-WinPE-Sources'
-    #===================================================================================================
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-
-    Write-Host "Media: Update Sources with WinSE.wim" -ForegroundColor Green
-    Write-Verbose '========== OSD-WinPE-Sources'
-    Write-Verbose "OSMediaPath: $OSMediaPath"
-    Write-Verbose "MountWinSE: $MountWinSE"
-
-    robocopy "$MountWinSE\sources" "$OSMediaPath\OS\sources" setup.exe /ndl /xo /xx /xl /b /np /ts /tee /r:0 /w:0 /Log+:"$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Robocopy-WinSE-MediaSources.log" | Out-Null
-    robocopy "$MountWinSE\sources" "$OSMediaPath\OS\sources" setuphost.exe /ndl /xo /xx /xl /b /np /ts /tee /r:0 /w:0 /Log+:"$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Robocopy-WinSE-MediaSources.log" | Out-Null
-}
-
-function OSD-WinPE-PackageInventory {
-    [CmdletBinding()]
-    PARAM (
-        [string]$OSMediaPath
-    )
-    #===================================================================================================
-    Write-Verbose '19.1.1 OSD-WinPE-PackageInventory'
+    Write-Verbose '19.1.1 Export-WinPEPackageInventory'
     #===================================================================================================
     #Write-Host '========================================================================================' -ForegroundColor DarkGray
 
     Write-Host "WinPE: Export Package Inventory to $OSMediaPath\WinPE\info" -ForegroundColor Green
-    Write-Verbose '========== OSD-WinPE-PackageInventory'
+    Write-Verbose '========== Export-WinPEPackageInventory'
     Write-Verbose "OSMediaPath: $OSMediaPath"
     Write-Verbose "MountWinPE: $MountWinPE"
     Write-Verbose "MountWinRE: $MountWinRE"
@@ -135,105 +55,9 @@ function OSD-WinPE-PackageInventory {
     $GetWindowsPackage | ConvertTo-Json | Out-File "$OSMediaPath\WinPE\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsPackage-WinSE.json"
 }
 
-function OSD-WinPE-Dismount {
-    [CmdletBinding()]
-    PARAM (
-        [string]$OSMediaPath
-    )
-    #===================================================================================================
-    #   OSD-WinPE-Dismount
-    #===================================================================================================
-    Write-Host "WinPE: Dismount and Save" -ForegroundColor Green
-    Write-Verbose '========== OSD-WinPE-Dismount'
-    Write-Verbose "OSMediaPath: $OSMediaPath"
-    Start-Sleep -Seconds 10
-    
-    Write-Verbose "$MountWinPE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinPE.log"
-    Write-Verbose "$CurrentLog"
-    try {
-        Dismount-WindowsImage -Path "$MountWinPE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
-    }
-    catch {
-        Write-Warning "Could not dismount WinPE ... Waiting 30 seconds ..."
-        Start-Sleep -Seconds 30
-        Dismount-WindowsImage -Path "$MountWinPE" -Save -LogPath "$CurrentLog" | Out-Null
-    }
-    
-    Write-Verbose "$MountWinRE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinRE.log"
-    Write-Verbose "$CurrentLog"
-    try {
-        Dismount-WindowsImage -Path "$MountWinRE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
-    }
-    catch {
-        Write-Warning "Could not dismount WinRE ... Waiting 30 seconds ..."
-        Start-Sleep -Seconds 30
-        Dismount-WindowsImage -Path "$MountWinRE" -Save -LogPath "$CurrentLog" | Out-Null
-    }
-    
-    Write-Verbose "$MountWinSE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinSE.log"
-    Write-Verbose "$CurrentLog"
-    try {
-        Dismount-WindowsImage -Path "$MountWinSE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
-    }
-    catch {
-        Write-Warning "Could not dismount WinSE ... Waiting 30 seconds ..."
-        Start-Sleep -Seconds 30
-        Dismount-WindowsImage -Path "$MountWinSE" -Save -LogPath "$CurrentLog" | Out-Null
-    }
-}
 
-function OSD-WinPE-Export {
-    [CmdletBinding()]
-    PARAM (
-        [string]$OSMediaPath
-    )
-    #===================================================================================================
-    Write-Verbose '19.1.1 OSD-WinPE-Export'
-    #===================================================================================================
 
-    Write-Host "WinPE: Export WIMs to $OSMediaPath\WinPE" -ForegroundColor Green
-    Write-Verbose '========== OSD-WinPE-Export'
-    Write-Verbose "OSMediaPath: $OSMediaPath"
-    
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinPE.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$OSMediaPath\WimTemp\winpe.wim" -SourceIndex 1 -DestinationImagePath "$OSMediaPath\WinPE\winpe.wim" -LogPath "$CurrentLog" | Out-Null
-    
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinRE.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$OSMediaPath\WimTemp\winre.wim" -SourceIndex 1 -DestinationImagePath "$OSMediaPath\WinPE\winre.wim" -LogPath "$CurrentLog" | Out-Null
 
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinSE.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$OSMediaPath\WimTemp\winse.wim" -SourceIndex 1 -DestinationImagePath "$OSMediaPath\WinPE\winse.wim" -LogPath "$CurrentLog" | Out-Null
-}
-
-function OSD-WinPE-ExportBootWim {
-    [CmdletBinding()]
-    PARAM (
-        [string]$OSMediaPath
-    )
-    #===================================================================================================
-    Write-Verbose '19.1.1 OSD-WinPE-ExportBootWim'
-    #===================================================================================================
-
-    Write-Host "WinPE: Rebuild $OSMediaPath\OS\sources\boot.wim" -ForegroundColor Green
-    Write-Verbose '========== OSD-WinPE-ExportBootWim'
-    Write-Verbose "OSMediaPath: $OSMediaPath"
-
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinPE.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$OSMediaPath\WimTemp\winpe.wim" -SourceIndex 1 -DestinationImagePath "$OSMediaPath\WinPE\boot.wim" -LogPath "$CurrentLog" | Out-Null
-    
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinSE.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$OSMediaPath\WimTemp\winse.wim" -SourceIndex 1 -DestinationImagePath "$OSMediaPath\WinPE\boot.wim" -Setbootable -LogPath "$CurrentLog" | Out-Null
-	
-    Copy-Item -Path "$OSMediaPath\WinPE\boot.wim" -Destination "$OSMediaPath\OS\sources\boot.wim" -Force | Out-Null
-}
 
 function OSD-WinPE-ExportInventory {
     [CmdletBinding()]

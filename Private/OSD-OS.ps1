@@ -68,61 +68,11 @@ function OSD-OS-Inventory {
     CATCH {Write-Warning "Get-WindowsPackage is not supported by this Operating System"}
 }
 
-function OSD-OS-DismountWindowsImage {
-    [CmdletBinding()]
-    PARAM ()
-    #===================================================================================================
-    #   
-    #===================================================================================================
-    Write-Host "Install.wim: Dismount from $MountDirectory" -ForegroundColor Green
-    if ($WaitDismount.IsPresent){[void](Read-Host 'Press Enter to Continue')}
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage.log"
-    Write-Verbose "$CurrentLog"
-    Start-Sleep -Seconds 10
-    try {
-        Dismount-WindowsImage -Path "$MountDirectory" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
-    }
-    catch {
-        Write-Warning "Could not dismount Install.wim ... Waiting 30 seconds ..."
-        Start-Sleep -Seconds 30
-        Dismount-WindowsImage -Path "$MountDirectory" -Save -LogPath "$CurrentLog" | Out-Null
-    }
-}
 
-function OSD-OS-ExportWindowsImage {
-    [CmdletBinding()]
-    PARAM ()
-    #===================================================================================================
-    Write-Verbose '19.1.1 Install.wim: Export'
-    #===================================================================================================
-    Write-Host "Install.wim: Export to $OS\sources\install.wim" -ForegroundColor Green
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
-    Write-Verbose "$CurrentLog"
-    Export-WindowsImage -SourceImagePath "$WimTemp\install.wim" -SourceIndex 1 -DestinationImagePath "$OS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
-}
 
-function OSD-OS-ReplaceWinRE {
-    [CmdletBinding()]
-    PARAM ()
-    #===================================================================================================
-    Write-Verbose '19.1.1 Install.wim: Replace WinRE'
-    #===================================================================================================
-    Write-Host "Install.wim: Replace $MountDirectory\Windows\System32\Recovery\winre.wim" -ForegroundColor Green
-    if (Test-Path "$MountDirectory\Windows\System32\Recovery\winre.wim") {
-        Remove-Item -Path "$MountDirectory\Windows\System32\Recovery\winre.wim" -Force
-    }
 
-    Copy-Item -Path "$WinPE\winre.wim" -Destination "$MountDirectory\Windows\System32\Recovery\winre.wim" -Force | Out-Null
-    $GetWindowsImage = @()
-    $GetWindowsImage = Get-WindowsImage -ImagePath "$WinPE\winre.wim" -Index 1 | Select-Object -Property *
-    $GetWindowsImage | Out-File "$PEInfo\Get-WindowsImage-WinRE.txt"
-    (Get-Content "$PEInfo\Get-WindowsImage-WinRE.txt") | Where-Object {$_.Trim(" `t")} | Set-Content "$PEInfo\Get-WindowsImage-WinRE.txt"
-    $GetWindowsImage | Out-File "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage-WinRE.txt"
-    $GetWindowsImage | Export-Clixml -Path "$PEInfo\xml\Get-WindowsImage-WinRE.xml"
-    $GetWindowsImage | Export-Clixml -Path "$PEInfo\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage-WinRE.xml"
-    $GetWindowsImage | ConvertTo-Json | Out-File "$PEInfo\json\Get-WindowsImage-WinRE.json"
-    $GetWindowsImage | ConvertTo-Json | Out-File "$PEInfo\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage-WinRE.json"
-}
+
+
 
 function OSD-OS-RegExportCurrentVersion {
     [CmdletBinding()]
@@ -135,22 +85,6 @@ function OSD-OS-RegExportCurrentVersion {
     $RegCurrentVersion | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
     $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\CurrentVersion.json"
     $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
-}
-
-
-function OSD-OS-MountWindowsImage {
-    [CmdletBinding()]
-    PARAM ()
-
-    #===================================================================================================
-    Write-Verbose '19.1.1 Install.wim: Mount'
-    #===================================================================================================
-
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host "Install.wim: Mount to $MountDirectory" -ForegroundColor Green
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-WindowsImage.log"
-    Write-Verbose "$CurrentLog"
-    Mount-WindowsImage -ImagePath "$WimTemp\install.wim" -Index 1 -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null
 }
 
 function OSD-OS-CopyOS {

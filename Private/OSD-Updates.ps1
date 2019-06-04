@@ -27,7 +27,7 @@ function OSD-Updates-Component {
                 Write-Warning "KB$($Update.KBNumber) is already installed"
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Component-KB$($Update.KBNumber).log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateComp" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -73,7 +73,7 @@ function OSD-Updates-SSU {
                 Write-Warning "KB$($Update.KBNumber) is already installed"
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber).log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -117,7 +117,7 @@ function OSD-Updates-SSUForce {
         if (Test-Path "$UpdateSSU") {
             Write-Host "$UpdateSSU" -ForegroundColor DarkGray
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber).log"
-            Write-Verbose "$CurrentLog"
+            Write-Verbose "CurrentLog: $CurrentLog"
             Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
@@ -168,7 +168,7 @@ function OSD-Updates-LCU {
                 }
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber).log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -211,7 +211,7 @@ function OSD-Updates-LCUForce {
         if (Test-Path "$UpdateCU") {
             Write-Host "$UpdateCU" -ForegroundColor DarkGray
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Cumulative-KB$($Update.KBNumber).log"
-            Write-Verbose "$CurrentLog"
+            Write-Verbose "CurrentLog: $CurrentLog"
             Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateCU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
@@ -257,7 +257,7 @@ function OSD-Updates-Adobe {
                 Write-Warning "KB$($Update.KBNumber) is already installed"
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-AdobeFlashPlayer-KB$($Update.KBNumber).log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateASU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -300,7 +300,7 @@ function OSD-Updates-DotNet {
         if (Test-Path "$UpdateNetCU") {
             Write-Host "$UpdateNetCU" -ForegroundColor DarkGray
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DotNet-KB$($Update.KBNumber).log"
-            Write-Verbose "$CurrentLog"
+            Write-Verbose "CurrentLog: $CurrentLog"
             Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateNetCU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
@@ -344,7 +344,7 @@ function OSD-Updates-Seven {
                 Write-Warning "KB$($Update.KBNumber) is already installed"
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateSeven-KB$($Update.KBNumber).log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSeven" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -389,7 +389,7 @@ function OSD-Updates-TwelveR2 {
                 Write-Warning "KB$($Update.KBNumber) is already installed"
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateTwelveR2-KB$($Update.KBNumber).log"
-                Write-Verbose "$CurrentLog"
+                Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateTwelveR2" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
@@ -439,11 +439,11 @@ function OSD-Updates-DismImageCleanup {
         if ($(Get-WindowsCapability -Path $MountDirectory | Where-Object {$_.state -eq "*pending*"})) {
             Write-Warning "Cannot run WindowsImage Cleanup on a WIM with Pending Installations"
         } else {
-            Write-Verbose "$CurrentLog"
+            Write-Verbose "CurrentLog: $CurrentLog"
             Dism /Image:"$MountDirectory" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
         }
     } else {
-        Write-Verbose "$CurrentLog"
+        Write-Verbose "CurrentLog: $CurrentLog"
         Dism /Image:"$MountDirectory" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog" 
     }
     #===================================================================================================

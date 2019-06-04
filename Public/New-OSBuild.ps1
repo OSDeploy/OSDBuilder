@@ -832,7 +832,7 @@ function New-OSBuild {
                 #   WinPE
                 #===================================================================================================
                 OSD-UpdatesPE-Setup
-                OSD-WinPE-Mount -OSMediaPath "$WorkingPath"
+                Mount-WinPEWims -OSMediaPath "$WorkingPath"
                 OSD-UpdatesPE-SSU
                 OSD-UpdatesPE-LCU
                 if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
@@ -852,18 +852,18 @@ function New-OSBuild {
                     #OSD-UpdatesPE-LCUForce
                 }
 
-                OSD-WinPE-Sources -OSMediaPath "$WorkingPath"
-                OSD-WinPE-PackageInventory -OSMediaPath "$WorkingPath"
+                Update-WinPESources -OSMediaPath "$WorkingPath"
+                Export-WinPEPackageInventory -OSMediaPath "$WorkingPath"
                 if ($WaitDismountWinPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
-                OSD-WinPE-Dismount -OSMediaPath "$WorkingPath"
+                Dismount-WinPEWims -OSMediaPath "$WorkingPath"
                 OSD-WinPE-Export -OSMediaPath "$WorkingPath"
                 OSD-WinPE-ExportBootWim -OSMediaPath "$WorkingPath"
                 OSD-WinPE-ExportInventory -OSMediaPath "$WorkingPath"
                 #===================================================================================================
                 #   Install.wim
                 #===================================================================================================
-                OSD-OS-MountWindowsImage
-                OSD-OS-ReplaceWinRE
+                Mount-InstallWim
+                Replace-WinREWim
                 #===================================================================================================
                 #   Install.wim UBR Pre-Update
                 #===================================================================================================
@@ -1002,8 +1002,8 @@ function New-OSBuild {
                     OSD-RegistryREG
                     OSD-RegistryXML
                 }
-                OSD-OS-DismountWindowsImage
-                OSD-OS-ExportWindowsImage
+                Dismount-InstallWim
+                Export-InstallWim
                 #===================================================================================================
                 Write-Verbose '19.1.1 Install.wim: Export Configuration'
                 #===================================================================================================
