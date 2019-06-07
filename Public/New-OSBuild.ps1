@@ -241,7 +241,7 @@ function New-OSBuild {
                 $LocalExperiencePacks = $Task.LocalExperiencePacks
                 $LanguageCopySources = $Task.LanguageCopySources
                 
-                if (!($TaskName -eq 'Taskless')) {Show-OSDInfoTask}
+                if (!($TaskName -eq 'Taskless')) {Show-TaskInfo}
             }
             #===================================================================================================
             #   OSBuild
@@ -359,7 +359,7 @@ function New-OSBuild {
                 }
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                if (!($SkipTemplates.IsPresent)) {Show-OSDInfoTask}
+                if (!($SkipTemplates.IsPresent)) {Show-TaskInfo}
             }
             #===================================================================================================
             Write-Verbose '19.1.1 Set Proper Paths'
@@ -413,7 +413,7 @@ function New-OSBuild {
             $OSCreatedTime =        $($WindowsImage.CreatedTime)
             $OSModifiedTime =       $($WindowsImage.ModifiedTime)
 
-            Show-OSDInfoSourceOSMedia
+            Show-OSMediaImageInfo
             #===================================================================================================
             Write-Verbose '19.1.1 Validate Registry CurrentVersion.xml'
             #===================================================================================================
@@ -509,7 +509,7 @@ function New-OSBuild {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Host "OSBuild Template Driver Directories (Applied)" -ForegroundColor Green
-                $DriverTemplates = Get-OSDTemplateDrivers
+                $DriverTemplates = Get-OSTemplateDrivers
             }
             #===================================================================================================
             #   OSBuild
@@ -518,7 +518,7 @@ function New-OSBuild {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Host "OSBuild Template ExtraFiles Directories (Searched)" -ForegroundColor Green
-                $ExtraFilesTemplates = Get-OSDTemplateExtraFiles
+                $ExtraFilesTemplates = Get-OSTemplateExtraFiles
                 Write-Host "OSBuild Template ExtraFiles Files (Applied)" -ForegroundColor Green
                 if ($ExtraFilesTemplates) {foreach ($Item in $ExtraFilesTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}}
             }
@@ -529,7 +529,7 @@ function New-OSBuild {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Host "OSBuild Template Registry REG Directories (Searched)" -ForegroundColor Green
-                $RegistryTemplatesReg = Get-OSDTemplateRegistryReg
+                $RegistryTemplatesReg = Get-OSTemplateRegistryReg
                 Write-Host "OSBuild Template Registry REG Files (Applied)" -ForegroundColor Green
                 if ($RegistryTemplatesReg) {foreach ($Item in $RegistryTemplatesReg) {Write-Host $Item.FullName -ForegroundColor Gray}}
             }
@@ -540,7 +540,7 @@ function New-OSBuild {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Host "OSBuild Template Registry XML Directories (Searched)" -ForegroundColor Green
-                $RegistryTemplatesXml = Get-OSDTemplateRegistryXml
+                $RegistryTemplatesXml = Get-OSTemplateRegistryXml
                 Write-Host "OSBuild Template Registry XML Files (Applied)" -ForegroundColor Green
                 if ($RegistryTemplatesXml) {foreach ($Item in $RegistryTemplatesXml) {Write-Host $Item.FullName -ForegroundColor Gray}}
             }
@@ -551,7 +551,7 @@ function New-OSBuild {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Host "OSBuild Template Script Directories (Searched)" -ForegroundColor Green
-                $ScriptTemplates = Get-OSDTemplateScripts
+                $ScriptTemplates = Get-OSTemplateScripts
                 Write-Host "OSBuild Template Script Files (Applied)" -ForegroundColor Green
                 if ($ScriptTemplates) {foreach ($Item in $ScriptTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}}
             }
@@ -825,16 +825,16 @@ function New-OSBuild {
                 $LogName = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-$ScriptName.log"
                 Start-Transcript -Path (Join-Path "$Info\logs" $LogName)
 
-                New-ItemOSMediaDirectories
-                Show-OSDInfoWorkingInformation
-                Copy-OSDOperatingSystem
+                New-OSMediaDirectories
+                Show-OSWorkingInfo
+                Copy-MediaOperatingSystem
                 #===================================================================================================
                 #   WinPE
                 #===================================================================================================
-                Update-MediaSetup
-                Mount-WimWinPE -OSMediaPath "$WorkingPath"
-                Mount-WimWinRE -OSMediaPath "$WorkingPath"
-                Mount-WimWinSE -OSMediaPath "$WorkingPath"
+                Update-MediaSetupDU
+                Mount-PEWimWinPE -OSMediaPath "$WorkingPath"
+                Mount-PEWimWinRE -OSMediaPath "$WorkingPath"
+                Mount-PEWimWinSE -OSMediaPath "$WorkingPath"
                 Update-PEServicingStack
                 Update-PECumulative
                 if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
@@ -844,39 +844,39 @@ function New-OSBuild {
                 #   WinPE OSBuild
                 #===================================================================================================
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                    if ($WinPEDaRT) {Expand-OSDDaRTPE}
-                    if ($WinPEAutoExtraFiles -eq $true) {Copy-OSDAutoExtraFiles}
+                    if ($WinPEDaRT) {Expand-PEDaRT}
+                    if ($WinPEAutoExtraFiles -eq $true) {Copy-PEAutoExtraFiles}
                     if ($WinPEExtraFilesPE -or $WinPEExtraFilesRE -or $WinPEExtraFilesSE) {Use-ContentExtraFilesWinPE}
                     if ($WinPEDrivers) {Use-ContentDriversWinPE}
                     if ($WinPEADKPE -or $WinPEADKRE -or $WinPEADKSE) {
-                        Add-OSDADKWinPE
-                        Add-OSDADKWinRE
-                        Add-OSDADKWinSE
+                        Add-PEContentADKWinPE
+                        Add-PEContentADKWinRE
+                        Add-PEContentADKWinSE
                     }
                     if ($WinPEScriptsPE -or $WinPEScriptsRE -or $WinPEScriptsSE) {Use-ContentScriptsWinPE}
                     #Update-PEServicingStackForce
                     #Update-PECumulativeForce
                 }
 
-                Update-WinPESources -OSMediaPath "$WorkingPath"
-                Save-OSDInventoryPackagesPE -OSMediaPath "$WorkingPath"
+                Update-PESources -OSMediaPath "$WorkingPath"
+                Save-PEPackageInventory -OSMediaPath "$WorkingPath"
                 if ($WaitDismountWinPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
-                Dismount-OSDWimPE -OSMediaPath "$WorkingPath"
-                Export-OSDWindowsImagePE -OSMediaPath "$WorkingPath"
-                Export-OSDWindowsImagePEBootWim -OSMediaPath "$WorkingPath"
-                Save-OSDInventoryPE -OSMediaPath "$WorkingPath"
+                Dismount-PEWims -OSMediaPath "$WorkingPath"
+                Export-PEWims -OSMediaPath "$WorkingPath"
+                Export-PEBootWim -OSMediaPath "$WorkingPath"
+                Save-PEInventory -OSMediaPath "$WorkingPath"
                 #===================================================================================================
                 #   Install.wim
                 #===================================================================================================
-                Mount-WimInstall
-                Set-OSDWinREWim
+                Mount-OSInstallWim
+                Set-OSWinREWim
                 #===================================================================================================
                 #   Install.wim UBR Pre-Update
                 #===================================================================================================
 				#===================================================================================================
 				#   Header
 				#===================================================================================================
-				Get-OSDStartTime
+				Show-ActionTime
 				Write-Host -ForegroundColor Green "Install.wim: Mount Registry for UBR Information"
                 reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
                 $RegCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
@@ -890,7 +890,7 @@ function New-OSBuild {
                     $UBR = "$OSBuild.$OSSPBuild"
                     $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
-                Export-OSDRegistryCurrentVersion
+                Export-OSRegistryCurrentVersion
                 #===================================================================================================
                 #   Install.wim Updates
                 #===================================================================================================
@@ -900,7 +900,7 @@ function New-OSBuild {
 				#===================================================================================================
 				#   Header
 				#===================================================================================================
-				Get-OSDStartTime
+				Show-ActionTime
 				Write-Host -ForegroundColor Green "Install.wim: Update Build Revision $UBRPre (Pre-LCU)"
                 Update-OSCumulative
                 if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
@@ -924,11 +924,11 @@ function New-OSBuild {
                     $UBR = "$OSBuild.$OSSPBuild"
                     $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
-                Export-OSDRegistryCurrentVersion
+                Export-OSRegistryCurrentVersion
 				#===================================================================================================
 				#   Header
 				#===================================================================================================
-				Get-OSDStartTime
+				Show-ActionTime
 				Write-Host -ForegroundColor Green "Install.wim: Update Build Revision $UBR (Post-LCU)"
                 #===================================================================================================
                 Update-OSAdobe
@@ -939,7 +939,7 @@ function New-OSBuild {
 					#===================================================================================================
 					#   Header
 					#===================================================================================================
-					Get-OSDStartTime
+					Show-ActionTime
 					Write-Host -ForegroundColor Green "Install.wim: Update OneDriveSetup.exe"
                     Write-Warning "To update OneDriveSetup.exe use one of the following commands:"
                     Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
@@ -983,24 +983,24 @@ function New-OSBuild {
                 #	OSBuild Only
                 #===================================================================================================
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                    if ($LanguagePacks) {Add-OSDLanguagePacks}
-                    if ($LanguageInterfacePacks) {Add-OSDLanguageInterfacePacks}
-                    if ($LocalExperiencePacks) {Add-OSDLanguageLocalExperiencePacks}
-                    if ($LanguageFeatures) {Add-OSDLanguageFeatures}
-                    if ($LanguageCopySources) {Copy-OSDLanguageSources}
+                    if ($LanguagePacks) {Add-OSLanguagePacks}
+                    if ($LanguageInterfacePacks) {Add-OSLanguageInterfacePacks}
+                    if ($LocalExperiencePacks) {Add-OSLocalExperiencePacks}
+                    if ($LanguageFeatures) {Add-OSLanguageFeaturesOnDemand}
+                    if ($LanguageCopySources) {Copy-MediaLanguageSources}
                     if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks) {
-                        Set-OSDLanguageSettings
+                        Set-OSLanguageSettings
                         Update-OSCumulativeForce
                         Use-DismCleanupImage
                     }
-                    if ($FeaturesOnDemand) {Add-OSDFeaturesOnDemand}
+                    if ($FeaturesOnDemand) {Add-OSFeaturesOnDemand}
                     if ($EnableFeature) {Enable-OSDWindowsOptionalFeature}
-                    if ($EnableNetFX3 -eq 'True') {Enable-OSDNetFX}
-                    if ($RemoveAppx) {Remove-AppxProvisionedPackageOSD}
-                    if ($RemovePackage) {Remove-WindowsPackageOSD}
-                    if ($RemoveCapability) {Remove-WindowsCapabilityOSD}
-                    if ($DisableFeature) {Disable-OSDWindowsOptionalFeature}
-                    if ($Packages) {Add-OSDWindowsPackage}
+                    if ($EnableNetFX3 -eq 'True') {Enable-OSNetFX}
+                    if ($RemoveAppx) {Remove-OSAppxProvisionedPackage}
+                    if ($RemovePackage) {Remove-OSWindowsPackage}
+                    if ($RemoveCapability) {Remove-OSWindowsCapability}
+                    if ($DisableFeature) {Disable-OSWindowsOptionalFeature}
+                    if ($Packages) {Add-OSWindowsPackage}
                     Use-ContentDriversOS
                     Use-ContentExtraFilesOS
                     if ($StartLayoutXML) {Use-ContentStartLayout}
@@ -1012,22 +1012,22 @@ function New-OSBuild {
                 #===================================================================================================
                 #	Mirror OSMedia and OSBuild
                 #===================================================================================================
-                Save-AutoExtraFilesOSD -OSMediaPath "$WorkingPath"
-                Save-OSDSessionsXml -OSMediaPath "$WorkingPath"
-                Export-OSDInventoryOS -OSMediaPath "$WorkingPath"
+                Backup-OSAutoExtraFiles -OSMediaPath "$WorkingPath"
+                Save-OSSessionsXml -OSMediaPath "$WorkingPath"
+                Save-OSInventory -OSMediaPath "$WorkingPath"
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                    Import-OSDRegistryReg
-                    Import-OSDRegistryXml
+                    Import-OSRegistryReg
+                    Import-OSRegistryXml
                 }
-                Dismount-OSDWimOS
-                Export-OSDWimOS
+                Dismount-OSInstallWim
+                Export-OSInstallWim
                 #===================================================================================================
                 Write-Verbose '19.1.1 Install.wim: Export Configuration'
                 #===================================================================================================
 				#===================================================================================================
 				#   Header
 				#===================================================================================================
-				Get-OSDStartTime
+				Show-ActionTime
 				Write-Host -ForegroundColor Green "Install.wim: Export Configuration to $WorkingPath\WindowsImage.txt"
                 $GetWindowsImage = @()
                 $GetWindowsImage = Get-WindowsImage -ImagePath "$OS\sources\install.wim" -Index 1 | Select-Object -Property *
@@ -1051,7 +1051,7 @@ function New-OSBuild {
                 #===================================================================================================
                 #    OSD-Export
                 #===================================================================================================
-                #Save-OSDWindowsImageContentPE
+                #Save-PEWindowsImageContent
 
                 #===================================================================================================
                 Write-Verbose '19.3.17 UBR Validation'
@@ -1143,7 +1143,7 @@ function New-OSBuild {
                 #===================================================================================================
                 #   OSD-Export
                 #===================================================================================================
-                Save-OSDWindowsImageContent
+                Save-OSWindowsImageContent
                 Save-OSDVariables
 
                 #===================================================================================================
@@ -1159,7 +1159,7 @@ function New-OSBuild {
 				#===================================================================================================
 				#   Header
 				#===================================================================================================
-				Get-OSDStartTime
+				Show-ActionTime
 				Write-Host -ForegroundColor Green "Media: Renaming ""$WorkingPath"" to ""$NewOSMediaName"""
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Stop-Transcript

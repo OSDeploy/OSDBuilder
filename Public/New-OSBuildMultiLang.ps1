@@ -101,10 +101,10 @@ function New-OSBuildMultiLang {
 					#===================================================================================================
 					#   Header
 					#===================================================================================================
-					Get-OSDStartTime
+					Show-ActionTime
 					Write-Host -ForegroundColor Green "$($Media.ImageName) $LangMultiDefaultName is already processed as Index 1"
                 } else {
-                    Get-OSDStartTime
+                    Show-ActionTime
 					Write-Host -ForegroundColor Green "Processing $($Media.ImageName) $LangMultiLanguage"
 
                     Write-Host "Dism /Image:"$TempMount" /Set-AllIntl:$LangMultiLanguage" -ForegroundColor Cyan

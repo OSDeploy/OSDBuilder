@@ -214,7 +214,7 @@ function Import-OSMedia {
             }
 
             $MountDirectory = Join-Path $OSDBuilderContent\Mount "os$((Get-Date).ToString('HHmmss'))"
-            Mount-ImportOSMedia
+            Mount-MediaInstallWim
 
             #===================================================================================================
             #   19.1.1 Image: Get Registry and UBR'
@@ -302,8 +302,8 @@ function Import-OSMedia {
             #===================================================================================================
             Write-Verbose 'OSD-Info'
             #===================================================================================================
-            Show-OSDInfoOSMedia
-            Show-OSDInfoWindowsImage
+            Show-OSMediaInfo
+            Show-WindowsImageInfo
 
             #===================================================================================================
             #   19.1.1 Media: Copy Operating System'
@@ -326,11 +326,11 @@ function Import-OSMedia {
             #===================================================================================================
             #   19.2.13 Export
             #===================================================================================================
-            Save-AutoExtraFilesOSD -OSMediaPath "$OSMediaPath"
-            Save-OSDSessionsXml -OSMediaPath "$OSMediaPath"
-            Export-OSDInventoryOS -OSMediaPath "$OSMediaPath"
-            Export-WinPEWims -OSMediaPath "$OSMediaPath"
-            Save-OSDInventoryPE -OSMediaPath "$OSMediaPath"
+            Backup-OSAutoExtraFiles -OSMediaPath "$OSMediaPath"
+            Save-OSSessionsXml -OSMediaPath "$OSMediaPath"
+            Save-OSInventory -OSMediaPath "$OSMediaPath"
+            Save-PEWims -OSMediaPath "$OSMediaPath"
+            Save-PEInventory -OSMediaPath "$OSMediaPath"
 
             #===================================================================================================
             #   19.1.1 Install.wim: Dismount
@@ -372,7 +372,7 @@ function Import-OSMedia {
             #===================================================================================================
             #    OSD-Export
             #===================================================================================================
-            Save-OSDWindowsImageContent
+            Save-OSWindowsImageContent
             Save-OSDVariables
 
             #===================================================================================================

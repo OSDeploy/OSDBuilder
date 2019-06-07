@@ -53,11 +53,6 @@ function Get-OSDBuilder {
     #===================================================================================================
     $global:OSDBuilderURL = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
     #===================================================================================================
-    #   19.3.9 Remove Existing Modules
-    #===================================================================================================
-    #Remove-OSDModuleOSBuilder
-    #Remove-OSDModuleOSMedia
-    #===================================================================================================
     #   19.2.8  Get OSDBuilder Version
     #===================================================================================================
     $global:OSDBuilderVersion = $(Get-Module -Name OSDBuilder | Sort-Object Version | Select-Object Version -Last 1).Version

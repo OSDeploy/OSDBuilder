@@ -258,7 +258,7 @@ function Get-OSMedia {
             #===================================================================================================
             $OSMSessions = @()
             if (Test-Path "$OSMediaPath\Sessions.xml") {
-                Export-OSDSessionsXml -OSMediaPath "$OSMediaPath"
+                Export-OSSessionsXml -OSMediaPath "$OSMediaPath"
             }
 
             if (Test-Path "$OSMediaPath\info\xml\Sessions.xml") {
