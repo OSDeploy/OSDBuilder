@@ -20,7 +20,7 @@ function New-OSBuildMultiLang {
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Initialize OSDBuilder'
@@ -30,7 +30,7 @@ function New-OSBuildMultiLang {
     
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Warning "OSBuild MultiLang will take an OSBuild with Language Packs"
         Write-Warning "and create a new OSBuild with multiple Indexes"
         Write-Warning "Each Index will have a Language set as the System UI"
@@ -98,9 +98,14 @@ function New-OSBuildMultiLang {
             #===================================================================================================
             foreach ($LangMultiLanguage in $LangMultiLanguages) {
                 if ($LangMultiLanguage -eq $LangMultiDefaultName) {
-                    Write-Host "$($Media.ImageName) $LangMultiDefaultName is already processed as Index 1" -ForegroundColor Green
+					#===================================================================================================
+					#   Header
+					#===================================================================================================
+					Get-OSDStartTime
+					Write-Host -ForegroundColor Green "$($Media.ImageName) $LangMultiDefaultName is already processed as Index 1"
                 } else {
-                    Write-Host "Processing $($Media.ImageName) $LangMultiLanguage" -ForegroundColor Green
+                    Get-OSDStartTime
+					Write-Host -ForegroundColor Green "Processing $($Media.ImageName) $LangMultiLanguage"
 
                     Write-Host "Dism /Image:"$TempMount" /Set-AllIntl:$LangMultiLanguage" -ForegroundColor Cyan
                     Dism /Image:"$TempMount" /Set-AllIntl:$LangMultiLanguage
@@ -139,6 +144,6 @@ function New-OSBuildMultiLang {
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }

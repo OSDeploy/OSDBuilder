@@ -200,7 +200,7 @@ function New-OSBuildTask {
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Initialize OSDBuilder'
@@ -210,7 +210,7 @@ function New-OSBuildTask {
     
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         
         #===================================================================================================
         #   19.1.1 Validate Administrator Rights
@@ -978,6 +978,6 @@ function New-OSBuildTask {
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }

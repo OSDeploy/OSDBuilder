@@ -75,7 +75,7 @@ function Get-DownOSDBuilder {
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
         Get-OSDBuilder -CreatePaths -HideDetails
 
         #===================================================================================================
@@ -90,7 +90,7 @@ function Get-DownOSDBuilder {
 
     PROCESS {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
         #===================================================================================================
         #   MediaESD
@@ -207,7 +207,7 @@ function Get-DownOSDBuilder {
             #   Get OSDUpdates
             #===================================================================================================
             $OSDUpdates = @()
-            $OSDUpdates = OSD-Update-GetOSDUpdates
+            $OSDUpdates = Get-OSDUpdates
             #===================================================================================================
             #   Superseded Updates
             #===================================================================================================
@@ -296,6 +296,6 @@ function Get-DownOSDBuilder {
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }

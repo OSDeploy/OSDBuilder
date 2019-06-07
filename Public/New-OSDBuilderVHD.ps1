@@ -36,7 +36,7 @@ function New-OSDBuilderVHD {
     BEGIN {
         
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
         #===================================================================================================
         #   Validate Administrator Rights
         #===================================================================================================
@@ -65,7 +65,7 @@ function New-OSDBuilderVHD {
 
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         #===================================================================================================
         #   Select Source OSMedia
         #===================================================================================================
@@ -213,7 +213,7 @@ function New-OSDBuilderVHD {
 
     END {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
         Write-Host '========================================================================================' -ForegroundColor DarkGray
     }
 }

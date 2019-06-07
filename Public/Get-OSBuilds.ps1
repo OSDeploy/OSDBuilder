@@ -31,7 +31,7 @@ function Get-OSBuilds {
         #   Get OSDUpdates
         #===================================================================================================
         $OSDUpdates = @()
-        $OSDUpdates = OSD-Update-GetOSDUpdates
+        $OSDUpdates = Get-OSDUpdates
         #===================================================================================================
         #   Get OSBuilds
         #===================================================================================================
@@ -155,7 +155,7 @@ function Get-OSBuilds {
             #===================================================================================================
             $OSMSessions = @()
             if (Test-Path "$OSBuildPath\Sessions.xml") {
-                OSD-SessionsConvert -OSMediaPath "$OSBuildPath"
+                Export-OSDSessionsXml -OSMediaPath "$OSBuildPath"
             }
 
             if (Test-Path "$OSBuildPath\info\xml\Sessions.xml") {

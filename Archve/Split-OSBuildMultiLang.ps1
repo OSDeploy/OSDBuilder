@@ -20,7 +20,7 @@ function Split-OSBuildMultiLang {
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Initialize OSDBuilder'
@@ -30,7 +30,7 @@ function Split-OSBuildMultiLang {
     
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Warning "This script is under Development at this time"
         Pause
         
@@ -126,6 +126,6 @@ function Split-OSBuildMultiLang {
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }

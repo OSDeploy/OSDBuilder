@@ -20,7 +20,7 @@ function Show-OSDBuilderInfo {
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
         #===================================================================================================
         #   Initialize OSDBuilder
         Get-OSDBuilder -CreatePaths -HideDetails
@@ -41,7 +41,7 @@ function Show-OSDBuilderInfo {
 
     PROCESS {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Select Source OSMedia'
@@ -179,6 +179,6 @@ function Show-OSDBuilderInfo {
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }

@@ -67,7 +67,7 @@ function Get-OSMedia {
         #   Get OSDUpdates
         #===================================================================================================
         $OSDUpdates = @()
-        $OSDUpdates = OSD-Update-GetOSDUpdates
+        $OSDUpdates = Get-OSDUpdates
         #===================================================================================================
         #   Get OSMedia
         #===================================================================================================
@@ -258,7 +258,7 @@ function Get-OSMedia {
             #===================================================================================================
             $OSMSessions = @()
             if (Test-Path "$OSMediaPath\Sessions.xml") {
-                OSD-SessionsConvert -OSMediaPath "$OSMediaPath"
+                Export-OSDSessionsXml -OSMediaPath "$OSMediaPath"
             }
 
             if (Test-Path "$OSMediaPath\info\xml\Sessions.xml") {

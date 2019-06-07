@@ -1,110 +1,17 @@
-function OSD-UpdatesPE-Setup {
+function Update-PEServicingStack {
     [CmdletBinding()]
     PARAM ()
-    #===================================================================================================
-    #   StartTime
-    #===================================================================================================
-    $StartTime = Get-Date
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] Media: Setup Update" -ForegroundColor Green
+    Get-OSDStartTime
+    Write-Host -ForegroundColor Green "WinPE: (SSU) Servicing Stack Update"
     #===================================================================================================
-    #   Execute
-    #===================================================================================================
-    if (!($null -eq $OSDUpdateSetupDU)) {
-        foreach ($Update in $OSDUpdateSetupDU) {
-            $OSDUpdateSetupDU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -File -Recurse | Where-Object {$_.Name -eq $($Update.FileName)}).FullName
-            $OSDUpdateSetupDU
-            if (Test-Path "$OSDUpdateSetupDU") {
-                expand.exe "$OSDUpdateSetupDU" -F:*.* "$OS\Sources"
-            } else {
-                Write-Warning "Not Found: $OSDUpdateSetupDU ... Skipping Update"
-            }
-        }
-    }
-    #===================================================================================================
-    #   Duration
-    #===================================================================================================
-    $Duration = $(Get-Date) - $StartTime
-    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
-}
-
-function OSD-UpdatesPE-Seven {
-    [CmdletBinding()]
-    PARAM ()
-    #===================================================================================================
-    #   StartTime
-    #===================================================================================================
-    $StartTime = Get-Date
-    #===================================================================================================
-    #   Header
-    #===================================================================================================
-    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] Media: Seven Updates" -ForegroundColor Green
-    #===================================================================================================
-    #   Execute
-    #===================================================================================================
-    foreach ($Update in $OSDUpdateWinSeven) {
-        if ($Update.UpdateGroup -eq 'SSU' -or $Update.UpdateGroup -eq 'LCU') {
-            $UpdateWinPESeven = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
-            if (Test-Path "$UpdateWinPESeven") {
-                Write-Host "$UpdateWinPESeven" -ForegroundColor Gray
-    
-                if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                    Write-Warning "WinSE.wim KB$($Update.KBNumber) is already installed"
-                } else {
-                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinSE.log"
-                    Write-Verbose "CurrentLog: $CurrentLog"
-                    Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
-                }
-    
-                if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                    Write-Warning "WinPE.wim KB$($Update.KBNumber) is already installed"
-                } else {
-                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinPE.log"
-                    Write-Verbose "CurrentLog: $CurrentLog"
-                    Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
-                }
-    
-                if (Get-WindowsPackage -Path "$MountWinRE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                    Write-Warning "WinRE.wim KB$($Update.KBNumber) is already installed"
-                } else {
-                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinRE.log"
-                    Write-Verbose "CurrentLog: $CurrentLog"
-                    Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
-                }
-            } else {
-                Write-Warning "Not Found: $UpdateWinPESeven ... Skipping Update"
-            }
-        }
-    }
-    #===================================================================================================
-    #   Duration
-    #===================================================================================================
-    $Duration = $(Get-Date) - $StartTime
-    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
-}
-
-function OSD-UpdatesPE-SSU {
-    [CmdletBinding()]
-    PARAM ()
-    #===================================================================================================
-    #   Abort
+    #   Return
     #===================================================================================================
     if ($OSMajorVersion -ne 10) {Return}
-    #===================================================================================================
-    #   StartTime
-    #===================================================================================================
-    $StartTime = Get-Date
-    #===================================================================================================
-    #   Header
-    #===================================================================================================
-    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] WinPE: (SSU) Servicing Stack Update" -ForegroundColor Green
-    #===================================================================================================
-    #   Parameters
-    #===================================================================================================
     if ($SkipUpdates) {
-        Write-Warning "Skip: -SkipUpdates Parameter was used"
+        Show-InfoSkipUpdates
         Return
     }
     #===================================================================================================
@@ -157,33 +64,22 @@ function OSD-UpdatesPE-SSU {
             Write-Warning "Not Found: $UpdateSSU"
         }
     }
-    #===================================================================================================
-    #   Duration
-    #===================================================================================================
-    $Duration = $(Get-Date) - $StartTime
-    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
 
-function OSD-UpdatesPE-SSUForce {
+function Update-PEServicingStackForce {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
-    #   Abort
-    #===================================================================================================
-    if ($OSMajorVersion -ne 10) {Return}
-    #===================================================================================================
-    #   StartTime
-    #===================================================================================================
-    $StartTime = Get-Date
-    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] WinPE: (SSU) Servicing Stack Update Forced" -ForegroundColor Green
+    Get-OSDStartTime
+    Write-Host -ForegroundColor Green "WinPE: (SSU) Servicing Stack Update Forced"
     #===================================================================================================
-    #   Parameters
+    #   Return
     #===================================================================================================
+    if ($OSMajorVersion -ne 10) {Return}
     if ($SkipUpdates) {
-        Write-Warning "Skip: -SkipUpdates Parameter was used"
+        Show-InfoSkipUpdates
         Return
     }
     #===================================================================================================
@@ -224,33 +120,20 @@ function OSD-UpdatesPE-SSUForce {
             Write-Warning "Not Found: $UpdateSSU ... Skipping Update"
         }
     }
-    #===================================================================================================
-    #   Duration
-    #===================================================================================================
-    $Duration = $(Get-Date) - $StartTime
-    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
-
-function OSD-UpdatesPE-LCU {
+function Update-PECumulative {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
-    #   Abort
-    #===================================================================================================
-    #if ($OSMajorVersion -ne 10) {Return}
-    #===================================================================================================
-    #   StartTime
-    #===================================================================================================
-    $StartTime = Get-Date
-    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] WinPE: (LCU) Latest Cumulative Update" -ForegroundColor Green
+    Get-OSDStartTime
+    Write-Host -ForegroundColor Green "WinPE: (LCU) Latest Cumulative Update"
     #===================================================================================================
-    #   Parameters
+    #   Return
     #===================================================================================================
     if ($SkipUpdates) {
-        Write-Warning "Skip: -SkipUpdates Parameter was used"
+        Show-InfoSkipUpdates
         Return
     }
 <#     if ($OSBuild -eq 18362) {
@@ -279,7 +162,11 @@ function OSD-UpdatesPE-LCU {
                     if (!($OSVersion -like "6.1.7601.*")) {
                         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
                         Write-Verbose "CurrentLog: $CurrentLog"
-                        Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                        if ($SkipComponentCleanup) {
+                            Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                        } else {
+                            Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                        }
                     }
                 }
             } else {
@@ -289,7 +176,11 @@ function OSD-UpdatesPE-LCU {
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
-                    Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    }
                 }
             }
 
@@ -306,7 +197,11 @@ function OSD-UpdatesPE-LCU {
                     if (!($OSVersion -like "6.1.7601.*")) {
                         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
                         Write-Verbose "CurrentLog: $CurrentLog"
-                        Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                        if ($SkipComponentCleanup) {
+                            Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                        } else {
+                            Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                        }
                     }
                 }
             } else {
@@ -316,7 +211,11 @@ function OSD-UpdatesPE-LCU {
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
-                    Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    }
                 }
             }
 
@@ -333,7 +232,11 @@ function OSD-UpdatesPE-LCU {
                     if (!($OSVersion -like "6.1.7601.*")) {
                         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
                         Write-Verbose "CurrentLog: $CurrentLog"
-                        Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                        if ($SkipComponentCleanup) {
+                            Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                        } else {
+                            Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                        }
                     }
                 }
             } else {
@@ -343,39 +246,31 @@ function OSD-UpdatesPE-LCU {
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
-                    Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    }
                 }
             }
         } else {
             Write-Warning "Not Found: $UpdateLCU"
         }
     }
-    #===================================================================================================
-    #   Duration
-    #===================================================================================================
-    $Duration = $(Get-Date) - $StartTime
-    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
 }
-function OSD-UpdatesPE-LCUForce {
+function Update-PECumulativeForce {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
-    #   Abort
-    #===================================================================================================
-    #if ($OSMajorVersion -ne 10) {Return}
-    #===================================================================================================
-    #   StartTime
-    #===================================================================================================
-    $StartTime = Get-Date
-    #===================================================================================================
     #   Header
     #===================================================================================================
-    Write-Host "[$(($StartTime).ToString('yyyy-MM-dd-HHmmss'))] WinPE: (LCU) Latest Cumulative Update Forced" -ForegroundColor Green
+    Get-OSDStartTime
+    Write-Host -ForegroundColor Green "WinPE: (LCU) Latest Cumulative Update Forced"
     #===================================================================================================
-    #   Parameters
+    #   Return
     #===================================================================================================
     if ($SkipUpdates) {
-        Write-Warning "Skip: -SkipUpdates Parameter was used"
+        Show-InfoSkipUpdates
         Return
     }
 <#     if ($OSBuild -eq 18362) {
@@ -399,7 +294,11 @@ function OSD-UpdatesPE-LCUForce {
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
-                    Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    }
                 }
 
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinRE.log"
@@ -408,7 +307,11 @@ function OSD-UpdatesPE-LCUForce {
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
-                    Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    }
                 }
 
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinSE.log"
@@ -417,16 +320,69 @@ function OSD-UpdatesPE-LCUForce {
                 if (!($OSVersion -like "6.1.7601.*")) {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
-                    Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    }
                 }
             } else {
                 Write-Warning "Not Found: $UpdateLCU"
             }
         }
     }
+}
+function Update-PEWindowsSeven {
+    [CmdletBinding()]
+    PARAM ()
     #===================================================================================================
-    #   Duration
+    #   Header
     #===================================================================================================
-    $Duration = $(Get-Date) - $StartTime
-    Write-Host "Duration: $($Duration.ToString('mm\:ss'))" -ForegroundColor DarkGray
+    Get-OSDStartTime
+    Write-Host -ForegroundColor Green "WinPE: Windows 7 Updates"
+    #===================================================================================================
+    #   Return
+    #===================================================================================================
+    if ($OSMajorVersion -eq 10) {Return}
+    if ($SkipUpdates) {
+        Show-InfoSkipUpdates
+        Return
+    }
+    #===================================================================================================
+    #   Execute
+    #===================================================================================================
+    foreach ($Update in $OSDUpdateWinSeven) {
+        if ($Update.UpdateGroup -eq 'SSU' -or $Update.UpdateGroup -eq 'LCU') {
+            $UpdateWinPESeven = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
+            if (Test-Path "$UpdateWinPESeven") {
+                Write-Host "$UpdateWinPESeven" -ForegroundColor Gray
+    
+                if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
+                    Write-Warning "WinSE.wim KB$($Update.KBNumber) is already installed"
+                } else {
+                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinSE.log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+                    Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
+                }
+    
+                if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
+                    Write-Warning "WinPE.wim KB$($Update.KBNumber) is already installed"
+                } else {
+                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinPE.log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+                    Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
+                }
+    
+                if (Get-WindowsPackage -Path "$MountWinRE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
+                    Write-Warning "WinRE.wim KB$($Update.KBNumber) is already installed"
+                } else {
+                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinRE.log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+                    Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateWinPESeven" -LogPath "$CurrentLog" | Out-Null
+                }
+            } else {
+                Write-Warning "Not Found: $UpdateWinPESeven ... Skipping Update"
+            }
+        }
+    }
 }

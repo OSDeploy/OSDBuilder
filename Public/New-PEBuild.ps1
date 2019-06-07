@@ -37,7 +37,7 @@ function New-PEBuild {
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Validate Administrator Rights'
@@ -117,7 +117,7 @@ $MDTUnattendPEx86 = @'
 
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
     
         #===================================================================================================
         Write-Verbose '19.1.1 Select Task'
@@ -743,8 +743,8 @@ $MDTUnattendPEx86 = @'
                 #===================================================================================================
                 #    OSD-Export
                 #===================================================================================================
-                OSD-Export-WindowsImageContentPE
-                OSD-Export-Variables
+                Save-OSDWindowsImageContentPE
+                Save-OSDVariables
 
                 #===================================================================================================
                 Write-Verbose '19.1.1 Remove Temporary Files'
@@ -779,6 +779,6 @@ $MDTUnattendPEx86 = @'
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }

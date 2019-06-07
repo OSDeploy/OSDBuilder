@@ -26,7 +26,7 @@ function New-OSDBuilderUSB {
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Validate Administrator Rights'
@@ -60,7 +60,7 @@ function New-OSDBuilderUSB {
 
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
         Write-Warning "USB will be formatted FAT32"
         Write-Warning "Install.wim larger than 4GB will FAIL"
@@ -102,6 +102,6 @@ function New-OSDBuilderUSB {
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }

@@ -57,7 +57,7 @@ function Import-OSMedia {
 
     BEGIN {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Validate Administrator Rights'
@@ -157,7 +157,7 @@ function Import-OSMedia {
 
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host "$($MyInvocation.MyCommand.Name) PROCESS" -ForegroundColor Green
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Import Windows Images'
@@ -302,8 +302,8 @@ function Import-OSMedia {
             #===================================================================================================
             Write-Verbose 'OSD-Info'
             #===================================================================================================
-            OSD-Info-OSMedia
-            OSD-Info-WindowsImage
+            Show-OSDInfoOSMedia
+            Show-OSDInfoWindowsImage
 
             #===================================================================================================
             #   19.1.1 Media: Copy Operating System'
@@ -326,11 +326,11 @@ function Import-OSMedia {
             #===================================================================================================
             #   19.2.13 Export
             #===================================================================================================
-            OSD-AutoExtraFilesBackup -OSMediaPath "$OSMediaPath"
-            OSD-SessionsCopy -OSMediaPath "$OSMediaPath"
-            OSD-OS-Inventory -OSMediaPath "$OSMediaPath"
+            Save-AutoExtraFilesOSD -OSMediaPath "$OSMediaPath"
+            Save-OSDSessionsXml -OSMediaPath "$OSMediaPath"
+            Export-OSDInventoryOS -OSMediaPath "$OSMediaPath"
             Export-WinPEWims -OSMediaPath "$OSMediaPath"
-            OSD-WinPE-ExportInventory -OSMediaPath "$OSMediaPath"
+            Save-OSDInventoryPE -OSMediaPath "$OSMediaPath"
 
             #===================================================================================================
             #   19.1.1 Install.wim: Dismount
@@ -372,8 +372,8 @@ function Import-OSMedia {
             #===================================================================================================
             #    OSD-Export
             #===================================================================================================
-            OSD-Export-WindowsImageContent
-            OSD-Export-Variables
+            Save-OSDWindowsImageContent
+            Save-OSDVariables
 
             #===================================================================================================
             #   19.1.1 Show-OSDBuilderInfo
@@ -402,6 +402,6 @@ function Import-OSMedia {
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host "$($MyInvocation.MyCommand.Name) END" -ForegroundColor Green
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }
