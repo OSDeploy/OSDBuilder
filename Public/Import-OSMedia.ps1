@@ -214,7 +214,7 @@ function Import-OSMedia {
             }
 
             $MountDirectory = Join-Path $OSDBuilderContent\Mount "os$((Get-Date).ToString('HHmmss'))"
-            Mount-MediaInstallWim
+            Mount-InstallwimMEDIA
 
             #===================================================================================================
             #   19.1.1 Image: Get Registry and UBR'
@@ -302,7 +302,7 @@ function Import-OSMedia {
             #===================================================================================================
             Write-Verbose 'OSD-Info'
             #===================================================================================================
-            Show-OSMediaInfo
+            Show-MediaInfoOS
             Show-WindowsImageInfo
 
             #===================================================================================================
@@ -326,11 +326,11 @@ function Import-OSMedia {
             #===================================================================================================
             #   19.2.13 Export
             #===================================================================================================
-            Backup-OSAutoExtraFiles -OSMediaPath "$OSMediaPath"
-            Save-OSSessionsXml -OSMediaPath "$OSMediaPath"
-            Save-OSInventory -OSMediaPath "$OSMediaPath"
-            Save-PEWims -OSMediaPath "$OSMediaPath"
-            Save-PEInventory -OSMediaPath "$OSMediaPath"
+            Backup-AutoExtraFilesOS -OSMediaPath "$OSMediaPath"
+            Save-SessionsXmlOS -OSMediaPath "$OSMediaPath"
+            Save-InventoryOS -OSMediaPath "$OSMediaPath"
+            Save-WimsPE -OSMediaPath "$OSMediaPath"
+            Save-InventoryPE -OSMediaPath "$OSMediaPath"
 
             #===================================================================================================
             #   19.1.1 Install.wim: Dismount
@@ -372,8 +372,8 @@ function Import-OSMedia {
             #===================================================================================================
             #    OSD-Export
             #===================================================================================================
-            Save-OSWindowsImageContent
-            Save-OSDVariables
+            Save-WindowsImageContentOS
+            Save-VariablesOSD
 
             #===================================================================================================
             #   19.1.1 Show-OSDBuilderInfo

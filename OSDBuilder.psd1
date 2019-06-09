@@ -26,12 +26,10 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-19.6.7.0 - Private Function Rebuild
-19.6.3.0 - Win10 1903 New Updates and WinPE CU Restored.  Adding TimeStamp and Duration to Console Output
-19.5.22.0 - Disabled Windows 10 1903 WinPE LCU
-19.5.21.2 - Added Windows 10 1803 Dynamic Update KB4503900
-19.5.21.1 - Windows 10 1903 ESD Images are ready (Get-DownOSDBuilder -MediaESD Download)
-19.5.21.0 - KB4495618 removed from Server 2019 OSDUpdate Catalog as these updates are part of KB4499405
+19.6.9.0 Release
+Functions: Several Private Functions have changed names, as well as displaying the execution time
+Process: No changes to the build processes
+Updates: No changes
 
 WSUS Update Catalogs:
 These are contained within this PowerShell Module, so regular Module updating is needed to

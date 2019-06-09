@@ -14,7 +14,7 @@ Creates an ISO of the OSDBuilder Media
 .PARAMETER Download
 Automatically download the required updates if they are not present in the Content\Updates directory
 
-.PARAMETER Execute
+.PARAMETER `
 Execute the Build
 
 .PARAMETER ByTaskName
@@ -413,7 +413,7 @@ function New-OSBuild {
             $OSCreatedTime =        $($WindowsImage.CreatedTime)
             $OSModifiedTime =       $($WindowsImage.ModifiedTime)
 
-            Show-OSMediaImageInfo
+            Show-MediaImageInfoOS
             #===================================================================================================
             Write-Verbose '19.1.1 Validate Registry CurrentVersion.xml'
             #===================================================================================================
@@ -825,44 +825,44 @@ function New-OSBuild {
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================
-                New-OSMediaDirectories
-                Show-OSWorkingInfo
+                New-DirectoriesOSMedia
+                Show-WorkingInfoOS
                 Copy-MediaOperatingSystem
-                Update-MediaSetupDU
-                Mount-PEWimWinPE -OSMediaPath "$WorkingPath"
-                Mount-PEWimWinRE -OSMediaPath "$WorkingPath"
-                Mount-PEWimWinSE -OSMediaPath "$WorkingPath"
-                Update-PEServicingStack
-                Update-PECumulative
+                Update-SetupDUMEDIA
+                Mount-WinPEwim -OSMediaPath "$WorkingPath"
+                Mount-WinREwim -OSMediaPath "$WorkingPath"
+                Mount-WinSEwim -OSMediaPath "$WorkingPath"
+                Update-ServicingStackPE
+                Update-CumulativePE
                 #===================================================================================================
                 #   Update-OSMedia
                 #===================================================================================================
-                Update-PEWindowsSeven
+                Update-WindowsSevenPE
                 #===================================================================================================
                 #   New-OSBuild
                 #===================================================================================================
-                Expand-PEDaRT
-                Import-PEAutoExtraFiles
-                Add-ContentExtraFilesWinPE
-                Add-ContentDriversWinPE
-                Add-PEContentADKWinPE
-                Add-PEContentADKWinRE
-                Add-PEContentADKWinSE
-                Add-ContentScriptsWinPE
-                #Update-PEServicingStackForce
-                #Update-PECumulativeForce
+                Expand-DaRTPE
+                Import-AutoExtraFilesPE
+                Add-ContentExtraFilesPE
+                Add-ContentDriversPE
+                Add-ContentADKWinPE
+                Add-ContentADKWinRE
+                Add-ContentADKWinSE
+                Add-ContentScriptsPE
+                #Update-ServicingStackPEForce
+                #Update-CumulativePEForce
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================
-                Update-PESources -OSMediaPath "$WorkingPath"
-                Save-PEPackageInventory -OSMediaPath "$WorkingPath"
+                Update-SourcesPE -OSMediaPath "$WorkingPath"
+                Save-PackageInventoryPE -OSMediaPath "$WorkingPath"
                 if ($WaitDismountWinPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
                 Dismount-PEWims -OSMediaPath "$WorkingPath"
                 Export-PEWims -OSMediaPath "$WorkingPath"
                 Export-PEBootWim -OSMediaPath "$WorkingPath"
-                Save-PEInventory -OSMediaPath "$WorkingPath"
-                Mount-OSInstallWim
-                Set-OSWinREWim
+                Save-InventoryPE -OSMediaPath "$WorkingPath"
+                Mount-InstallwimOS
+                Set-WinREWimOS
                 #===================================================================================================
                 #   Install.wim UBR Pre-Update
                 #===================================================================================================
@@ -884,20 +884,20 @@ function New-OSBuild {
                 #===================================================================================================
                 #   Install.wim Updates
                 #===================================================================================================
-                Update-OSComponent
-                Update-OSServicingStack
+                Update-ComponentOS
+                Update-ServicingStackOS
                 $UBRPre = $UBR
                 #===================================================================================================
                 #   Install.wim UBR Post-Update
                 #===================================================================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Update Build Revision $UBRPre (Pre-LCU)"
-                Update-OSCumulative
+                Update-CumulativeOS
                 #===================================================================================================
                 #   Update-OSMedia
                 #===================================================================================================
-                Update-OSWindowsSeven
-                Update-OSWindowsTwelveR2
+                Update-WindowsSevenOS
+                Update-WindowsServer2012R2OS
                 #===================================================================================================
                 #   Install.wim UBR Post-Update
                 #===================================================================================================
@@ -919,8 +919,8 @@ function New-OSBuild {
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================
-                Update-OSAdobe
-                Update-OSDotNet
+                Update-AdobeOS
+                Update-DotNetOS
                 Invoke-DismCleanupImage
                 #===================================================================================================
                 #   OneDriveSetup
@@ -966,43 +966,43 @@ function New-OSBuild {
                 #===================================================================================================
                 #	New-OSBuild
                 #===================================================================================================
-                Add-OSLanguagePacks
-                Add-OSLanguageInterfacePacks
-                Add-OSLocalExperiencePacks
-                Add-OSLanguageFeaturesOnDemand
+                Add-LanguagePacksOS
+                Add-LanguageInterfacePacksOS
+                Add-LocalExperiencePacksOS
+                Add-LanguageFeaturesOnDemandOS
                 Copy-MediaLanguageSources
                 if ($ScriptName -eq 'New-OSBuild') {
                     if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks) {
-                        Set-OSLanguageSettings
-                        Update-OSCumulativeForce
+                        Set-LanguageSettingsOS
+                        Update-CumulativeOSForce
                         Invoke-DismCleanupImage
                     }
                 }
-                Add-OSFeaturesOnDemand
+                Add-FeaturesOnDemandOS
                 Enable-OSWindowsOptionalFeature
                 Enable-OSNetFX
-                Remove-OSAppxProvisionedPackage
-                Remove-OSWindowsPackage
-                Remove-OSWindowsCapability
-                Disable-OSWindowsOptionalFeature
-                Add-OSWindowsPackage
+                Remove-AppxProvisionedPackageOS
+                Remove-WindowsPackageOS
+                Remove-WindowsCapabilityOS
+                Disable-WindowsOptionalFeatureOS
+                Add-WindowsPackageOS
                 Add-ContentDriversOS
                 Add-ContentExtraFilesOS
                 Add-ContentStartLayout
                 Add-ContentUnattend
                 Add-ContentScriptsOS
-                Update-OSServicingStackForce
+                Update-ServicingStackOSForce
                 #===================================================================================================
                 #	Mirror OSMedia and OSBuild
                 #===================================================================================================
-                Backup-OSAutoExtraFiles -OSMediaPath "$WorkingPath"
-                Save-OSSessionsXml -OSMediaPath "$WorkingPath"
-                Save-OSInventory -OSMediaPath "$WorkingPath"
+                Backup-AutoExtraFilesOS -OSMediaPath "$WorkingPath"
+                Save-SessionsXmlOS -OSMediaPath "$WorkingPath"
+                Save-InventoryOS -OSMediaPath "$WorkingPath"
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                    Import-OSRegistryReg
-                    Import-OSRegistryXml
+                    Import-RegistryRegOS
+                    Import-RegistryXmlOS
                 }
-                Dismount-OSInstallWim
+                DisMount-InstallwimOS
                 Export-OSInstallWim
                 #===================================================================================================
                 Write-Verbose '19.1.1 OS: Export Configuration'
@@ -1034,7 +1034,7 @@ function New-OSBuild {
                 #===================================================================================================
                 #    OSD-Export
                 #===================================================================================================
-                #Save-PEWindowsImageContent
+                #Save-WindowsImageContentPE
 
                 #===================================================================================================
                 Write-Verbose '19.3.17 UBR Validation'
@@ -1126,8 +1126,8 @@ function New-OSBuild {
                 #===================================================================================================
                 #   OSD-Export
                 #===================================================================================================
-                Save-OSWindowsImageContent
-                Save-OSDVariables
+                Save-WindowsImageContentOS
+                Save-VariablesOSD
 
                 #===================================================================================================
                 #   OSDBuilder Media'
