@@ -833,20 +833,16 @@ function Update-OSMedia {
                 #===================================================================================================
                 #   WinPE OSBuild
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                    if ($WinPEDaRT) {Expand-PEDaRT}
-                    if ($WinPEAutoExtraFiles -eq $true) {Copy-PEAutoExtraFiles}
-                    if ($WinPEExtraFilesPE -or $WinPEExtraFilesRE -or $WinPEExtraFilesSE) {Use-ContentExtraFilesWinPE}
-                    if ($WinPEDrivers) {Use-ContentDriversWinPE}
-                    if ($WinPEADKPE -or $WinPEADKRE -or $WinPEADKSE) {
-                        Add-PEContentADKWinPE
-                        Add-PEContentADKWinRE
-                        Add-PEContentADKWinSE
-                    }
-                    if ($WinPEScriptsPE -or $WinPEScriptsRE -or $WinPEScriptsSE) {Use-ContentScriptsWinPE}
-                    #Update-PEServicingStackForce
-                    #Update-PECumulativeForce
-                }
+                Expand-PEDaRT
+                Import-PEAutoExtraFiles
+                Add-ContentExtraFilesWinPE
+                Add-ContentDriversWinPE
+                Add-PEContentADKWinPE
+                Add-PEContentADKWinRE
+                Add-PEContentADKWinSE
+                Add-ContentScriptsWinPE
+                #Update-PEServicingStackForce
+                #Update-PECumulativeForce
 
                 Update-PESources -OSMediaPath "$WorkingPath"
                 Save-PEPackageInventory -OSMediaPath "$WorkingPath"
@@ -863,11 +859,11 @@ function Update-OSMedia {
                 #===================================================================================================
                 #   Install.wim UBR Pre-Update
                 #===================================================================================================
-				#===================================================================================================
-				#   Header
-				#===================================================================================================
-				Show-ActionTime
-				Write-Host -ForegroundColor Green "Install.wim: Mount Registry for UBR Information"
+                #===================================================================================================
+                #   Header
+                #===================================================================================================
+                Show-ActionTime
+                Write-Host -ForegroundColor Green "OS: Mount Registry for UBR Information"
                 reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
                 $RegCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
                 reg UNLOAD 'HKLM\OSMedia' | Out-Null
@@ -887,11 +883,11 @@ function Update-OSMedia {
                 Update-OSComponent
                 Update-OSServicingStack
                 $UBRPre = $UBR
-				#===================================================================================================
-				#   Header
-				#===================================================================================================
-				Show-ActionTime
-				Write-Host -ForegroundColor Green "Install.wim: Update Build Revision $UBRPre (Pre-LCU)"
+                #===================================================================================================
+                #   Header
+                #===================================================================================================
+                Show-ActionTime
+                Write-Host -ForegroundColor Green "OS: Update Build Revision $UBRPre (Pre-LCU)"
                 Update-OSCumulative
                 if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
                     Update-OSWindowsSeven
@@ -915,22 +911,22 @@ function Update-OSMedia {
                     $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
                 Export-OSRegistryCurrentVersion
-				#===================================================================================================
-				#   Header
-				#===================================================================================================
-				Show-ActionTime
-				Write-Host -ForegroundColor Green "Install.wim: Update Build Revision $UBR (Post-LCU)"
+                #===================================================================================================
+                #   Header
+                #===================================================================================================
+                Show-ActionTime
+                Write-Host -ForegroundColor Green "OS: Update Build Revision $UBR (Post-LCU)"
                 #===================================================================================================
                 Update-OSAdobe
                 Update-OSDotNet
-                Use-DismCleanupImage
+                Invoke-DismCleanupImage
 
                 if ($OSMajorVersion -eq 10 -and $OSInstallationType -eq 'Client') {
-					#===================================================================================================
-					#   Header
-					#===================================================================================================
-					Show-ActionTime
-					Write-Host -ForegroundColor Green "Install.wim: Update OneDriveSetup.exe"
+                    #===================================================================================================
+                    #   Header
+                    #===================================================================================================
+                    Show-ActionTime
+                    Write-Host -ForegroundColor Green "OS: Update OneDriveSetup.exe"
                     Write-Warning "To update OneDriveSetup.exe use one of the following commands:"
                     Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
                     Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
@@ -981,22 +977,21 @@ function Update-OSMedia {
                     if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks) {
                         Set-OSLanguageSettings
                         Update-OSCumulativeForce
-                        Use-DismCleanupImage
+                        Invoke-DismCleanupImage
                     }
                     if ($FeaturesOnDemand) {Add-OSFeaturesOnDemand}
-                    if ($EnableFeature) {Enable-OSDWindowsOptionalFeature}
+                    if ($EnableFeature) {Enable-OSWindowsOptionalFeature}
                     if ($EnableNetFX3 -eq 'True') {Enable-OSNetFX}
                     if ($RemoveAppx) {Remove-OSAppxProvisionedPackage}
                     if ($RemovePackage) {Remove-OSWindowsPackage}
                     if ($RemoveCapability) {Remove-OSWindowsCapability}
                     if ($DisableFeature) {Disable-OSWindowsOptionalFeature}
                     if ($Packages) {Add-OSWindowsPackage}
-                    Use-ContentDriversOS
-                    Use-ContentExtraFilesOS
-                    if ($StartLayoutXML) {Use-ContentStartLayout}
-                    if ($UnattendXML) {Use-ContentUnattend}
-                    Use-ContentScriptsOS
-
+                    Add-ContentDriversOS
+                    Add-ContentExtraFilesOS
+                    Add-ContentStartLayout
+                    Add-ContentUnattend
+                    Add-ContentScriptsOS
                     Update-OSServicingStackForce
                 }
                 #===================================================================================================
@@ -1012,13 +1007,13 @@ function Update-OSMedia {
                 Dismount-OSInstallWim
                 Export-OSInstallWim
                 #===================================================================================================
-                Write-Verbose '19.1.1 Install.wim: Export Configuration'
+                Write-Verbose '19.1.1 OS: Export Configuration'
                 #===================================================================================================
-				#===================================================================================================
-				#   Header
-				#===================================================================================================
-				Show-ActionTime
-				Write-Host -ForegroundColor Green "Install.wim: Export Configuration to $WorkingPath\WindowsImage.txt"
+                #===================================================================================================
+                #   Header
+                #===================================================================================================
+                Show-ActionTime
+                Write-Host -ForegroundColor Green "OS: Export Configuration to $WorkingPath\WindowsImage.txt"
                 $GetWindowsImage = @()
                 $GetWindowsImage = Get-WindowsImage -ImagePath "$OS\sources\install.wim" -Index 1 | Select-Object -Property *
 
@@ -1046,13 +1041,13 @@ function Update-OSMedia {
                 #===================================================================================================
                 Write-Verbose '19.3.17 UBR Validation'
                 #===================================================================================================
-				if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
-					if ($UBRPre -eq $UBR) {
-						Write-Host '========================================================================================' -ForegroundColor DarkGray
-						Write-Warning 'The Update Build Revision did not change after Windows Updates'
-						Write-Warning 'There may have been an issue applying the Latest Cumulative Update if this was not expected'
-					}
-				}
+                if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
+                    if ($UBRPre -eq $UBR) {
+                        Write-Host '========================================================================================' -ForegroundColor DarkGray
+                        Write-Warning 'The Update Build Revision did not change after Windows Updates'
+                        Write-Warning 'There may have been an issue applying the Latest Cumulative Update if this was not expected'
+                    }
+                }
                 if (!($UBR)) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     $UBR = $((Get-Date).ToString('mmss'))
