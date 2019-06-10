@@ -847,7 +847,7 @@ function Update-OSMedia {
                 Update-SourcesPE -OSMediaPath "$WorkingPath"
                 Save-PackageInventoryPE -OSMediaPath "$WorkingPath"
                 if ($WaitDismountWinPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
-                Dismount-PEWims -OSMediaPath "$WorkingPath"
+                Dismount-WimsPE -OSMediaPath "$WorkingPath"
                 Export-PEWims -OSMediaPath "$WorkingPath"
                 Export-PEBootWim -OSMediaPath "$WorkingPath"
                 Save-InventoryPE -OSMediaPath "$WorkingPath"
@@ -876,7 +876,7 @@ function Update-OSMedia {
                     $UBR = "$OSBuild.$OSSPBuild"
                     $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
-                Export-OSRegistryCurrentVersion
+                Save-RegistryCurrentVersionOS
                 #===================================================================================================
                 #   Install.wim Updates
                 #===================================================================================================
@@ -910,7 +910,7 @@ function Update-OSMedia {
                     $UBR = "$OSBuild.$OSSPBuild"
                     $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
-                Export-OSRegistryCurrentVersion
+                Save-RegistryCurrentVersionOS
                 #===================================================================================================
                 #   Header
                 #===================================================================================================
@@ -980,8 +980,8 @@ function Update-OSMedia {
                         Invoke-DismCleanupImage
                     }
                     if ($FeaturesOnDemand) {Add-FeaturesOnDemandOS}
-                    if ($EnableFeature) {Enable-OSWindowsOptionalFeature}
-                    if ($EnableNetFX3 -eq 'True') {Enable-OSNetFX}
+                    if ($EnableFeature) {Enable-WindowsOptionalFeatureOS}
+                    if ($EnableNetFX3 -eq 'True') {Enable-NetFXOS}
                     if ($RemoveAppx) {Remove-AppxProvisionedPackageOS}
                     if ($RemovePackage) {Remove-WindowsPackageOS}
                     if ($RemoveCapability) {Remove-WindowsCapabilityOS}
@@ -1004,8 +1004,8 @@ function Update-OSMedia {
                     Import-RegistryRegOS
                     Import-RegistryXmlOS
                 }
-                DisMount-InstallwimOS
-                Export-OSInstallWim
+                Dismount-InstallwimOS
+                Export-InstallwimOS
                 #===================================================================================================
                 Write-Verbose '19.1.1 OS: Export Configuration'
                 #===================================================================================================

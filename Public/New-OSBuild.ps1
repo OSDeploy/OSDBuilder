@@ -857,7 +857,7 @@ function New-OSBuild {
                 Update-SourcesPE -OSMediaPath "$WorkingPath"
                 Save-PackageInventoryPE -OSMediaPath "$WorkingPath"
                 if ($WaitDismountWinPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
-                Dismount-PEWims -OSMediaPath "$WorkingPath"
+                Dismount-WimsPE -OSMediaPath "$WorkingPath"
                 Export-PEWims -OSMediaPath "$WorkingPath"
                 Export-PEBootWim -OSMediaPath "$WorkingPath"
                 Save-InventoryPE -OSMediaPath "$WorkingPath"
@@ -880,7 +880,7 @@ function New-OSBuild {
                     $UBR = "$OSBuild.$OSSPBuild"
                     $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
-                Export-OSRegistryCurrentVersion
+                Save-RegistryCurrentVersionOS
                 #===================================================================================================
                 #   Install.wim Updates
                 #===================================================================================================
@@ -913,7 +913,7 @@ function New-OSBuild {
                     $UBR = "$OSBuild.$OSSPBuild"
                     $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
-                Export-OSRegistryCurrentVersion
+                Save-RegistryCurrentVersionOS
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Update Build Revision $UBR (Post-LCU)"
                 #===================================================================================================
@@ -979,8 +979,8 @@ function New-OSBuild {
                     }
                 }
                 Add-FeaturesOnDemandOS
-                Enable-OSWindowsOptionalFeature
-                Enable-OSNetFX
+                Enable-WindowsOptionalFeatureOS
+                Enable-NetFXOS
                 Remove-AppxProvisionedPackageOS
                 Remove-WindowsPackageOS
                 Remove-WindowsCapabilityOS
@@ -1002,8 +1002,8 @@ function New-OSBuild {
                     Import-RegistryRegOS
                     Import-RegistryXmlOS
                 }
-                DisMount-InstallwimOS
-                Export-OSInstallWim
+                Dismount-InstallwimOS
+                Export-InstallwimOS
                 #===================================================================================================
                 Write-Verbose '19.1.1 OS: Export Configuration'
                 #===================================================================================================

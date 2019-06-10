@@ -15,26 +15,37 @@ function Add-ContentADKWinPE {
     #   Execute
     #===================================================================================================
     $WinPEADKPE = $WinPEADKPE | Sort-Object Length
+
     foreach ($PackagePath in $WinPEADKPE) {
         if ($PackagePath -like "*WinPE-NetFx*") {
+            $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+
             Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinPE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
         }
     }
+
     $WinPEADKPE = $WinPEADKPE | Where-Object {$_.Name -notlike "*WinPE-NetFx*"}
     foreach ($PackagePath in $WinPEADKPE) {
         if ($PackagePath -like "*WinPE-PowerShell*") {
+            $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+
             Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinPE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
         }
     }
+
     $WinPEADKPE = $WinPEADKPE | Where-Object {$_.Name -notlike "*WinPE-PowerShell*"}
     foreach ($PackagePath in $WinPEADKPE) {
         Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
         if ($OSMajorVersion -eq 6) {
-            dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$OSDBuilderContent\$PackagePath" /LogPath:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DISM-Add-ContentADKWinPE.log"
+            dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$OSDBuilderContent\$PackagePath" /LogPath:"$CurrentLog"
         } else {
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinPE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
         }
     }
 }
@@ -56,25 +67,35 @@ function Add-ContentADKWinRE {
     #===================================================================================================
     $WinPEADKRE = $WinPEADKRE | Sort-Object Length
     foreach ($PackagePath in $WinPEADKRE) {
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinRE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+
         if ($PackagePath -like "*WinPE-NetFx*") {
             Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinRE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinRE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
         }
     }
+
     $WinPEADKRE = $WinPEADKRE | Where-Object {$_.Name -notlike "*WinPE-NetFx*"}
     foreach ($PackagePath in $WinPEADKRE) {
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinRE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+
         if ($PackagePath -like "*WinPE-PowerShell*") {
             Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinRE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinRE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
         }
     }
     $WinPEADKRE = $WinPEADKRE | Where-Object {$_.Name -notlike "*WinPE-PowerShell*"}
     foreach ($PackagePath in $WinPEADKRE) {
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinRE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+
         Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
         if ($OSMajorVersion -eq 6) {
-            dism /Image:"$MountWinRE" /Add-Package /PackagePath:"$OSDBuilderContent\$PackagePath" /LogPath:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DISM-Add-ContentADKWinRE.log"
+            dism /Image:"$MountWinRE" /Add-Package /PackagePath:"$OSDBuilderContent\$PackagePath" /LogPath:"$CurrentLog"
         } else {
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinRE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinRE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
         }
     }
 }
@@ -95,25 +116,34 @@ function Add-ContentADKWinSE {
     #===================================================================================================
     $WinPEADKSE = $WinPEADKSE | Sort-Object Length
     foreach ($PackagePath in $WinPEADKSE) {
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinSE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+
         if ($PackagePath -like "*WinPE-NetFx*") {
             Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinSE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinSE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
         }
     }
     $WinPEADKSE = $WinPEADKSE | Where-Object {$_.Name -notlike "*WinPE-NetFx*"}
     foreach ($PackagePath in $WinPEADKSE) {
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinSE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+
         if ($PackagePath -like "*WinPE-PowerShell*") {
             Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinSE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinSE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
         }
     }
     $WinPEADKSE = $WinPEADKSE | Where-Object {$_.Name -notlike "*WinPE-PowerShell*"}
     foreach ($PackagePath in $WinPEADKSE) {
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinSE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+
         Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
         if ($OSMajorVersion -eq 6) {
-            dism /Image:"$MountWinSE" /Add-Package /PackagePath:"$OSDBuilderContent\$PackagePath" /LogPath:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DISM-Add-ContentADKWinSEE.log"
+            dism /Image:"$MountWinSE" /Add-Package /PackagePath:"$OSDBuilderContent\$PackagePath" /LogPath:"$CurrentLog.log"
         } else {
-            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinSE" -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinSE.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$OSDBuilderContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
         }
     }
 }
@@ -135,10 +165,14 @@ function Add-ContentDriversOS {
     if ($Drivers) {
         foreach ($Driver in $Drivers) {
             Write-Host "$OSDBuilderContent\$Driver" -ForegroundColor DarkGray
+
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS.log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+
             if ($OSMajorVersion -eq 6) {
-                dism /Image:"$MountDirectory" /Add-Driver /Driver:"$OSDBuilderContent\$Driver" /Recurse /ForceUnsigned /LogPath:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS-TASK.log"
+                dism /Image:"$MountDirectory" /Add-Driver /Driver:"$OSDBuilderContent\$Driver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
             } else {
-                Add-WindowsDriver -Driver "$OSDBuilderContent\$Driver" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS-TASK.log" | Out-Null
+                Add-WindowsDriver -Driver "$OSDBuilderContent\$Driver" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
             }
         }
     }
@@ -154,10 +188,14 @@ function Add-ContentDriversOS {
     if ($DriverTemplates) {
         foreach ($Driver in $DriverTemplates) {
             Write-Host "$($Driver.FullName)" -ForegroundColor DarkGray
+
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS.log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+
             if ($OSMajorVersion -eq 6) {
-                dism /Image:"$MountDirectory" /Add-Driver /Driver:"$($Driver.FullName)" /Recurse /ForceUnsigned /LogPath:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS-TEMPLATE.log"
+                dism /Image:"$MountDirectory" /Add-Driver /Driver:"$($Driver.FullName)" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
             } else {
-                Add-WindowsDriver -Driver "$($Driver.FullName)" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS-TEMPLATE.log" | Out-Null
+                Add-WindowsDriver -Driver "$($Driver.FullName)" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
             }
         }
     }
@@ -180,14 +218,18 @@ function Add-ContentDriversPE {
     #===================================================================================================
     foreach ($WinPEDriver in $WinPEDrivers) {
         Write-Host "$OSDBuilderContent\$WinPEDriver" -ForegroundColor DarkGray
+        
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+
         if ($OSMajorVersion -eq 6) {
-            dism /Image:"$MountWinPE" /Add-Driver /Driver:"$OSDBuilderContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversPE.log"
-            dism /Image:"$MountWinRE" /Add-Driver /Driver:"$OSDBuilderContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversPE.log"
-            dism /Image:"$MountWinSE" /Add-Driver /Driver:"$OSDBuilderContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversPE.log"
+            dism /Image:"$MountWinPE" /Add-Driver /Driver:"$OSDBuilderContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
+            dism /Image:"$MountWinRE" /Add-Driver /Driver:"$OSDBuilderContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
+            dism /Image:"$MountWinSE" /Add-Driver /Driver:"$OSDBuilderContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
         } else {
-            Add-WindowsDriver -Path "$MountWinPE" -Driver "$OSDBuilderContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversPE.log" | Out-Null
-            Add-WindowsDriver -Path "$MountWinRE" -Driver "$OSDBuilderContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversPE.log" | Out-Null
-            Add-WindowsDriver -Path "$MountWinSE" -Driver "$OSDBuilderContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversPE.log" | Out-Null
+            Add-WindowsDriver -Path "$MountWinPE" -Driver "$OSDBuilderContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+            Add-WindowsDriver -Path "$MountWinRE" -Driver "$OSDBuilderContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+            Add-WindowsDriver -Path "$MountWinSE" -Driver "$OSDBuilderContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
         }
     }
 }
@@ -208,8 +250,12 @@ function Add-ContentExtraFilesOS {
     #===================================================================================================
     if ($ExtraFiles) {
         foreach ($ExtraFile in $ExtraFiles) {
+        
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS.log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+
             Write-Host "$OSDBuilderContent\$ExtraFile" -ForegroundColor DarkGray
-            robocopy "$OSDBuilderContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS-TASK.log" | Out-Null
+            robocopy "$OSDBuilderContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
         }
     }
 
@@ -220,8 +266,12 @@ function Add-ContentExtraFilesOS {
     Write-Host -ForegroundColor Green "OS: Use Content Extra Files TEMPLATE"
     if ($ExtraFilesTemplates) {
         foreach ($ExtraFile in $ExtraFilesTemplates) {
+        
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS.log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+
             Write-Host "$($ExtraFile.FullName)" -ForegroundColor DarkGray
-            robocopy "$($ExtraFile.FullName)" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS-TEMPLATE.log" | Out-Null
+            robocopy "$($ExtraFile.FullName)" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
         }
     }
 }
@@ -242,15 +292,21 @@ function Add-ContentExtraFilesPE {
     #===================================================================================================
     foreach ($ExtraFile in $WinPEExtraFilesPE) {
         Write-Host "Source: $OSDBuilderContent\$ExtraFile" -ForegroundColor DarkGray
-        robocopy "$OSDBuilderContent\$ExtraFile" "$MountWinPE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log" | Out-Null
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        robocopy "$OSDBuilderContent\$ExtraFile" "$MountWinPE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
     }
     foreach ($ExtraFile in $WinPEExtraFilesRE) {
         Write-Host "Source: $OSDBuilderContent\$ExtraFile" -ForegroundColor DarkGray
-        robocopy "$OSDBuilderContent\$ExtraFile" "$MountWinRE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log" | Out-Null
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        robocopy "$OSDBuilderContent\$ExtraFile" "$MountWinRE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
     }
     foreach ($ExtraFile in $WinPEExtraFilesSE) {
         Write-Host "Source: $OSDBuilderContent\$ExtraFile" -ForegroundColor DarkGray
-        robocopy "$OSDBuilderContent\$ExtraFile" "$MountWinSE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log" | Out-Null
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        robocopy "$OSDBuilderContent\$ExtraFile" "$MountWinSE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
     }
 }
 function Add-ContentScriptsOS {
@@ -380,7 +436,11 @@ function Add-ContentUnattend {
     Write-Host "$OSDBuilderContent\$UnattendXML" -ForegroundColor DarkGray
     if (!(Test-Path "$MountDirectory\Windows\Panther")) {New-Item -Path "$MountDirectory\Windows\Panther" -ItemType Directory -Force | Out-Null}
     Copy-Item -Path "$OSDBuilderContent\$UnattendXML" -Destination "$MountDirectory\Windows\Panther\Unattend.xml" -Force
-    Try {Use-WindowsUnattend -UnattendPath "$OSDBuilderContent\$UnattendXML" -Path "$MountDirectory" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentUnattend.log" | Out-Null}
+    
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentUnattend.log"
+    Write-Verbose "CurrentLog: $CurrentLog"
+
+    Try {Use-WindowsUnattend -UnattendPath "$OSDBuilderContent\$UnattendXML" -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null}
     Catch {
         $ErrorMessage = $_.Exception.Message
         Write-Warning "$ErrorMessage"
@@ -404,7 +464,8 @@ function Add-FeaturesOnDemandOS {
     #===================================================================================================
     foreach ($FOD in $FeaturesOnDemand) {
         Write-Host $FOD -ForegroundColor DarkGray
-        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-FeaturesOnDemandOS.log"
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-FeaturesOnDemandOS.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
         Try {
             Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$OSDBuilderContent\$FOD" -LogPath "$CurrentLog" | Out-Null
         }
@@ -697,7 +758,7 @@ function Disable-WindowsOptionalFeatureOS {
     }
     #===================================================================================================
 }
-function DisMount-InstallwimOS {
+function Dismount-InstallwimOS {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
@@ -722,7 +783,7 @@ function DisMount-InstallwimOS {
     }
     #===================================================================================================
 }
-function Dismount-PEWims {
+function Dismount-WimsPE {
     [CmdletBinding()]
     PARAM (
         [string]$OSMediaPath
@@ -738,7 +799,7 @@ function Dismount-PEWims {
     Start-Sleep -Seconds 10
     
     Write-Verbose "$MountWinPE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinPE.log"
+    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WimsPE-WinPE.log"
     Write-Verbose "CurrentLog: $CurrentLog"
     try {
         Dismount-WindowsImage -Path "$MountWinPE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
@@ -750,7 +811,7 @@ function Dismount-PEWims {
     }
     
     Write-Verbose "$MountWinRE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinRE.log"
+    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WimsPE-WinRE.log"
     Write-Verbose "CurrentLog: $CurrentLog"
     try {
         Dismount-WindowsImage -Path "$MountWinRE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
@@ -762,7 +823,7 @@ function Dismount-PEWims {
     }
     
     Write-Verbose "$MountWinSE"
-    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage-WinSE.log"
+    $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WimsPE-WinSE.log"
     Write-Verbose "CurrentLog: $CurrentLog"
     try {
         Dismount-WindowsImage -Path "$MountWinSE" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
@@ -774,7 +835,7 @@ function Dismount-PEWims {
     }
     #===================================================================================================
 }
-function Enable-OSNetFX {
+function Enable-NetFXOS {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
@@ -791,8 +852,10 @@ function Enable-OSNetFX {
     #===================================================================================================
     #   Execute
     #===================================================================================================
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Enable-NetFXOS.log"
+    Write-Verbose "CurrentLog: $CurrentLog"
     Try {
-        Enable-WindowsOptionalFeature -Path "$MountDirectory" -FeatureName NetFX3 -All -LimitAccess -Source "$OS\sources\sxs" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-NetFX3.log" | Out-Null
+        Enable-WindowsOptionalFeature -Path "$MountDirectory" -FeatureName NetFX3 -All -LimitAccess -Source "$OS\sources\sxs" -LogPath "$CurrentLog" | Out-Null
     }
     Catch {
         $ErrorMessage = $_.Exception.Message
@@ -805,7 +868,7 @@ function Enable-OSNetFX {
     Update-CumulativeOSForce
     #===================================================================================================
 }
-function Enable-OSWindowsOptionalFeature {
+function Enable-WindowsOptionalFeatureOS {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
@@ -824,7 +887,9 @@ function Enable-OSWindowsOptionalFeature {
     foreach ($FeatureName in $EnableFeature) {
         Write-Host $FeatureName -ForegroundColor DarkGray
         Try {
-            Enable-WindowsOptionalFeature -FeatureName $FeatureName -Path "$MountDirectory" -All -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Enable-WindowsOptionalFeature.log" | Out-Null
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Enable-WindowsOptionalFeatureOS.log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+            Enable-WindowsOptionalFeature -FeatureName $FeatureName -Path "$MountDirectory" -All -LogPath "$CurrentLog" | Out-Null
         }
         Catch {
             $ErrorMessage = $_.Exception.Message
@@ -877,7 +942,7 @@ function Expand-DaRTPE {
         #===================================================================================================
     } else {Write-Warning "Microsoft DaRT do not exist in $OSDBuilderContent\$WinPEDart"}
 }
-function Export-OSInstallWim {
+function Export-InstallwimOS {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
@@ -891,50 +956,6 @@ function Export-OSInstallWim {
     $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
     Write-Verbose "CurrentLog: $CurrentLog"
     Export-WindowsImage -SourceImagePath "$WimTemp\install.wim" -SourceIndex 1 -DestinationImagePath "$OS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
-}
-function Export-OSRegistryCurrentVersion {
-    [CmdletBinding()]
-    PARAM ()
-    $RegCurrentVersion | Out-File "$Info\CurrentVersion.txt"
-    $RegCurrentVersion | Out-File "$WorkingPath\CurrentVersion.txt"
-    $RegCurrentVersion | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
-    $RegCurrentVersion | Export-Clixml -Path "$Info\xml\CurrentVersion.xml"
-    $RegCurrentVersion | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
-    $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\CurrentVersion.json"
-    $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
-}
-function Export-OSSessionsXml {
-    [CmdletBinding()]
-    PARAM (
-        [string]$OSMediaPath
-    )
-    Write-Verbose "$OSMediaPath\Sessions.xml"
-    Copy-Item "$OSMediaPath\Sessions.xml" "$OSMediaPath\info\Sessions.xml" -Force | Out-Null
-
-    [xml]$SessionsXML = Get-Content -Path "$OSMediaPath\info\Sessions.xml"
-
-    $Sessions = $SessionsXML.SelectNodes('Sessions/Session') | ForEach-Object {
-        New-Object -Type PSObject -Property @{
-            Id = $_.Tasks.Phase.package.id
-            KBNumber = $_.Tasks.Phase.package.name
-            TargetState = $_.Tasks.Phase.package.targetState
-            Client = $_.Client
-            Complete = $_.Complete
-            Status = $_.Status
-        }
-    }
-    
-    $Sessions = $Sessions | Where-Object {$_.Id -like "Package*"}
-    $Sessions = $Sessions | Select-Object -Property Id, KBNumber, TargetState, Client, Status, Complete | Sort-Object Complete -Descending
-
-    $Sessions | Out-File "$OSMediaPath\Sessions.txt"
-    $Sessions | Out-File "$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.txt"
-    $Sessions | Export-Clixml -Path "$OSMediaPath\info\xml\Sessions.xml"
-    $Sessions | Export-Clixml -Path "$OSMediaPath\info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.xml"
-    $Sessions | ConvertTo-Json | Out-File "$OSMediaPath\info\json\Sessions.json"
-    $Sessions | ConvertTo-Json | Out-File "$OSMediaPath\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.json"
-
-    Remove-Item "$OSMediaPath\Sessions.xml" -Force | Out-Null
 }
 function Export-PEBootWim {
     [CmdletBinding()]
@@ -982,6 +1003,39 @@ function Export-PEWims {
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage-WinSE.log"
     Write-Verbose "CurrentLog: $CurrentLog"
     Export-WindowsImage -SourceImagePath "$OSMediaPath\WimTemp\winse.wim" -SourceIndex 1 -DestinationImagePath "$OSMediaPath\WinPE\winse.wim" -LogPath "$CurrentLog" | Out-Null
+}
+function Export-SessionsXmlOS {
+    [CmdletBinding()]
+    PARAM (
+        [string]$OSMediaPath
+    )
+    Write-Verbose "$OSMediaPath\Sessions.xml"
+    Copy-Item "$OSMediaPath\Sessions.xml" "$OSMediaPath\info\Sessions.xml" -Force | Out-Null
+
+    [xml]$SessionsXML = Get-Content -Path "$OSMediaPath\info\Sessions.xml"
+
+    $Sessions = $SessionsXML.SelectNodes('Sessions/Session') | ForEach-Object {
+        New-Object -Type PSObject -Property @{
+            Id = $_.Tasks.Phase.package.id
+            KBNumber = $_.Tasks.Phase.package.name
+            TargetState = $_.Tasks.Phase.package.targetState
+            Client = $_.Client
+            Complete = $_.Complete
+            Status = $_.Status
+        }
+    }
+    
+    $Sessions = $Sessions | Where-Object {$_.Id -like "Package*"}
+    $Sessions = $Sessions | Select-Object -Property Id, KBNumber, TargetState, Client, Status, Complete | Sort-Object Complete -Descending
+
+    $Sessions | Out-File "$OSMediaPath\Sessions.txt"
+    $Sessions | Out-File "$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.txt"
+    $Sessions | Export-Clixml -Path "$OSMediaPath\info\xml\Sessions.xml"
+    $Sessions | Export-Clixml -Path "$OSMediaPath\info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.xml"
+    $Sessions | ConvertTo-Json | Out-File "$OSMediaPath\info\json\Sessions.json"
+    $Sessions | ConvertTo-Json | Out-File "$OSMediaPath\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.json"
+
+    Remove-Item "$OSMediaPath\Sessions.xml" -Force | Out-Null
 }
 function Get-MediaESDDownloads {
     $MediaESDDownloads = @()
@@ -2910,6 +2964,17 @@ function Save-PackageInventoryPE {
     $GetWindowsPackage | Export-Clixml -Path "$OSMediaPath\WinPE\info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsPackage-WinSE.xml"
     $GetWindowsPackage | ConvertTo-Json | Out-File "$OSMediaPath\WinPE\info\json\Get-WindowsPackage-WinSE.json"
     $GetWindowsPackage | ConvertTo-Json | Out-File "$OSMediaPath\WinPE\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsPackage-WinSE.json"
+}
+function Save-RegistryCurrentVersionOS {
+    [CmdletBinding()]
+    PARAM ()
+    $RegCurrentVersion | Out-File "$Info\CurrentVersion.txt"
+    $RegCurrentVersion | Out-File "$WorkingPath\CurrentVersion.txt"
+    $RegCurrentVersion | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
+    $RegCurrentVersion | Export-Clixml -Path "$Info\xml\CurrentVersion.xml"
+    $RegCurrentVersion | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
+    $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\CurrentVersion.json"
+    $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
 }
 function Save-SessionsXmlOS {
     [CmdletBinding()]

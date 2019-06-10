@@ -155,7 +155,7 @@ function Get-OSBuilds {
             #===================================================================================================
             $OSMSessions = @()
             if (Test-Path "$OSBuildPath\Sessions.xml") {
-                Export-OSSessionsXml -OSMediaPath "$OSBuildPath"
+                Export-SessionsXmlOS -OSMediaPath "$OSBuildPath"
             }
 
             if (Test-Path "$OSBuildPath\info\xml\Sessions.xml") {
