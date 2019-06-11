@@ -28,10 +28,11 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 Description = @'
 19.6.11.0 Release
 Functions:
-Several Private Functions have changed names, as well as displaying the execution time
-This should not impact any Public Functions
+Several Private Functions have changed names
+Execution time is being added to console output
 
-Process: No changes
+Process:
+There are no changes to the Update and Build processes
 
 Updates:
 2019-06 Cumulative Update for Windows 10 Version 1607 for x64-based Systems (KB4503267)
