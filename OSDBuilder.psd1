@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.6.10.0'
+ModuleVersion = '19.6.11.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,27 +26,56 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-19.6.9.0 Release
-Functions: Several Private Functions have changed names, as well as displaying the execution time
-Process: No changes to the build processes
-Updates: No changes
+19.6.11.0 Release
+Functions:
+Several Private Functions have changed names, as well as displaying the execution time
+This should not impact any Public Functions
+
+Process: No changes
+
+Updates:
+2019-06 Cumulative Update for Windows 10 Version 1607 for x64-based Systems (KB4503267)
+2019-06 Cumulative Update for Windows 10 Version 1607 for x86-based Systems (KB4503267)
+2019-06 Cumulative Update for Windows 10 Version 1703 for x64-based Systems (KB4503279)
+2019-06 Cumulative Update for Windows 10 Version 1703 for x86-based Systems (KB4503279)
+2019-06 Cumulative Update for Windows 10 Version 1709 for x64-based Systems (KB4503284)
+2019-06 Cumulative Update for Windows 10 Version 1709 for x86-based Systems (KB4503284)
+2019-06 Cumulative Update for Windows 10 Version 1803 for x64-based Systems (KB4503286)
+2019-06 Cumulative Update for Windows 10 Version 1803 for x86-based Systems (KB4503286)
+2019-06 Cumulative Update for Windows 10 Version 1809 for x64-based Systems (KB4503327)
+2019-06 Cumulative Update for Windows 10 Version 1809 for x86-based Systems (KB4503327)
+2019-06 Cumulative Update for Windows 10 Version 1903 for x64-based Systems (KB4503293)
+2019-06 Cumulative Update for Windows 10 Version 1903 for x86-based Systems (KB4503293)
+2019-06 Cumulative Update for Windows Server 2016 (1803) for x64-based Systems (KB4503286)
+2019-06 Cumulative Update for Windows Server 2016 for x64-based Systems (KB4503267)
+2019-06 Cumulative Update for Windows Server 2019 for x64-based Systems (KB4503327)
+2019-06 Dynamic Update for Windows 10 Version 1803 for x64-based Systems (KB4503539)
+2019-06 Dynamic Update for Windows 10 Version 1803 for x86-based Systems (KB4503539)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1607 for x64-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1607 for x86-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1703 for x64-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1703 for x86-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1709 for x64-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1709 for x86-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1803 for x64-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1803 for x86-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1809 for x64-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1809 for x86-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1903 for x64-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows 10 Version 1903 for x86-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows Server 2016 for x64-based Systems (KB4503308)
+2019-06 Security Update for Adobe Flash Player for Windows Server 2019 for x64-based Systems (KB4503308)
+2019-06 Servicing Stack Update for Windows 10 Version 1607 for x64-based Systems (KB4503537)
+2019-06 Servicing Stack Update for Windows 10 Version 1607 for x86-based Systems (KB4503537)
+2019-06 Servicing Stack Update for Windows 10 Version 1809 for x64-based Systems (KB4504369)
+2019-06 Servicing Stack Update for Windows 10 Version 1809 for x86-based Systems (KB4504369)
+2019-06 Servicing Stack Update for Windows Server 2016 for x64-based Systems (KB4503537)
+2019-06 Servicing Stack Update for Windows Server 2019 for x64-based Systems (KB4504369)
 
 WSUS Update Catalogs:
 These are contained within this PowerShell Module, so regular Module updating is needed to
 ensure you receive the latest Microsoft Updates.  Updates published in WSUS will be different
 from Microsoft Update Catalog website due to Preview Releases
-
-OSMedia (Update):
- * Windows 10
- * Windows Server 2016
- * Windows Server 2019
- * Windows 7 SP1 7601
- * Windows Server 2012 R2
-
- OSBuild (Customize):
- * Windows 10
- * Windows Server 2016
- * Windows Server 2019
 '@
 
 # Minimum version of the Windows PowerShell engine required by this module

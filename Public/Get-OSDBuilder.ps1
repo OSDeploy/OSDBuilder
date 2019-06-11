@@ -9,15 +9,19 @@ Offline Servicing for Windows 7, Windows 10, Windows Server 2012 R2, Windows Ser
 http://osdbuilder.com/docs/functions/get-osdbuilder
 
 .PARAMETER CreatePaths
+Alias: Create
 Creates empty directories used by OSDBuilder
 
 .PARAMETER HideDetails
+Alias: Silent
 Hides Write-Host output.  Used when called from other functions
 
 .PARAMETER SetPath
+Alias: Path
 Changes the path from the default of C:\OSDBuilder to the path specified
 
-.PARAMETER Update
+.PARAMETER UpdateModule
+Alias: Update
 Updates the OSDBuilder Module
 
 .EXAMPLE
@@ -35,10 +39,20 @@ Method for refreshing all OSDBuilder Variables.  Used by other OSDBuilder Functi
 function Get-OSDBuilder {
     [CmdletBinding()]
     PARAM (
+        [Alias('Create')]
         [switch]$CreatePaths,
+
+        [ValidateSet('OneDrive','Download','Cleanup')]
+        [string]$Quick,
+
+        [Alias('Silent')]
         [switch]$HideDetails,
+        
+        [Alias('Path')]
         [string]$SetPath,
-        [switch]$Update
+
+        [Alias('Update')]
+        [switch]$UpdateModule
     )
     #===================================================================================================
     #   Verify Single Version of OSDBuilder
@@ -138,7 +152,6 @@ function Get-OSDBuilder {
             }
         }
     }
-
     #===================================================================================================
     #   19.2.8 Old Directories
     #===================================================================================================
@@ -151,6 +164,52 @@ function Get-OSDBuilder {
         if (Test-Path "$OSDBuilderDir") {
             Write-Warning "'$OSDBuilderDir' is no longer required and should be removed"
         }
+    }
+    #===================================================================================================
+    #   DownloadOneDrive
+    #===================================================================================================
+    if ($Quick -eq 'OneDrive') {
+        $HideDetails = $true
+        Get-DownOSDBuilder -ContentDownload "OneDriveSetup Production"
+        Return
+    }
+    if ($Quick -eq 'Download') {
+        $HideDetails = $true
+        Get-OSMedia | Update-OSMedia -Download
+        Return
+    }
+    if ($Quick -eq 'Cleanup') {
+        $HideDetails = $true
+        Get-DownOSDBuilder -Superseded Remove
+        Return
+    }
+    #===================================================================================================
+    #   Tips
+    #===================================================================================================
+    if ($HideDetails -eq $false) {
+        Write-Host ''
+
+        Write-Host 'Change OSDBuilder Path: ' -NoNewline
+        Write-Host 'OSDBuilder -SetPath D:\OSDBuilder' -ForegroundColor Cyan
+
+        Write-Host 'Create OSDBuilder Directory Structure: ' -NoNewline
+        Write-Host 'OSDBuilder -CreatePaths' -ForegroundColor Cyan
+
+        Write-Host 'Update OSDBuilder Module to the latest version: ' -NoNewline
+        Write-Host 'OSDBuilder -Update' -ForegroundColor Cyan
+        
+        Write-Host ''
+
+        Write-Host 'Download the latest OneDriveSetup.exe (Production): ' -NoNewline
+        Write-Host 'OSDBuilder -Quick OneDrive' -ForegroundColor Cyan
+
+        Write-Host 'Download missing OSD Updates: ' -NoNewline
+        Write-Host 'OSDBuilder -Quick Download' -ForegroundColor Cyan
+
+        Write-Host 'Remove superseded OSD Updates: ' -NoNewline
+        Write-Host 'OSDBuilder -Quick Cleanup' -ForegroundColor Cyan
+
+        Write-Host ''
     }
     #===================================================================================================
     #   19.3.4  Write Map
