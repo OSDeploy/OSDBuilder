@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.6.13.0'
+ModuleVersion = '19.6.14.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,21 +26,15 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-19.6.13.0 Release
 Functions:
-No Changes
+Resolved issue with OSDBuilder -Update
 
 Build Process:
 No Changes
 
 Updates:
-2019-06 Cumulative Security Update for Internet Explorer 11 for Windows 7 for x64-based systems (KB4503259)
-2019-06 Cumulative Security Update for Internet Explorer 11 for Windows 7 for x86-based systems (KB4503259)
-2019-06 Cumulative Security Update for Internet Explorer 11 for Windows Server 2012 R2 for x64-based systems (KB4503259)
-2019-06 Security Monthly Quality Rollup for Windows 7 for x64-based Systems (KB4503292)
-2019-06 Security Monthly Quality Rollup for Windows 7 for x86-based Systems (KB4503292)
-2019-06 Security Monthly Quality Rollup for Windows Server 2012 R2 for x64-based Systems (KB4503276)
-2019-06 Security Update for Adobe Flash Player for Windows Server 2012 R2 for x64-based Systems (KB4503308)
+2019-01 Cumulative Update for .NET Framework 3.5 and 4.7.2 for Windows 10 Version 1809 (KB4480056)
+2019-01 Cumulative Update for .NET Framework 3.5 and 4.7.2 for Windows 10 Version 1809 for x64 (KB4480056)
 
 WSUS Update Catalogs:
 These are contained within this PowerShell Module, so regular Module updating is needed to

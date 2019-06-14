@@ -372,7 +372,6 @@ function Add-ContentScriptsPE {
             Invoke-Expression "& '$OSDBuilderContent\$PSWimScript'"
         }
     }
-    Write-Host "WinPE: WinRE.wim PowerShell Scripts"
     foreach ($PSWimScript in $WinPEScriptsRE) {
         if (Test-Path "$OSDBuilderContent\$PSWimScript") {
             Write-Host "Source: $OSDBuilderContent\$PSWimScript" -ForegroundColor Cyan
@@ -380,7 +379,6 @@ function Add-ContentScriptsPE {
             Invoke-Expression "& '$OSDBuilderContent\$PSWimScript'"
         }
     }
-    Write-Host "WinPE: WinSE.wim PowerShell Scripts"
     foreach ($PSWimScript in $WinPEScriptsSE) {
         if (Test-Path "$OSDBuilderContent\$PSWimScript") {
             Write-Host "Source: $OSDBuilderContent\$PSWimScript" -ForegroundColor Cyan

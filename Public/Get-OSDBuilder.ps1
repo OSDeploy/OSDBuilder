@@ -296,7 +296,7 @@ function Get-OSDBuilder {
         }
     }
     #===================================================================================================
-    # 19.3.10 Update Module
+    #   Update-ModuleOSDBuilder
     #===================================================================================================
-    if ($Update.IsPresent) {Update-ModuleOSDBuilder}
+    if ($UpdateModule.IsPresent) {Update-ModuleOSDBuilder}
 }
