@@ -153,11 +153,12 @@ function Get-OSDBuilder {
         }
     }
     #===================================================================================================
-    #   19.2.8 Old Directories
+    #   Remove Directories
     #===================================================================================================
     $OSDBuilderOldDirectories = @(
         "$OSDBuilderContent\UpdateStacks"
         "$OSDBuilderContent\UpdateWindows"
+        "$OSDBuilderContent\OSDUpdate\Windows 10 1903"
     )
 
     foreach ($OSDBuilderDir in $OSDBuilderOldDirectories) {

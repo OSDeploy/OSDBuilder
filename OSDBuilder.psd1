@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.6.14.0'
+ModuleVersion = '19.6.19.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,14 +27,30 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 # Description of the functionality provided by this module
 Description = @'
 Functions:
-Resolved issue with OSDBuilder -Update
+Resolved WinPE ADK Information in Console Output.  Thanks Sune
 
 Build Process:
 No Changes
 
 Updates:
-2019-01 Cumulative Update for .NET Framework 3.5 and 4.7.2 for Windows 10 Version 1809 (KB4480056)
-2019-01 Cumulative Update for .NET Framework 3.5 and 4.7.2 for Windows 10 Version 1809 for x64 (KB4480056)
+2019-06 Dynamic Update for Windows 10 Version 1803 for x86-based Systems (KB4503357)
+2019-06 Dynamic Update for Windows 10 Version 1803 for x64-based Systems (KB4503357)
+2019-06 Cumulative Update for .NET Framework 3.5 4.7.2 and 4.8 for Windows Server 2019 for x64 (KB4502564)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows Server 2016 for x64 (KB4502560)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows Server 2016 (1803) for x64 (KB4502563)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1703 (KB4502561)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1709 for x64 (KB4502562)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1709 (KB4502562)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1607 for x64 (KB4502560)
+2019-06 Cumulative Update for .NET Framework 3.5 4.7.2 and 4.8 for Windows Server 2019 for x64 (KB4502559)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1703 for x64 (KB4502561)
+2019-06 Cumulative Update for .NET Framework 3.5 4.7.2 and 4.8 for Windows 10 Version 1809 for x64 (KB4502564)
+2019-06 Cumulative Update for .NET Framework 3.5 4.7.2 and 4.8 for Windows 10 Version 1809 (KB4502559)
+2019-06 Cumulative Update for .NET Framework 3.5 4.7.2 and 4.8 for Windows 10 Version 1809 (KB4502564)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1607 (KB4502560)
+2019-06 Cumulative Update for .NET Framework 3.5 4.7.2 and 4.8 for Windows 10 Version 1809 for x64 (KB4502559)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1803 for x64 (KB4502563)
+2019-06 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1803 (KB4502563)
 
 WSUS Update Catalogs:
 These are contained within this PowerShell Module, so regular Module updating is needed to

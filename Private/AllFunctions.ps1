@@ -61,7 +61,7 @@ function Add-ContentADKWinRE {
     #   Header
     #===================================================================================================
     Show-ActionTime
-    Write-Host -ForegroundColor Green "WinPE: WinPE.wim ADK Optional Components"
+    Write-Host -ForegroundColor Green "WinPE: WinRE.wim ADK Optional Components"
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -110,7 +110,7 @@ function Add-ContentADKWinSE {
     #   Header
     #===================================================================================================
     Show-ActionTime
-    Write-Host -ForegroundColor Green "WinPE: WinPE.wim ADK Optional Components"
+    Write-Host -ForegroundColor Green "WinPE: WinSE.wim ADK Optional Components"
     #===================================================================================================
     #   Execute
     #===================================================================================================
