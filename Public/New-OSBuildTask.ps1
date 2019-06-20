@@ -100,6 +100,9 @@ Dism SetUserLocale
 
 .PARAMETER SourcesLanguageCopy
 Copy OSMedia Languages into Sources
+
+.PARAMETER OSMedia
+Get-OSMedia entry used to create task (bypasses Out-GridView)
 #>
 function New-OSBuildTask {
     [CmdletBinding(DefaultParameterSetName='Basic')]
@@ -194,7 +197,11 @@ function New-OSBuildTask {
         [string]$SetUserLocale,
 
         [Parameter(ParameterSetName='All')]
-        [switch]$SourcesLanguageCopy
+        [switch]$SourcesLanguageCopy,
+
+        [Parameter(ValueFromPipeline)]
+        [ValidateNotNullOrEmpty()]
+        [PSCustomObject] $OSMedia
         #===================================================================================================
     )
 
@@ -257,22 +264,30 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Verbose '19.3.26 Get-OSMedia'
         #===================================================================================================
-        $OSMedia = @()
-        $OSMedia = Get-OSMedia -Revision OK -OSMajorVersion 10
-
-        if ($TaskName -like "*x64*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x64'}}
-        if ($TaskName -like "*x86*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x86'}}
-        if ($TaskName -like "*1511*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1511'}}
-        if ($TaskName -like "*1607*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1607'}}
-        if ($TaskName -like "*1703*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1703'}}
-        if ($TaskName -like "*1709*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1709'}}
-        if ($TaskName -like "*1803*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1803'}}
-        if ($TaskName -like "*1809*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1809'}}
-
-        $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title "Select a Source OSMedia to use for this Task (Cancel to Exit)"
-        if ($null -eq $OSMedia) {
-            Write-Warning "Source OSMedia was not selected . . . Exiting!"
-            Return
+        if (!$OSMedia)
+        {
+            $OSMedia = @()
+            $OSMedia = Get-OSMedia -Revision OK -OSMajorVersion 10
+    
+            if ($TaskName -like "*x64*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x64'}}
+            if ($TaskName -like "*x86*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x86'}}
+            if ($TaskName -like "*1511*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1511'}}
+            if ($TaskName -like "*1607*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1607'}}
+            if ($TaskName -like "*1703*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1703'}}
+            if ($TaskName -like "*1709*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1709'}}
+            if ($TaskName -like "*1803*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1803'}}
+            if ($TaskName -like "*1809*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1809'}}
+    
+            $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title "Select a Source OSMedia to use for this Task (Cancel to Exit)"
+            if ($null -eq $OSMedia) {
+                Write-Warning "Source OSMedia was not selected . . . Exiting!"
+                Return
+            }
+        }
+        elseif ($OSMedia.MediaType -ne 'OSMedia')
+        {
+            Write-Warning "Source OSMedia media type is not correct . . . Exiting!"
+            Return   
         }
 
         #===================================================================================================
