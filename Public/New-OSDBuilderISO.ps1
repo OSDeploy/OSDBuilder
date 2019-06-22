@@ -10,12 +10,15 @@ http://osdbuilder.com/docs/functions/new-osdbuilderiso
 
 .PARAMETER FullName
 Full Path of the OSDBuilder Media
+.PARAMETER PassThru
+Return created ISO information
 #>
 function New-OSDBuilderISO {
     [CmdletBinding()]
     PARAM (
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string[]]$FullName
+        [string[]]$FullName,
+        [Parameter(Mandatory=$false)][Switch]$PassThru
     )
 
     BEGIN {
@@ -60,6 +63,12 @@ function New-OSDBuilderISO {
             Break
         }
         Write-Verbose "OSCDIMG: $oscdimg"
+
+        #Create results array
+        if($PassThru)
+        {
+            $results = @()
+        }
     }
 
     PROCESS {
@@ -190,11 +199,26 @@ function New-OSDBuilderISO {
             Write-Host "Creating: $ISOFile" -ForegroundColor Cyan
             $data = '2#p0,e,b"{0}"#pEF,e,b"{1}"' -f $etfsboot, $efisys
             start-process $oscdimg -args @("-m","-o","-u2","-bootdata:$data",'-u2','-udfver102',$ISOLabel,"`"$ISOSourceFolder`"", "`"$ISOFile`"") -Wait
+            
+            #Add ISO info to object
+            if($passthru)
+            {
+                $results += [pscustomobject]@{
+                    Label = $OSImageName
+                    SourceFolder = $ISOSourceFolder
+                    FilePath = $ISOFile
+                }
+            }
+
         }
     }
 
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
+        if($PassThru)
+        {
+            return $results
+        }
     }
 }
