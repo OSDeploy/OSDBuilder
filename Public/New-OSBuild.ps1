@@ -6,7 +6,7 @@ Creates a new OSBuild from an OSBuild Task
 Creates a new OSBuild from an OSBuild Task created with New-OSBuildTask
 
 .LINK
-http://osdbuilder.com/docs/functions/osbuild/new-osbuild
+http://osdbuilder.com/functions/osbuild/new-osbuild
 
 .PARAMETER OSDISO
 Creates an ISO of the OSDBuilder Media

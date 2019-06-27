@@ -6,7 +6,7 @@ Creates a JSON Task for use with New-OSBuild
 Creates a JSON Task for use with New-OSBuild
 
 .LINK
-http://osdbuilder.com/docs/functions/osbuild/new-osbuildtask
+http://osdbuilder.com/functions/osbuild/new-osbuildtask
 
 .PARAMETER TaskName
 Name of the Task to create

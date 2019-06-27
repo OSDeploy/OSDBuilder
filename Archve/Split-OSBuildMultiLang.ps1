@@ -6,7 +6,7 @@ BETA ONLY
 BETA ONLY
 
 .LINK
-http://osdbuilder.com/docs/functions/osbuild/split-osbuild
+http://osdbuilder.com/functions/osbuild/split-osbuild
 
 .PARAMETER CustomName
 Name of the OSBuild to create.  MultiIndex will be appended to the Custom Name

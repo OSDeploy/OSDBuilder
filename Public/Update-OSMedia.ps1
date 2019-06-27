@@ -6,7 +6,7 @@ Applies Adobe, Component, Cumulative, Servicing Stack, and Setup Updates to Wind
 Updates are gathered from the OSDBuilder Update Catalogs
 
 .LINK
-http://osdbuilder.com/docs/functions/osmedia/update-osmedia
+http://osdbuilder.com/functions/osmedia/update-osmedia
 
 .PARAMETER Name
 Enter the name of the existing OSMedia to update

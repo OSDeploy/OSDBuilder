@@ -6,7 +6,7 @@ Creates a JSON Task for use with New-PEBuild
 Creates a JSON Task for use with New-PEBuild
 
 .LINK
-http://osdbuilder.com/docs/functions/pebuild/new-pebuildtask
+http://osdbuilder.com/functions/pebuild/new-pebuildtask
 
 .PARAMETER SourceWim
 Wim to use for the PEBuild
