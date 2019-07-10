@@ -32,13 +32,8 @@ No Changes
 Build Process:
 No Changes
 
-Latest Updates:
-2019-06 Cumulative Update for Windows 10 Version 1903 for x64-based Systems (KB4501375)
-2019-06 Servicing Stack Update for Windows 10 Version 1903 for x64-based Systems (KB4506933)
-2019-06 Cumulative Update for Windows 10 Version 1903 for x86-based Systems (KB4501375)
-2019-06 Servicing Stack Update for Windows 10 Version 1903 for x86-based Systems (KB4506933)
-2019-06 Cumulative Update for .NET Framework 3.5 and 4.8 for Windows 10 Version 1903 for x64 (KB4502584)
-2019-06 Cumulative Update for .NET Framework 3.5 and 4.8 for Windows 10 Version 1903 (KB4502584)
+Latest Microsoft Updates:
+https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md
 
 WSUS Update Catalogs:
 These are contained within this PowerShell Module, so regular Module updating is needed to
