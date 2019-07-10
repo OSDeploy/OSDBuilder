@@ -26,6 +26,9 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
+Catalog Changes:
+Minor changes to Windows 7, Server 2012 R2, Server 2019 to properly report compliance
+
 Closed Issues:
 ryancbutler - Allow ISO path and name to be set for New-OSDBuilderISO.ps1 or return ISO path
 https://github.com/OSDeploy/OSDBuilder/issues/4
