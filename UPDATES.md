@@ -1,4 +1,4 @@
-# Latest Updates - July 10, 2019
+# Latest Updates - July 9, 2019 WSUS
 2019-07 Cumulative Security Update for Internet Explorer 11 for Windows 7 for x64-based systems (KB4507434)
 2019-07 Cumulative Security Update for Internet Explorer 11 for Windows 7 for x86-based systems (KB4507434)
 2019-07 Cumulative Security Update for Internet Explorer 11 for Windows Server 2012 R2 for x64-based systems (KB4507434)
