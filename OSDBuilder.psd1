@@ -26,11 +26,15 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-Functions:
-No Changes
+Closed Issues:
+ryancbutler - Allow ISO path and name to be set for New-OSDBuilderISO.ps1 or return ISO path
+https://github.com/OSDeploy/OSDBuilder/issues/4
 
-Build Process:
-No Changes
+iainbrighton - Error Exporting Hashtable Variables
+https://github.com/OSDeploy/OSDBuilder/issues/5
+
+iainbrighton - Cannot create OS build task without Out-GridView
+https://github.com/OSDeploy/OSDBuilder/issues/7
 
 Latest Microsoft Updates:
 https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md
