@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.7.10.1'
+ModuleVersion = '19.7.23.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
