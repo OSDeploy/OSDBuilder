@@ -3086,6 +3086,7 @@ function Save-WindowsImageContentPE {
 function Set-LanguageSettingsOS {
     [CmdletBinding()]
     PARAM ()
+    if ($ScriptName -ne 'New-OSBuild') {Return}
     if ($OSMajorVersion -ne 10) {Return}
     #===================================================================================================
     #   Header
@@ -3438,13 +3439,14 @@ function Update-AdobeOS {
         if (Test-Path "$UpdateASU") {
             Write-Host "$UpdateASU" -ForegroundColor Gray
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                Write-Warning "KB$($Update.KBNumber) is already installed"
+                #Write-Host "KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-AdobeFlashPlayer-KB$($Update.KBNumber).log"
                 Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateASU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Warning "$CurrentLog"
                     Write-Host "$ErrorMessage"
                     if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
@@ -3474,13 +3476,14 @@ function Update-ComponentOS {
         if (Test-Path "$UpdateComp") {
             Write-Host "$UpdateComp" -ForegroundColor Gray
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                Write-Warning "KB$($Update.KBNumber) is already installed"
+                #Write-Host "KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Component-KB$($Update.KBNumber).log"
                 Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateComp" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Warning "$CurrentLog"
                     Write-Host "$ErrorMessage"
                     if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
@@ -3514,7 +3517,7 @@ function Update-CumulativeOS {
             if (Test-Path $SessionsXmlInstall) {
                 [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.KBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Warning "KB$($Update.KBNumber) is already installed"
+                    #Write-Host "KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
                 } else {
                     Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber).log" | Out-Null
                 }
@@ -3524,6 +3527,7 @@ function Update-CumulativeOS {
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Warning "$CurrentLog"
                     Write-Host "$ErrorMessage"
                     if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
@@ -3539,6 +3543,7 @@ function Update-CumulativeOSForce {
     #===================================================================================================
     #   Abort
     #===================================================================================================
+    if ($ScriptName -ne 'New-OSBuild') {Return}
     if ($SkipUpdates) {Return}
     if ($OSMajorVersion -ne 10) {Return}
     #===================================================================================================
@@ -3558,6 +3563,7 @@ function Update-CumulativeOSForce {
             Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateCU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
+                Write-Warning "$CurrentLog"
                 Write-Host "$ErrorMessage"
                 if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
             }
@@ -3595,7 +3601,7 @@ function Update-CumulativePE {
             if (Test-Path $SessionsXmlWinPE) {
                 [xml]$XmlDocument = Get-Content -Path $SessionsXmlWinPE
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.KBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Warning "WinPE.wim KB$($Update.KBNumber) is already installed"
+                    #Write-Host "WinPE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinPE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
@@ -3631,7 +3637,7 @@ function Update-CumulativePE {
             if (Test-Path $SessionsXmlWinRE) {
                 [xml]$XmlDocument = Get-Content -Path $SessionsXmlWinRE
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.KBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Warning "WinRE.wim KB$($Update.KBNumber) is already installed"
+                    #Write-Host "WinRE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinRE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
@@ -3666,7 +3672,7 @@ function Update-CumulativePE {
             if (Test-Path $SessionsXmlSetup) {
                 [xml]$XmlDocument = Get-Content -Path $SessionsXmlSetup
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.KBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Warning "WinSE.wim KB$($Update.KBNumber) is already installed"
+                    #Write-Host "WinSE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinSE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
@@ -3796,6 +3802,7 @@ function Update-DotNetOS {
             Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateNetCU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
+                Write-Warning "$CurrentLog"
                 Write-Host "$ErrorMessage"
                 if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
             }
@@ -3858,6 +3865,45 @@ function Update-LangIniMEDIA {
     }
     if (Test-Path "$MountBootLangIni") {Remove-Item -Path "$MountBootLangIni" -Force -Recurse | Out-Null}
 }
+function Update-OptionalOS {
+    [CmdletBinding()]
+    PARAM ()
+    #===================================================================================================
+    #   Abort
+    #===================================================================================================
+    if ($ScriptName -ne 'New-OSBuild') {Return}
+    if ($SkipUpdates) {Return}
+    if ($OSMajorVersion -ne 10) {Return}
+    #===================================================================================================
+    #   Header
+    #===================================================================================================
+    Show-ActionTime
+    Write-Host -ForegroundColor Green "OS: Optional Updates"
+    #===================================================================================================
+    #   Execute
+    #===================================================================================================
+    foreach ($Update in $OSDUpdateOptional) {
+        $UpdateOptional = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
+        if (Test-Path "$UpdateOptional") {
+            Write-Host "$UpdateOptional" -ForegroundColor Gray
+            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
+                #Write-Host "KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
+            } else {
+                $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Optional-KB$($Update.KBNumber).log"
+                Write-Verbose "CurrentLog: $CurrentLog"
+                Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateOptional" -LogPath "$CurrentLog" | Out-Null}
+                Catch {
+                    $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Warning "$CurrentLog"
+                    #Write-Host "$ErrorMessage"
+                    #if ($ErrorMessage -match '800f081e') {Write-Warning "Update not applicable to this Operating System"}
+                }
+            }
+        } else {
+            Write-Warning "Not Found: $UpdateOptional"
+        }
+    }
+}
 function Update-ServicingStackOS {
     [CmdletBinding()]
     PARAM ()
@@ -3879,13 +3925,14 @@ function Update-ServicingStackOS {
         if (Test-Path "$UpdateSSU") {
             Write-Host "$UpdateSSU" -ForegroundColor Gray
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                Write-Warning "KB$($Update.KBNumber) is already installed"
+                #Write-Host "KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber).log"
                 Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Warning "$CurrentLog"
                     Write-Host "$ErrorMessage"
                     if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
@@ -3901,6 +3948,7 @@ function Update-ServicingStackOSForce {
     #===================================================================================================
     #   Abort
     #===================================================================================================
+    if ($ScriptName -ne 'New-OSBuild') {Return}
     if ($SkipUpdates) {Return}
     if ($OSMajorVersion -ne 10) {Return}
     #===================================================================================================
@@ -3920,6 +3968,7 @@ function Update-ServicingStackOSForce {
             Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 $ErrorMessage = $_.Exception.$ErrorMessage
+                Write-Warning "$CurrentLog"
                 Write-Host "$ErrorMessage"
                 if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
             }
@@ -3950,39 +3999,42 @@ function Update-ServicingStackPE {
             Write-Host "$UpdateSSU" -ForegroundColor Gray
 
             if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                Write-Warning "WinPE.wim KB$($Update.KBNumber) is already installed"
+                #Write-Host "WinPE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinPE.log"
                 Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Warning "$CurrentLog"
                     Write-Host "$ErrorMessage"
                     if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
             }
 
             if (Get-WindowsPackage -Path "$MountWinRE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                Write-Warning "WinRE.wim KB$($Update.KBNumber) is already installed"
+                #Write-Host "WinRE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinRE.log"
                 Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Warning "$CurrentLog"
                     Write-Host "$ErrorMessage"
                     if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
             }
 
             if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                Write-Warning "WinSE.wim KB$($Update.KBNumber) is already installed"
+                #Write-Host "WinSE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
             } else {
                 $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ServicingStack-KB$($Update.KBNumber)-WinSE.log"
                 Write-Verbose "CurrentLog: $CurrentLog"
                 Try {Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     $ErrorMessage = $_.Exception.$ErrorMessage
+                    Write-Warning "$CurrentLog"
                     Write-Host "$ErrorMessage"
                     if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
                 }
@@ -4105,7 +4157,7 @@ function Update-WindowsServer2012R2OS {
         if (Test-Path "$UpdateTwelveR2") {
             Write-Host "$UpdateTwelveR2" -ForegroundColor Gray
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                Write-Warning "KB$($Update.KBNumber) is already installed"
+                #Write-Host "KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateTwelveR2-KB$($Update.KBNumber).log"
                 Write-Verbose "CurrentLog: $CurrentLog"
@@ -4143,7 +4195,7 @@ function Update-WindowsSevenOS {
         if (Test-Path "$UpdateSeven") {
             Write-Host "$UpdateSeven" -ForegroundColor Gray
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                Write-Warning "KB$($Update.KBNumber) is already installed"
+                #Write-Host "KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
             } else {
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateSeven-KB$($Update.KBNumber).log"
                 Write-Verbose "CurrentLog: $CurrentLog"
@@ -4183,7 +4235,7 @@ function Update-WindowsSevenPE {
                 Write-Host "$UpdateWinPESeven" -ForegroundColor DarkGray
     
                 if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                    Write-Warning "WinSE.wim KB$($Update.KBNumber) is already installed"
+                    #Write-Host "WinSE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinSE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
@@ -4191,7 +4243,7 @@ function Update-WindowsSevenPE {
                 }
     
                 if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                    Write-Warning "WinPE.wim KB$($Update.KBNumber) is already installed"
+                    #Write-Host "WinPE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinPE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
@@ -4199,7 +4251,7 @@ function Update-WindowsSevenPE {
                 }
     
                 if (Get-WindowsPackage -Path "$MountWinRE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {
-                    Write-Warning "WinRE.wim KB$($Update.KBNumber) is already installed"
+                    #Write-Host "WinRE.wim KB$($Update.KBNumber) is already installed" -ForegroundColor Cyan
                 } else {
                     $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateWinPESeven-KB$($Update.KBNumber)-WinRE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"

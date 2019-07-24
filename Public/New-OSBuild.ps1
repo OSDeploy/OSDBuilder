@@ -770,7 +770,7 @@ function New-OSBuild {
                 $OSDUpdateOptional = $OSDUpdateOptional | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateOptional) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Optional        Ready       $($Update.Title)"
+                        Write-Host "Optional    Ready           $($Update.Title)"
                     } else {
                         Write-Host "Missing     Optional        $($Update.Title)" -ForegroundColor Yellow
                     }
@@ -828,18 +828,20 @@ function New-OSBuild {
                 New-DirectoriesOSMedia
                 Show-WorkingInfoOS
                 Copy-MediaOperatingSystem
+                #===================================================================================================
+                #   WinPE
+                #===================================================================================================
                 Update-SetupDUMEDIA
                 Mount-WinPEwim -OSMediaPath "$WorkingPath"
                 Mount-WinREwim -OSMediaPath "$WorkingPath"
                 Mount-WinSEwim -OSMediaPath "$WorkingPath"
                 Update-ServicingStackPE
                 Update-CumulativePE
+                if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
+                    Update-WindowsSevenPE
+                }
                 #===================================================================================================
-                #   Update-OSMedia
-                #===================================================================================================
-                Update-WindowsSevenPE
-                #===================================================================================================
-                #   New-OSBuild
+                #   WinPE OSBuild
                 #===================================================================================================
                 Expand-DaRTPE
                 Import-AutoExtraFilesPE
@@ -861,6 +863,9 @@ function New-OSBuild {
                 Export-PEWims -OSMediaPath "$WorkingPath"
                 Export-PEBootWim -OSMediaPath "$WorkingPath"
                 Save-InventoryPE -OSMediaPath "$WorkingPath"
+                #===================================================================================================
+                #   Install.wim
+                #===================================================================================================
                 Mount-InstallwimOS
                 Set-WinREWimOS
                 #===================================================================================================
@@ -921,6 +926,7 @@ function New-OSBuild {
                 #===================================================================================================
                 Update-AdobeOS
                 Update-DotNetOS
+                Update-OptionalOS
                 Invoke-DismCleanupImage
                 #===================================================================================================
                 #   OneDriveSetup
@@ -928,12 +934,10 @@ function New-OSBuild {
                 if ($OSMajorVersion -eq 10 -and $OSInstallationType -eq 'Client') {
                     Show-ActionTime
                     Write-Host -ForegroundColor Green "OS: Update OneDriveSetup.exe"
-                    Write-Warning "To update OneDriveSetup.exe use one of the following commands:"
-                    Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
-                    Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
                     $OneDriveSetupDownload = $false
                     $OneDriveSetup = "$OSDBuilderContent\OneDrive\OneDriveSetup.exe"
                     if (!(Test-Path $OneDriveSetup)) {$OneDriveSetupDownload = $true}
+
                     if (Test-Path $OneDriveSetup) {
                         if (!(([System.Io.fileinfo]$OneDriveSetup).LastWriteTime.Date -ge [datetime]::Today )) {
                             $OneDriveSetupDownload = $true
@@ -941,27 +945,30 @@ function New-OSBuild {
                     }
 <#                     if ($OneDriveSetupDownload -eq $true) {
                         $WebClient = New-Object System.Net.WebClient
-                        Write-Host "Downloading to $OneDriveSetup" -ForegroundColor DarkGray
+                        Write-Host "Downloading to $OneDriveSetup" -ForegroundColor Gray
                         $WebClient.DownloadFile('https://go.microsoft.com/fwlink/p/?LinkId=248256',"$OneDriveSetup")
                     } #>
 
                     if ($OSArchitecture -eq 'x86') {
                         $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor DarkGray
+                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
                         if (Test-Path $OneDriveSetup) {
                             robocopy "$OSDBuilderContent\OneDrive" "$MountDirectory\Windows\System32" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor DarkGray
+                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
                         }
                     } else {
                         $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor DarkGray
+                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
                         if (Test-Path $OneDriveSetup) {
                             robocopy "$OSDBuilderContent\OneDrive" "$MountDirectory\Windows\SysWOW64" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor DarkGray
+                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
                         }
                     }
+                    Write-Host -ForegroundColor Cyan "To update OneDriveSetup.exe use one of the following commands:"
+                    Write-Host -ForegroundColor Cyan "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
+                    Write-Host -ForegroundColor Cyan "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
                 }
                 #===================================================================================================
                 #	New-OSBuild
@@ -1006,9 +1013,6 @@ function New-OSBuild {
                 Export-InstallwimOS
                 #===================================================================================================
                 Write-Verbose '19.1.1 OS: Export Configuration'
-                #===================================================================================================
-                #===================================================================================================
-                #   Header
                 #===================================================================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Export Configuration to $WorkingPath\WindowsImage.txt"

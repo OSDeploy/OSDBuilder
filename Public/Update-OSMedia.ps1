@@ -760,7 +760,7 @@ function Update-OSMedia {
                 $OSDUpdateOptional = $OSDUpdateOptional | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateOptional) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Optional        Ready       $($Update.Title)"
+                        Write-Host "Optional    Ready           $($Update.Title)"
                     } else {
                         Write-Host "Missing     Optional        $($Update.Title)" -ForegroundColor Yellow
                     }
@@ -782,8 +782,6 @@ function Update-OSMedia {
             #   Execution Check
             #===================================================================================================
             if ($Execute -eq $False) {Write-Warning "Execution is currently disabled"}
-            #===================================================================================================
-            Write-Verbose '19.1.25 Execute'
             #===================================================================================================
             if ($Execute.IsPresent) {
                 #===================================================================================================
@@ -814,7 +812,9 @@ function Update-OSMedia {
                 $ScriptName = $($MyInvocation.MyCommand.Name)
                 $LogName = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-$ScriptName.log"
                 Start-Transcript -Path (Join-Path "$Info\logs" $LogName)
-
+                #===================================================================================================
+                #   Update-OSMedia and New-OSBuild
+                #===================================================================================================
                 New-DirectoriesOSMedia
                 Show-WorkingInfoOS
                 Copy-MediaOperatingSystem
@@ -843,7 +843,9 @@ function Update-OSMedia {
                 Add-ContentScriptsPE
                 #Update-ServicingStackPEForce
                 #Update-CumulativePEForce
-
+                #===================================================================================================
+                #   Update-OSMedia and New-OSBuild
+                #===================================================================================================
                 Update-SourcesPE -OSMediaPath "$WorkingPath"
                 Save-PackageInventoryPE -OSMediaPath "$WorkingPath"
                 if ($WaitDismountWinPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
@@ -858,9 +860,6 @@ function Update-OSMedia {
                 Set-WinREWimOS
                 #===================================================================================================
                 #   Install.wim UBR Pre-Update
-                #===================================================================================================
-                #===================================================================================================
-                #   Header
                 #===================================================================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Mount Registry for UBR Information"
@@ -884,17 +883,16 @@ function Update-OSMedia {
                 Update-ServicingStackOS
                 $UBRPre = $UBR
                 #===================================================================================================
-                #   Header
+                #   Install.wim UBR Post-Update
                 #===================================================================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Update Build Revision $UBRPre (Pre-LCU)"
                 Update-CumulativeOS
-                if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
-                    Update-WindowsSevenOS
-                    #OSD-Updates-EightOne
-                    #OSD-Updates-Twelve
-                    Update-WindowsServer2012R2OS
-                }
+                #===================================================================================================
+                #   Update-OSMedia
+                #===================================================================================================
+                Update-WindowsSevenOS
+                Update-WindowsServer2012R2OS
                 #===================================================================================================
                 #   Install.wim UBR Post-Update
                 #===================================================================================================
@@ -911,25 +909,21 @@ function Update-OSMedia {
                     $RegCurrentVersionUBR = "$OSBuild.$OSSPBuild"
                 }
                 Save-RegistryCurrentVersionOS
-                #===================================================================================================
-                #   Header
-                #===================================================================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Update Build Revision $UBR (Post-LCU)"
                 #===================================================================================================
+                #   Update-OSMedia and New-OSBuild
+                #===================================================================================================
                 Update-AdobeOS
                 Update-DotNetOS
+                Update-OptionalOS
                 Invoke-DismCleanupImage
-
+                #===================================================================================================
+                #   OneDriveSetup
+                #===================================================================================================
                 if ($OSMajorVersion -eq 10 -and $OSInstallationType -eq 'Client') {
-                    #===================================================================================================
-                    #   Header
-                    #===================================================================================================
                     Show-ActionTime
                     Write-Host -ForegroundColor Green "OS: Update OneDriveSetup.exe"
-                    Write-Warning "To update OneDriveSetup.exe use one of the following commands:"
-                    Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
-                    Write-Warning "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
                     $OneDriveSetupDownload = $false
                     $OneDriveSetup = "$OSDBuilderContent\OneDrive\OneDriveSetup.exe"
                     if (!(Test-Path $OneDriveSetup)) {$OneDriveSetupDownload = $true}
@@ -939,61 +933,62 @@ function Update-OSMedia {
                             $OneDriveSetupDownload = $true
                         }
                     }
-
 <#                     if ($OneDriveSetupDownload -eq $true) {
                         $WebClient = New-Object System.Net.WebClient
-                        Write-Host "Downloading to $OneDriveSetup" -ForegroundColor DarkGray
+                        Write-Host "Downloading to $OneDriveSetup" -ForegroundColor Gray
                         $WebClient.DownloadFile('https://go.microsoft.com/fwlink/p/?LinkId=248256',"$OneDriveSetup")
                     } #>
 
                     if ($OSArchitecture -eq 'x86') {
                         $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor DarkGray
+                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
                         if (Test-Path $OneDriveSetup) {
                             robocopy "$OSDBuilderContent\OneDrive" "$MountDirectory\Windows\System32" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor DarkGray
+                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
                         }
                     } else {
                         $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor DarkGray
+                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
                         if (Test-Path $OneDriveSetup) {
                             robocopy "$OSDBuilderContent\OneDrive" "$MountDirectory\Windows\SysWOW64" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor DarkGray
+                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
                         }
                     }
+                    Write-Host -ForegroundColor Cyan "To update OneDriveSetup.exe use one of the following commands:"
+                    Write-Host -ForegroundColor Cyan "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
+                    Write-Host -ForegroundColor Cyan "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
                 }
-
                 #===================================================================================================
-                #	OSBuild Only
+                #	New-OSBuild
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                    if ($LanguagePacks) {Add-LanguagePacksOS}
-                    if ($LanguageInterfacePacks) {Add-LanguageInterfacePacksOS}
-                    if ($LocalExperiencePacks) {Add-LocalExperiencePacksOS}
-                    if ($LanguageFeatures) {Add-LanguageFeaturesOnDemandOS}
-                    if ($LanguageCopySources) {Copy-MediaLanguageSources}
+                Add-LanguagePacksOS
+                Add-LanguageInterfacePacksOS
+                Add-LocalExperiencePacksOS
+                Add-LanguageFeaturesOnDemandOS
+                Copy-MediaLanguageSources
+                if ($ScriptName -eq 'New-OSBuild') {
                     if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks) {
                         Set-LanguageSettingsOS
                         Update-CumulativeOSForce
                         Invoke-DismCleanupImage
                     }
-                    if ($FeaturesOnDemand) {Add-FeaturesOnDemandOS}
-                    if ($EnableFeature) {Enable-WindowsOptionalFeatureOS}
-                    if ($EnableNetFX3 -eq 'True') {Enable-NetFXOS}
-                    if ($RemoveAppx) {Remove-AppxProvisionedPackageOS}
-                    if ($RemovePackage) {Remove-WindowsPackageOS}
-                    if ($RemoveCapability) {Remove-WindowsCapabilityOS}
-                    if ($DisableFeature) {Disable-WindowsOptionalFeatureOS}
-                    if ($Packages) {Add-WindowsPackageOS}
-                    Add-ContentDriversOS
-                    Add-ContentExtraFilesOS
-                    Add-ContentStartLayout
-                    Add-ContentUnattend
-                    Add-ContentScriptsOS
-                    Update-ServicingStackOSForce
                 }
+                Add-FeaturesOnDemandOS
+                Enable-WindowsOptionalFeatureOS
+                Enable-NetFXOS
+                Remove-AppxProvisionedPackageOS
+                Remove-WindowsPackageOS
+                Remove-WindowsCapabilityOS
+                Disable-WindowsOptionalFeatureOS
+                Add-WindowsPackageOS
+                Add-ContentDriversOS
+                Add-ContentExtraFilesOS
+                Add-ContentStartLayout
+                Add-ContentUnattend
+                Add-ContentScriptsOS
+                Update-ServicingStackOSForce
                 #===================================================================================================
                 #	Mirror OSMedia and OSBuild
                 #===================================================================================================
@@ -1008,9 +1003,6 @@ function Update-OSMedia {
                 Export-InstallwimOS
                 #===================================================================================================
                 Write-Verbose '19.1.1 OS: Export Configuration'
-                #===================================================================================================
-                #===================================================================================================
-                #   Header
                 #===================================================================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Export Configuration to $WorkingPath\WindowsImage.txt"

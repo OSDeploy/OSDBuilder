@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.7.23.0'
+ModuleVersion = '19.7.24.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,18 +26,10 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-Catalog Changes:
-Minor changes to Windows 7, Server 2012 R2, Server 2019 to properly report compliance
-
-Closed Issues:
-ryancbutler - Allow ISO path and name to be set for New-OSDBuilderISO.ps1 or return ISO path
-https://github.com/OSDeploy/OSDBuilder/issues/4
-
-iainbrighton - Error Exporting Hashtable Variables
-https://github.com/OSDeploy/OSDBuilder/issues/5
-
-iainbrighton - Cannot create OS build task without Out-GridView
-https://github.com/OSDeploy/OSDBuilder/issues/7
+Module Changes:
+Resolved issue where Optional Updates were not installed when executing New-OSBuild
+Removed Warning Message when an Update was previously installed
+Added Log information for some Warning messages
 
 Latest Microsoft Updates:
 https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md
