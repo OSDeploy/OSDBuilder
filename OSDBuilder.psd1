@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.7.24.0'
+ModuleVersion = '19.7.29.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,9 +27,7 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 # Description of the functionality provided by this module
 Description = @'
 Module Changes:
-Resolved issue where Optional Updates were not installed when executing New-OSBuild
-Removed Warning Message when an Update was previously installed
-Added Log information for some Warning messages
+None
 
 Latest Microsoft Updates:
 https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md

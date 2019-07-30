@@ -1,11 +1,16 @@
+# Latest Updates - July 29, 2019 WSUS
+2019-07 Servicing Stack Update for Windows 10 Version 1903 for x64-based Systems (KB4508433)
+2019-07 Servicing Stack Update for Windows 10 Version 1903 for x86-based Systems (KB4508433)
+2019-07 Cumulative Update for Windows 10 Version 1903 for x86-based Systems (KB4505903)
+2019-07 Cumulative Update for Windows 10 Version 1903 for x64-based Systems (KB4505903)
 # Latest Updates - July 23, 2019 WSUS
-2019-07 Servicing Stack Update for Windows Server 2019 for x64-based Systems (KB4512937)    
-2019-07 Dynamic Update for Windows 10 Version 1809 for x64-based Systems (KB4505657)        
-2019-07 Dynamic Update for Windows 10 Version 1809 for x86-based Systems (KB4505657)        
+2019-07 Servicing Stack Update for Windows Server 2019 for x64-based Systems (KB4512937)
+2019-07 Dynamic Update for Windows 10 Version 1809 for x64-based Systems (KB4505657)
+2019-07 Dynamic Update for Windows 10 Version 1809 for x86-based Systems (KB4505657)
 2019-07 Servicing Stack Update for Windows 10 Version 1809 for x86-based Systems (KB4512937)
 2019-07 Servicing Stack Update for Windows 10 Version 1809 for x64-based Systems (KB4512937)
-2019-07 Update for Windows Server 2012 R2 for x64-based Systems (KB4507704)                 
-2019-07 Update for Windows 7 for x86-based Systems (KB4507704)                              
+2019-07 Update for Windows Server 2012 R2 for x64-based Systems (KB4507704)
+2019-07 Update for Windows 7 for x86-based Systems (KB4507704)
 2019-07 Update for Windows 7 for x64-based Systems (KB4507704)
 # Latest Updates - July 9, 2019 WSUS
 2019-07 Cumulative Security Update for Internet Explorer 11 for Windows 7 for x64-based systems (KB4507434)
