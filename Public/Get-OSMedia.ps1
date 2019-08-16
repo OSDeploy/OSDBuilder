@@ -6,7 +6,7 @@ Returns all Operating Systems in OSDBuilder\OSMedia
 Returns all Operating Systems in OSDBuilder\OSMedia as a PowerShell Custom Object
 
 .LINK
-http://osdbuilder.com/functions/osmedia/get-osmedia
+https://osdbuilder.osdeploy.com/module/functions/osmedia/get-osmedia
 
 .PARAMETER GridView
 Displays results in PowerShell ISE GridView with an added PassThru Parameter.  This can also be displayed with the following command

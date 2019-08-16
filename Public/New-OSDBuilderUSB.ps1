@@ -6,7 +6,7 @@ Creates a bootable USB of any OSDBuilder Media
 Creates a bootable USB of any OSDBuilder Media (OSMedia, OSBuilds, PEBuilds)
 
 .LINK
-http://osdbuilder.com/functions/new-osdbuilderusb
+https://osdbuilder.osdeploy.com/module/functions/new-osdbuilderusb
 
 .PARAMETER FullName
 Full Path of the OSDBuilder Media

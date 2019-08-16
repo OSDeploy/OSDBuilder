@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.8.13.0'
+ModuleVersion = '19.8.15.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,8 +26,9 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-Module Changes:
-None
+My Birthday Update
+OSDBuilder has moved to https://osdbuilder.osdeploy.com/
+
 
 Latest Microsoft Updates:
 https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md
@@ -117,13 +118,13 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://www.osdbuilder.com/home'
+        ProjectUri = 'https://osdbuilder.osdeploy.com/'
 
         # A URL to an icon representing this module.
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'https://www.osdbuilder.com/releases'
+        ReleaseNotes = 'https://osdbuilder.osdeploy.com/release'
 
     } # End of PSData hashtable
 

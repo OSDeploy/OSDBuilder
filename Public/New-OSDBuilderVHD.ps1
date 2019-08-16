@@ -6,7 +6,7 @@ Creates an VHD of any OSMedia or OSBuild
 Creates an VHD of any OSMedia or OSBuild
 
 .LINK
-http://osdbuilder.com/functions/new-osdbuildervhd
+https://osdbuilder.osdeploy.com/module/functions/new-osdbuildervhd
 
 .PARAMETER FullName
 Full Path of the OSDBuilder Media.  If omitted, GridView will prompt for selection

@@ -6,7 +6,7 @@ Separates an OSBuild with Language Packs into separate Image Indexes
 Separates an OSBuild with Language Packs into separate Image Indexes.  This will create a new OSBuild
 
 .LINK
-http://osdbuilder.com/functions/osbuild/new-osbuildmultilang
+https://osdbuilder.osdeploy.com/module/functions/osbuild/new-osbuildmultilang
 
 .PARAMETER CustomName
 Name of the new OSBuild MultiLang to create.  MultiLang will be appended to the end of CustomName

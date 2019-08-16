@@ -6,7 +6,7 @@ Downloads Microsoft Updates for use in OSDBuilder
 Downloads Microsoft Updates for use in OSDBuilder
 
 .LINK
-http://osdbuilder.com/functions/get-downosdbuilder
+https://osdbuilder.osdeploy.com/module/functions/get-downosdbuilder
 #>
 function Get-DownOSDBuilder {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]

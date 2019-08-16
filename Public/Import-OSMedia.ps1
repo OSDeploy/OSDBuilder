@@ -6,7 +6,7 @@ Imports an Operating System into OSDBuilder
 Imports a supported Operating System into the OSDBuilder OSMedia directory
 
 .LINK
-http://osdbuilder.com/functions/osmedia/import-osmedia
+https://osdbuilder.osdeploy.com/module/functions/osmedia/import-osmedia
 
 .PARAMETER OSDInfo
 Executes Show-OSDBuilderInfo -FullName $FullName

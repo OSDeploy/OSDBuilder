@@ -6,7 +6,7 @@ Creates a new OSBuild from an OSBuild Task
 Creates a new OSBuild from an OSBuild Task created with New-OSBuildTask
 
 .LINK
-http://osdbuilder.com/functions/osbuild/new-osbuild
+https://osdbuilder.osdeploy.com/module/functions/osbuild/new-osbuild
 
 .PARAMETER OSDISO
 Creates an ISO of the OSDBuilder Media
@@ -770,7 +770,7 @@ function New-OSBuild {
                 $OSDUpdateOptional = $OSDUpdateOptional | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateOptional) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Optional    Ready           $($Update.Title)"
+                        Write-Host "Ready       Optional           $($Update.Title)"
                     } else {
                         Write-Host "Missing     Optional        $($Update.Title)" -ForegroundColor Yellow
                     }
