@@ -1,3 +1,3 @@
 # OSDBuilder
 PowerShell Module
-https://www.osdbuilder.com
+https://osdbuilder.osdeploy.com

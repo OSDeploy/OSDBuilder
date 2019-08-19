@@ -1,3 +1,4 @@
+Latest Updates:
 8/17/2019 9:00:06 PM   4512534  2019-08 Cumulative Update for Windows Server 2019 for x64-based Systems (KB4512534)
 8/17/2019 9:00:06 PM   4512474  2019-08 Cumulative Update for Windows 10 Version 1703 for x64-based Systems (KB4512474)
 8/17/2019 9:00:06 PM   4512474  2019-08 Cumulative Update for Windows 10 Version 1703 for x86-based Systems (KB4512474)

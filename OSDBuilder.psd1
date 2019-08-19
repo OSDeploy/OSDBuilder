@@ -26,7 +26,7 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-OSDBuilder has moved to https://osdbuilder.osdeploy.com/
+OSDBuilder https://osdbuilder.osdeploy.com/
 
 Latest Microsoft Updates:
 https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md
