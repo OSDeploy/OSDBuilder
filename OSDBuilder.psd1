@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.8.15.0'
+ModuleVersion = '19.8.19.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,7 +26,6 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-My Birthday Update
 OSDBuilder has moved to https://osdbuilder.osdeploy.com/
 
 
