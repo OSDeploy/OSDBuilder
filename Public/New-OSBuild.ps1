@@ -770,7 +770,7 @@ function New-OSBuild {
                 $OSDUpdateOptional = $OSDUpdateOptional | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateOptional) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       Optional           $($Update.Title)"
+                        Write-Host "Ready       Optional        $($Update.Title)"
                     } else {
                         Write-Host "Missing     Optional        $($Update.Title)" -ForegroundColor Yellow
                     }
