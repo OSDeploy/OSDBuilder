@@ -28,7 +28,6 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 Description = @'
 OSDBuilder has moved to https://osdbuilder.osdeploy.com/
 
-
 Latest Microsoft Updates:
 https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md
 
