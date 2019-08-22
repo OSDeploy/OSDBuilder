@@ -3424,7 +3424,9 @@ function Update-AdobeOS {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesOS) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateAdobeSU) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -3465,6 +3467,9 @@ function Update-ComponentOS {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesDUC) {Return}
+    if ($SkipUpdatesOS) {Return}
+    if ($null -eq $OSDUpdateComponentDU) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -3504,7 +3509,10 @@ function Update-CumulativeOS {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesOS) {Return}
+    if ($SkipUpdatesOSLCU) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateLCU) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -3551,7 +3559,10 @@ function Update-CumulativeOSForce {
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesOS) {Return}
+    if ($SkipUpdatesOSLCU) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateLCU) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -3587,6 +3598,9 @@ function Update-CumulativePE {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesPE) {Return}
+    if ($SkipUpdatesPELCU) {Return}
+    if ($null -eq $OSDUpdateLCU) {Return}
 <#     if ($OSBuild -eq 18362) {
         Write-Warning "Skip: Windows 10 1903 LCU error 0x80070002"
         Return
@@ -3676,6 +3690,12 @@ function Update-CumulativePE {
                     }
                 }
 
+                
+                if ($SkipUpdatesWinSE) {Continue}
+                if ($ReleaseId -ge 1903) {
+                    Write-Warning 'Not adding LCU to WinSE to resolve Setup issues'
+                    Continue
+                }
                 #if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -like "*$($Update.KBNumber)*"}) {}
                 $SessionsXmlSetup = "$MountWinSE\Windows\Servicing\Sessions\Sessions.xml"
                 if (Test-Path $SessionsXmlSetup) {
@@ -3723,6 +3743,9 @@ function Update-CumulativePEForce {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesPE) {Return}
+    if ($SkipUpdatesPELCU) {Return}
+    if ($null -eq $OSDUpdateLCU) {Return}
 <#     if ($OSBuild -eq 18362) {
         Write-Warning "Skip: Windows 10 1903 LCU error 0x80070002"
         Return
@@ -3735,56 +3758,59 @@ function Update-CumulativePEForce {
     #===================================================================================================
     #   Execute
     #===================================================================================================
-    if (!($null -eq $OSDUpdateLCU)) {
-        foreach ($Update in $OSDUpdateLCU) {
-            $UpdateLCU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
-            if ($UpdateNetCU) {
-                if (Test-Path "$UpdateLCU") {
-                    Write-Host "$UpdateLCU" -ForegroundColor Gray
+    foreach ($Update in $OSDUpdateLCU) {
+        $UpdateLCU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -Directory -Recurse | Where-Object {$_.Name -eq $($Update.Title)}).FullName
+        if ($UpdateNetCU) {
+            if (Test-Path "$UpdateLCU") {
+                Write-Host "$UpdateLCU" -ForegroundColor Gray
 
-                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinPE.log"
+                $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinPE.log"
+                Write-Verbose "CurrentLog: $CurrentLog"
+                Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
+                #Dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$UpdateLCU" /LogPath:"$CurrentLog"
+
+                if (!($OSVersion -like "6.1.7601.*")) {
+                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
                     Write-Verbose "CurrentLog: $CurrentLog"
-                    Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
-                    #Dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$UpdateLCU" /LogPath:"$CurrentLog"
-
-                    if (!($OSVersion -like "6.1.7601.*")) {
-                        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
-                        Write-Verbose "CurrentLog: $CurrentLog"
-                        if ($SkipComponentCleanup) {
-                            Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
-                        } else {
-                            Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
-                        }
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinPE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
                     }
-
-                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinRE.log"
-                    Write-Verbose "CurrentLog: $CurrentLog"
-                    Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
-                    if (!($OSVersion -like "6.1.7601.*")) {
-                        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
-                        Write-Verbose "CurrentLog: $CurrentLog"
-                        if ($SkipComponentCleanup) {
-                            Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
-                        } else {
-                            Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
-                        }
-                    }
-
-                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinSE.log"
-                    Write-Verbose "CurrentLog: $CurrentLog"
-                    Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
-                    if (!($OSVersion -like "6.1.7601.*")) {
-                        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
-                        Write-Verbose "CurrentLog: $CurrentLog"
-                        if ($SkipComponentCleanup) {
-                            Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
-                        } else {
-                            Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
-                        }
-                    }
-                } else {
-                    Write-Warning "Not Found: $UpdateLCU"
                 }
+
+                $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinRE.log"
+                Write-Verbose "CurrentLog: $CurrentLog"
+                Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
+                if (!($OSVersion -like "6.1.7601.*")) {
+                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinRE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    }
+                }
+
+                if ($SkipUpdatesWinSE) {Continue}
+                if ($ReleaseId -ge 1903) {
+                    Write-Warning 'Not adding LCU to WinSE to resolve Setup issues'
+                    Continue
+                }
+                $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-UpdateCumulative-KB$($Update.KBNumber)-WinSE.log"
+                Write-Verbose "CurrentLog: $CurrentLog"
+                Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
+                if (!($OSVersion -like "6.1.7601.*")) {
+                    $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+                    if ($SkipComponentCleanup) {
+                        Write-Warning "Skip: -SkipComponentCleanup Parameter was used"
+                    } else {
+                        Dism /Image:"$MountWinSE" /Cleanup-Image /StartComponentCleanup /ResetBase /LogPath:"$CurrentLog"
+                    }
+                }
+            } else {
+                Write-Warning "Not Found: $UpdateLCU"
             }
         }
     }
@@ -3796,7 +3822,9 @@ function Update-DotNetOS {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesOS) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateDotNet) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -3887,7 +3915,9 @@ function Update-OptionalOS {
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesOS) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateOptional) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -3927,7 +3957,10 @@ function Update-ServicingStackOS {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesOS) {Return}
+    if ($SkipUpdatesOSSSU) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateSSU) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -3968,7 +4001,10 @@ function Update-ServicingStackOSForce {
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesOS) {Return}
+    if ($SkipUpdatesOSSSU) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateSSU) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -4004,7 +4040,10 @@ function Update-ServicingStackPE {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesPE) {Return}
+    if ($SkipUpdatesPESSU) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateSSU) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -4072,7 +4111,10 @@ function Update-ServicingStackPEForce {
     #   Abort
     #===================================================================================================
     if ($SkipUpdates) {Return}
+    if ($SkipUpdatesPE) {Return}
+    if ($SkipUpdatesPESSU) {Return}
     if ($OSMajorVersion -ne 10) {Return}
+    if ($null -eq $OSDUpdateSSU) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -4122,6 +4164,12 @@ function Update-SetupDUMEDIA {
     [CmdletBinding()]
     PARAM ()
     #===================================================================================================
+    #   Abort
+    #===================================================================================================
+    if ($SkipUpdates) {Return}
+    if ($SkipSetupDU) {Return}
+    if ($null -eq $OSDUpdateSetupDU) {Return}
+    #===================================================================================================
     #   Header
     #===================================================================================================
     Show-ActionTime
@@ -4129,15 +4177,11 @@ function Update-SetupDUMEDIA {
     #===================================================================================================
     #   Execute
     #===================================================================================================
-    if (!($null -eq $OSDUpdateSetupDU)) {
-        foreach ($Update in $OSDUpdateSetupDU) {
-            $OSDUpdateSetupDU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -File -Recurse | Where-Object {$_.Name -eq $($Update.FileName)}).FullName
-            $OSDUpdateSetupDU
-            if (Test-Path "$OSDUpdateSetupDU") {
-                expand.exe "$OSDUpdateSetupDU" -F:*.* "$OS\Sources"
-            } else {
-                Write-Warning "Not Found: $OSDUpdateSetupDU ... Skipping Update"
-            }
+    foreach ($Update in $OSDUpdateSetupDU) {
+        $OSDUpdateSetupDU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -File -Recurse | Where-Object {$_.Name -eq $($Update.FileName)}).FullName
+        if ($OSDUpdateSetupDU) {
+            if (Test-Path "$OSDUpdateSetupDU") {expand.exe "$OSDUpdateSetupDU" -F:*.* "$OS\Sources"}
+            else {Write-Warning "Not Found: $OSDUpdateSetupDU ... Skipping Update"}
         }
     }
 }
@@ -4149,17 +4193,24 @@ function Update-SourcesPE {
     #===================================================================================================
     #   Abort
     #===================================================================================================
-    if ($ReleaseId -eq 1903) {
-        Write-Warning "This step is currently disabled for Windows 10 1903"
-        Write-Warning "If this is the first time you are seeing this warning,"
-        Write-Warning "you should Update-OSMedia from Windows 10 1903 18362.30"
-        Return
-    }
+    if ($SkipUpdates) {Return}
+    if ($SkipUpdatesPE) {Return}
+    if ($SkipUpdatesOS) {Return}
+    if ($ReleaseId -ge 1903) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
     Show-ActionTime
     Write-Host -ForegroundColor Green "MEDIA: Update Media Sources with WinSE.wim"
+    #===================================================================================================
+    #   Warning
+    #===================================================================================================
+    if ($ReleaseId -ge 1903) {
+        Write-Warning "This step is currently disabled for Windows 10 1903"
+        Write-Warning "If this is the first time you are seeing this warning,"
+        Write-Warning "you should Update-OSMedia from Windows 10 1903 18362.30"
+        Return
+    }
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -4175,6 +4226,7 @@ function Update-WindowsServer2012R2OS {
     if ($ScriptName -ne 'Update-OSMedia') {Return}
     if ($SkipUpdates) {Return}
     if ($OSMajorVersion -eq 10) {Return}
+    if ($null -eq $OSDUpdateWinTwelveR2) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -4215,6 +4267,7 @@ function Update-WindowsSevenOS {
     if ($ScriptName -ne 'Update-OSMedia') {Return}
     if ($SkipUpdates) {Return}
     if ($OSMajorVersion -eq 10) {Return}
+    if ($null -eq $OSDUpdateWinSeven) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -4255,6 +4308,7 @@ function Update-WindowsSevenPE {
     if ($ScriptName -ne 'Update-OSMedia') {Return}
     if ($SkipUpdates) {Return}
     if ($OSMajorVersion -eq 10) {Return}
+    if ($null -eq $OSDUpdateWinSeven) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================

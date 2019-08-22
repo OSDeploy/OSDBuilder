@@ -246,9 +246,9 @@ function Import-OSMedia {
             if ($($OSLanguages.count) -eq 1) {$OSMediaName = $OSMediaName.replace(' en-US','')}
 
             #===================================================================================================
-            #   19.1.1 Set OSMediaPath'
+            #   19.8.21 Set OSMediaPath'
             #===================================================================================================
-            $OSMediaPath = Join-Path $OSDBuilderOSMedia $OSMediaName
+            $OSMediaPath = Join-Path $OSDBuilderOSImport $OSMediaName
 
             #===================================================================================================
             #   19.1.1 Remove Existing OSMedia'
@@ -331,7 +331,6 @@ function Import-OSMedia {
             Save-InventoryOS -OSMediaPath "$OSMediaPath"
             Save-WimsPE -OSMediaPath "$OSMediaPath"
             Save-InventoryPE -OSMediaPath "$OSMediaPath"
-
             #===================================================================================================
             #   19.1.1 Install.wim: Dismount
             #===================================================================================================

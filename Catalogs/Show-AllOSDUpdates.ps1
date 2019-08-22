@@ -4,6 +4,6 @@ foreach ($UpdateCatalog in $AllUpdateCatalogs) {$AllOSDUpdates += Import-Clixml 
 
 $AllOSDUpdates = $AllOSDUpdates | Select-Object -Property * | Sort-Object CreationDate -Descending | Out-GridView -PassThru -Title "All OSDUpdates"
 Write-Host ""
-$AllOSDUpdates | Select CreationDate, KBNumber, Title | Format-Table
+$AllOSDUpdates | Select-Object CreationDate, KBNumber, Title | Format-Table
 Write-Host ""
 Pause

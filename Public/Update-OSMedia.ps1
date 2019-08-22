@@ -35,10 +35,10 @@ Creates an ISO of the Updated Media.  Requires ADK oscdimg.exe
 .EXAMPLE
 Update-OSMedia -Name 'Win10 Ent x64 1803 17134.345' -Download -Execute -ISO
 
-.PARAMETER WaitDismount
+.PARAMETER PauseDismountOS
 Adds a 'Press Enter to Continue' prompt before the Install.wim is dismounted
 
-.PARAMETER WaitDismountWinPE
+.PARAMETER PauseDismountPE
 Adds a 'Press Enter to Continue' prompt before WinPE is dismounted
 
 .PARAMETER SkipUpdates
@@ -58,13 +58,39 @@ function Update-OSMedia {
         [switch]$OSDISO,
         #==========================================================
         [Parameter(ParameterSetName='Advanced')]
+        [Parameter(ParameterSetName='TestingOnly')]
         [switch]$SkipComponentCleanup,
+
         [Parameter(ParameterSetName='Advanced')]
+        [Parameter(ParameterSetName='TestingOnly')]
         [switch]$SkipUpdates,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$WaitDismount,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$WaitDismountWinPE
+        #==========================================================
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$PauseDismountOS,
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$PauseDismountPE,
+        #==========================================================
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipUpdatesDUC,
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipSetupDU,
+
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipUpdatesOS,
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipUpdatesOSLCU,
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipUpdatesOSSSU,
+
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipUpdatesPE,
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipUpdatesPELCU,
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipUpdatesPESSU,
+
+        [Parameter(ParameterSetName='TestingOnly')]
+        [switch]$SkipUpdatesWinSE
         #==========================================================
     )
 
@@ -186,8 +212,8 @@ function Update-OSMedia {
                 $TaskOSMFamily = $Task.OSMFamily
                 $TaskOSMGuid = $Task.OSMGuid
                 $OSMediaName = $Task.Name
-                $OSMediaPath = "$OSDBuilderOSMedia\$OSMediaName"
-
+                if (Test-Path "$OSDBuilderOSMedia\$OSMediaName") {$OSMediaPath = "$OSDBuilderOSMedia\$OSMediaName"}
+                if (Test-Path "$OSDBuilderOSImport\$OSMediaName") {$OSMediaPath = "$OSDBuilderOSImport\$OSMediaName"}
                 $EnableNetFX3 = $Task.EnableNetFX3
                 $StartLayoutXML = $Task.StartLayoutXML
                 $UnattendXML = $Task.UnattendXML
@@ -355,7 +381,8 @@ function Update-OSMedia {
             Write-Verbose '19.1.1 Set Proper Paths'
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
-                $OSMediaPath = "$OSDBuilderOSMedia\$($Bird.Name)"
+                if (Test-Path "$OSDBuilderOSImport\$($Bird.Name)") {$OSMediaPath = "$OSDBuilderOSImport\$($Bird.Name)"}
+                if (Test-Path "$OSDBuilderOSMedia\$($Bird.Name)") {$OSMediaPath = "$OSDBuilderOSMedia\$($Bird.Name)"}
             }
             $OSImagePath = "$OSMediaPath\OS\sources\install.wim"
 
@@ -760,7 +787,7 @@ function Update-OSMedia {
                 $OSDUpdateOptional = $OSDUpdateOptional | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateOptional) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Optional    Ready           $($Update.Title)"
+                        Write-Host "Ready       Optional        $($Update.Title)"
                     } else {
                         Write-Host "Missing     Optional        $($Update.Title)" -ForegroundColor Yellow
                     }
@@ -848,7 +875,7 @@ function Update-OSMedia {
                 #===================================================================================================
                 Update-SourcesPE -OSMediaPath "$WorkingPath"
                 Save-PackageInventoryPE -OSMediaPath "$WorkingPath"
-                if ($WaitDismountWinPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
+                if ($PauseDismountPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
                 Dismount-WimsPE -OSMediaPath "$WorkingPath"
                 Export-PEWims -OSMediaPath "$WorkingPath"
                 Export-PEBootWim -OSMediaPath "$WorkingPath"
@@ -1116,20 +1143,17 @@ function Update-OSMedia {
                     $NewOSMediaName = "$NewOSMediaName $mmss"
                     $NewOSMediaPath = "$OSDBuilderOSMedia\$NewOSMediaName"
                 }
-
                 #===================================================================================================
                 #   OSD-Export
                 #===================================================================================================
                 Save-WindowsImageContentOS
                 Save-VariablesOSD
-
                 #===================================================================================================
                 #   OSDBuilder Media'
                 #===================================================================================================
                 if ($OSDISO.IsPresent) {New-OSDBuilderISO -FullName "$WorkingPath"}
                 if ($OSDVHD.IsPresent) {New-OSDBuilderVHD -FullName "$WorkingPath"}
                 if ($OSDInfo.IsPresent) {Show-OSDBuilderInfo -FullName "$WorkingPath"}
-
                 #===================================================================================================
                 #   Complete Update
                 #===================================================================================================

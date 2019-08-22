@@ -89,6 +89,7 @@ function Get-OSDBuilder {
     #===================================================================================================
     $global:OSDBuilderContent =      "$OSDBuilderPath\Content"
     $global:OSDBuilderOSBuilds =     "$OSDBuilderPath\OSBuilds"
+    $global:OSDBuilderOSImport =     "$OSDBuilderPath\OSImport"
     $global:OSDBuilderOSMedia =      "$OSDBuilderPath\OSMedia"
     $global:OSDBuilderPEBuilds =     "$OSDBuilderPath\PEBuilds"
     $global:OSDBuilderTasks =        "$OSDBuilderPath\Tasks"
@@ -96,6 +97,7 @@ function Get-OSDBuilder {
 
     $global:OSBuilderContent =      "$OSDBuilderPath\Content"
     $global:OSBuilderOSBuilds =     "$OSDBuilderPath\OSBuilds"
+    $global:OSBuilderOSImport =     "$OSDBuilderPath\OSImport"
     $global:OSBuilderOSMedia =      "$OSDBuilderPath\OSMedia"
     $global:OSBuilderPEBuilds =     "$OSDBuilderPath\PEBuilds"
     $global:OSBuilderTasks =        "$OSDBuilderPath\Tasks"
@@ -106,6 +108,7 @@ function Get-OSDBuilder {
     $OSDBuilderNewDirectories = @(
         $OSDBuilderPath
         $OSDBuilderOSBuilds
+        $OSDBuilderOSImport
         $OSDBuilderOSMedia
         $OSDBuilderPEBuilds
         $OSDBuilderTasks
@@ -218,6 +221,8 @@ function Get-OSDBuilder {
     if ($HideDetails -eq $false) {
         if (Test-Path "$OSDBuilderPath")                {Write-Host "Home:              $OSDBuilderPath" -ForegroundColor White}
             else                                        {Write-Host "Home:              $OSDBuilderPath (does not exist)" -ForegroundColor White}
+        if (Test-Path "$OSDBuilderOSImport")            {Write-Host "OSImport:          $OSDBuilderOSImport" -ForegroundColor Gray}
+            else                                        {Write-Host "OSImport:          $OSDBuilderOSImport (does not exist)" -ForegroundColor Gray}
         if (Test-Path "$OSDBuilderOSMedia")             {Write-Host "OSMedia:           $OSDBuilderOSMedia" -ForegroundColor Gray}
             else                                        {Write-Host "OSMedia:           $OSDBuilderOSMedia (does not exist)" -ForegroundColor Gray}
         if (Test-Path "$OSDBuilderOSBuilds")            {Write-Host "OSBuilds:          $OSDBuilderOSBuilds" -ForegroundColor Gray}

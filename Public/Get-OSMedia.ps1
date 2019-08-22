@@ -72,7 +72,7 @@ function Get-OSMedia {
         #   Get OSMedia
         #===================================================================================================
         $AllOSMedia = @()
-        $AllOSMedia = Get-ChildItem -Path "$OSDBuilderOSMedia" -Directory | Select-Object -Property * | `
+        $AllOSMedia = Get-ChildItem -Path "$OSDBuilderOSImport","$OSDBuilderOSMedia" -Directory | Select-Object -Property * | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Get-WindowsImage.xml")}
         #===================================================================================================
     }
@@ -84,6 +84,9 @@ function Get-OSMedia {
             #===================================================================================================
             $OSMediaPath = $($Item.FullName)
             Write-Verbose "OSMedia Full Path: $OSMediaPath"
+
+            if ($OSMediaPath -match '\\OSImport\\') {$MediaType = 'OSImport'}
+            else {$MediaType = 'OSMedia'}
             
             $OSMWindowsImage = @()
             $OSMWindowsImage = Import-Clixml -Path "$OSMediaPath\info\xml\Get-WindowsImage.xml"
@@ -321,7 +324,7 @@ function Get-OSMedia {
             #   Create Object
             #===================================================================================================
             $ObjectProperties = @{
-                MediaType           = 'OSMedia'
+                MediaType           = $MediaType
 
                 ModifiedTime        = [datetime]$OSMWindowsImage.ModifiedTime
                 Name                = $Item.Name
@@ -358,7 +361,7 @@ function Get-OSMedia {
         #===================================================================================================
         #   Revision
         #===================================================================================================
-        $OSMedia | Sort-Object ModifiedTime,UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1} | foreach {$_.Revision = 'OK'}
+        $OSMedia | Sort-Object OSMFamily, UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1} | foreach {$_.Revision = 'OK'}
         #===================================================================================================
         #   Filters
         #===================================================================================================

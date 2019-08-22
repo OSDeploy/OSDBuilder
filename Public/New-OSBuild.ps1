@@ -23,10 +23,10 @@ Task Name to Execute
 .PARAMETER DontUseNewestMedia
 Use the OSMedia specified in the Task, not the Latest
 
-.PARAMETER WaitDismount
+.PARAMETER PauseDismount
 Adds a 'Press Enter to Continue' prompt before the Install.wim is dismounted
 
-.PARAMETER WaitDismountWinPE
+.PARAMETER PauseDismountPE
 Adds a 'Press Enter to Continue' prompt before the WinPE Wims are dismounted
 
 .PARAMETER SkipTemplates
@@ -53,10 +53,10 @@ function New-OSBuild {
         [switch]$DontUseNewestMedia,
 
         [Parameter(ParameterSetName='Advanced')]
-        [switch]$WaitDismount,
+        [switch]$PauseDismount,
 
         [Parameter(ParameterSetName='Advanced')]
-        [switch]$WaitDismountWinPE,
+        [switch]$PauseDismountPE,
         #==========================================================
         [Parameter(ParameterSetName='Advanced')]
         [Parameter(ParameterSetName='Taskless')]
@@ -196,8 +196,8 @@ function New-OSBuild {
                 $TaskOSMFamily = $Task.OSMFamily
                 $TaskOSMGuid = $Task.OSMGuid
                 $OSMediaName = $Task.Name
-                $OSMediaPath = "$OSDBuilderOSMedia\$OSMediaName"
-
+                if (Test-Path "$OSDBuilderOSMedia\$OSMediaName") {$OSMediaPath = "$OSDBuilderOSMedia\$OSMediaName"}
+                if (Test-Path "$OSDBuilderOSImport\$OSMediaName") {$OSMediaPath = "$OSDBuilderOSImport\$OSMediaName"}
                 $EnableNetFX3 = $Task.EnableNetFX3
                 $StartLayoutXML = $Task.StartLayoutXML
                 $UnattendXML = $Task.UnattendXML
@@ -365,7 +365,8 @@ function New-OSBuild {
             Write-Verbose '19.1.1 Set Proper Paths'
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
-                $OSMediaPath = "$OSDBuilderOSMedia\$($Bird.Name)"
+                if (Test-Path "$OSDBuilderOSImport\$($Bird.Name)") {$OSMediaPath = "$OSDBuilderOSImport\$($Bird.Name)"}
+                if (Test-Path "$OSDBuilderOSMedia\$($Bird.Name)") {$OSMediaPath = "$OSDBuilderOSMedia\$($Bird.Name)"}
             }
             $OSImagePath = "$OSMediaPath\OS\sources\install.wim"
 
@@ -858,7 +859,7 @@ function New-OSBuild {
                 #===================================================================================================
                 Update-SourcesPE -OSMediaPath "$WorkingPath"
                 Save-PackageInventoryPE -OSMediaPath "$WorkingPath"
-                if ($WaitDismountWinPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
+                if ($PauseDismountPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
                 Dismount-WimsPE -OSMediaPath "$WorkingPath"
                 Export-PEWims -OSMediaPath "$WorkingPath"
                 Export-PEBootWim -OSMediaPath "$WorkingPath"
@@ -1126,20 +1127,17 @@ function New-OSBuild {
                     $NewOSMediaName = "$NewOSMediaName $mmss"
                     $NewOSMediaPath = "$OSDBuilderOSMedia\$NewOSMediaName"
                 }
-
                 #===================================================================================================
                 #   OSD-Export
                 #===================================================================================================
                 Save-WindowsImageContentOS
                 Save-VariablesOSD
-
                 #===================================================================================================
                 #   OSDBuilder Media'
                 #===================================================================================================
                 if ($OSDISO.IsPresent) {New-OSDBuilderISO -FullName "$WorkingPath"}
                 if ($OSDVHD.IsPresent) {New-OSDBuilderVHD -FullName "$WorkingPath"}
                 if ($OSDInfo.IsPresent) {Show-OSDBuilderInfo -FullName "$WorkingPath"}
-
                 #===================================================================================================
                 #   Complete Update
                 #===================================================================================================
