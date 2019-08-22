@@ -262,7 +262,7 @@ function New-OSBuildTask {
         Write-Host "-SetUserLocale:                 $SetUserLocale"
         Write-Host "-WinPEAutoExtraFiles:           $WinPEAutoExtraFiles"
         #===================================================================================================
-        Write-Verbose '19.8.21 Get-OSMedia'
+        Write-Verbose '19.8.22 Get-OSMedia'
         #===================================================================================================
         if (!$OSMedia) {
             $OSMedia = @()
@@ -283,7 +283,7 @@ function New-OSBuildTask {
                 Write-Warning "Source OSMedia was not selected . . . Exiting!"
                 Break
             }
-        } elseif ($OSMedia.MediaType -ne 'OSMedia') {
+        } elseif ($OSMedia.MediaType -ne 'OSImport' -or $OSMedia.MediaType -ne 'OSMedia') {
             Write-Warning "Source OSMedia media type is not correct . . . Exiting!"
             Break   
         }
