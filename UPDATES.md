@@ -1,4 +1,6 @@
 Latest Updates:
+8/22/2019 5:00:06 PM  4506578  2019-08 Dynamic Update for Windows 10 Version 1809 for x86-based Systems (KB4506578)
+8/22/2019 5:00:06 PM  4506578  2019-08 Dynamic Update for Windows 10 Version 1809 for x64-based Systems (KB4506578)
 8/20/2019 5:00:00 PM  4511520  2019-08 Cumulative Update for .NET Framework 4.8 for Windows 10 Version 1709 (KB4511520)
 8/20/2019 5:00:00 PM  4511517  2019-08 Cumulative Update for .NET Framework 3.5 4.7.2 and 4.8 for Windows Server 2019 for x64 (KB4511517)
 8/20/2019 5:00:00 PM  4511518  2019-08 Cumulative Update for .NET Framework 4.8 for Windows Server 2016 for x64 (KB4511518)

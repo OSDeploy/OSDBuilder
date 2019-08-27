@@ -58,38 +58,36 @@ function Update-OSMedia {
         [switch]$OSDISO,
         #==========================================================
         [Parameter(ParameterSetName='Advanced')]
-        [Parameter(ParameterSetName='TestingOnly')]
         [switch]$SkipComponentCleanup,
 
         [Parameter(ParameterSetName='Advanced')]
-        [Parameter(ParameterSetName='TestingOnly')]
         [switch]$SkipUpdates,
         #==========================================================
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$PauseDismountOS,
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$PauseDismountPE,
         #==========================================================
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipUpdatesDUC,
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipSetupDU,
 
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipUpdatesOS,
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipUpdatesOSLCU,
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipUpdatesOSSSU,
 
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipUpdatesPE,
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipUpdatesPELCU,
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipUpdatesPESSU,
 
-        [Parameter(ParameterSetName='TestingOnly')]
+        [Parameter(ParameterSetName='Advanced')]
         [switch]$SkipUpdatesWinSE
         #==========================================================
     )
