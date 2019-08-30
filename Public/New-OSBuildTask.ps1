@@ -283,7 +283,7 @@ function New-OSBuildTask {
                 Write-Warning "Source OSMedia was not selected . . . Exiting!"
                 Break
             }
-        } elseif ($OSMedia.MediaType -ne 'OSImport' -or $OSMedia.MediaType -ne 'OSMedia') {
+        } elseif ($OSMedia.MediaType -ne 'OSImport' -and $OSMedia.MediaType -ne 'OSMedia') {
             Write-Warning "Source OSMedia media type is not correct . . . Exiting!"
             Break   
         }
