@@ -1,4 +1,4 @@
-﻿$Catalog = Import-Clixml "D:\GitHub\Modules\OSDBuilder\Catalogs\Windows 10 1903.xml"
+﻿$Catalog = Import-Clixml "D:\GitHub\Modules\OSDBuilder\Catalogs\Windows 10.xml"
 $CatalogErrors = @()
 $CatalogCorrections = @()
 
