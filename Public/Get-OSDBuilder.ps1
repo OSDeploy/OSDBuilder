@@ -193,13 +193,13 @@ function Get-OSDBuilder {
     if ($HideDetails -eq $false) {
         Write-Host ''
 
-        Write-Host 'Change OSDBuilder Path: ' -NoNewline
+        Write-Host 'Change Path: ' -NoNewline
         Write-Host 'OSDBuilder -SetPath D:\OSDBuilder' -ForegroundColor Cyan
 
-        Write-Host 'Create OSDBuilder Directory Structure: ' -NoNewline
+        Write-Host 'Create Directory Structure: ' -NoNewline
         Write-Host 'OSDBuilder -CreatePaths' -ForegroundColor Cyan
 
-        Write-Host 'Update OSDBuilder Module to the latest version: ' -NoNewline
+        Write-Host 'Update Module to the latest version: ' -NoNewline
         Write-Host 'OSDBuilder -Update' -ForegroundColor Cyan
         
         Write-Host ''
