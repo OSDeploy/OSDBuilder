@@ -172,12 +172,20 @@ function Get-OSBuilds {
             Where-Object {$_.UpdateArch -like "*$($OSMArch)*"} | Where-Object {$_.UpdateGroup -notlike "*Setup*"} | `
             Where-Object {$_.UpdateGroup -ne ''} | Where-Object {$_.UpdateGroup -ne 'Optional'}
 
+            $KBPattern = '(\d{4,7})'
+            
             $OSMUpdateStatus = 'OK'
             foreach ($OSMUpdate in $VerifyUpdates) {
-                if ($OSMSessions | Where-Object {$_.KBNumber -like "*$($OSMUpdate.KBNumber)*"}) {
-                    Write-Verbose "Installed: $($OSMUpdate.Title)"
+
+                #Write-Verbose "FileName: $($OSMUpdate.FileName)"
+                #$FileKBNumber = [regex]::matches($OSMUpdate.FileName, $KBPattern).Value
+                #Write-Verbose "FileKBNumber: $($FileKBNumber)"
+
+                #if ($OSMSessions | Where-Object {$_.KBNumber -match "$FileKBNumber"}) {
+                if ($OSMSessions | Where-Object {$_.KBNumber -match "$($OSMUpdate.FileKBNumber)"}) {
+                    Write-Verbose "Installed: $($OSMUpdate.Title) $($OSMUpdate.FileName)"
                 } else {
-                    Write-Verbose "Not Installed: $($OSMUpdate.Title)"
+                    Write-Verbose "Not Installed: $($OSMUpdate.Title) $($OSMUpdate.FileName)"
                     $OSMUpdateStatus = 'Update'
                 }
             }

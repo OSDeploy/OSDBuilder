@@ -1206,20 +1206,21 @@ function Get-OSDUpdateDownloads {
 }
 function Get-OSDUpdates {
     $AllOSDUpdates = @()
-    $CatalogsXmls = @()
+    $AllOSDUpdates = Get-OSDSUS
+<#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\Catalogs\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {
         $AllOSDUpdates += Import-Clixml -Path "$($CatalogsXml.FullName)"
-    }
+    } #>
     #===================================================================================================
     #   Standard Filters
     #===================================================================================================
-    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notlike "*.exe"}
+<#     $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notlike "*.exe"}
     $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notlike "*.psf"}
     $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notlike "*.txt"}
     $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notlike "*delta.exe"}
     $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notlike "*express.cab"}
-    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.Title -notlike "* Next *"}
+    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.Title -notlike "* Next *"} #>
     #===================================================================================================
     #   Get Downloaded Updates
     #===================================================================================================
