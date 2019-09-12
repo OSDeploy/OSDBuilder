@@ -1037,11 +1037,12 @@ function Export-SessionsXmlOS {
 }
 function Get-MediaESDDownloads {
     $MediaESDDownloads = @()
-    $CatalogsXmls = @()
+    $MediaESDDownloads = Get-OSDSUSFU
+<#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\CatalogsESD\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {
         $MediaESDDownloads += Import-Clixml -Path "$($CatalogsXml.FullName)"
-    }
+    } #>
     #===================================================================================================
     #   Get Downloadeds
     #===================================================================================================
@@ -1054,7 +1055,7 @@ function Get-MediaESDDownloads {
     #===================================================================================================
     #   Return
     #===================================================================================================
-    $MediaESDDownloads = $MediaESDDownloads | Select-Object -Property *
+    $MediaESDDownloads = $MediaESDDownloads | Select-Object -Property * | Sort-Object -Property CreationDate -Descending
     Return $MediaESDDownloads
 }
 function Get-OSBuildTask {

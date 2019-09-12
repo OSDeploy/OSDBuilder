@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.9.10.0'
+ModuleVersion = '19.9.12.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,6 +26,10 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
+19.9.12: Added OSDSUS requirement
+
+Requires OSDSUS 19.9.11.0
+
 OSDBuilder https://osdbuilder.osdeploy.com/
 
 Latest Microsoft Updates:
@@ -57,7 +61,7 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName='OSDSUS'; ModuleVersion = '19.9.10.0'; Guid="065cf035-da73-4d17-8745-f55116b82fb5"}
+    @{ModuleName='OSDSUS'; ModuleVersion = '19.9.11.0'; Guid="065cf035-da73-4d17-8745-f55116b82fb5"}
 )
 
 # Assemblies that must be loaded prior to importing this module
@@ -112,7 +116,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('OSDeploy','OSDBuilder','OSBuilder','Servicing','SCCM','MDT')
+        Tags = @('OSDeploy','OSDBuilder','OSDSUS','OSBuilder','Servicing','SCCM','MDT')
 
         # A URL to the license for this module.
         # LicenseUri = ''
@@ -125,6 +129,8 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://osdbuilder.osdeploy.com/release'
+
+        #ExternalModuleDependencies = @('OSDSUS')
 
     } # End of PSData hashtable
 
