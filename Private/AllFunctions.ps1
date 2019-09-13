@@ -1037,7 +1037,7 @@ function Export-SessionsXmlOS {
 }
 function Get-MediaESDDownloads {
     $MediaESDDownloads = @()
-    $MediaESDDownloads = Get-OSDSUSFU
+    $MediaESDDownloads = Get-OSDSUS FeatureUpdate
 <#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\CatalogsESD\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {
@@ -1206,7 +1206,8 @@ function Get-OSDUpdateDownloads {
 }
 function Get-OSDUpdates {
     $AllOSDUpdates = @()
-    $AllOSDUpdates = Get-OSDSUS
+    $AllOSDUpdates = Get-OSDSUS Windows
+    Write-Verbose ""
 <#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\Catalogs\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {

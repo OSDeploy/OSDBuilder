@@ -276,13 +276,11 @@ function Get-OSMedia {
             $VerifyUpdates = $OSDUpdates | Sort-Object -Property CreationDate | `
             Where-Object {$_.UpdateOS -like "*$UpdateOS*"} | Where-Object {$_.UpdateBuild -like "*$OSMReleaseId*"} | `
             Where-Object {$_.UpdateArch -like "*$($OSMArch)*"} | Where-Object {$_.UpdateGroup -notlike "*Setup*"} | `
-            Where-Object {$_.UpdateGroup -ne ''} | Where-Object {$_.UpdateGroup -ne 'Optional'}
+            Where-Object {$_.UpdateGroup -ne ''} | Where-Object {$_.UpdateGroup -ne 'Optional'} | Sort-Object -Property FileName -Unique | Sort-Object -Property CreationDate
 
-            $KBPattern = '(\d{4,7})'
-            
             $OSMUpdateStatus = 'OK'
             foreach ($OSMUpdate in $VerifyUpdates) {
-
+                #$KBPattern = '(\d{4,7})'
                 #Write-Verbose "FileName: $($OSMUpdate.FileName)"
                 #$FileKBNumber = [regex]::matches($OSMUpdate.FileName, $KBPattern).Value
                 #Write-Verbose "FileKBNumber: $($FileKBNumber)"
