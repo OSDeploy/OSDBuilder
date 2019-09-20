@@ -45,6 +45,9 @@ function Get-OSDBuilder {
         [ValidateSet('OneDrive','Download','Cleanup')]
         [string]$Quick,
 
+        [ValidateSet('FeatureUpdates','OneDrive','OneDriveEnterprise','OSMediaUpdates')]
+        [string]$Download,
+
         [Alias('Silent')]
         [switch]$HideDetails,
         
@@ -103,7 +106,7 @@ function Get-OSDBuilder {
     $global:OSBuilderTasks =        "$OSDBuilderPath\Tasks"
     $global:OSBuilderTemplates =    "$OSDBuilderPath\Templates"
     #===================================================================================================
-    #   19.3.4  New Directories
+    #   19.9.18  New Directories
     #===================================================================================================
     $OSDBuilderNewDirectories = @(
         $OSDBuilderPath
@@ -115,14 +118,17 @@ function Get-OSDBuilder {
         $OSDBuilderTemplates
         $OSDBuilderContent
         "$OSDBuilderContent\ADK"
-        "$OSDBuilderContent\ADK\Windows 10 1809\Windows Preinstallation Environment"
+        "$OSDBuilderContent\ADK\Windows 10 1903\Windows Preinstallation Environment"
+        "$OSDBuilderContent\ADK\Windows 10 1909\Windows Preinstallation Environment"
         "$OSDBuilderContent\DaRT"
         "$OSDBuilderContent\DaRT\DaRT 10"
         "$OSDBuilderContent\Drivers"
         "$OSDBuilderContent\ExtraFiles"
         "$OSDBuilderContent\IsoExtract"
-        "$OSDBuilderContent\IsoExtract\Windows 10 1809 FOD x64"
-        "$OSDBuilderContent\IsoExtract\Windows 10 1809 Language"
+        "$OSDBuilderContent\IsoExtract\Windows 10 1903 FOD x64"
+        "$OSDBuilderContent\IsoExtract\Windows 10 1903 FOD x64"
+        "$OSDBuilderContent\IsoExtract\Windows 10 1903 Language"
+        "$OSDBuilderContent\IsoExtract\Windows 10 1909 Language"
         "$OSDBuilderContent\IsoExtract\Windows Server 2019 1809 FOD x64"
         "$OSDBuilderContent\IsoExtract\Windows Server 2019 1809 Language"
         #"$OSDBuilderContent\LanguagePacks"
@@ -172,12 +178,7 @@ function Get-OSDBuilder {
     #===================================================================================================
     #   DownloadOneDrive
     #===================================================================================================
-    if ($Quick -eq 'OneDrive') {
-        $HideDetails = $true
-        Get-DownOSDBuilder -ContentDownload "OneDriveSetup Production"
-        Return
-    }
-    if ($Quick -eq 'Download') {
+    if ($Quick -eq 'Download' -or $Download -eq 'OSMediaUpdates') {
         $HideDetails = $true
         Get-OSMedia | Update-OSMedia -Download
         Return
@@ -185,6 +186,21 @@ function Get-OSDBuilder {
     if ($Quick -eq 'Cleanup') {
         $HideDetails = $true
         Get-DownOSDBuilder -Superseded Remove
+        Return
+    }
+    if ($Download -eq 'FeatureUpdates') {
+        $HideDetails = $true
+        Get-DownOSDBuilder -FeatureUpdates
+        Return
+    }
+    if ($Download -eq 'OneDrive' -or $Quick -eq 'OneDrive') {
+        $HideDetails = $true
+        Get-DownOSDBuilder -ContentDownload "OneDriveSetup Production"
+        Return
+    }
+    if ($Download -eq 'OneDriveEnterprise') {
+        $HideDetails = $true
+        Get-DownOSDBuilder -ContentDownload "OneDriveSetup Enterprise"
         Return
     }
     #===================================================================================================

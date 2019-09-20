@@ -23,7 +23,7 @@ Task Name to Execute
 .PARAMETER DontUseNewestMedia
 Use the OSMedia specified in the Task, not the Latest
 
-.PARAMETER PauseDismount
+.PARAMETER PauseDismountOS
 Adds a 'Press Enter to Continue' prompt before the Install.wim is dismounted
 
 .PARAMETER PauseDismountPE
@@ -43,7 +43,7 @@ function New-OSBuild {
     PARAM (
         [switch]$Download,
         [switch]$Execute,
-        [switch]$OSDInfo,
+        #[switch]$OSDInfo,
         [switch]$OSDISO,
         #==========================================================
         [Parameter(ParameterSetName='Advanced')]
@@ -66,9 +66,8 @@ function New-OSBuild {
         [Parameter(ParameterSetName='Taskless')]
         [switch]$SkipTemplates,
 
-        [Parameter(ParameterSetName='Advanced')]
-        [Parameter(ParameterSetName='Taskless')]
-        [switch]$SkipUpdates,
+        [ValidateSet('Select','Skip')]
+        [string]$Updates,
         #==========================================================
         [Parameter(ParameterSetName='Taskless', ValueFromPipelineByPropertyName=$True)]
         [string[]]$Name,
@@ -567,9 +566,9 @@ function New-OSBuild {
             $OSDUpdates = @()
             $OSDUpdates = Get-OSDUpdates
             #===================================================================================================
-            #   Skip Updates
+            #   -Updates Skip
             #===================================================================================================
-            if ($SkipUpdates.IsPresent) {$OSDUpdates = @()}
+            if ($Updates -eq 'Skip') {$OSDUpdates = @()}
             #===================================================================================================
             #   Filter UpdateArch
             #===================================================================================================
@@ -582,6 +581,16 @@ function New-OSBuild {
             #   Filter UpdateBuild
             #===================================================================================================
             $OSDUpdates = $OSDUpdates | Where-Object {($_.UpdateBuild -eq $ReleaseId) -or ($_.UpdateBuild -eq '')}
+            #===================================================================================================
+            #   Filter ServerCore
+            #===================================================================================================
+            if ($OSInstallationType -match 'Core'){$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'AdobeSU'}}
+            #===================================================================================================
+            #   -Updates Select
+            #===================================================================================================
+            if ($Updates -eq 'Select') {
+                $OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Apply and press OK'
+            }
             #===================================================================================================
             #   OSDBuilder 10 Setup Updates
             #===================================================================================================
@@ -1010,6 +1019,7 @@ function New-OSBuild {
                     Import-RegistryRegOS
                     Import-RegistryXmlOS
                 }
+                if ($PauseDismountOS.IsPresent){[void](Read-Host 'Press Enter to Continue')}
                 Dismount-InstallwimOS
                 Export-InstallwimOS
                 #===================================================================================================

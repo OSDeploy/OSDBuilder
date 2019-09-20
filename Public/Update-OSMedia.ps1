@@ -45,7 +45,7 @@ Adds a 'Press Enter to Continue' prompt before WinPE is dismounted
 Execute an OSMedia Update without Updates.  Useful for Testing
 #>
 function Update-OSMedia {
-    [CmdletBinding(DefaultParameterSetName='Basic')]
+    [CmdletBinding()]
     PARAM (
         #==========================================================
         [Parameter(ValueFromPipelineByPropertyName)]
@@ -53,42 +53,17 @@ function Update-OSMedia {
         #==========================================================
         [switch]$Download,
         [switch]$Execute,
-        [switch]$ShowAllOSMedia,
-        [switch]$OSDInfo,
-        [switch]$OSDISO,
-        #==========================================================
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipComponentCleanup,
-
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdates,
-        #==========================================================
-        [Parameter(ParameterSetName='Advanced')]
         [switch]$PauseDismountOS,
-        [Parameter(ParameterSetName='Advanced')]
         [switch]$PauseDismountPE,
-        #==========================================================
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdatesDUC,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipSetupDU,
+        
+        [ValidateSet('Select','Skip')]
+        [string]$Updates,
 
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdatesOS,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdatesOSLCU,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdatesOSSSU,
-
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdatesPE,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdatesPELCU,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdatesPESSU,
-
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipUpdatesWinSE
+        [switch]$ShowAllOSMedia,
+        [switch]$SkipComponentCleanup,
+        #[switch]$SkipUpdates,
+        #[switch]$OSDInfo,
+        [switch]$OSDISO
         #==========================================================
     )
 
@@ -581,9 +556,9 @@ function Update-OSMedia {
             $OSDUpdates = @()
             $OSDUpdates = Get-OSDUpdates
             #===================================================================================================
-            #   Skip Updates
+            #   -Updates Skip
             #===================================================================================================
-            if ($SkipUpdates.IsPresent) {$OSDUpdates = @()}
+            if ($Updates -eq 'Skip') {$OSDUpdates = @()}
             #===================================================================================================
             #   Filter UpdateArch
             #===================================================================================================
@@ -596,6 +571,16 @@ function Update-OSMedia {
             #   Filter UpdateBuild
             #===================================================================================================
             $OSDUpdates = $OSDUpdates | Where-Object {($_.UpdateBuild -eq $ReleaseId) -or ($_.UpdateBuild -eq '')}
+            #===================================================================================================
+            #   Filter ServerCore
+            #===================================================================================================
+            if ($OSInstallationType -match 'Core'){$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'AdobeSU'}}
+            #===================================================================================================
+            #   -Updates Select
+            #===================================================================================================
+            if ($Updates -eq 'Select') {
+                $OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Apply and press OK'
+            }
             #===================================================================================================
             #   OSDBuilder 10 Setup Updates
             #===================================================================================================
@@ -1024,6 +1009,7 @@ function Update-OSMedia {
                     Import-RegistryRegOS
                     Import-RegistryXmlOS
                 }
+                if ($PauseDismountOS.IsPresent){[void](Read-Host 'Press Enter to Continue')}
                 Dismount-InstallwimOS
                 Export-InstallwimOS
                 #===================================================================================================

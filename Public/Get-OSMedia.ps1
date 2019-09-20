@@ -277,6 +277,10 @@ function Get-OSMedia {
             Where-Object {$_.UpdateOS -like "*$UpdateOS*"} | Where-Object {$_.UpdateBuild -like "*$OSMReleaseId*"} | `
             Where-Object {$_.UpdateArch -like "*$($OSMArch)*"} | Where-Object {$_.UpdateGroup -notlike "*Setup*"} | `
             Where-Object {$_.UpdateGroup -ne ''} | Where-Object {$_.UpdateGroup -ne 'Optional'} | Sort-Object -Property FileName -Unique | Sort-Object -Property CreationDate
+            #===================================================================================================
+            #   Server Core
+            #===================================================================================================
+            if ($OSMInstallationType -match 'Core'){$VerifyUpdates = $VerifyUpdates | Where-Object {$_.UpdateGroup -ne 'AdobeSU'}}
 
             $OSMUpdateStatus = 'OK'
             foreach ($OSMUpdate in $VerifyUpdates) {

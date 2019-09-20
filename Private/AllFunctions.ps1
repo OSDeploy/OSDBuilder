@@ -1035,19 +1035,19 @@ function Export-SessionsXmlOS {
 
     Remove-Item "$OSMediaPath\Sessions.xml" -Force | Out-Null
 }
-function Get-MediaESDDownloads {
-    $MediaESDDownloads = @()
-    $MediaESDDownloads = Get-OSDSUS FeatureUpdate
+function Get-FeatureUpdateDownloads {
+    $FeatureUpdateDownloads = @()
+    $FeatureUpdateDownloads = Get-OSDSUS FeatureUpdate
 <#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\CatalogsESD\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {
-        $MediaESDDownloads += Import-Clixml -Path "$($CatalogsXml.FullName)"
+        $FeatureUpdateDownloads += Import-Clixml -Path "$($CatalogsXml.FullName)"
     } #>
     #===================================================================================================
     #   Get Downloadeds
     #===================================================================================================
-    foreach ($Download in $MediaESDDownloads) {
-        $FullUpdatePath = "$OSDBuilderPath\MediaESD\$($Update.FileName)"
+    foreach ($Download in $FeatureUpdateDownloads) {
+        $FullUpdatePath = "$OSDBuilderPath\Media\$($Download.FileName)"
         if (Test-Path $FullUpdatePath) {
             $Download.OSDStatus = "Downloaded"
         }
@@ -1055,8 +1055,8 @@ function Get-MediaESDDownloads {
     #===================================================================================================
     #   Return
     #===================================================================================================
-    $MediaESDDownloads = $MediaESDDownloads | Select-Object -Property * | Sort-Object -Property CreationDate -Descending
-    Return $MediaESDDownloads
+    $FeatureUpdateDownloads = $FeatureUpdateDownloads | Select-Object -Property * | Sort-Object -Property CreationDate -Descending
+    Return $FeatureUpdateDownloads
 }
 function Get-OSBuildTask {
     [CmdletBinding()]
@@ -1176,15 +1176,16 @@ function Get-OSDUpdateDownloads {
     [CmdletBinding()]
     PARAM (
         [string]$OSDGuid,
-        [string]$UpdateTitle
+        [string]$UpdateTitle,
+        [switch]$Silent
     )
     #===================================================================================================
     #   Filtering
     #===================================================================================================
     if ($OSDGuid) {
-        $OSDUpdateDownload = Get-OSDUpdates | Where-Object {$_.OSDGuid -eq $OSDGuid}
+        $OSDUpdateDownload = Get-OSDUpdates -Silent | Where-Object {$_.OSDGuid -eq $OSDGuid}
     } elseif ($UpdateTitle) {
-        $OSDUpdateDownload = Get-OSDUpdates | Where-Object {$_.UpdateTitle -eq $UpdateTitle}
+        $OSDUpdateDownload = Get-OSDUpdates -Silent | Where-Object {$_.UpdateTitle -eq $UpdateTitle}
     } else {
         Break
     }
@@ -1205,8 +1206,15 @@ function Get-OSDUpdateDownloads {
     }
 }
 function Get-OSDUpdates {
+    PARAM (
+        [switch]$Silent
+    )
     $AllOSDUpdates = @()
-    $AllOSDUpdates = Get-OSDSUS Windows
+    if ($Silent.IsPresent) {
+        $AllOSDUpdates = Get-OSDSUS Windows -Silent
+    } else {
+        $AllOSDUpdates = Get-OSDSUS Windows
+    }
     Write-Verbose ""
 <#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\Catalogs\*" -Include *.xml
@@ -2052,7 +2060,7 @@ function Get-TaskWinPEADKSE {
     #===================================================================================================
     [CmdletBinding()]
     PARAM ()
-    $WinPEADKSE = Get-ChildItem -Path ("$OSDBuilderContent\WinPE\ADK\*","$OSDBuilderContent\ADK\*\Windows Preinstallation Environment\*\WinPE_OCs","$ContentIsoExtractWinPE") *.cab -Recurse -ErrorAction SilentlyContinue | Select-Object -Property Name, FullName
+    $WinPEADKSE = Get-ChildItem -Path ("$OSDBuilderContent\WinPE\ADK\*","$OSDBuilderContent\ADK\*\Windows Preinstallation Environment\*\WinPE_OCs") *.cab -Recurse -ErrorAction SilentlyContinue | Select-Object -Property Name, FullName
     foreach ($Pack in $WinPEADKSE) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderContent\",'')}
     $WinPEADKSE = $WinPEADKSE | Where-Object {$_.FullName -like "*$($OSMedia.ReleaseId)*"}
 

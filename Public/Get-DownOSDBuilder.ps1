@@ -12,11 +12,10 @@ function Get-DownOSDBuilder {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]
     PARAM (
         #===================================================================================================
-        #   MediaESD
+        #   FeatureUpdates
         #===================================================================================================
-        [Parameter(ParameterSetName='MediaESD')]
-        [ValidateSet ('GridView','Download')]
-        [string]$MediaESD,
+        [Parameter(ParameterSetName='FeatureUpdates')]
+        [switch]$FeatureUpdates,
         #===================================================================================================
         #   OSDUpdateSuperseded
         #===================================================================================================
@@ -93,73 +92,83 @@ function Get-DownOSDBuilder {
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
         #===================================================================================================
-        #   MediaESD
+        #   FeatureUpdates
         #===================================================================================================
-        if ($PSCmdlet.ParameterSetName -eq 'MediaESD') {
-            Write-Warning "Select downloads in GridView"
-            Write-Warning "Downloading using BITS Transfer"
+        if ($FeatureUpdates.IsPresent) {
+            Write-Warning "FeatureUpdates are downloaded using BITS Transfer"
+            Write-Warning "Windows Server 2016 (1607) does not support ESD Files"
             #===================================================================================================
-            #   Get MediaESDDownloads
+            #   Get FeatureUpdateDownloads
             #===================================================================================================
-            $MediaESDDownloads = @()
-            $MediaESDDownloads = Get-MediaESDDownloads
+            $FeatureUpdateDownloads = @()
+            $FeatureUpdateDownloads = Get-FeatureUpdateDownloads
+            #===================================================================================================
+            #   Select-Object
+            #===================================================================================================
+            $FeatureUpdateDownloads = $FeatureUpdateDownloads | Select-Object -Property OSDStatus, Title, UpdateOS,`
+            UpdateBuild, UpdateArch, CreationDate, KBNumber, FileName, Size, OriginUri, Hash, AdditionalHash
             #===================================================================================================
             #   Sorting
             #===================================================================================================
-            $MediaESDDownloads = $MediaESDDownloads | Sort-Object -Property Title
+            $FeatureUpdateDownloads = $FeatureUpdateDownloads | Sort-Object -Property Title
             #===================================================================================================
             #   Select Updates with GridView
             #===================================================================================================
-            $MediaESDDownloads = $MediaESDDownloads | Out-GridView -PassThru -Title 'Select ESD Files to Download and press OK'
+            $FeatureUpdateDownloads = $FeatureUpdateDownloads | Out-GridView -PassThru -Title 'Select ESD Files to Download and Build and press OK'
             #===================================================================================================
             #   Download Updates
             #===================================================================================================
-            if ($MediaESD -eq 'Download') {
-                if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
-                foreach ($Item in $MediaESDDownloads) {
-                    $DownloadPath = "$OSDBuilderPath\Media"
-                    $DownloadFullPath = "$DownloadPath\$($Item.FileName)"
+            if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
+            foreach ($Item in $FeatureUpdateDownloads) {
+                $DownloadPath = "$OSDBuilderPath\Media"
+                $DownloadFullPath = "$DownloadPath\$($Item.FileName)"
 
-                    if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
-                    Write-Host "$DownloadFullPath" -ForegroundColor Cyan
-                    Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
-                    if (!(Test-Path $DownloadFullPath)) {
-                        if ($WebClient.IsPresent) {							
-                            $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
-                        } else {
-                            Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath
-                        }
+                if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
+                Write-Host "$DownloadFullPath" -ForegroundColor Cyan
+                Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
+                if (!(Test-Path $DownloadFullPath)) {
+                    if ($WebClient.IsPresent) {							
+                        $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
+                    } else {
+                        Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath
                     }
+                }
 
-                    $esdbasename = (Get-Item "$DownloadFullPath").Basename
-                    $esddirectory = "$OSDBuilderPath\Media\$esdbasename"
+                $esdbasename = (Get-Item "$DownloadFullPath").Basename
+                $esddirectory = "$OSDBuilderPath\Media\$esdbasename"
 
-                    if (Test-Path "$esddirectory") {
-                        Remove-Item "$esddirectory" -Force | Out-Null
-                    }
-                    
+                if (Test-Path "$esddirectory") {
+                    Remove-Item "$esddirectory" -Force | Out-Null
+                }
+                
+                Try {
                     $esdinfo = Get-WindowsImage -ImagePath "$DownloadFullPath"
-                    
-                    Write-Host "Creating $esddirectory" -ForegroundColor Cyan
-                    New-Item -Path "$esddirectory" -Force -ItemType Directory | Out-Null
-                    
-                    foreach ($image in $esdinfo) {
-                        if ($image.ImageName -eq 'Windows Setup Media') {
-                            Write-Host "Expanding Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
-                            Expand-WindowsImage -ImagePath "$($image.ImagePath)" -ApplyPath "$esddirectory" -Index "$($image.ImageIndex)" -ErrorAction SilentlyContinue | Out-Null
-                        } elseif ($image.ImageName -like "*Windows PE*") {
-                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
-                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
-                        } elseif ($image.ImageName -like "*Windows Setup*") {
-                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
-                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -Setbootable -ErrorAction SilentlyContinue | Out-Null
-                        } else {
-                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
-                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\install.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
-                        }
+                }
+                Catch {
+                    Write-Warning "Could not get ESD information"
+                    Break
+                }
+                
+                Write-Host "Creating $esddirectory" -ForegroundColor Cyan
+                New-Item -Path "$esddirectory" -Force -ItemType Directory | Out-Null
+                
+                foreach ($image in $esdinfo) {
+                    if ($image.ImageName -eq 'Windows Setup Media') {
+                        Write-Host "Expanding Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                        Expand-WindowsImage -ImagePath "$($image.ImagePath)" -ApplyPath "$esddirectory" -Index "$($image.ImageIndex)" -ErrorAction SilentlyContinue | Out-Null
+                    } elseif ($image.ImageName -like "*Windows PE*") {
+                        Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                        Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
+                    } elseif ($image.ImageName -like "*Windows Setup*") {
+                        Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                        Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -Setbootable -ErrorAction SilentlyContinue | Out-Null
+                    } else {
+                        Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                        Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\install.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
                     }
                 }
             }
+            Write-Warning "Use Import-OSMedia to import this Feature Update to OSMedia"
         }
 
 
@@ -186,6 +195,8 @@ function Get-DownOSDBuilder {
             Write-Verbose "DownloadFile: $DownloadFile" -Verbose
             Invoke-WebRequest -Uri $DownloadUrl -OutFile "$DownloadPath\$DownloadFile"
             if (Test-Path "$DownloadPath\$DownloadFile") {
+                $OneDriveSetupInfo = Get-Item -Path "$DownloadPath\$DownloadFile" | Select-Object -Property *
+                Write-Verbose "DownloadVersion: $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -Verbose
                 Write-Verbose 'Complete' -Verbose
             } else {
                 Write-Warning 'Content could not be downloaded'

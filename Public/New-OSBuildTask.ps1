@@ -278,8 +278,10 @@ function New-OSBuildTask {
             if ($TaskName -match '1809') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1809'}}
             if ($TaskName -match '1903') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1903'}}
     
-            $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title 'Select a Source OSMedia to use for this Task (Cancel to Exit)'
-            if ($null -eq $OSMedia) {
+            Try {
+                $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title 'Select a Source OSMedia to use for this Task (Cancel to Exit)'
+            }
+            Catch {
                 Write-Warning "Source OSMedia was not selected . . . Exiting!"
                 Break
             }
