@@ -26,9 +26,10 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
+19.9.20: Support for Windows Server 2019 1903
 19.9.12: Added OSDSUS requirement
 
-Requires OSDSUS 19.9.12.0
+Requires OSDSUS 19.9.12.0 or newer
 
 OSDBuilder https://osdbuilder.osdeploy.com/
 
