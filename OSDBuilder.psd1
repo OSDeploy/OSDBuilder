@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.10.13.0'
+ModuleVersion = '19.10.13.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 # Description of the functionality provided by this module
 Description = @'
 OSDBuilder https://osdbuilder.osdeploy.com/
-19.9.13: MMSJazz Phase 1
+19.10.13: MMSJazz Phase 1
 19.9.20: Support for Windows Server 2019 1903
 19.9.12: Added OSDSUS requirement
 
