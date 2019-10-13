@@ -16,7 +16,7 @@ Label for the USB Drive
 #>
 function New-OSDBuilderUSB {
     [CmdletBinding()]
-    PARAM (
+    Param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string]$FullName,
         
@@ -24,26 +24,21 @@ function New-OSDBuilderUSB {
         [string]$USBLabel
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-
+    Begin {
         #===================================================================================================
-        Write-Verbose '19.1.1 Validate Administrator Rights'
-        #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-			Exit
-        }
-
-        #===================================================================================================
-        Write-Verbose '19.1.1 Initialize OSDBuilder'
+        #   Get-OSDBuilder
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-
         #===================================================================================================
-        Write-Verbose '19.2.10 Gather All OS Media'
+        #   Get-OSDGather -Property IsAdmin
+        #===================================================================================================
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
+            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Pause
+            Break
+        }
+        #===================================================================================================
+        #   Gather all OSMedia OSBuilds PEBuilds
         #===================================================================================================
         $AllMyOSMedia = @()
         $AllMyOSMedia = Get-OSMedia

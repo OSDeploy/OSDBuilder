@@ -13,7 +13,7 @@ Name of the OSBuild to create.  MultiIndex will be appended to the Custom Name
 #>
 function Split-OSBuildMultiLang {
     [CmdletBinding()]
-    PARAM (
+    Param (
         [Parameter(Mandatory)]
         [string]$CustomName
     )

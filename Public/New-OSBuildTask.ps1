@@ -106,7 +106,7 @@ Get-OSMedia entry used to create task (bypasses Out-GridView)
 #>
 function New-OSBuildTask {
     [CmdletBinding(DefaultParameterSetName='Basic')]
-    PARAM (
+    Param (
         #[Parameter(Mandatory)]
         [ValidateSet('Task','Template')]
         [string]$SaveAs = 'Task',
@@ -205,28 +205,30 @@ function New-OSBuildTask {
         #===================================================================================================
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-
+    Begin {
         #===================================================================================================
-        Write-Verbose '19.1.1 Initialize OSDBuilder'
+        #   Header
+        #===================================================================================================
+        #   Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+        #===================================================================================================
+        #   Get-OSDBuilder
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
+        #===================================================================================================
+        #   Get-OSDGather -Property IsAdmin
+        #===================================================================================================
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
+            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Pause
+            Break
+        }
     }
     
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         
-        #===================================================================================================
-        #   19.1.1 Validate Administrator Rights
-        #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-			Exit
-        }
         #===================================================================================================
         #   Set Task Name
         #===================================================================================================

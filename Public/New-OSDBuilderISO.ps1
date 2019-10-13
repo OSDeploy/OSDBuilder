@@ -15,18 +15,20 @@ Return created ISO information
 #>
 function New-OSDBuilderISO {
     [CmdletBinding()]
-    PARAM (
+    Param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string[]]$FullName,
         [Parameter(Mandatory=$false)][Switch]$PassThru
     )
 
     BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-
         #===================================================================================================
-        Write-Verbose '19.1.1 Initialize OSDBuilder'
+        #   Header
+        #===================================================================================================
+        #   Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+        #===================================================================================================
+        #   Get-OSDBuilder
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
 

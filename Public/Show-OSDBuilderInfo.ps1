@@ -13,16 +13,20 @@ Full Path of the OSDBuilder Media
 #>
 function Show-OSDBuilderInfo {
     [CmdletBinding()]
-    PARAM (
+    Param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string[]]$FullName
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+    Begin {
         #===================================================================================================
-        #   Initialize OSDBuilder
+        #   Header
+        #===================================================================================================
+        #   Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+        #===================================================================================================
+        #   Get-OSDBuilder
+        #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
         #   Gather All OS Media

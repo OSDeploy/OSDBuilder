@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.9.20.0'
+ModuleVersion = '19.10.13.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -26,15 +26,17 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
+OSDBuilder https://osdbuilder.osdeploy.com/
+19.9.13: MMSJazz Phase 1
 19.9.20: Support for Windows Server 2019 1903
 19.9.12: Added OSDSUS requirement
 
-Requires OSDSUS 19.9.12.0 or newer
-
-OSDBuilder https://osdbuilder.osdeploy.com/
+Requirements:
+PowerShell Module OSD 19.9.26 or newer
+PowerShell Module OSDSUS 19.9.12.0 or newer
 
 Latest Microsoft Updates:
-https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md
+https://raw.githubusercontent.com/OSDeploy/OSDSUS/master/UPDATES.md
 
 WSUS Update Catalogs:
 These are contained within this PowerShell Module, so regular Module updating is needed to
@@ -62,7 +64,8 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName='OSDSUS'; ModuleVersion = '19.9.12.0'; Guid="065cf035-da73-4d17-8745-f55116b82fb5"}
+    @{ModuleName = 'OSD'; ModuleVersion = '19.10.13.0'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+    @{ModuleName = 'OSDSUS'; ModuleVersion = '19.10.13.0'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
 )
 
 # Assemblies that must be loaded prior to importing this module
@@ -123,7 +126,7 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://osdbuilder.osdeploy.com/'
+        ProjectUri = 'https://github.com/OSDeploy/OSDBuilder'
 
         # A URL to an icon representing this module.
         # IconUri = ''

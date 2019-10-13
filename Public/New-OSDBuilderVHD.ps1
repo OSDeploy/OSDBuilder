@@ -26,25 +26,32 @@ https://deploymentbunny.com/2013/12/19/powershell-is-king-convert-wim-to-vhdvhdx
 #>
 function New-OSDBuilderVHD {
     [CmdletBinding()]
-    PARAM (
+    Param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string]$FullName,
         [string]$OSDriveLabel = 'OSDisk',
         [int32]$VHDSizeGB = 50
     )
 
-    BEGIN {
-        
-        Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+    Begin {
         #===================================================================================================
-        #   Validate Administrator Rights
+        #   Header
         #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+        #   Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+        #===================================================================================================
+        #   Get-OSDBuilder
+        #===================================================================================================
+        Get-OSDBuilder -CreatePaths -HideDetails
+        #===================================================================================================
+        #   Get-OSDGather -Property IsAdmin
+        #===================================================================================================
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
             Pause
-			Exit
+            Break
         }
+
         #===================================================================================================
         #   Require HyperV Module for VHD Cmdlets
         #===================================================================================================
@@ -52,10 +59,7 @@ function New-OSDBuilderVHD {
             Write-Warning "New-OSDBuilderVHD requires PowerShell Module HyperV"
             Break
         }
-        #===================================================================================================
-        #   Initialize OSDBuilder
-        #===================================================================================================
-        Get-OSDBuilder -CreatePaths -HideDetails
+
         #===================================================================================================
         #   Gather All OS Media
         #===================================================================================================

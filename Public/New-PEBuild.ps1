@@ -23,7 +23,7 @@ Adds a 'Press Enter to Continue' prompt before WinPE is dismounted
 #>
 function New-PEBuild {
     [CmdletBinding(DefaultParameterSetName='Basic')]
-    PARAM (
+    Param (
         #==========================================================
         [switch]$Execute,
         [switch]$OSDISO,
@@ -35,23 +35,24 @@ function New-PEBuild {
         #==========================================================
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-
+    Begin {
         #===================================================================================================
-        Write-Verbose '19.1.1 Validate Administrator Rights'
+        #   Header
         #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-			Exit
-        }
-
+        #   Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
         #===================================================================================================
-        Write-Verbose '19.1.1 Initialize OSDBuilder'
+        #   Get-OSDBuilder
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
+        #===================================================================================================
+        #   Get-OSDGather -Property IsAdmin
+        #===================================================================================================
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
+            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Pause
+            Break
+        }
 
 #===================================================================================================
 Write-Verbose 'MDT Files'
@@ -653,7 +654,10 @@ $MDTUnattendPEx86 = @'
                 #===================================================================================================
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Host "WinPE: Extra Files" -ForegroundColor Green
-                foreach ($ExtraFile in $WinPEExtraFiles) {robocopy "$OSDBuilderContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null}
+                foreach ($ExtraFile in $WinPEExtraFiles) {
+                    Write-Host "Source: $OSDBuilderContent\$ExtraFile" -ForegroundColor DarkGray
+                    robocopy "$OSDBuilderContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null
+                }
                 
                 #===================================================================================================
                 Write-Verbose '19.1.1 WinPE: Drivers'

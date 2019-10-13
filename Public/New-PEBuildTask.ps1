@@ -26,7 +26,7 @@ Set the Scratch Space for WinPE
 
 function New-PEBuildTask {
     [CmdletBinding(DefaultParameterSetName='Recovery')]
-    PARAM (
+    Param (
         #==========================================================
         [Parameter(Mandatory)]
         [string]$TaskName,
@@ -53,28 +53,30 @@ function New-PEBuildTask {
         [switch]$ContentWinPEScripts
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-
+    Begin {
         #===================================================================================================
-        Write-Verbose '19.1.1 Initialize OSDBuilder'
+        #   Header
+        #===================================================================================================
+        #   Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+        #===================================================================================================
+        #   Get-OSDBuilder
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
+        #===================================================================================================
+        #   Get-OSDGather -Property IsAdmin
+        #===================================================================================================
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
+            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Pause
+            Break
+        }
     }
 
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
-        
-        #===================================================================================================
-        #   19.1.1 Validate Administrator Rights
-        #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-			Exit
-        }
+
         #===================================================================================================
         #   Set Task Name
         #===================================================================================================

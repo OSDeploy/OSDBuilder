@@ -1,6 +1,6 @@
 function Update-ModuleOSDBuilder {
     [CmdletBinding()]
-    PARAM (
+    Param (
         [switch]$CurrentUser
     )
     #===================================================================================================
@@ -27,6 +27,18 @@ function Update-ModuleOSDBuilder {
         try {Install-Module -Name OSDBuilder -Force -ErrorAction SilentlyContinue}
         catch {}
     }
+    #===================================================================================================
+    #   OSDSUS Update-Module
+    #===================================================================================================
+    Write-Warning "Update-Module -Name -Force OSDSUS"
+    try {Update-Module -Name OSDSUS -Force -ErrorAction SilentlyContinue}
+    catch {}
+    #===================================================================================================
+    #   OSDSUS Import-Module
+    #===================================================================================================
+    Write-Warning "Import-Module -Name OSDSUS -Force"
+    try {Import-Module -Name OSDSUS -Force -ErrorAction SilentlyContinue}
+    catch {}
     #===================================================================================================
     #   Import-Module
     #===================================================================================================

@@ -7,88 +7,85 @@ Creates a new OSBuild from an OSBuild Task created with New-OSBuildTask
 
 .LINK
 https://osdbuilder.osdeploy.com/module/functions/osbuild/new-osbuild
-
-.PARAMETER OSDISO
-Creates an ISO of the OSDBuilder Media
-
-.PARAMETER Download
-Automatically download the required updates if they are not present in the Content\Updates directory
-
-.PARAMETER `
-Execute the Build
-
-.PARAMETER ByTaskName
-Task Name to Execute
-
-.PARAMETER DontUseNewestMedia
-Use the OSMedia specified in the Task, not the Latest
-
-.PARAMETER PauseDismountOS
-Adds a 'Press Enter to Continue' prompt before the Install.wim is dismounted
-
-.PARAMETER PauseDismountPE
-Adds a 'Press Enter to Continue' prompt before the WinPE Wims are dismounted
-
-.PARAMETER SkipTemplates
-Create a new OSBuild without applying Templates
-
-.PARAMETER SkipUpdates
-Create a new OSBuild without applying Updates
-
-.PARAMETER Taskless
-Create a new OSBuild from OSMedia without a Task
 #>
 function New-OSBuild {
     [CmdletBinding(DefaultParameterSetName='Basic')]
-    PARAM (
+    Param (
+        #Automatically download the required updates if they are not present in the Content\OSDUpdate directory
+        [Alias('GetDown')]
         [switch]$Download,
+
+        #Executes Update-OSMedia
+        #Without this parameter, Update-OSMedia is in Sandbox Mode where changes will not be made
+        [Alias('Force')]
         [switch]$Execute,
-        #[switch]$OSDInfo,
-        [switch]$OSDISO,
-        #==========================================================
-        [Parameter(ParameterSetName='Advanced')]
-        [string]$ByTaskName,
-        
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$DontUseNewestMedia,
 
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$PauseDismount,
+        #Creates an ISO of the Updated Media
+        #oscdimg.exe from Windows ADK is required
+        [Alias('ISO','OSDISO')]
+        [switch]$CreateISO,
 
-        [Parameter(ParameterSetName='Advanced')]
+        #Pauses the function the Install.wim is dismounted
+        #Useful for Testing
+        [Alias('PauseOS','PauseDismount')]
+        [switch]$PauseDismountOS,
+
+        #Pauses the function before WinPE is dismounted
+        #Useful for Testing
+        [Alias('PausePE')]
         [switch]$PauseDismountPE,
-        #==========================================================
-        [Parameter(ParameterSetName='Advanced')]
-        [Parameter(ParameterSetName='Taskless')]
+        
+        #Allows you to skip all Updates from being applied
+        #Useful for Testing
+        [switch]$SkipUpdates,
+
+        #Allows you to select Updates to apply in GridView
+        #Useful for Testing
+        [switch]$SelectUpdates,
+
+        #Skips DISM /Cleanup-Image /StartComponentCleanup /ResetBase
+        #Images created for Citrix PVS require this parameter
+        #Useful for testing to reduce the time
+        [Alias('SkipCleanup','Citrix','PVS')]
         [switch]$SkipComponentCleanup,
 
-        [Parameter(ParameterSetName='Advanced')]
-        [Parameter(ParameterSetName='Taskless')]
+        #Name of the Task to execute
+        [Parameter(ParameterSetName='Basic')]
+        [string]$ByTaskName,
+        
+        #Use the OSMedia specified in the Task
+        [Parameter(ParameterSetName='Basic')]
+        [switch]$DontUseNewestMedia,
+
+        #Create a new OSBuild without applying Templates
         [switch]$SkipTemplates,
 
-        [ValidateSet('Select','Skip')]
-        [string]$Updates,
-        #==========================================================
+        #Specify the Name of the OSMedia to use with New-OSBuild
         [Parameter(ParameterSetName='Taskless', ValueFromPipelineByPropertyName=$True)]
         [string[]]$Name,
 
+        #Create a new OSBuild from OSMedia without a Task
         [Parameter(ParameterSetName='Taskless', Mandatory=$True)]
         [switch]$SkipTask
-        #==========================================================
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+    Begin {
+        #===================================================================================================
+        #   Header
+        #===================================================================================================
+        #   Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+        #===================================================================================================
+        #   Get-OSDBuilder
+        #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-
         #===================================================================================================
-        #   19.1.1 Validate Administrator Rights
+        #   Get-OSDGather -Property IsAdmin
         #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
             Pause
-            Exit
+            Break
         }
     }
 
@@ -112,7 +109,7 @@ function New-OSBuild {
                     }
                 } else {
                     $BirdBox = @()
-                    if ($ShowAllOSMedia.IsPresent) {
+                    if ($ShowHiddenOSMedia.IsPresent) {
                         $BirdBox = Get-OSMedia
                     } else {
                         $BirdBox = Get-OSMedia -Revision OK -OSMajorVersion 10
@@ -153,7 +150,7 @@ function New-OSBuild {
                 }
             } else {
                 $BirdBox = @()
-                if ($ShowAllOSMedia.IsPresent) {
+                if ($ShowHiddenOSMedia.IsPresent) {
                     $BirdBox = Get-OSMedia
                 } else {
                     $BirdBox = Get-OSMedia -Revision OK -Updates Update
@@ -566,9 +563,9 @@ function New-OSBuild {
             $OSDUpdates = @()
             $OSDUpdates = Get-OSDUpdates
             #===================================================================================================
-            #   -Updates Skip
+            #   SkipUpdates
             #===================================================================================================
-            if ($Updates -eq 'Skip') {$OSDUpdates = @()}
+            if ($SkipUpdates.IsPresent) {$OSDUpdates = @()}
             #===================================================================================================
             #   Filter UpdateArch
             #===================================================================================================
@@ -586,11 +583,9 @@ function New-OSBuild {
             #===================================================================================================
             if ($OSInstallationType -match 'Core'){$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'AdobeSU'}}
             #===================================================================================================
-            #   -Updates Select
+            #   SelectUpdates
             #===================================================================================================
-            if ($Updates -eq 'Select') {
-                $OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Apply and press OK'
-            }
+            if ($SelectUpdates.IsPresent) {$OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Apply and press OK'}
             #===================================================================================================
             #   OSDBuilder 10 Setup Updates
             #===================================================================================================
@@ -628,12 +623,12 @@ function New-OSBuild {
                 }
             }
             #===================================================================================================
-            #   OSDBuilder 10 Servicing Stack
+            #   OSDBuilder Servicing Stack Update
             #===================================================================================================
             $OSDUpdateSSU = @()
-            if ($OSMajorVersion -eq 10) {
-                $OSDUpdateSSU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'SSU'}
-                $OSDUpdateSSU = $OSDUpdateSSU | Sort-Object -Property CreationDate
+            $OSDUpdateSSU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'SSU'}
+            $OSDUpdateSSU = $OSDUpdateSSU | Sort-Object -Property CreationDate
+            #if ($OSMajorVersion -eq 10) {
                 foreach ($Update in $OSDUpdateSSU) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
                         Write-Host "Ready       Servicing       $($Update.Title)"
@@ -646,12 +641,12 @@ function New-OSBuild {
                         }
                     }
                 }
-            }
+            #}
             #===================================================================================================
-            #   OSDBuilder 10 Latest Cumulative Update
+            #   OSDBuilder Latest Cumulative Update
             #===================================================================================================
             $OSDUpdateLCU = @()
-            if ($OSMajorVersion -eq 10) {
+            #if ($OSMajorVersion -eq 10) {
                 $OSDUpdateLCU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'LCU'}
                 $OSDUpdateLCU = $OSDUpdateLCU | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateLCU) {
@@ -666,7 +661,7 @@ function New-OSBuild {
                         }
                     }
                 }
-            }
+            #}
             #===================================================================================================
             #   OSDBuilder 10 Adobe
             #===================================================================================================
@@ -716,7 +711,7 @@ function New-OSBuild {
                 $OSDUpdateWinSeven = $OSDUpdateWinSeven | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateWinSeven) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       Seven       $($Update.Title)"
+                        Write-Host "Ready       Seven           $($Update.Title)"
                     } else {
                         if ($Download.IsPresent -and $_.UpdateGroup -ne 'Optional') {
                             Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
@@ -847,9 +842,6 @@ function New-OSBuild {
                 Mount-WinSEwim -OSMediaPath "$WorkingPath"
                 Update-ServicingStackPE
                 Update-CumulativePE
-                if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
-                    Update-WindowsSevenPE
-                }
                 #===================================================================================================
                 #   WinPE OSBuild
                 #===================================================================================================
@@ -861,8 +853,7 @@ function New-OSBuild {
                 Add-ContentADKWinRE
                 Add-ContentADKWinSE
                 Add-ContentScriptsPE
-                #Update-ServicingStackPEForce
-                #Update-CumulativePEForce
+                #Update-CumulativePE -Force
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================
@@ -961,24 +952,24 @@ function New-OSBuild {
 
                     if ($OSArchitecture -eq 'x86') {
                         $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
+                        Write-Host -ForegroundColor Gray "                  Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
                         if (Test-Path $OneDriveSetup) {
                             robocopy "$OSDBuilderContent\OneDrive" "$MountDirectory\Windows\System32" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
+                            Write-Host -ForegroundColor Gray "                  Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
                         }
                     } else {
                         $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host "Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
+                        Write-Host -ForegroundColor Gray "                  Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
                         if (Test-Path $OneDriveSetup) {
                             robocopy "$OSDBuilderContent\OneDrive" "$MountDirectory\Windows\SysWOW64" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host "Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -ForegroundColor Gray
+                            Write-Host -ForegroundColor Gray "                  Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
                         }
                     }
-                    Write-Host -ForegroundColor Cyan "To update OneDriveSetup.exe use one of the following commands:"
-                    Write-Host -ForegroundColor Cyan "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
-                    Write-Host -ForegroundColor Cyan "Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
+                    Write-Host -ForegroundColor Cyan "                  To update OneDriveSetup.exe use one of the following commands:"
+                    Write-Host -ForegroundColor Cyan "                  Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
+                    Write-Host -ForegroundColor Cyan "                  Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
                 }
                 #===================================================================================================
                 #	New-OSBuild
@@ -991,7 +982,7 @@ function New-OSBuild {
                 if ($ScriptName -eq 'New-OSBuild') {
                     if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks) {
                         Set-LanguageSettingsOS
-                        Update-CumulativeOSForce
+                        Update-CumulativeOS -Force
                         Invoke-DismCleanupImage
                     }
                 }
@@ -1008,7 +999,7 @@ function New-OSBuild {
                 Add-ContentStartLayout
                 Add-ContentUnattend
                 Add-ContentScriptsOS
-                Update-ServicingStackOSForce
+                Update-ServicingStackOS -Force
                 #===================================================================================================
                 #	Mirror OSMedia and OSBuild
                 #===================================================================================================
@@ -1145,7 +1136,7 @@ function New-OSBuild {
                 #===================================================================================================
                 #   OSDBuilder Media'
                 #===================================================================================================
-                if ($OSDISO.IsPresent) {New-OSDBuilderISO -FullName "$WorkingPath"}
+                if ($CreateISO.IsPresent) {New-OSDBuilderISO -FullName "$WorkingPath"}
                 if ($OSDVHD.IsPresent) {New-OSDBuilderVHD -FullName "$WorkingPath"}
                 if ($OSDInfo.IsPresent) {Show-OSDBuilderInfo -FullName "$WorkingPath"}
                 #===================================================================================================

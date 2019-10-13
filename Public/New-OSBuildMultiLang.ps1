@@ -13,19 +13,29 @@ Name of the new OSBuild MultiLang to create.  MultiLang will be appended to the 
 #>
 function New-OSBuildMultiLang {
     [CmdletBinding()]
-    PARAM (
+    Param (
         [Parameter(Mandatory)]
         [string]$CustomName
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-
+    Begin {
         #===================================================================================================
-        Write-Verbose '19.1.1 Initialize OSDBuilder'
+        #   Header
+        #===================================================================================================
+        #   Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+        #===================================================================================================
+        #   Get-OSDBuilder
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
+        #===================================================================================================
+        #   Get-OSDGather -Property IsAdmin
+        #===================================================================================================
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
+            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Pause
+            Break
+        }
     }
     
     PROCESS {
@@ -37,14 +47,6 @@ function New-OSBuildMultiLang {
         Write-Host ""
         Write-Warning "This script is under Development at this time"
         
-        #===================================================================================================
-        #   19.1.1 Validate Administrator Rights
-        #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-			Exit
-        }
         #===================================================================================================
         #   Get OSBuilds with Multi Lang
         #===================================================================================================

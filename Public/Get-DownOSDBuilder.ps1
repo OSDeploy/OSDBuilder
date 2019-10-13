@@ -10,7 +10,7 @@ https://osdbuilder.osdeploy.com/module/functions/get-downosdbuilder
 #>
 function Get-DownOSDBuilder {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]
-    PARAM (
+    Param (
         #===================================================================================================
         #   FeatureUpdates
         #===================================================================================================
@@ -72,18 +72,18 @@ function Get-DownOSDBuilder {
         [switch]$WebClient
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
+    Begin {
+        #===================================================================================================
+        #   Get-OSDBuilder
+        #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-
         #===================================================================================================
-        #   19.1.1 Validate Administrator Rights
+        #   Get-OSDGather -Property IsAdmin
         #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
             Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
             Pause
-            Exit
+            Break
         }
     }
 
@@ -218,7 +218,7 @@ function Get-DownOSDBuilder {
             #   Get OSDUpdates
             #===================================================================================================
             $OSDUpdates = @()
-            $OSDUpdates = Get-OSDUpdates
+            $OSDUpdates = Get-OSDUpdates | Sort-Object CreationDate -Descending
             #===================================================================================================
             #   Superseded Updates
             #===================================================================================================

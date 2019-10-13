@@ -38,41 +38,77 @@ Import-OSMedia -EditionId Enterprise -SkipGridView
 Import-OSMedia -EditionId Enterprise -SkipGridView -UpdateOSMedia
 #>
 function Import-OSMedia {
-    [CmdletBinding(DefaultParameterSetName='Basic')]
-    PARAM (
-        [switch]$OSDInfo,
-        [switch]$UpdateOSMedia,
+    [CmdletBinding()]
+    Param (
+        [ValidateSet(`
+            'Education',`
+            'Enterprise',`
+            'Professional',`
+            'ProfessionalEducation',`
+            'ProfessionalWorkstation',`
+            'ServerStandard',`
+            'ServerDatacenter',`
+            'ServerStandardACor',`
+            'ServerDatacenterACor',`
+            'ServerRdsh',`
+            'EducationN',`
+            'EnterpriseN',`
+            'EnterpriseS',`
+            'EnterpriseSN',`
+            'ProfessionalN',`
+            'ProfessionalEducationN',`
+            'ProfessionalWorkstationN'
+        )][string]$EditionId,
 
-        [Parameter(ParameterSetName='Advanced')]
-        [ValidateSet('Education','EducationN','Enterprise','EnterpriseN','EnterpriseS','EnterpriseSN','Professional','ProfessionalEducation','ProfessionalEducationN','ProfessionalN','ProfessionalWorkstation','ProfessionalWorkstationN','ServerRdsh','ServerDatacenter','ServerDatacenterACor','ServerRdsh','ServerStandard','ServerStandardACor')]
-        [string]$EditionId,
-        [Parameter(ParameterSetName='Advanced')]
         [int]$ImageIndex,
-        [Parameter(ParameterSetName='Advanced')]
-        [ValidateSet('Windows 10 Education','Windows 10 Education N','Windows 10 Enterprise','Windows 10 Enterprise 2016 LTSB','Windows 10 Enterprise for Virtual Desktops','Windows 10 Enterprise LTSC','Windows 10 Enterprise N','Windows 10 Enterprise N LTSC','Windows 10 Pro','Windows 10 Pro Education','Windows 10 Pro Education N','Windows 10 Pro for Workstations','Windows 10 Pro N','Windows 10 Pro N for Workstations','Windows Server 2016 Datacenter','Windows Server 2016 Datacenter (Desktop Experience)','Windows Server 2016 Standard','Windows Server 2016 Standard (Desktop Experience)','Windows Server 2019 Datacenter','Windows Server 2019 Datacenter (Desktop Experience)','Windows Server 2019 Standard','Windows Server 2019 Standard (Desktop Experience)','Windows Server Datacenter','Windows Server Standard')]
-        [string]$ImageName,
-        [Parameter(ParameterSetName='Advanced')]
-        [switch]$SkipGridView
+        
+        [ValidateSet(`
+            'Windows 10 Education',`
+            'Windows 10 Enterprise',`
+            'Windows 10 Enterprise for Virtual Desktops',`
+            'Windows 10 Enterprise 2016 LTSB',`
+            'Windows 10 Enterprise LTSC',`
+            'Windows 10 Pro',`
+            'Windows 10 Pro Education',`
+            'Windows 10 Pro for Workstations',`
+            'Windows 10 Education N',`
+            'Windows 10 Enterprise N',`
+            'Windows 10 Enterprise N LTSC',`
+            'Windows 10 Pro N',`
+            'Windows 10 Pro Education N',`
+            'Windows 10 Pro N for Workstations',`
+            'Windows Server Standard',`
+            'Windows Server Datacenter',
+            'Windows Server 2016 Standard',`
+            'Windows Server 2016 Standard (Desktop Experience)',`
+            'Windows Server 2016 Datacenter',`
+            'Windows Server 2016 Datacenter (Desktop Experience)',`
+            'Windows Server 2019 Standard',`
+            'Windows Server 2019 Standard (Desktop Experience)',`
+            'Windows Server 2019 Datacenter',`
+            'Windows Server 2019 Datacenter (Desktop Experience)'
+            )][string]$ImageName,
+        
+        [switch]$OSDInfo,
+        
+        [switch]$SkipGridView,
+        
+        [switch]$UpdateOSMedia
     )
 
-    BEGIN {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-
+    Begin {
         #===================================================================================================
-        Write-Verbose '19.1.1 Validate Administrator Rights'
-        #===================================================================================================
-        if (!([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-            Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Exit
-        }
-
-        #===================================================================================================
-        Write-Verbose '19.1.1 Initialize OSDBuilder'
+        #   Get-OSDBuilder
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
+        #===================================================================================================
+        #   Get-OSDGather -Property IsAdmin
+        #===================================================================================================
+        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
+            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Pause
+            Break
+        }
 
         #===================================================================================================
         #   Import Drives
@@ -100,11 +136,11 @@ function Import-OSMedia {
             Break
         }
         #===================================================================================================
-        Write-Verbose '19.1.1 Media: Scan Windows Images'
+        #   Scan Windows Images'
         #===================================================================================================
         $WindowsImages = $ImportWims | ForEach-Object {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Host "Media: Scan $($_.OSWim)" -ForegroundColor Green
+            Show-ActionTime; Write-Host "Media: Scan $($_.OSWim)" -ForegroundColor Green
             Get-WindowsImage -ImagePath "$($_.OSWim)"} | ForEach-Object {
                 Get-WindowsImage -ImagePath "$($_.ImagePath)" -Index $($_.ImageIndex) | Select-Object -Property *
                 Write-Host "Index $($_.ImageIndex): $($_.ImageName)" -ForegroundColor DarkGray
@@ -157,7 +193,6 @@ function Import-OSMedia {
 
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
         #===================================================================================================
         Write-Verbose '19.1.1 Import Windows Images'
@@ -220,7 +255,7 @@ function Import-OSMedia {
             #   19.1.1 Image: Get Registry and UBR'
             #===================================================================================================
             #Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Host "Image: Mount Registry for UBR Information" -ForegroundColor Green
+            Show-ActionTime; Write-Host "Image: Mount Registry for UBR Information" -ForegroundColor Green
 
             reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
             $RegCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
@@ -309,6 +344,7 @@ function Import-OSMedia {
             #   19.1.1 Media: Copy Operating System'
             #===================================================================================================
             Write-Host '========================================================================================' -ForegroundColor DarkGray
+            Show-ActionTime
             Write-Host "Media: Copy Operating System to $OS" -ForegroundColor Green
             Copy-Item -Path "$OSSourcePath\*" -Destination "$OS" -Exclude "install.$InstallWimType" -Recurse -Force | Out-Null
             Get-ChildItem -Recurse -Path "$OS\*" | Set-ItemProperty -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue | Out-Null
@@ -334,7 +370,7 @@ function Import-OSMedia {
             #===================================================================================================
             #   19.1.1 Install.wim: Dismount
             #===================================================================================================
-            Write-Host "Install.wim: Dismount from $MountDirectory" -ForegroundColor Green
+            Show-ActionTime; Write-Host "Install.wim: Dismount from $MountDirectory" -ForegroundColor Green
             if ($OSImagePath -like "*.esd") {
                 try {Remove-Item "$TempESD" -Force | Out-Null}
                 catch {Write-Warning "Could not remove $TempESD"}
@@ -347,7 +383,7 @@ function Import-OSMedia {
             #===================================================================================================
             #   19.1.1 Install.wim: Export Configuration
             #===================================================================================================
-            Write-Host "Install.wim: Export Configuration to $OSMediaPath\WindowsImage.txt" -ForegroundColor Green
+            Show-ActionTime; Write-Host "Install.wim: Export Configuration to $OSMediaPath\WindowsImage.txt" -ForegroundColor Green
             $GetWindowsImage = @()
             $GetWindowsImage = Get-WindowsImage -ImagePath "$OS\sources\install.wim" -Index 1 | Select-Object -Property *
 
@@ -373,10 +409,6 @@ function Import-OSMedia {
             #===================================================================================================
             Save-WindowsImageContentOS
             Save-VariablesOSD
-
-            #===================================================================================================
-            #   19.1.1 Show-OSDBuilderInfo
-            #===================================================================================================
             if ($OSDInfo.IsPresent) {Show-OSDBuilderInfo -FullName $OSMediaPath}
 
             #===================================================================================================

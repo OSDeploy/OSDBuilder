@@ -38,7 +38,7 @@ Method for refreshing all OSDBuilder Variables.  Used by other OSDBuilder Functi
 #>
 function Get-OSDBuilder {
     [CmdletBinding()]
-    PARAM (
+    Param (
         [Alias('Create')]
         [switch]$CreatePaths,
 
