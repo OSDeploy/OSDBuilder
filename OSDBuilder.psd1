@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.10.13.1'
+ModuleVersion = '19.10.13.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -32,8 +32,8 @@ OSDBuilder https://osdbuilder.osdeploy.com/
 19.9.12: Added OSDSUS requirement
 
 Requirements:
-PowerShell Module OSD 19.9.26 or newer
-PowerShell Module OSDSUS 19.9.12.0 or newer
+PowerShell Module OSD 19.10.13 or newer
+PowerShell Module OSDSUS 19.10.13 or newer
 
 Latest Microsoft Updates:
 https://raw.githubusercontent.com/OSDeploy/OSDSUS/master/UPDATES.md
