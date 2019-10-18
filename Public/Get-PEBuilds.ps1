@@ -22,66 +22,73 @@ function Get-PEBuilds {
         #===================================================================================================
     )
 
-    BEGIN {
+    Begin {
         #===================================================================================================
         #   Initialize OSDBuilder
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
-        #   Get OSDUpdates
-        #===================================================================================================
-        $OSDUpdates = @()
-        $OSDUpdates = Get-OSDUpdates
-        #===================================================================================================
         #   Get PEBuilds
         #===================================================================================================
         $AllPEBuilds = @()
         $AllPEBuilds = Get-ChildItem -Path "$OSDBuilderPEBuilds" -Directory | Select-Object -Property * | `
+        Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\CurrentVersion.xml")} | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Get-WindowsImage.xml")}
         #===================================================================================================
     }
 
-    PROCESS {
+    Process {
         $PEBuilds = foreach ($Item in $AllPEBuilds) {
             #===================================================================================================
-            #   Get Windows Image Information
+            #   Get-FullName
             #===================================================================================================
             $PEBuildPath = $($Item.FullName)
-            Write-Verbose "OSMedia Full Path: $PEBuildPath"
-            
-            $OSMWindowsImage = @()
-            $OSMWindowsImage = Import-Clixml -Path "$PEBuildPath\info\xml\Get-WindowsImage.xml"
-            $OSMImageName = $($OSMWindowsImage.ImageName)
+            Write-Verbose "PEBuild Full Path: $PEBuildPath"
+            #===================================================================================================
+            #   Import XML
+            #===================================================================================================
+            $XmlWindowsImage = @()
+            $XmlWindowsImage = Import-Clixml -Path "$PEBuildPath\info\xml\Get-WindowsImage.xml"
+
+            $XmlRegistry = @()
+            $XmlRegistry = Import-Clixml -Path "$PEBuildPath\info\xml\CurrentVersion.xml"
+
+            $OSMPackage = @()
+            $OSMPackage = Import-Clixml -Path "$PEBuildPath\info\xml\Get-WindowsPackage.xml"
+            #===================================================================================================
+            #   XmlWindowsImage
+            #===================================================================================================
+            $OSMImageName = $($XmlWindowsImage.ImageName)
             Write-Verbose "ImageName: $OSMImageName"
 
-            $OSMArch = $OSMWindowsImage.Architecture
+            $OSMArch = $XmlWindowsImage.Architecture
             if ($OSMArch -eq '0') {$OSMArch = 'x86'}
             if ($OSMArch -eq '6') {$OSMArch = 'ia64'}
             if ($OSMArch -eq '9') {$OSMArch = 'x64'}
             if ($OSMArch -eq '12') {$OSMArch = 'x64 ARM'}
             Write-Verbose "Arch: $OSMArch"
 
-            $OSMEditionId = $($OSMWindowsImage.EditionId)
+            $OSMEditionId = $($XmlWindowsImage.EditionId)
             Write-Verbose "EditionId: $OSMEditionId"
 
-            $OSMInstallationType = $($OSMWindowsImage.InstallationType)
+            $OSMInstallationType = $($XmlWindowsImage.InstallationType)
             Write-Verbose "InstallationType: $OSMInstallationType"
             #===================================================================================================
             #   Version Information
             #===================================================================================================
-            $OSMVersion = $($OSMWindowsImage.Version)
+            $OSMVersion = $($XmlWindowsImage.Version)
             Write-Verbose "Version: $OSMVersion"
 
-            $OSMMajorVersion = $($OSMWindowsImage.MajorVersion)
+            $OSMMajorVersion = $($XmlWindowsImage.MajorVersion)
             Write-Verbose "MajorVersion: $OSMMajorVersion"
 
-            $OSMMinorVersion = $($OSMWindowsImage.MinorVersion)
+            $OSMMinorVersion = $($XmlWindowsImage.MinorVersion)
             Write-Verbose "MinorVersion: $OSMMinorVersion"
 
-            $OSMBuild = $($OSMWindowsImage.Build)
+            $OSMBuild = $($XmlWindowsImage.Build)
             Write-Verbose "Build: $OSMBuild"
 
-            $OSMUBR = $($OSMWindowsImage.UBR)
+            $OSMUBR = $($XmlWindowsImage.UBR)
             Write-Verbose "UBR: $OSMUBR"
             #===================================================================================================
             #   UpdateOS
@@ -108,48 +115,46 @@ function Get-PEBuilds {
             #===================================================================================================
             #   Language
             #===================================================================================================
-            $OSMLanguages = $($OSMWindowsImage.Languages)
+            $OSMLanguages = $($XmlWindowsImage.Languages)
             Write-Verbose "Languages: $OSMLanguages"
+            #===================================================================================================
+            #   Registry
+            #===================================================================================================
+            $RegReleaseId = $null
+            [string]$RegReleaseId = $($XmlRegistry.ReleaseId)
+            [string]$RegCurrentBuild = $($XmlRegistry.CurrentBuild)
+
+            if ($OSMBuild -eq 7600) {$RegReleaseId = 7600}
+            if ($OSMBuild -eq 7601) {$RegReleaseId = 7601}
+            if ($OSMBuild -eq 9600) {$RegReleaseId = 9600}
+            if ($OSMBuild -eq 10240) {$RegReleaseId = 1507}
+            if ($OSMBuild -eq 14393) {$RegReleaseId = 1607}
+            if ($OSMBuild -eq 15063) {$RegReleaseId = 1703}
+            if ($OSMBuild -eq 16299) {$RegReleaseId = 1709}
+            if ($OSMBuild -eq 17134) {$RegReleaseId = 1803}
+            if ($OSMBuild -eq 17763) {$RegReleaseId = 1809}
+            #if ($OSMBuild -eq 18362) {$RegReleaseId = 1903}
+            #if ($OSMBuild -eq 18363) {$RegReleaseId = 1909}
+            #if ($OSMBuild -eq 18990) {$RegReleaseId = 2001}
+
+            Write-Verbose "ReleaseId: $RegReleaseId"
+            Write-Verbose "CurrentBuild: $RegCurrentBuild"
             #===================================================================================================
             #   OSMFamily
             #===================================================================================================
-            $OSMFamilyV1 = $(Get-Date -Date $($OSMWindowsImage.CreatedTime)).ToString("yyyyMMddHHmmss") + $OSMEditionID
-            $OSMFamily = $OSMInstallationType + " " + $OSMEditionId + " " + $OSMArch + " " + [string]$OSMBuild + " " + $OSMLanguages
+            $OSMFamilyV1 = $(Get-Date -Date $($XmlWindowsImage.CreatedTime)).ToString("yyyyMMddHHmmss") + $OSMEditionID
+            if ($null -eq $RegCurrentBuild) {
+                $OSMFamily = $OSMInstallationType + " " + $OSMEditionId + " " + $OSMArch + " " + [string]$OSMBuild + " " + $OSMLanguages
+            } else {
+                $OSMFamily = $OSMInstallationType + " " + $OSMEditionId + " " + $OSMArch + " " + [string]$RegCurrentBuild + " " + $OSMLanguages
+            }
             Write-Verbose "OSMFamily: $OSMFamily"
             #===================================================================================================
-            #   Registry ReleaseId
+            #   Create Object
             #===================================================================================================
-            $OSMRegistry = @()
-            if (Test-Path "$PEBuildPath\info\xml\CurrentVersion.xml") {
-                Write-Verbose "Registry: $PEBuildPath\info\xml\CurrentVersion.xml"
-                $OSMRegistry = Import-Clixml -Path "$PEBuildPath\info\xml\CurrentVersion.xml"
-            } else {
-                Write-Verbose "Registry: $PEBuildPath\info\xml\CurrentVersion.xml (Not Found)"
-            }
-            [string]$OSMReleaseId = $($OSMRegistry.ReleaseId)
-
-            if ($OSMBuild -eq 7600) {$OSMReleaseId = 7600}
-            if ($OSMBuild -eq 7601) {$OSMReleaseId = 7601}
-            if ($OSMBuild -eq 9600) {$OSMReleaseId = 9600}
-            if ($OSMBuild -eq 10240) {$OSMReleaseId = 1507}
-            if ($OSMBuild -eq 14393) {$OSMReleaseId = 1607}
-            if ($OSMBuild -eq 15063) {$OSMReleaseId = 1703}
-            if ($OSMBuild -eq 16299) {$OSMReleaseId = 1709}
-            if ($OSMBuild -eq 17134) {$OSMReleaseId = 1803}
-            if ($OSMBuild -eq 17763) {$OSMReleaseId = 1809}
-            if ($OSMBuild -eq 18362) {$OSMReleaseId = 1903}
-
-            Write-Verbose "ReleaseId: $OSMReleaseId"
-            #===================================================================================================
-            #   Get-WindowsPackage
-            #===================================================================================================
-            if (Test-Path "$PEBuildPath\info\WindowsPackage.txt") {Rename-Item "$PEBuildPath\info\WindowsPackage.txt" 'Get-WindowsPackage.txt' -Force | Out-Null}
-        #===================================================================================================
-        #   Create Object
             $ObjectProperties = @{
                 MediaType           = 'PEBuild'
-
-                ModifiedTime        = [datetime]$OSMWindowsImage.ModifiedTime
+                ModifiedTime        = [datetime]$XmlWindowsImage.ModifiedTime
                 Name                = $Item.Name
 
                 OSMFamily           = $OSMFamily
@@ -157,20 +162,21 @@ function Get-PEBuilds {
 
                 OperatingSystem     = $UpdateOS
                 Arch                = $OSMArch
-                ReleaseId           = $OSMReleaseId
+
+                ReleaseId           = $RegReleaseId
+                RegBuild            = $($XmlRegistry.CurrentBuild)
+                UBR                 = [version]$OSMUBR
 
                 Version             = [version]$OSMVersion
                 MajorVersion        = $OSMMajorVersion
                 MinorVersion        = $OSMMinorVersion
                 Build               = [string]$OSMBuild
-                UBR                 = [version]$OSMUBR
 
-                Languages           = $OSMWindowsImage.Languages
-
+                Languages           = $XmlWindowsImage.Languages
                 EditionId           = $OSMEditionId
                 InstallationType    = $OSMInstallationType
                 FullName            = $Item.FullName
-                CreatedTime         = [datetime]$OSMWindowsImage.CreatedTime
+                CreatedTime         = [datetime]$XmlWindowsImage.CreatedTime
 
                 OSMFamilyV1         = $OSMFamilyV1
             }
@@ -181,22 +187,25 @@ function Get-PEBuilds {
         #   Results
         #===================================================================================================
         if ($GridView.IsPresent) {
-            $PEBuilds | Select-Object MediaType,ModifiedTime,`
-            Name,OperatingSystem,Arch,ReleaseId,`
-            Version,MajorVersion,MinorVersion,Build,UBR,`
+            $PEBuilds = $PEBuilds | Select-Object MediaType,ModifiedTime,`
+            Name,OperatingSystem,Arch,`
+            ReleaseId,RegBuild,UBR,`
+            Version,MajorVersion,MinorVersion,Build,`
             Languages,EditionId,InstallationType,`
             ImageName,OSMFamily,
             FullName,CreatedTime | `
             Sort-Object -Property Name | Out-GridView -PassThru -Title 'PEBuilds'
         } else {
-            $PEBuilds | Select-Object MediaType,ModifiedTime,`
-            Name,OperatingSystem,Arch,ReleaseId,`
-            Version,MajorVersion,MinorVersion,Build,UBR,`
+            $PEBuilds = $PEBuilds | Select-Object MediaType,ModifiedTime,`
+            Name,OperatingSystem,Arch,`
+            ReleaseId,RegBuild,UBR,`
+            Version,MajorVersion,MinorVersion,Build,`
             Languages,EditionId,InstallationType,`
             ImageName,OSMFamily,
             FullName,CreatedTime | `
             Sort-Object -Property Name
         }
+        Return $PEBuilds
         #===================================================================================================
     }
 

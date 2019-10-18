@@ -109,7 +109,6 @@ function Import-OSMedia {
             Pause
             Break
         }
-
         #===================================================================================================
         #   Import Drives
         #===================================================================================================
@@ -153,7 +152,6 @@ function Import-OSMedia {
             if ($Image.Architecture -eq '9') {$Image.Architecture = 'x64'}
             if ($Image.Architecture -eq '12') {$Image.Architecture = 'x64 ARM'}
         }
-
         #===================================================================================================
         Write-Verbose '19.1.1 Filter OS Version 6.1.7601 and 10'
         #===================================================================================================
@@ -171,7 +169,6 @@ function Import-OSMedia {
         if ($EditionId) {$WindowsImages = $WindowsImages | Where-Object {$_.EditionId -eq $EditionId}}
         if ($ImageName) {$WindowsImages = $WindowsImages | Where-Object {$_.ImageName -eq $ImageName}}
         if ($ImageIndex) {$WindowsImages = $WindowsImages | Where-Object {$_.ImageIndex -eq $ImageIndex}}
-
         #===================================================================================================
         Write-Verbose '19.1.1 Select Operating Systems'
         #===================================================================================================
@@ -216,13 +213,13 @@ function Import-OSMedia {
             if ($OSArchitecture -eq '9') {$OSArchitecture = 'x64'}
             if ($OSArchitecture -eq '12') {$OSArchitecture = 'x64 ARM'}
 
-            $OSEditionID =          $($WindowsImage.EditionId)
-            $OSInstallationType =   $($WindowsImage.InstallationType)
-            $OSLanguages =          $($WindowsImage.Languages)
-            $OSMajorVersion =       $($WindowsImage.MajorVersion)
-            $OSBuild =              $($WindowsImage.Build)
-            $OSVersion =            $($WindowsImage.Version)
-            $OSSPBuild =            $($WindowsImage.SPBuild)
+            $OSEditionID =        $($WindowsImage.EditionId)
+            $OSInstallationType = $($WindowsImage.InstallationType)
+            $OSLanguages =        $($WindowsImage.Languages)
+            $OSMajorVersion =     $($WindowsImage.MajorVersion)
+            $OSBuild =            $($WindowsImage.Build)
+            $OSVersion =          $($WindowsImage.Version)
+            $OSSPBuild =          $($WindowsImage.SPBuild)
             $OSSPLevel =            $($WindowsImage.SPLevel)
             $OSImageBootable =      $($WindowsImage.ImageBootable)
             $OSWIMBoot =            $($WindowsImage.WIMBoot)
@@ -232,7 +229,7 @@ function Import-OSMedia {
             $OSMGuid = $(New-Guid)
 
             #===================================================================================================
-            #   19.1.1 Image: Export Install.esd'
+            #   ESD: Export-WindowsImage
             #===================================================================================================
             if ($OSImagePath -like "*.esd") {
                 $InstallWimType = "esd"
@@ -250,53 +247,65 @@ function Import-OSMedia {
 
             $MountDirectory = Join-Path $OSDBuilderContent\Mount "os$((Get-Date).ToString('HHmmss'))"
             Mount-InstallwimMEDIA
-
             #===================================================================================================
-            #   19.1.1 Image: Get Registry and UBR'
+            #   REGISTRY
             #===================================================================================================
-            #Write-Host '========================================================================================' -ForegroundColor DarkGray
             Show-ActionTime; Write-Host "Image: Mount Registry for UBR Information" -ForegroundColor Green
 
-            reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
-            $RegCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
-            reg UNLOAD 'HKLM\OSMedia' | Out-Null
-
-            $ReleaseId = $null
-            $RegCurrentVersionUBR = $null
-
+                reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
+                $RegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
+                reg UNLOAD 'HKLM\OSMedia' | Out-Null
             #===================================================================================================
-            #   19.1.1 Set OS Main Information'
             #===================================================================================================
+            Write-Verbose 'Set OS Main Information'
             if ($OSMajorVersion -eq '10') {
-                $ReleaseId = $($RegCurrentVersion.ReleaseId)
-                $RegCurrentVersionUBR = $($RegCurrentVersion.UBR)
-                $UBR = "$OSBuild.$RegCurrentVersionUBR"
-                if ($ReleaseId -gt 1903) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
+                #19.10.17 resolve issues with Windows 10 1909
+                $RegValueCurrentBuild = $null
+                $RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)
+
+                $ReleaseId = $null
+                $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
+                if ($ReleaseId -gt 1909) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
+                if ($null -eq $ReleaseId) {
+                    #if ($OSBuild -eq 7600) {$ReleaseId = 7600}
+                    #if ($OSBuild -eq 7601) {$ReleaseId = 7601}
+                    #if ($OSBuild -eq 9600) {$ReleaseId = 9600}
+                    if ($OSBuild -eq 10240) {$ReleaseId = 1507}
+                    if ($OSBuild -eq 14393) {$ReleaseId = 1607}
+                    if ($OSBuild -eq 15063) {$ReleaseId = 1703}
+                    if ($OSBuild -eq 16299) {$ReleaseId = 1709}
+                    #if ($OSBuild -eq 17134) {$ReleaseId = 1803}
+                    #if ($OSBuild -eq 17763) {$ReleaseId = 1809}
+                    #if ($OSBuild -eq 18362) {$ReleaseId = 1903}
+                }
+
+                $RegValueUbr = $null
+                $RegValueUbr = $($RegKeyCurrentVersion.UBR)
+                $UBR = "$RegValueCurrentBuild.$RegValueUbr"
                 $OSMediaName = "$OSImageName $OSArchitecture $ReleaseId $UBR $OSLanguages"
             } else {
                 $UBR = "$OSBuild.$OSSPBuild"
                 $OSMediaName = "$OSImageName $OSArchitecture $UBR $OSLanguages"
             }
-
+            #===================================================================================================
+            #===================================================================================================
+            Write-Verbose 'Trim en-US Language'
             if ($($OSLanguages.count) -eq 1) {$OSMediaName = $OSMediaName.replace(' en-US','')}
-
             #===================================================================================================
-            #   19.8.21 Set OSMediaPath'
             #===================================================================================================
+            Write-Verbose 'Set OSMediaPath'
             $OSMediaPath = Join-Path $OSDBuilderOSImport $OSMediaName
-
             #===================================================================================================
-            #   19.1.1 Remove Existing OSMedia'
             #===================================================================================================
+            Write-Verbose 'Remove Existing OSMedia'
             if (Test-Path $OSMediaPath) {
                 Write-Warning "$OSMediaPath exists.  Contents will be replaced!"
                 Remove-Item -Path "$OSMediaPath" -Force -Recurse
                 Write-Host ""
             }
-
             #===================================================================================================
-            #   19.1.1 Set Working Directories'
             #===================================================================================================
+            Write-Verbose 'Set Working Directories'
             $Info = Join-Path $OSMediaPath 'info'
             if (!(Test-Path "$Info"))           {New-Item "$Info" -ItemType Directory -Force | Out-Null}
             if (!(Test-Path "$Info\json"))      {New-Item "$Info\json" -ItemType Directory -Force | Out-Null}
@@ -316,36 +325,33 @@ function Import-OSMedia {
             if (!(Test-Path "$PEInfo\xml"))     {New-Item "$PEInfo\xml" -ItemType Directory -Force | Out-Null}
 
             #===================================================================================================
-            #   19.1.1 Export RegCurrentVersion'
+            Write-Verbose 'Export RegistryCurrentVersionKey'
             #===================================================================================================
-            $RegCurrentVersion | Out-File "$Info\CurrentVersion.txt"
-            $RegCurrentVersion | Out-File "$OSMediaPath\CurrentVersion.txt"
-            $RegCurrentVersion | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
-            $RegCurrentVersion | Export-Clixml -Path "$Info\xml\CurrentVersion.xml"
-            $RegCurrentVersion | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
-            $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\CurrentVersion.json"
-            $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
-
+            $RegKeyCurrentVersion | Out-File "$Info\CurrentVersion.txt"
+            $RegKeyCurrentVersion | Out-File "$OSMediaPath\CurrentVersion.txt"
+            $RegKeyCurrentVersion | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
+            $RegKeyCurrentVersion | Export-Clixml -Path "$Info\xml\CurrentVersion.xml"
+            $RegKeyCurrentVersion | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
+            $RegKeyCurrentVersion | ConvertTo-Json | Out-File "$Info\json\CurrentVersion.json"
+            $RegKeyCurrentVersion | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
             #===================================================================================================
-            #   19.1.1 Start Transcript'
+            #   Start-Transcript
             #===================================================================================================
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             $ScriptName = $MyInvocation.MyCommand.Name
             $LogName = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-$ScriptName.log"
             Start-Transcript -Path (Join-Path "$Info\logs" $LogName)
-
             #===================================================================================================
-            Write-Verbose 'OSD-Info'
+            #   Image Information
             #===================================================================================================
-            Show-MediaInfoOS
             Show-WindowsImageInfo
-
+            Show-MediaInfoOS
             #===================================================================================================
-            #   19.1.1 Media: Copy Operating System'
+            #   Media: Copy Operating System
             #===================================================================================================
             Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Show-ActionTime
-            Write-Host "Media: Copy Operating System to $OS" -ForegroundColor Green
+            Show-ActionTime; Write-Host "Media: Copy Operating System to $OS" -ForegroundColor Green
+
             Copy-Item -Path "$OSSourcePath\*" -Destination "$OS" -Exclude "install.$InstallWimType" -Recurse -Force | Out-Null
             Get-ChildItem -Recurse -Path "$OS\*" | Set-ItemProperty -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue | Out-Null
 
@@ -358,17 +364,17 @@ function Import-OSMedia {
                 Write-Verbose "CurrentLog: $CurrentLog"
                 Export-WindowsImage -SourceImagePath "$OSImagePath" -SourceIndex $OSImageIndex -DestinationImagePath "$OS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
             }
-
             #===================================================================================================
-            #   19.2.13 Export
+            #   Export-Inventory
             #===================================================================================================
+            Write-Verbose 'Install.wim: Export Inventory'
             Backup-AutoExtraFilesOS -OSMediaPath "$OSMediaPath"
             Save-SessionsXmlOS -OSMediaPath "$OSMediaPath"
             Save-InventoryOS -OSMediaPath "$OSMediaPath"
             Save-WimsPE -OSMediaPath "$OSMediaPath"
             Save-InventoryPE -OSMediaPath "$OSMediaPath"
             #===================================================================================================
-            #   19.1.1 Install.wim: Dismount
+            #   Dismount-WindowsImage
             #===================================================================================================
             Show-ActionTime; Write-Host "Install.wim: Dismount from $MountDirectory" -ForegroundColor Green
             if ($OSImagePath -like "*.esd") {
@@ -379,9 +385,8 @@ function Import-OSMedia {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage.log"
             Write-Verbose "CurrentLog: $CurrentLog"
             Dismount-WindowsImage -Discard -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null
-
             #===================================================================================================
-            #   19.1.1 Install.wim: Export Configuration
+            #   Export-Configuration
             #===================================================================================================
             Show-ActionTime; Write-Host "Install.wim: Export Configuration to $OSMediaPath\WindowsImage.txt" -ForegroundColor Green
             $GetWindowsImage = @()
@@ -394,8 +399,11 @@ function Import-OSMedia {
             }
             Write-Verbose "========== UBR: $UBR"
 
+            #19.10.17 to address issues with Windows 10 1909
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "CurrentBuild" -Value $RegValueCurrentBuild
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid
+            
             $GetWindowsImage | Out-File "$OSMediaPath\WindowsImage.txt"
             $GetWindowsImage | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.txt"
             $GetWindowsImage | Export-Clixml -Path "$Info\xml\Get-WindowsImage.xml"
@@ -403,21 +411,19 @@ function Import-OSMedia {
             $GetWindowsImage | ConvertTo-Json | Out-File "$Info\json\Get-WindowsImage.json"
             $GetWindowsImage | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.json"
             (Get-Content "$OSMediaPath\WindowsImage.txt") | Where-Object {$_.Trim(" `t")} | Set-Content "$OSMediaPath\WindowsImage.txt"
-
             #===================================================================================================
             #    OSD-Export
             #===================================================================================================
             Save-WindowsImageContentOS
             Save-VariablesOSD
             if ($OSDInfo.IsPresent) {Show-OSDBuilderInfo -FullName $OSMediaPath}
-
             #===================================================================================================
-            #   19.1.1 Stop Transcript
+            #   Stop-Transcript
             #===================================================================================================
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Stop-Transcript
             #===================================================================================================
-            #   19.1.1 Update-OSMedia
+            #   Update-OSMedia
             #===================================================================================================
             if ($UpdateOSMedia.IsPresent) {
                 if ($OSMajorVersion -eq '10') {
@@ -431,8 +437,5 @@ function Import-OSMedia {
         }
     }
 
-    END {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
-    }
+    END {}
 }

@@ -185,10 +185,6 @@ function Update-CumulativePE {
     if ($SkipUpdatesPE) {Return}
     if ($SkipUpdatesPELCU) {Return}
     if ($null -eq $OSDUpdateLCU) {Return}
-<#     if ($OSBuild -eq 18362) {
-        Write-Warning "Skip: Windows 10 1903 LCU error 0x80070002"
-        Return
-    } #>
     #===================================================================================================
     #   Update WinPE
     #===================================================================================================
@@ -198,6 +194,11 @@ function Update-CumulativePE {
     }
     Show-ActionTime
     Write-Host -ForegroundColor Green "WinPE: (LCU) Latest Cumulative Update"
+    if ($OSBuild -ge 18362) {
+        Write-Warning "Skipping Update for this version of Windows"
+        Return
+    }
+
     foreach ($Update in $OSDUpdateLCU) {
         $UpdateLCU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
 
@@ -604,6 +605,10 @@ function Update-ServicingStackPE {
     }
     Show-ActionTime
     Write-Host -ForegroundColor Green "WinPE: (SSU) Servicing Stack Update"
+    if ($OSBuild -ge 18362) {
+        Write-Warning "Skipping update for this version of Windows"
+        Return
+    }
 
     foreach ($Update in $OSDUpdateSSU) {
         $UpdateSSU = $(Get-ChildItem -Path $OSDBuilderContent\OSDUpdate -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
@@ -741,11 +746,14 @@ function Update-SourcesPE {
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "MEDIA: Update Media Sources with WinSE.wim"
+    Show-ActionTime; Write-Host -ForegroundColor Green "MEDIA: Update Media Sources with WinSE.wim"
     #===================================================================================================
     #   Warning
     #===================================================================================================
+    if ($OSBuild -ge 18362) {
+        Write-Warning "Skipping Update for this version of Windows"
+        Return
+    }
     if ($ReleaseId -ge 1903) {
         Write-Warning "This step is currently disabled for Windows 10 1903"
         Write-Warning "If this is the first time you are seeing this warning,"

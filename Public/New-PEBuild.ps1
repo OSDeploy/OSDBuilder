@@ -312,8 +312,8 @@ $MDTUnattendPEx86 = @'
             Write-Verbose '19.1.1 Validate Registry CurrentVersion.xml'
             #===================================================================================================
             if (Test-Path "$OSSourcePath\info\xml\CurrentVersion.xml") {
-                $RegCurrentVersion = Import-Clixml -Path "$OSSourcePath\info\xml\CurrentVersion.xml"
-                $ReleaseId = $($RegCurrentVersion.ReleaseId)
+                $RegKeyCurrentVersion = Import-Clixml -Path "$OSSourcePath\info\xml\CurrentVersion.xml"
+                $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
                 if ($ReleaseId -gt 1903) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
@@ -331,7 +331,7 @@ $MDTUnattendPEx86 = @'
                 if ($OSBuild -eq 16299) {$ReleaseId = 1709}
                 if ($OSBuild -eq 17134) {$ReleaseId = 1803}
                 if ($OSBuild -eq 17763) {$ReleaseId = 1809}
-                if ($OSBuild -eq 18362) {$ReleaseId = 1903}
+                #if ($OSBuild -eq 18362) {$ReleaseId = 1903}
             }
 
             #===================================================================================================
@@ -442,21 +442,21 @@ $MDTUnattendPEx86 = @'
                 Write-Verbose '19.1.1 Get Registry and UBR'
                 #===================================================================================================
                 reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE"
-                $RegCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
+                $RegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
                 reg UNLOAD 'HKLM\OSMedia'
 
                 $ReleaseId = $null
-                $ReleaseId = $($RegCurrentVersion.ReleaseId)
-                $RegCurrentVersionUBR = $($RegCurrentVersion.UBR)
-                $UBR = "$OSBuild.$RegCurrentVersionUBR"
+                $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
+                $RegKeyCurrentVersionUBR = $($RegKeyCurrentVersion.UBR)
+                $UBR = "$OSBuild.$RegKeyCurrentVersionUBR"
 
-                $RegCurrentVersion | Out-File "$Info\CurrentVersion.txt"
-                $RegCurrentVersion | Out-File "$WorkingPath\CurrentVersion.txt"
-                $RegCurrentVersion | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
-                $RegCurrentVersion | Export-Clixml -Path "$Info\xml\CurrentVersion.xml"
-                $RegCurrentVersion | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
-                $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\CurrentVersion.json"
-                $RegCurrentVersion | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
+                $RegKeyCurrentVersion | Out-File "$Info\CurrentVersion.txt"
+                $RegKeyCurrentVersion | Out-File "$WorkingPath\CurrentVersion.txt"
+                $RegKeyCurrentVersion | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
+                $RegKeyCurrentVersion | Export-Clixml -Path "$Info\xml\CurrentVersion.xml"
+                $RegKeyCurrentVersion | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
+                $RegKeyCurrentVersion | ConvertTo-Json | Out-File "$Info\json\CurrentVersion.json"
+                $RegKeyCurrentVersion | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
                 
                 #===================================================================================================
                 Write-Verbose '19.1.1 Set-ScratchSpace'

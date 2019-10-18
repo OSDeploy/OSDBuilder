@@ -279,6 +279,7 @@ function New-OSBuildTask {
             if ($TaskName -match '1803') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1803'}}
             if ($TaskName -match '1809') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1809'}}
             if ($TaskName -match '1903') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1903'}}
+            if ($TaskName -match '1909') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1909'}}
     
             Try {
                 $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title 'Select a Source OSMedia to use for this Task (Cancel to Exit)'
@@ -330,8 +331,8 @@ function New-OSBuildTask {
         #===================================================================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
             if (Test-Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml") {
-                $RegCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
-                $OSMedia.ReleaseId = $($RegCurrentVersion.ReleaseId)
+                $RegKeyCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
+                $OSMedia.ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
                 if ($($OSMedia.ReleaseId) -gt 1903) {
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
                 }
@@ -348,7 +349,7 @@ function New-OSBuildTask {
             if ($($OSMedia.Build) -eq 16299) {$OSMedia.ReleaseId = 1709}
             if ($($OSMedia.Build) -eq 17134) {$OSMedia.ReleaseId = 1803}
             if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
-            if ($($OSMedia.Build) -eq 18362) {$OSMedia.ReleaseId = 1903}
+            #if ($($OSMedia.Build) -eq 18362) {$OSMedia.ReleaseId = 1903}
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray

@@ -119,6 +119,8 @@ function New-PEBuildTask {
         if ($TaskName -like "*1709*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1709'}}
         if ($TaskName -like "*1803*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1803'}}
         if ($TaskName -like "*1809*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1809'}}
+        if ($TaskName -like "*1903*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1903'}}
+        if ($TaskName -like "*1909*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1909'}}
 
         $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title "Select a Source OSMedia to use for this Task (Cancel to Exit)"
         if($null -eq $OSMedia) {
@@ -164,9 +166,9 @@ function New-PEBuildTask {
         Write-Verbose '19.1.1 Validate Registry CurrentVersion.xml'
         #===================================================================================================
         if (Test-Path "$OSSourcePath\info\xml\CurrentVersion.xml") {
-            $RegCurrentVersion = Import-Clixml -Path "$OSSourcePath\info\xml\CurrentVersion.xml"
-            $ReleaseId = $($RegCurrentVersion.ReleaseId)
-            if ($ReleaseId -gt 1903) {
+            $RegKeyCurrentVersion = Import-Clixml -Path "$OSSourcePath\info\xml\CurrentVersion.xml"
+            $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
+            if ($ReleaseId -gt 1909) {
                 Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
             }
         }
@@ -181,7 +183,7 @@ function New-PEBuildTask {
             if ($($OSMedia.Build) -eq 16299) {$OSMedia.ReleaseId = 1709}
             if ($($OSMedia.Build) -eq 17134) {$OSMedia.ReleaseId = 1803}
             if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
-            if ($($OSMedia.Build) -eq 18362) {$OSMedia.ReleaseId = 1903}
+            #if ($($OSMedia.Build) -eq 18362) {$OSMedia.ReleaseId = 1903}
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray

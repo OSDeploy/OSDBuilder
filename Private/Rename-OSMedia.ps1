@@ -118,7 +118,7 @@ function Rename-OSMedia {
             if ($OSMBuild -eq 16299) {$OSMReleaseId = 1709}
             if ($OSMBuild -eq 17134) {$OSMReleaseId = 1803}
             if ($OSMBuild -eq 17763) {$OSMReleaseId = 1809}
-            if ($OSMBuild -eq 18362) {$OSMReleaseId = 1903}
+            #if ($OSMBuild -eq 18362) {$OSMReleaseId = 1903}
 
             Write-Verbose "ReleaseId: $OSMReleaseId"
 
