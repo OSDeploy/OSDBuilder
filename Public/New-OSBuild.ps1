@@ -73,7 +73,12 @@ function New-OSBuild {
         [switch]$SkipTask,
 
         [Parameter(ParameterSetName='Taskless')]
-        [switch]$QuickEnableNetFX3,
+        [switch]$QuickEnableNetFX,
+
+        #By default only the OSMedia that needs to be updated is displayed
+        #This parameter includes the hidden OSMedia
+        [Alias('ShowAllOSMedia','Superseded')]
+        [switch]$ShowHiddenOSMedia,
 
         #Hides the Dism Cleanup-Image Progress
         [switch]$HideCleanupProgress
@@ -100,18 +105,18 @@ function New-OSBuild {
     }
 
     PROCESS {
-        #Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
-        
+        Write-Host '========================================================================================' -ForegroundColor DarkGray
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
+        Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
+        Write-Verbose "PSCmdlet.ParameterSetName: $($PSCmdlet.ParameterSetName)"
         #===================================================================================================
         #   OSBuild
-        Write-Verbose '19.3.21 Get-OSBuildTask'
         #===================================================================================================
         if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
             if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
                 if ($Name) {
+                    Write-Verbose "Parameter Name: $Name"
                     $BirdBox = foreach ($Task in $Name) {
-                        Write-Verbose '========== Checking $Task'
                         $ObjectProperties = @{
                             Name = $Task
                         }
@@ -145,9 +150,8 @@ function New-OSBuild {
                 }
             }
         }
-
         #===================================================================================================
-        Write-Verbose '19.3.12 Get-OSMedia'
+        #   Update-OSMedia
         #===================================================================================================
         if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
             if ($Name) {
@@ -180,12 +184,12 @@ function New-OSBuild {
 
         foreach ($Bird in $BirdBox) {
             #===================================================================================================
-            #   OSBuild
-            Write-Verbose '19.1.1 Read Task Contents'
+            #   New-OSBuild
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
-                    $Task = Get-OSMedia -Revision OK | Where-Object {$_.Name -eq $Bird.Name}
+                    #$Task = Get-OSMedia -Revision OK | Where-Object {$_.Name -eq $Bird.Name}
+                    $Task = Get-OSMedia | Where-Object {$_.Name -eq $Bird.Name}
 
                     $TaskType = 'OSBuild'
                     $TaskName = 'Taskless'
@@ -270,11 +274,12 @@ function New-OSBuild {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (!($DontUseNewestMedia))) {
                 if ($TaskName -eq 'Taskless') {
                     $TaskOSMedia = Get-OSMedia | Where-Object {$_.Name -eq $OSMediaName}
+                    Write-Verbose "$TaskOSMedia | ft"
                 } else {
                     $TaskOSMedia = Get-OSMedia | Where-Object {$_.OSMGuid -eq $TaskOSMGuid}
                 }
                 
-<#                 if ($TaskOSMedia) {
+                if ($TaskOSMedia) {
                     $OSMediaName = $TaskOSMedia.Name
                     $OSMediaPath = $TaskOSMedia.FullName
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -283,7 +288,7 @@ function New-OSBuild {
                     Write-Host "-OSMedia Path:                  $OSMediaPath"
                     Write-Host "-OSMedia Family:                $TaskOSMFamily"
                     Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
-                } #>
+                }
                 $LatestOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
                 if ($LatestOSMedia) {
                     $OSMediaName = $LatestOSMedia.Name
@@ -369,7 +374,7 @@ function New-OSBuild {
                 }
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                if ($QuickEnableNetFX3.IsPresent) {$EnableNetFX3 = $true}
+                if ($QuickEnableNetFX.IsPresent) {$EnableNetFX3 = $true}
                 if (!($SkipTemplates.IsPresent)) {Show-TaskInfo}
             }
             #===================================================================================================

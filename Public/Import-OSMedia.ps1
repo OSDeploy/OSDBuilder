@@ -6,40 +6,32 @@ Imports an Operating System into OSDBuilder
 Imports a supported Operating System into the OSDBuilder OSMedia directory
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/osmedia/import-osmedia
-
-.PARAMETER OSDInfo
-Executes Show-OSDBuilderInfo -FullName $FullName
-Displays Media Information after Import
-
-.PARAMETER UpdateOSMedia
-Executes Update-OSMedia -Name $Name -Download -Execute
-Automatically updates the Imported Operating System
-
-.PARAMETER EditionId
-Operating System Edition to import
-
-.EXAMPLE
-Import-OSMedia -EditionId Enterprise
-
-.PARAMETER ImageIndex
-Operating System Index to Import
-
-.PARAMETER ImageName
-Operating System Image Name to Import
-
-.PARAMETER SkipGridView
-Used to bypass the ISE GridView Operating System Selection
-
-.EXAMPLE
-Import-OSMedia -EditionId Enterprise -SkipGridView
-
-.EXAMPLE
-Import-OSMedia -EditionId Enterprise -SkipGridView -UpdateOSMedia
+https://osdbuilder.osdeploy.com/module/functions/import-osmedia
 #>
 function Import-OSMedia {
     [CmdletBinding()]
     Param (
+        #The Operating System EditionId to import
+        #Import-OSMedia -EditionId Enterprise
+        #Import-OSMedia -EditionId Enterprise -SkipGrid
+        #Values:
+        #Education
+        #EducationN
+        #Enterprise
+        #EnterpriseN
+        #EnterpriseS
+        #EnterpriseSN
+        #Professional
+        #ProfessionalEducation
+        #ProfessionalEducationN
+        #ProfessionalN
+        #ProfessionalWorkstation
+        #ProfessionalWorkstationN
+        #ServerDatacenter
+        #ServerDatacenterACor
+        #ServerRdsh
+        #ServerStandard
+        #ServerStandardACor
         [ValidateSet(`
             'Education',`
             'Enterprise',`
@@ -58,10 +50,46 @@ function Import-OSMedia {
             'ProfessionalN',`
             'ProfessionalEducationN',`
             'ProfessionalWorkstationN'
-        )][string]$EditionId,
+        )]
+        #Alias: Edition
+        [Alias('Edition')]
+        [string]$EditionId,
 
+        #The Operating System Index to Import
+        #Import-OSMedia -ImageIndex 3
+        #Import-OSMedia -ImageIndex 3 -SkipGrid
+        #Alias: Index
+        [Alias('Index')]
         [int]$ImageIndex,
         
+        #The Operating System ImageName to Import
+        #Import-OSMedia -ImageName 'Windows 10 Enterprise'
+        #Import-OSMedia -ImageName 'Windows 10 Enterprise' -SkipGrid
+        #Values:
+        #Windows 10 Education
+        #Windows 10 Enterprise
+        #Windows 10 Enterprise for Virtual Desktops
+        #Windows 10 Enterprise 2016 LTSB
+        #Windows 10 Enterprise LTSC
+        #Windows 10 Pro
+        #Windows 10 Pro Education
+        #Windows 10 Pro for Workstations
+        #Windows 10 Education N
+        #Windows 10 Enterprise N
+        #Windows 10 Enterprise N LTSC
+        #Windows 10 Pro N
+        #Windows 10 Pro Education N
+        #Windows 10 Pro N for Workstations
+        #Windows Server Standard
+        #Windows Server Datacenter
+        #Windows Server 2016 Standard
+        #Windows Server 2016 Standard (Desktop Experience)
+        #Windows Server 2016 Datacenter
+        #Windows Server 2016 Datacenter (Desktop Experience)
+        #Windows Server 2019 Standard
+        #Windows Server 2019 Standard (Desktop Experience)
+        #Windows Server 2019 Datacenter
+        #Windows Server 2019 Datacenter (Desktop Experience)
         [ValidateSet(`
             'Windows 10 Education',`
             'Windows 10 Enterprise',`
@@ -87,13 +115,36 @@ function Import-OSMedia {
             'Windows Server 2019 Standard (Desktop Experience)',`
             'Windows Server 2019 Datacenter',`
             'Windows Server 2019 Datacenter (Desktop Experience)'
-            )][string]$ImageName,
+        )]
+        [string]$ImageName,
         
-        [switch]$OSDInfo,
+        #Used to bypass the ISE GridView Operating System Selection
+        #Must use EditionId or ImageName Parameter for best results
+        #Alias: SkipGridView
+        [Alias('SkipGridView')]
+        [switch]$SkipGrid,
+
+        #Creates an OSMedia with all Microsoft Updates applied
+        #Import-OSMedia -Edition Enterprise -SkipGrid -QuickUpdate
+        #Execute Command:
+        #Update-OSMedia -Name $OSMediaName -Download -Execute -HideCleanupProgress
+        #Alias: Update,UpdateOSMedia,OSMediaUpdate
+        [Alias('Update','UpdateOSMedia','OSMediaUpdate')]
+        [switch]$QuickUpdate,
         
-        [switch]$SkipGridView,
-        
-        [switch]$UpdateOSMedia
+        #Creates an OSBuild with NetFX enabled
+        #Import-OSMedia -Edition Enterprise -SkipGrid -QuickBuild
+        #Execute Command:
+        #New-OSBuild -Name $OSMediaName -Download -Execute -HideCleanupProgress -SkipTask -QuickEnableNetFX
+        #Alias: Build,NetFXBuild
+        [Alias('Build','NetFXBuild')]
+        [switch]$QuickBuild,
+
+        #Displays Media Information after Import
+        #Show-OSDBuilderInfo -FullName $OSMediaPath
+        #Alias: OSDInfo
+        [Alias('OSDInfo')]
+        [switch]$ShowInfo
     )
 
     Begin {
@@ -142,7 +193,7 @@ function Import-OSMedia {
             Show-ActionTime; Write-Host "Media: Scan $($_.OSWim)" -ForegroundColor Green
             Get-WindowsImage -ImagePath "$($_.OSWim)"} | ForEach-Object {
                 Get-WindowsImage -ImagePath "$($_.ImagePath)" -Index $($_.ImageIndex) | Select-Object -Property *
-                Write-Host "Index $($_.ImageIndex): $($_.ImageName)" -ForegroundColor DarkGray
+                Write-Host "ImageIndex $($_.ImageIndex): $($_.ImageName)" -ForegroundColor DarkGray
             }
 
         $WindowsImages = $WindowsImages | Select-Object -Property ImagePath, ImageIndex, ImageName, Architecture, EditionId, Languages, InstallationType, Version, MajorVersion, MinorVersion, Build, SPBuild, SPLevel, CreatedTime, ModifiedTime
@@ -173,7 +224,7 @@ function Import-OSMedia {
         Write-Verbose '19.1.1 Select Operating Systems'
         #===================================================================================================
         if (@($WindowsImages).Count -gt 0) {
-            if (!($SkipGridView.IsPresent)) {
+            if (!($SkipGrid.IsPresent)) {
                 $WindowsImages = $WindowsImages | Out-GridView -Title "Import-OSMedia: Select OSMedia to Import and press OK (Cancel to Exit)" -PassThru        
                 if($null -eq $WindowsImages) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -190,7 +241,9 @@ function Import-OSMedia {
 
     PROCESS {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
+        Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
+        Write-Verbose "PSCmdlet.ParameterSetName: $($PSCmdlet.ParameterSetName)"
         #===================================================================================================
         Write-Verbose '19.1.1 Import Windows Images'
         #===================================================================================================
@@ -416,7 +469,7 @@ function Import-OSMedia {
             #===================================================================================================
             Save-WindowsImageContentOS
             Save-VariablesOSD
-            if ($OSDInfo.IsPresent) {Show-OSDBuilderInfo -FullName $OSMediaPath}
+            if ($ShowInfo.IsPresent) {Show-OSDBuilderInfo -FullName $OSMediaPath}
             #===================================================================================================
             #   Stop-Transcript
             #===================================================================================================
@@ -425,13 +478,21 @@ function Import-OSMedia {
             #===================================================================================================
             #   Update-OSMedia
             #===================================================================================================
-            if ($UpdateOSMedia.IsPresent) {
+            if ($QuickUpdate.IsPresent) {
                 if ($OSMajorVersion -eq '10') {
-                    Write-Verbose "Update-OSMedia -Name $OSMediaName -Download -Execute"
-                    Update-OSMedia -Name "$OSMediaName" -Download -Execute
+                    Update-OSMedia -Name "$OSMediaName" -Download -Execute -HideCleanupProgress
                 } else  {
-                    Write-Verbose "Import-OSMedia: Cannot process Update-OSMedia with this Operating System version"
-                    Write-Verbose "Import-OSMedia: Try using Update-OSMedia separately"
+                    Write-Verbose "Import-OSMedia: Update-OSMedia requires a Operating System Major Version of 10"
+                }
+            }
+            #===================================================================================================
+            #   New-QuickOSBuild
+            #===================================================================================================
+            if ($QuickBuild.IsPresent) {
+                if ($OSMajorVersion -eq '10') {
+                    New-OSBuild -Name "$OSMediaName" -Download -Execute -HideCleanupProgress -SkipTask -QuickEnableNetFX
+                } else  {
+                    Write-Verbose "Import-OSMedia: New-OSBuild requires a Operating System Major Version of 10"
                 }
             }
         }

@@ -90,8 +90,6 @@ function New-OSBuildMultiLang {
             Write-Host "Exporting temporary install.wim to $TempInstallWim" -ForegroundColor Cyan
             Export-WindowsImage -SourceImagePath "$SourceFullName\OS\Sources\Install.wim" -SourceIndex 1 -DestinationImagePath "$TempInstallWim" -DestinationName "$($Media.ImageName)" | Out-Null
             
-
-
             $TempMount = Join-Path "$env:Temp" "mount$((Get-Date).ToString('mmss'))"
             New-Item "$TempMount" -ItemType Directory | Out-Null
             Mount-WindowsImage -Path "$TempMount" -ImagePath "$TempInstallWim" -Index 1 | Out-Null
