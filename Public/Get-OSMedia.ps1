@@ -68,7 +68,7 @@ function Get-OSMedia {
         #   Get-OSDUpdates
         #===================================================================================================
         $AllOSDUpdates = @()
-        $AllOSDUpdates = Get-OSDUpdates
+        $AllOSDUpdates = Get-OSDUpdates -Silent
         #===================================================================================================
         #   Get-OSMedia
         #   19.10.17 Require CurrentVersion.xml

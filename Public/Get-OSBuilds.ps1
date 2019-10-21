@@ -27,7 +27,7 @@ function Get-OSBuilds {
         #   Get-OSDUpdates
         #===================================================================================================
         $AllOSDUpdates = @()
-        $AllOSDUpdates = Get-OSDUpdates
+        $AllOSDUpdates = Get-OSDUpdates -Silent
         #===================================================================================================
         #   Get-OSBuilds
         #   19.10.17 Require CurrentVersion.xml
