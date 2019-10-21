@@ -217,7 +217,7 @@ function Enable-NetFXOS {
     #   Abort
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
-    if ($EnableNetFX3 -ne 'True') {Return}
+    if ($EnableNetFX3 -ne $true) {Return}
     if ($OSMajorVersion -ne 10) {Return}
     #===================================================================================================
     #   Header

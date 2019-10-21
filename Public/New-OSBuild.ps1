@@ -72,6 +72,9 @@ function New-OSBuild {
         [Parameter(ParameterSetName='Taskless', Mandatory=$True)]
         [switch]$SkipTask,
 
+        [Parameter(ParameterSetName='Taskless')]
+        [switch]$QuickEnableNetFX3,
+
         #Hides the Dism Cleanup-Image Progress
         [switch]$HideCleanupProgress
     )
@@ -362,6 +365,7 @@ function New-OSBuild {
                 }
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
+                if ($QuickEnableNetFX3.IsPresent) {$EnableNetFX3 = $true}
                 if (!($SkipTemplates.IsPresent)) {Show-TaskInfo}
             }
             #===================================================================================================

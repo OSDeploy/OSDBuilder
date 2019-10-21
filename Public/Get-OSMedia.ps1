@@ -37,6 +37,7 @@ function Get-OSMedia {
         #   Basic
         #===================================================================================================
         [switch]$GridView,
+        [switch]$Newest,
         #===================================================================================================
         #   Filters
         #===================================================================================================
@@ -296,6 +297,7 @@ function Get-OSMedia {
         if ($OSMajorVersion) {$OSMedia = $OSMedia | Where-Object {$_.MajorVersion -eq $OSMajorVersion}}
         if ($Revision) {$OSMedia = $OSMedia | Where-Object {$_.Revision -eq $Revision}}
         if ($Updates) {$OSMedia = $OSMedia | Where-Object {$_.Updates -eq $Updates}}
+        if ($Newest.IsPresent) {$OSMedia = $OSMedia | Sort-Object ModifiedTime -Descending | Select-Object -First 1}
         #===================================================================================================
         #   Results
         #===================================================================================================
