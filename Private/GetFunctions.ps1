@@ -893,26 +893,26 @@ function Get-TaskEnableWindowsOptionalFeature {
     foreach ($Item in $EnableWindowsOptionalFeature) {Write-Host "$($Item.FeatureName)" -ForegroundColor White}
     Return $EnableWindowsOptionalFeature
 }
-function Get-TaskOSDBuildPacks {
+function Get-TaskBuildPacks {
     #===================================================================================================
     #   Content Box 
     #===================================================================================================
     [CmdletBinding()]
     Param ()
-    $TaskOSDBuildPacks = Get-ChildItem -Path "$OSDBuilderPath\BuildPacks" -Directory -ErrorAction SilentlyContinue | Select-Object -Property Name, FullName
-    foreach ($Pack in $TaskOSDBuildPacks) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderPath\",'')}
+    $TaskBuildPacks = Get-ChildItem -Path "$OSDBuilderPath\BuildPacks" -Directory -ErrorAction SilentlyContinue | Select-Object -Property Name, FullName
+    foreach ($Pack in $TaskBuildPacks) {$Pack.FullName = $($Pack.FullName).replace("$OSDBuilderPath\",'')}
 
-    if ($null -eq $TaskOSDBuildPacks) {Write-Warning "OSDBuildPacks: No Packs exist in $OSDBuilderPath\BuildPacks"}
+    if ($null -eq $TaskBuildPacks) {Write-Warning "BuildPacks: No Packs exist in $OSDBuilderPath\BuildPacks"}
     else {
-        if ($ExistingTask.OSDBuildPacks) {
-            foreach ($Item in $ExistingTask.OSDBuildPacks) {
-                $TaskOSDBuildPacks = $TaskOSDBuildPacks | Where-Object {$_.FullName -ne $Item}
+        if ($ExistingTask.BuildPacks) {
+            foreach ($Item in $ExistingTask.BuildPacks) {
+                $TaskBuildPacks = $TaskBuildPacks | Where-Object {$_.FullName -ne $Item}
             }
         }
-        $TaskOSDBuildPacks = $TaskOSDBuildPacks | Out-GridView -Title "OSDBuildPacks: Select an OSDBuildPack to add to this Task and press OK (Esc or Cancel to Skip)" -PassThru
+        $TaskBuildPacks = $TaskBuildPacks | Out-GridView -Title "BuildPacks: Select an OSDBuildPack to add to this Task and press OK (Esc or Cancel to Skip)" -PassThru
     }
-    foreach ($Item in $TaskOSDBuildPacks) {Write-Host "$($Item.FullName)" -ForegroundColor White}
-    Return $TaskOSDBuildPacks
+    foreach ($Item in $TaskBuildPacks) {Write-Host "$($Item.FullName)" -ForegroundColor White}
+    Return $TaskBuildPacks
 }
 function Get-TaskRemoveAppxProvisionedPackage {
     #===================================================================================================
