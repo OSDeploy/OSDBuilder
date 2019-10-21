@@ -29,7 +29,7 @@ function Show-MediaImageInfoOS {
     Write-Host -ForegroundColor Green "Source OSMedia Windows Image Information"
     Write-Host "-OSMedia Path:                  $OSMediaPath" -ForegroundColor Yellow
     Write-Host "-Image File:                    $OSImagePath"
-    Write-Host "-Image Index:                   $OSImageIndex"
+    #Write-Host "-Image Index:                   $OSImageIndex"
     Write-Host "-Name:                          $OSImageName"
     Write-Host "-Description:                   $OSImageDescription"
     Write-Host "-Architecture:                  $OSArchitecture"
@@ -41,8 +41,8 @@ function Show-MediaImageInfoOS {
     Write-Host "-Version:                       $OSVersion"
     Write-Host "-SPBuild:                       $OSSPBuild"
     Write-Host "-SPLevel:                       $OSSPLevel"
-    Write-Host "-Bootable:                      $OSImageBootable"
-    Write-Host "-WimBoot:                       $OSWIMBoot"
+    #Write-Host "-Bootable:                      $OSImageBootable"
+    #Write-Host "-WimBoot:                       $OSWIMBoot"
     Write-Host "-Created Time:                  $OSCreatedTime"
     Write-Host "-Modified Time:                 $OSModifiedTime"
 }
@@ -75,70 +75,127 @@ function Show-TaskInfo {
     Write-Host "-TaskType:                      $TaskType"
     Write-Host "-OSMedia Name:                  $OSMediaName"
     Write-Host "-OSMedia Path:                  $OSMediaPath"
-    Write-Host "-Custom Name:                   $CustomName"
-    Write-Host "-Disable Feature:"
-    if ($DisableFeature) {foreach ($item in $DisableFeature)            {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Drivers:"
-    if ($Drivers) {foreach ($item in $Drivers)                          {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Enable Feature:"
-    if ($EnableFeature) {foreach ($item in $EnableFeature)              {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Enable NetFx3:                 $EnableNetFX3"
-    Write-Host "-Extra Files:"
-    if ($ExtraFiles) {foreach ($item in $ExtraFiles)                    {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Features On Demand:"
-    if ($FeaturesOnDemand) {foreach ($item in $FeaturesOnDemand)        {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Packages:"
-    if ($Packages) {foreach ($item in $Packages)                        {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Remove Appx:"
-    if ($RemoveAppx) {foreach ($item in $RemoveAppx)                    {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Remove Capability:"
-    if ($RemoveCapability) {foreach ($item in $RemoveCapability)        {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Remove Packages:"
-    if ($RemovePackage) {foreach ($item in $RemovePackage)              {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Scripts:"
-    if ($Scripts) {foreach ($item in $Scripts)                          {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Start Layout:                  $StartLayoutXML"
-    Write-Host "-Unattend:                      $UnattendXML"
-    Write-Host "-WinPE Auto ExtraFiles:         $WinPEAutoExtraFiles"
-    Write-Host "-WinPE DaRT:                    $WinPEDaRT"
-    Write-Host "-WinPE Drivers:"
-    if ($WinPEDrivers) {foreach ($item in $WinPEDrivers)                {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinPE ADK Packages:"
-    if ($WinPEADKPE) {foreach ($item in $WinPEADKPE)                    {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinRE ADK Packages:"
-    if ($WinPEADKRE) {foreach ($item in $WinPEADKRE)                    {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinSE ADK Packages:"
-    if ($WinPEADKSE) {foreach ($item in $WinPEADKSE)                    {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinPE Extra Files:"
-    if ($WinPEExtraFilesPE) {foreach ($item in $WinPEExtraFilesPE)      {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinRE Extra Files:"
-    if ($WinPEExtraFilesRE) {foreach ($item in $WinPEExtraFilesRE)      {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinSE Extra Files:"
-    if ($WinPEExtraFilesSE) {foreach ($item in $WinPEExtraFilesSE)      {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinPE Scripts:"
-    if ($WinPEScriptsPE) {foreach ($item in $WinPEScriptsPE)            {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinRE Scripts:"
-    if ($WinPEScriptsRE) {foreach ($item in $WinPEScriptsRE)            {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-WinSE Scripts:"
-    if ($WinPEScriptsSE) {foreach ($item in $WinPEScriptsSE)            {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-SetAllIntl (Language):         $SetAllIntl"
-    Write-Host "-SetInputLocale (Language):     $SetInputLocale"
-    Write-Host "-SetSKUIntlDefaults (Language): $SetSKUIntlDefaults"
-    Write-Host "-SetSetupUILang (Language):     $SetSetupUILang"
-    Write-Host "-SetSysLocale (Language):       $SetSysLocale"
-    Write-Host "-SetUILang (Language):          $SetUILang"
-    Write-Host "-SetUILangFallback (Language):  $SetUILangFallback"
-    Write-Host "-SetUserLocale (Language):      $SetUserLocale"
-    Write-Host "-Language Features:"
-    if ($LanguageFeatures) {foreach ($item in $LanguageFeatures)        {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Language Interface Packs:"
-    if ($LanguageInterfacePacks) {foreach ($item in $LanguageInterfacePacks) {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Language Packs:"
-    if ($LanguagePacks) {foreach ($item in $LanguagePacks)              {Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Local Experience Packs:"
-    if ($LocalExperiencePacks) {foreach ($item in $LocalExperiencePacks){Write-Host $item -ForegroundColor DarkGray}}
-    Write-Host "-Language Sources Copy:"
-    if ($LanguageCopySources) {foreach ($item in $LanguageCopySources){Write-Host $item -ForegroundColor DarkGray}}
+    if ($CustomName) {Write-Host "-Custom Name:                   $CustomName"}
+    if ($EnableNetFX3 -eq $true) {Write-Host "-Enable NetFx3:                 $EnableNetFX3"}
+    if ($WinPEAutoExtraFiles -eq $true) {Write-Host "-WinPE Auto ExtraFiles:         $WinPEAutoExtraFiles"}
+
+    if ($DisableFeature) {
+        Write-Host "-Disable Feature:"
+        foreach ($item in $DisableFeature)      {Write-Host $item -ForegroundColor DarkGray}}
+
+    if ($EnableFeature) {
+        Write-Host "-Enable Feature:"
+        foreach ($item in $EnableFeature)       {Write-Host $item -ForegroundColor DarkGray}}
+
+    if ($RemoveAppx) {
+        Write-Host "-Remove Appx:"
+        foreach ($item in $RemoveAppx)          {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($RemoveCapability) {
+        Write-Host "-Remove Capability:"
+        foreach ($item in $RemoveCapability)    {Write-Host $item -ForegroundColor DarkGray}}
+        
+    if ($RemovePackage) {
+        Write-Host "-Remove Packages:"
+        foreach ($item in $RemovePackage)       {Write-Host $item -ForegroundColor DarkGray}}
+
+
+    if ($StartLayoutXML)    {Write-Host "-Start Layout:                  $OSDBuilderContent\$StartLayoutXML"}
+    if ($UnattendXML)       {Write-Host "-Unattend:                      $OSDBuilderContent\$UnattendXML"}
+    if ($WinPEDaRT)         {Write-Host "-WinPE DaRT:                    $OSDBuilderContent\$WinPEDaRT"}
+    
+    #if ($OSDBuildPacks) {
+        #Write-Host "-OSDBuildPacks:"
+        #foreach ($item in $OSDBuildPacks)            {Write-Host "$OSDBuilderPath\BuildPacks\$item" -ForegroundColor Cyan}}
+    
+    if ($Drivers) {
+        Write-Host "-Drivers:"
+        foreach ($item in $Drivers)             {Write-Host "$OSDBuilderContent\$item" -ForegroundColor Cyan}}
+    
+    if ($ExtraFiles) {
+        Write-Host "-Extra Files:"
+        foreach ($item in $ExtraFiles)          {Write-Host "$OSDBuilderContent\$item" -ForegroundColor Cyan}}
+
+    if ($FeaturesOnDemand) {
+        Write-Host "-Features On Demand:"
+        foreach ($item in $FeaturesOnDemand)    {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($Packages) {
+        Write-Host "-Packages:"
+        foreach ($item in $Packages)            {Write-Host $item -ForegroundColor DarkGray}}
+
+    if ($Scripts) {
+        Write-Host "-Scripts:"
+        foreach ($item in $Scripts)             {Write-Host $item -ForegroundColor DarkGray}}
+
+    if ($WinPEDrivers) {
+        Write-Host "-WinPE Drivers:"
+        foreach ($item in $WinPEDrivers)        {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEADKPE) {
+        Write-Host "-WinPE ADK Packages:"
+        foreach ($item in $WinPEADKPE)          {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEADKRE) {
+        Write-Host "-WinRE ADK Packages:"
+        foreach ($item in $WinPEADKRE)          {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEADKSE) {
+        Write-Host "-WinSE ADK Packages:"
+        foreach ($item in $WinPEADKSE)          {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEExtraFilesPE) {
+        Write-Host "-WinPE Extra Files:"
+        foreach ($item in $WinPEExtraFilesPE)   {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEExtraFilesRE) {
+        Write-Host "-WinRE Extra Files:"
+        foreach ($item in $WinPEExtraFilesRE)   {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEExtraFilesSE) {
+        Write-Host "-WinSE Extra Files:"
+        foreach ($item in $WinPEExtraFilesSE)   {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEScriptsPE) {
+        Write-Host "-WinPE Scripts:"
+        foreach ($item in $WinPEScriptsPE)      {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEScriptsRE) {
+        Write-Host "-WinRE Scripts:"
+        foreach ($item in $WinPEScriptsRE)      {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($WinPEScriptsSE) {
+        Write-Host "-WinSE Scripts:"
+        foreach ($item in $WinPEScriptsSE)      {Write-Host $item -ForegroundColor DarkGray}}
+
+    if ($SetAllIntl)            {Write-Host "-SetAllIntl (Language):         $SetAllIntl"}
+    if ($SetInputLocale)        {Write-Host "-SetInputLocale (Language):     $SetInputLocale"}
+    if ($SetSKUIntlDefaults)    {Write-Host "-SetSKUIntlDefaults (Language): $SetSKUIntlDefaults"}
+    if ($SetSetupUILang)        {Write-Host "-SetSetupUILang (Language):     $SetSetupUILang"}
+    if ($SetSysLocale)          {Write-Host "-SetSysLocale (Language):       $SetSysLocale"}
+    if ($SetUILang)             {Write-Host "-SetUILang (Language):          $SetUILang"}
+    if ($SetUILangFallback)     {Write-Host "-SetUILangFallback (Language):  $SetUILangFallback"}
+    if ($SetUserLocale)         {Write-Host "-SetUserLocale (Language):      $SetUserLocale"}
+
+    if ($LanguageFeatures) {
+        Write-Host "-Language Features:"
+        foreach ($item in $LanguageFeatures)        {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($LanguageInterfacePacks) {
+        Write-Host "-Language Interface Packs:"
+        foreach ($item in $LanguageInterfacePacks)  {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($LanguagePacks) {
+        Write-Host "-Language Packs:"
+        foreach ($item in $LanguagePacks)           {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($LocalExperiencePacks) {
+        Write-Host "-Local Experience Packs:"
+        foreach ($item in $LocalExperiencePacks)    {Write-Host $item -ForegroundColor DarkGray}}
+    
+    if ($LanguageCopySources) {
+        Write-Host "-Language Sources Copy:"
+        foreach ($item in $LanguageCopySources)     {Write-Host $item -ForegroundColor DarkGray}}
 
     $CombinedOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
 
@@ -169,7 +226,7 @@ function Show-TaskInfo {
         "UnattendXML" = [string]$UnattendXML;
         "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
         "WinPEDaRT" = [string]$WinPEDaRT;
-
+        #OSDBuildPacks = [string[]]$($OSDBuildPacks | Sort-Object -Unique);
         "ExtraFiles" = [string[]]$($ExtraFiles | Sort-Object -Unique);
         "Scripts" = [string[]]$($Scripts | Sort-Object -Unique);
         "Drivers" = [string[]]$($Drivers | Sort-Object -Unique);
