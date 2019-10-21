@@ -27,7 +27,7 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 # Description of the functionality provided by this module
 Description = @'
 OSDBuilder https://osdbuilder.osdeploy.com/
-19.10.20: New-OSBuild Cleanup and QuickNetFX3
+19.10.21: Updates for Johan
 19.10.18: Support for Windows 10 1909
 19.10.13: MMSJazz Phase 1
 19.9.20: Support for Windows Server 2019 1903
