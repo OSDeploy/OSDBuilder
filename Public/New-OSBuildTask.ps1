@@ -115,6 +115,7 @@ function New-OSBuildTask {
         #===================================================================================================
         #   Basic
         #===================================================================================================
+        [switch]$AddBuildPacks,
         [string]$CustomName,
         [switch]$EnableNetFX3,
         [switch]$WinPEAutoExtraFiles,
@@ -447,6 +448,24 @@ function New-OSBuildTask {
         #===================================================================================================
         #   Content
         #===================================================================================================
+        #===================================================================================================
+        #   BuildPacks
+        #===================================================================================================
+        Write-Host "BuildPacks" -ForegroundColor Green
+        if ($ExistingTask.BuildPacks) {
+            foreach ($Item in $ExistingTask.BuildPacks) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $BuildPacks = $null
+        if ($AddBuildPacks.IsPresent) {
+            [array]$BuildPacks = (Get-TaskBuildPacks).FullName
+            
+            $BuildPacks = [array]$BuildPacks + [array]$ExistingTask.BuildPacks
+            $BuildPacks = $BuildPacks | Sort-Object -Unique
+        } else {
+            if ($ExistingTask.BuildPacks) {$BuildPacks = $ExistingTask.BuildPacks}
+        }
         #===================================================================================================
         #   Content Drivers
         #===================================================================================================
@@ -939,6 +958,7 @@ function New-OSBuildTask {
             #===================================================================================================
             #   Content
             #===================================================================================================
+            "BuildPacks" = [string[]]$BuildPacks;
             "Drivers" = [string[]]$Drivers;
             "ExtraFiles" = [string[]]$ExtraFiles;
             "Scripts" = [string[]]$Scripts;
