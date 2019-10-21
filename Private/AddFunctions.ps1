@@ -155,18 +155,14 @@ function Add-ContentDriversOS {
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
     #===================================================================================================
-    #   Header
+    #   Task
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Use Content Drivers TASK"
-    #===================================================================================================
-    #   Execute
-    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "OS: Drivers TASK"
     if ($Drivers) {
         foreach ($Driver in $Drivers) {
             Write-Host "$OSDBuilderContent\$Driver" -ForegroundColor DarkGray
 
-            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS.log"
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS-Task.log"
             Write-Verbose "CurrentLog: $CurrentLog"
 
             if ($OSMajorVersion -eq 6) {
@@ -176,20 +172,15 @@ function Add-ContentDriversOS {
             }
         }
     }
-
     #===================================================================================================
-    #   Header
+    #   Template
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Use Content Drivers TEMPLATE"
-    #===================================================================================================
-    #   Execute
-    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "OS: Drivers TEMPLATE"
     if ($DriverTemplates) {
         foreach ($Driver in $DriverTemplates) {
             Write-Host "$($Driver.FullName)" -ForegroundColor DarkGray
 
-            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS.log"
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS-Template.log"
             Write-Verbose "CurrentLog: $CurrentLog"
 
             if ($OSMajorVersion -eq 6) {
@@ -207,19 +198,15 @@ function Add-ContentDriversPE {
     #   Abort
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
+    #===================================================================================================
+    #   Task
+    #===================================================================================================
     if ([string]::IsNullOrWhiteSpace($WinPEDrivers)) {Return}
-    #===================================================================================================
-    #   Header
-    #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "WinPE: Add-ContentDriversPE"
-    #===================================================================================================
-    #   Execute
-    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Add-ContentDriversPE"
     foreach ($WinPEDriver in $WinPEDrivers) {
         Write-Host "$OSDBuilderContent\$WinPEDriver" -ForegroundColor DarkGray
         
-        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS.log"
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversPE-Task.log"
         Write-Verbose "CurrentLog: $CurrentLog"
 
         if ($OSMajorVersion -eq 6) {
@@ -241,33 +228,27 @@ function Add-ContentExtraFilesOS {
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
     #===================================================================================================
-    #   Header
-    #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Use Content Extra Files TASK"
-    #===================================================================================================
-    #   Execute
+    #   Task
     #===================================================================================================
     if ($ExtraFiles) {
+        Show-ActionTime; Write-Host -ForegroundColor Green "OS: Content Extra Files TASK"
         foreach ($ExtraFile in $ExtraFiles) {
         
-            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS.log"
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS-Task.log"
             Write-Verbose "CurrentLog: $CurrentLog"
 
             Write-Host "$OSDBuilderContent\$ExtraFile" -ForegroundColor DarkGray
             robocopy "$OSDBuilderContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
         }
     }
-
     #===================================================================================================
-    #   Header
+    #   Template
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Use Content Extra Files TEMPLATE"
     if ($ExtraFilesTemplates) {
+        Show-ActionTime; Write-Host -ForegroundColor Green "OS: Content Extra Files TEMPLATE"
         foreach ($ExtraFile in $ExtraFilesTemplates) {
         
-            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS.log"
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS-Template.log"
             Write-Verbose "CurrentLog: $CurrentLog"
 
             Write-Host "$($ExtraFile.FullName)" -ForegroundColor DarkGray
@@ -283,13 +264,9 @@ function Add-ContentExtraFilesPE {
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
     #===================================================================================================
-    #   Header
+    #   Task
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "WinPE: Add-ContentExtraFilesPE"
-    #===================================================================================================
-    #   Execute
-    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Add-ContentExtraFilesPE TASK"
     foreach ($ExtraFile in $WinPEExtraFilesPE) {
         Write-Host "Source: $OSDBuilderContent\$ExtraFile" -ForegroundColor DarkGray
         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
@@ -317,14 +294,10 @@ function Add-ContentScriptsOS {
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
     #===================================================================================================
-    #   Header
-    #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Use Content Scripts TASK"
-    #===================================================================================================
-    #   Execute
+    #   Task
     #===================================================================================================
     if ($Scripts) {
+        Show-ActionTime; Write-Host -ForegroundColor Green "OS: Execute TASK Scripts"
         foreach ($Script in $Scripts) {
             if (Test-Path "$OSDBuilderContent\$Script") {
                 Write-Host -ForegroundColor Cyan "Source: $OSDBuilderContent\$Script"
@@ -332,16 +305,11 @@ function Add-ContentScriptsOS {
             }
         }
     }
-
     #===================================================================================================
-    #   Header
-    #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Use Content Scripts TEMPLATE"
-    #===================================================================================================
-    #   Execute
+    #   Template
     #===================================================================================================
     if ($ScriptTemplates) {
+        Show-ActionTime; Write-Host -ForegroundColor Green "OS: Execute TEMPLATE Scripts"
         foreach ($Script in $ScriptTemplates) {
             if (Test-Path "$($Script.FullName)") {
                 Write-Host -ForegroundColor Cyan "Source: $($Script.FullName)"
@@ -601,15 +569,11 @@ function Add-WindowsPackageOS {
     #   Abort
     #===================================================================================================
     if ($ScriptName -ne 'New-OSBuild') {Return}
+    #===================================================================================================
+    #   Task
+    #===================================================================================================
     if ([string]::IsNullOrWhiteSpace($Packages)) {Return}
-    #===================================================================================================
-    #   Header
-    #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Add Packages"
-    #===================================================================================================
-    #   Execute
-    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "OS: Add Packages"
     foreach ($PackagePath in $Packages) {
         Write-Host "$OSDBuilderContent\$PackagePath" -ForegroundColor DarkGray
         Try {
