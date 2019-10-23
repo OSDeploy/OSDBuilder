@@ -39,6 +39,8 @@ function New-OSBuild {
         [Alias('PausePE')]
         [switch]$PauseDismountPE,
 
+        #[switch]$AddBuildPacks,
+
         #Allows you to select Updates to apply in GridView
         #Useful for Testing
         [switch]$SelectUpdates,
@@ -46,6 +48,8 @@ function New-OSBuild {
         #Allows you to skip all Updates from being applied
         #Useful for Testing
         [switch]$SkipUpdates,
+
+        [switch]$SkipUpdatesPE,
 
         #Skips DISM /Cleanup-Image /StartComponentCleanup /ResetBase
         #Images created for Citrix PVS require this parameter
@@ -213,8 +217,10 @@ function New-OSBuild {
                 $UnattendXML = $Task.UnattendXML
                 $WinPEAutoExtraFiles = $Task.WinPEAutoExtraFiles
                 $WinPEDaRT = $Task.WinPEDart
-                
-                $BuildPacks = $Task.OSDBuildPacks
+                if ($BuildPacksEnabled -eq $true) {
+                    $BuildPacks = @('_Mandatory')
+                    $BuildPacks = ($BuildPacks += $Task.BuildPacks)
+                }
                 $ExtraFiles = $Task.ExtraFiles
                 $Scripts = $Task.Scripts
                 $Drivers = $Task.Drivers
@@ -282,12 +288,12 @@ function New-OSBuild {
                 if ($TaskOSMedia) {
                     $OSMediaName = $TaskOSMedia.Name
                     $OSMediaPath = $TaskOSMedia.FullName
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "Task Source OSMedia" -ForegroundColor Green
-                    Write-Host "-OSMedia Name:                  $OSMediaName"
-                    Write-Host "-OSMedia Path:                  $OSMediaPath"
-                    Write-Host "-OSMedia Family:                $TaskOSMFamily"
-                    Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
+                    #Write-Host '========================================================================================' -ForegroundColor DarkGray
+                    #Write-Host "Task Source OSMedia" -ForegroundColor Green
+                    #Write-Host "-OSMedia Name:                  $OSMediaName"
+                    #Write-Host "-OSMedia Path:                  $OSMediaPath"
+                    #Write-Host "-OSMedia Family:                $TaskOSMFamily"
+                    #Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
                 }
                 $LatestOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
                 if ($LatestOSMedia) {
@@ -884,12 +890,22 @@ function New-OSBuild {
                 Import-AutoExtraFilesPE
                 Add-ContentExtraFilesPE
                 Add-ContentDriversPE
-                #Import-OSDBuildPack -OSDBuildPackType PEDrivers -Verbose
                 Add-ContentADKWinPE
                 Add-ContentADKWinRE
                 Add-ContentADKWinSE
                 Add-ContentScriptsPE
-                #Update-CumulativePE -Force
+                #===================================================================================================
+                #   WinPE BuildPacks
+                #===================================================================================================
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and ($BuildPacksEnabled -eq $true)) {
+                    Add-OSDBuildPack -BuildPackType PEDaRT
+                    Add-OSDBuildPack -BuildPackType PEADK
+                    Add-OSDBuildPack -BuildPackType PEDrivers
+                    Add-OSDBuildPack -BuildPackType PEExtraFiles
+                    Add-OSDBuildPack -BuildPackType PEPoshMods
+                    Add-OSDBuildPack -BuildPackType PERegistry
+                    Add-OSDBuildPack -BuildPackType PEScripts
+                }
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================
@@ -1037,11 +1053,12 @@ function New-OSBuild {
                 Disable-WindowsOptionalFeatureOS
                 Add-WindowsPackageOS
                 Add-ContentDriversOS
-                #Import-OSDBuildPack -OSDBuildPackType OSDrivers -MountDirectory $MountDirectory
                 Add-ContentExtraFilesOS
                 Add-ContentStartLayout
                 Add-ContentUnattend
                 Add-ContentScriptsOS
+                Import-RegistryRegOS
+                Import-RegistryXmlOS
                 Update-ServicingStackOS -Force
                 #===================================================================================================
                 #	Mirror OSMedia and OSBuild
@@ -1050,12 +1067,14 @@ function New-OSBuild {
                 Save-SessionsXmlOS -OSMediaPath "$WorkingPath"
                 Save-InventoryOS -OSMediaPath "$WorkingPath"
                 #===================================================================================================
-                #   OSBuild Registry
+                #   BuildPacks
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                    Import-RegistryRegOS
-                    Import-RegistryXmlOS
-                    Import-OSDBuildPack -OSDBuildPackType OSRegistry -MountDirectory $MountDirectory
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and ($BuildPacksEnabled -eq $true)) {
+                    Add-OSDBuildPack -BuildPackType OSDrivers
+                    Add-OSDBuildPack -BuildPackType OSExtraFiles
+                    Add-OSDBuildPack -BuildPackType OSPoshMods
+                    Add-OSDBuildPack -BuildPackType OSRegistry
+                    Add-OSDBuildPack -BuildPackType OSScripts
                 }
                 #===================================================================================================
                 #   Dismount

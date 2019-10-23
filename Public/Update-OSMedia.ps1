@@ -880,7 +880,7 @@ function Update-OSMedia {
                 Import-AutoExtraFilesPE
                 Add-ContentExtraFilesPE
                 Add-ContentDriversPE
-                #Import-OSDBuildPack -OSDBuildPackType PEDrivers -Verbose
+                #Add-OSDBuildPack -BuildPackType PEDrivers -Verbose
                 Add-ContentADKWinPE
                 Add-ContentADKWinRE
                 Add-ContentADKWinSE
@@ -1033,7 +1033,7 @@ function Update-OSMedia {
                 Disable-WindowsOptionalFeatureOS
                 Add-WindowsPackageOS
                 Add-ContentDriversOS
-                #Import-OSDBuildPack -OSDBuildPackType OSDrivers -MountDirectory $MountDirectory
+                #Add-OSDBuildPack -BuildPackType OSDrivers -MountDirectory $MountDirectory
                 Add-ContentExtraFilesOS
                 Add-ContentStartLayout
                 Add-ContentUnattend
@@ -1051,7 +1051,7 @@ function Update-OSMedia {
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                     Import-RegistryRegOS
                     Import-RegistryXmlOS
-                    Import-OSDBuildPack -OSDBuildPackType OSRegistry -MountDirectory $MountDirectory
+                    Add-OSDBuildPack -BuildPackType OSRegistry -MountDirectory $MountDirectory
                 }
                 #===================================================================================================
                 #   Dismount

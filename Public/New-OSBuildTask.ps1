@@ -451,7 +451,7 @@ function New-OSBuildTask {
         #===================================================================================================
         #   BuildPacks
         #===================================================================================================
-        Write-Host "BuildPacks" -ForegroundColor Green
+        Write-Host "BuildPacks" -ForegroundColor Cyan
         if ($ExistingTask.BuildPacks) {
             foreach ($Item in $ExistingTask.BuildPacks) {
                 Write-Host "$Item" -ForegroundColor DarkGray
@@ -459,10 +459,14 @@ function New-OSBuildTask {
         }
         $BuildPacks = $null
         if ($AddBuildPacks.IsPresent) {
-            [array]$BuildPacks = (Get-TaskBuildPacks).FullName
+            if ($BuildPacksEnabled -eq $true) {
+                [array]$BuildPacks = (Get-TaskBuildPacks).FullName
             
-            $BuildPacks = [array]$BuildPacks + [array]$ExistingTask.BuildPacks
-            $BuildPacks = $BuildPacks | Sort-Object -Unique
+                $BuildPacks = [array]$BuildPacks + [array]$ExistingTask.BuildPacks
+                $BuildPacks = $BuildPacks | Sort-Object -Unique
+            } else {
+                Write-Warning "BuildPacks will not be enabled until after #MMSJazz"
+            }
         } else {
             if ($ExistingTask.BuildPacks) {$BuildPacks = $ExistingTask.BuildPacks}
         }

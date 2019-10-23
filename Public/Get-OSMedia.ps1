@@ -281,7 +281,7 @@ function Get-OSMedia {
             #   Corrections
             #===================================================================================================
             Repair-GetOSMediaWinSE
-            Repair-GetOSDMediaTemplateDirectories
+            if ($BuildPacksEnabled -eq $false) {Repair-GetOSDMediaTemplateDirectories}
         }
         #===================================================================================================
         #   Revision
