@@ -5044,6 +5044,16 @@ function Show-WorkingInfoOS {
     Write-Host "-Logs:          $Info\logs"
     Write-Host '========================================================================================' -ForegroundColor DarkGray
 }
+function Test-OSDBuildPacks {
+    [CmdletBinding()]
+    Param ()
+
+    if (Test-Path $OSDBuilderTemplates\Drivers) {Return $false}
+    if (Test-Path $OSDBuilderTemplates\ExtraFiles) {Return $false}
+    if (Test-Path $OSDBuilderTemplates\Registry) {Return $false}
+    if (Test-Path $OSDBuilderTemplates\Scripts) {Return $false}
+    Return $true
+}
 function Update-AdobeOS {
     [CmdletBinding()]
     Param (

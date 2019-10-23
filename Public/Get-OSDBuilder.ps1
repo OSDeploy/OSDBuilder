@@ -57,27 +57,11 @@ function Get-OSDBuilder {
     $global:OSDBuilderPath = $(Get-ItemProperty "HKCU:\Software\OSDeploy").OSBuilderPath
     if (!($OSDBuilderPath)) {$global:OSDBuilderPath = "$Env:SystemDrive\OSDBuilder"}
     #===================================================================================================
-    #   OSD Versions
+    #   Required Module Versions
     #===================================================================================================
     $global:OSDBuilderVersion = $(Get-Module -Name OSDBuilder | Sort-Object Version | Select-Object Version -Last 1).Version
     $global:OSDVersion = $(Get-Module -Name OSD | Sort-Object Version | Select-Object Version -Last 1).Version
     $global:OSDSUSVersion = $(Get-Module -Name OSDSUS | Sort-Object Version | Select-Object Version -Last 1).Version
-    if ($HideDetails -eq $false) {
-        Write-Host "OSDBuilder $OSDBuilderVersion | OSDSUS $OSDSUSVersion | Home $OSDBuilderPath" -ForegroundColor Cyan
-        Write-Host ""
-    }
-    #===================================================================================================
-    #   Verify Single Version of OSDBuilder
-    #===================================================================================================
-    if ((Get-Module -Name OSDBuilder).Count -gt 1) {
-        Write-Warning "Multiple OSDBuilder Modules are loaded"
-        Write-Warning "Close all open PowerShell sessions before using OSDBuilder"
-        Break
-    }
-    #===================================================================================================
-    #   19.3.9 OSDBuilder URLs
-    #===================================================================================================
-    $global:OSDBuilderURL = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
     #===================================================================================================
     #   OSDBuilder Primary Directories
     #===================================================================================================
@@ -89,24 +73,34 @@ function Get-OSDBuilder {
     $global:OSDBuilderPEBuilds =     "$OSDBuilderPath\PEBuilds"
     $global:OSDBuilderTasks =        "$OSDBuilderPath\Tasks"
     $global:OSDBuilderTemplates =    "$OSDBuilderPath\Templates"
-
-    $global:OSBuilderContent =      "$OSDBuilderPath\Content"
-    $global:OSBuilderOSBuilds =     "$OSDBuilderPath\OSBuilds"
-    $global:OSBuilderOSImport =     "$OSDBuilderPath\OSImport"
-    $global:OSBuilderOSMedia =      "$OSDBuilderPath\OSMedia"
-    $global:OSBuilderPEBuilds =     "$OSDBuilderPath\PEBuilds"
-    $global:OSBuilderTasks =        "$OSDBuilderPath\Tasks"
-    $global:OSBuilderTemplates =    "$OSDBuilderPath\Templates"
     #===================================================================================================
     #   BuildPacks
     #===================================================================================================
-    $global:BuildPacksEnabled = $true
-    if (Test-Path $OSDBuilderTemplates\Drivers) {$global:BuildPacksEnabled = $false}
-    if (Test-Path $OSDBuilderTemplates\ExtraFiles) {$global:BuildPacksEnabled = $false}
-    if (Test-Path $OSDBuilderTemplates\Registry) {$global:BuildPacksEnabled = $false}
-    if (Test-Path $OSDBuilderTemplates\Scripts) {$global:BuildPacksEnabled = $false}
+    $global:BuildPacksEnabled = Test-OSDBuildPacks
     #===================================================================================================
-    #   New-OSDBuilderCreatePaths
+    #   Header
+    #===================================================================================================
+    if ($HideDetails -eq $false) {
+        Write-Host "OSDBuilder $OSDBuilderVersion | OSDSUS $OSDSUSVersion | OSD $OSDVersion" -ForegroundColor Cyan
+        Write-Host "Home $OSDBuilderPath" -NoNewline
+        if ($global:BuildPacksEnabled -eq $true) {Write-Host " #MMSJazz Ready" -ForegroundColor Magenta}
+        else {Write-Host ""}
+        Write-Host ""
+    }
+    #===================================================================================================
+    #   Verify Single Version of OSDBuilder
+    #===================================================================================================
+    if ((Get-Module -Name OSDBuilder).Count -gt 1) {
+        Write-Warning "Multiple OSDBuilder Modules are loaded"
+        Write-Warning "Close all open PowerShell sessions before using OSDBuilder"
+        Break
+    }
+    #===================================================================================================
+    #   GitHub Update URL
+    #===================================================================================================
+    $global:OSDBuilderURL = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
+    #===================================================================================================
+    #   CreatePaths
     #===================================================================================================
     if ($CreatePaths.IsPresent) {New-OSDBuilderCreatePaths}
     #===================================================================================================
