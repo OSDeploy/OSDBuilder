@@ -534,7 +534,7 @@ function New-OSBuild {
             #   OSBuild
             #   Driver Templates
             #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {                
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent)) -and ($BuildPacksEnabled -eq $false)) {
                 $DriverTemplates = Get-OSTemplateDrivers
                 if ($DriverTemplates) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -546,7 +546,7 @@ function New-OSBuild {
             #   OSBuild
             #   ExtraFiles Templates
             #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent)) -and ($BuildPacksEnabled -eq $false)) {
                 #Write-Host "OSBuild Template ExtraFiles Directories (Searched)" -ForegroundColor Green
                 $ExtraFilesTemplates = Get-OSTemplateExtraFiles
                 if ($ExtraFilesTemplates) {
@@ -559,7 +559,7 @@ function New-OSBuild {
             #   OSBuild
             #   Registry REG Templates
             #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent)) -and ($BuildPacksEnabled -eq $false)) {
                 #Write-Host "OSBuild Template Registry REG Directories (Searched)" -ForegroundColor Green
                 $RegistryTemplatesReg = Get-OSTemplateRegistryReg
                 if ($RegistryTemplatesReg) {
@@ -572,7 +572,7 @@ function New-OSBuild {
             #   OSBuild
             #   Registry XML Templates
             #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent)) -and ($BuildPacksEnabled -eq $false)) {
                 #Write-Host "OSBuild Template Registry XML Directories (Searched)" -ForegroundColor Green
                 $RegistryTemplatesXml = Get-OSTemplateRegistryXml
                 if ($RegistryTemplatesXml) {
@@ -585,7 +585,7 @@ function New-OSBuild {
             #   OSBuild
             #   Script Templates
             #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent)) -and ($BuildPacksEnabled -eq $false)) {
                 #Write-Host "OSBuild Template Script Directories (Searched)" -ForegroundColor Green
                 $ScriptTemplates = Get-OSTemplateScripts
                 if ($ScriptTemplates) {
@@ -1075,6 +1075,7 @@ function New-OSBuild {
                     Add-OSDBuildPack -BuildPackType OSPoshMods
                     Add-OSDBuildPack -BuildPackType OSRegistry
                     Add-OSDBuildPack -BuildPackType OSScripts
+                    Add-OSDBuildPack -BuildPackType OSStartLayout
                 }
                 #===================================================================================================
                 #   Dismount

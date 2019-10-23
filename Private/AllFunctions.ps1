@@ -570,6 +570,7 @@ function Add-OSDBuildPack {
             'OSPoshMods',
             'OSRegistry',
             'OSScripts',
+            'OSStartLayout',
             'PEADK',
             'PEDaRT',
             'PEDrivers',
@@ -621,6 +622,13 @@ function Add-OSDBuildPack {
                 $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\PEExtraFiles"
                 Add-OSDBuildPackPEExtraFiles -BuildPackContent "$BuildPackPath\ALL"
                 Add-OSDBuildPackPEExtraFiles -BuildPackContent "$BuildPackPath\$OSArchitecture"
+
+                Get-ChildItem "$BuildPackPath\ALL Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {
+                    Add-OSDBuildPackPEExtraFiles -BuildPackContent "$($_.FullName)"
+                }
+                Get-ChildItem "$BuildPackPath\$OSArchitecture Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {
+                    Add-OSDBuildPackPEExtraFiles -BuildPackContent "$($_.FullName)"
+                }
             }
         }
         if ($BuildPackType -eq 'PEPoshMods') {
@@ -663,6 +671,8 @@ function Add-OSDBuildPack {
                 $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\OSExtraFiles"
                 Add-OSDBuildPackOSExtraFiles -BuildPackContent "$BuildPackPath\ALL"
                 Add-OSDBuildPackOSExtraFiles -BuildPackContent "$BuildPackPath\$OSArchitecture"
+                Get-ChildItem "$BuildPackPath\All Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-OSDBuildPackOSExtraFiles -BuildPackContent "$($_.FullName)"}
+                Get-ChildItem "$BuildPackPath\$OSArchitecture Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-OSDBuildPackOSExtraFiles -BuildPackContent "$($_.FullName)"}
             }
         }
         if ($BuildPackType -eq 'OSPoshMods') {
@@ -681,11 +691,19 @@ function Add-OSDBuildPack {
             }
         }
         if ($BuildPackType -eq 'OSScripts') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: BuildPack OSScripts"
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: BuildPack OSScripts"
             foreach ($BuildPack in $BuildPacks) {
                 $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\OSScripts"
                 Add-OSDBuildPackOSScripts -BuildPackContent "$BuildPackPath\ALL"
                 Add-OSDBuildPackOSScripts -BuildPackContent "$BuildPackPath\$OSArchitecture"
+            }
+        }
+        if ($BuildPackType -eq 'OSStartLayout') {
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: BuildPack OSStartLayout"
+            foreach ($BuildPack in $BuildPacks) {
+                $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\OSStartLayout"
+                Add-OSDBuildPackOSStartLayouts -BuildPackContent "$BuildPackPath\ALL"
+                Add-OSDBuildPackOSStartLayouts -BuildPackContent "$BuildPackPath\$OSArchitecture"
             }
         }
     }
@@ -880,6 +898,35 @@ function Add-OSDBuildPackOSScripts {
     foreach ($BuildPackOSScript in $BuildPackOSScripts) {
         Write-Host "$($BuildPackOSScript.FullName)" -ForegroundColor DarkGray
         Invoke-Expression "& '$($BuildPackOSScript.FullName)'"
+    }
+}
+function Add-OSDBuildPackOSStartLayouts {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$BuildPackContent
+    )
+    #======================================================================================
+    #   TEST
+    #======================================================================================
+    if (!(Test-Path "$BuildPackContent\*")) {
+        Write-Verbose "Add-OSDBuildPackOSStartLayouts: Unable to locate content in $BuildPackContent"
+        Return
+    }
+    else {Write-Host "$BuildPackContent" -ForegroundColor Cyan}
+    #======================================================================================
+    #   BUILD
+    #======================================================================================
+    $BuildPackOSStartLayouts = Get-ChildItem "$BuildPackContent\*.xml" -File | Select-Object -Property FullName
+    foreach ($BuildPackOSStartLayout in $BuildPackOSStartLayouts) {
+        Write-Host "$($BuildPackOSStartLayout.FullName)" -ForegroundColor DarkGray
+        Try {
+            Copy-Item -Path "$($BuildPackOSStartLayout.FullName)" -Destination "$MountDirectory\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml" -Recurse -Force | Out-Null
+        }
+        Catch {
+            $ErrorMessage = $_.Exception.Message
+            Write-Warning "$ErrorMessage"
+        }
     }
 }
 function Add-OSDBuildPackPEADK {
@@ -3599,8 +3646,11 @@ function New-OSDBuilderCreatePaths {
             "$OSDBuilderBuildPacks\_Mandatory\OSDrivers\x64"
             "$OSDBuilderBuildPacks\_Mandatory\OSDrivers\x86"
             "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\ALL"
+            "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\ALL Subdirs"
             "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\x64"
+            "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\x64 Subdirs"
             "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\x86"
+            "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\x86 Subdirs"
             "$OSDBuilderBuildPacks\_Mandatory\OSPoshMods\ALL"
             "$OSDBuilderBuildPacks\_Mandatory\OSRegistry\ALL"
             "$OSDBuilderBuildPacks\_Mandatory\OSRegistry\x64"
@@ -3608,6 +3658,9 @@ function New-OSDBuilderCreatePaths {
             "$OSDBuilderBuildPacks\_Mandatory\OSScripts\ALL"
             "$OSDBuilderBuildPacks\_Mandatory\OSScripts\x64"
             "$OSDBuilderBuildPacks\_Mandatory\OSScripts\x86"
+            "$OSDBuilderBuildPacks\_Mandatory\OSStartLayout\ALL"
+            "$OSDBuilderBuildPacks\_Mandatory\OSStartLayout\x64"
+            "$OSDBuilderBuildPacks\_Mandatory\OSStartLayout\x86"
             "$OSDBuilderBuildPacks\_Mandatory\PEADK\1809 x64"
             "$OSDBuilderBuildPacks\_Mandatory\PEADK\1809 x86"
             "$OSDBuilderBuildPacks\_Mandatory\PEADK\1903 x64"
@@ -3618,8 +3671,11 @@ function New-OSDBuilderCreatePaths {
             "$OSDBuilderBuildPacks\_Mandatory\PEDrivers\x64"
             "$OSDBuilderBuildPacks\_Mandatory\PEDrivers\x86"
             "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\ALL"
+            "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\ALL Subdirs"
             "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\x64"
+            "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\x64 Subdirs"
             "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\x86"
+            "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\x86 Subdirs"
             "$OSDBuilderBuildPacks\_Mandatory\PEPoshMods\ALL"
             "$OSDBuilderBuildPacks\_Mandatory\PERegistry\ALL"
             "$OSDBuilderBuildPacks\_Mandatory\PERegistry\x64"
@@ -3631,8 +3687,11 @@ function New-OSDBuilderCreatePaths {
             "$OSDBuilderBuildPacks\_Template\OSDrivers\x64"
             "$OSDBuilderBuildPacks\_Template\OSDrivers\x86"
             "$OSDBuilderBuildPacks\_Template\OSExtraFiles\ALL"
+            "$OSDBuilderBuildPacks\_Template\OSExtraFiles\ALL Subdirs"
             "$OSDBuilderBuildPacks\_Template\OSExtraFiles\x64"
+            "$OSDBuilderBuildPacks\_Template\OSExtraFiles\x64 Subdirs"
             "$OSDBuilderBuildPacks\_Template\OSExtraFiles\x86"
+            "$OSDBuilderBuildPacks\_Template\OSExtraFiles\x86 Subdirs"
             "$OSDBuilderBuildPacks\_Template\OSPoshMods\ALL"
             "$OSDBuilderBuildPacks\_Template\OSRegistry\ALL"
             "$OSDBuilderBuildPacks\_Template\OSRegistry\x64"
@@ -3640,6 +3699,9 @@ function New-OSDBuilderCreatePaths {
             "$OSDBuilderBuildPacks\_Template\OSScripts\ALL"
             "$OSDBuilderBuildPacks\_Template\OSScripts\x64"
             "$OSDBuilderBuildPacks\_Template\OSScripts\x86"
+            "$OSDBuilderBuildPacks\_Template\OSStartLayout\ALL"
+            "$OSDBuilderBuildPacks\_Template\OSStartLayout\x64"
+            "$OSDBuilderBuildPacks\_Template\OSStartLayout\x86"
             "$OSDBuilderBuildPacks\_Template\PEADK\1809 x64"
             "$OSDBuilderBuildPacks\_Template\PEADK\1809 x86"
             "$OSDBuilderBuildPacks\_Template\PEADK\1903 x64"
@@ -3650,8 +3712,11 @@ function New-OSDBuilderCreatePaths {
             "$OSDBuilderBuildPacks\_Template\PEDrivers\x64"
             "$OSDBuilderBuildPacks\_Template\PEDrivers\x86"
             "$OSDBuilderBuildPacks\_Template\PEExtraFiles\ALL"
+            "$OSDBuilderBuildPacks\_Template\PEExtraFiles\ALL Subdirs"
             "$OSDBuilderBuildPacks\_Template\PEExtraFiles\x64"
+            "$OSDBuilderBuildPacks\_Template\PEExtraFiles\x64 Subdirs"
             "$OSDBuilderBuildPacks\_Template\PEExtraFiles\x86"
+            "$OSDBuilderBuildPacks\_Template\PEExtraFiles\x86 Subdirs"
             "$OSDBuilderBuildPacks\_Template\PEPoshMods\ALL"
             "$OSDBuilderBuildPacks\_Template\PERegistry\ALL"
             "$OSDBuilderBuildPacks\_Template\PERegistry\x64"
