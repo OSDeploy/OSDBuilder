@@ -355,6 +355,28 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         #===================================================================================================
+        #   BuildPacks
+        #===================================================================================================
+        Write-Host "BuildPacks" -ForegroundColor Cyan
+        if ($ExistingTask.BuildPacks) {
+            foreach ($Item in $ExistingTask.BuildPacks) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $BuildPacks = $null
+        if ($AddBuildPacks.IsPresent) {
+            if (Get-IsBuildPacksEnabled) {
+                [array]$BuildPacks = (Get-TaskBuildPacks).FullName
+            
+                $BuildPacks = [array]$BuildPacks + [array]$ExistingTask.BuildPacks
+                $BuildPacks = $BuildPacks | Sort-Object -Unique
+            } else {
+                Write-Warning "BuildPacks will not be enabled until after #MMSJazz"
+            }
+        } else {
+            if ($ExistingTask.BuildPacks) {$BuildPacks = $ExistingTask.BuildPacks}
+        }
+        #===================================================================================================
         #   RemoveAppx
         #===================================================================================================
         Write-Host "RemoveAppx" -ForegroundColor Green
@@ -448,28 +470,6 @@ function New-OSBuildTask {
         #===================================================================================================
         #   Content
         #===================================================================================================
-        #===================================================================================================
-        #   BuildPacks
-        #===================================================================================================
-        Write-Host "BuildPacks" -ForegroundColor Cyan
-        if ($ExistingTask.BuildPacks) {
-            foreach ($Item in $ExistingTask.BuildPacks) {
-                Write-Host "$Item" -ForegroundColor DarkGray
-            }
-        }
-        $BuildPacks = $null
-        if ($AddBuildPacks.IsPresent) {
-            if ($BuildPacksEnabled -eq $true) {
-                [array]$BuildPacks = (Get-TaskBuildPacks).FullName
-            
-                $BuildPacks = [array]$BuildPacks + [array]$ExistingTask.BuildPacks
-                $BuildPacks = $BuildPacks | Sort-Object -Unique
-            } else {
-                Write-Warning "BuildPacks will not be enabled until after #MMSJazz"
-            }
-        } else {
-            if ($ExistingTask.BuildPacks) {$BuildPacks = $ExistingTask.BuildPacks}
-        }
         #===================================================================================================
         #   Content Drivers
         #===================================================================================================
@@ -949,6 +949,7 @@ function New-OSBuildTask {
             #===================================================================================================
             #   Switch
             #===================================================================================================
+            "BuildPacks" = [string[]]$BuildPacks;
             "EnableNetFX3" = [string]$EnableNetFX3;
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
             #===================================================================================================
@@ -962,7 +963,6 @@ function New-OSBuildTask {
             #===================================================================================================
             #   Content
             #===================================================================================================
-            "BuildPacks" = [string[]]$BuildPacks;
             "Drivers" = [string[]]$Drivers;
             "ExtraFiles" = [string[]]$ExtraFiles;
             "Scripts" = [string[]]$Scripts;

@@ -209,8 +209,10 @@ function Update-OSMedia {
                 $UnattendXML = $Task.UnattendXML
                 $WinPEAutoExtraFiles = $Task.WinPEAutoExtraFiles
                 $WinPEDaRT = $Task.WinPEDart
-                
-                $BuildPacks = $Task.OSDBuildPacks
+                if (Get-IsBuildPacksEnabled) {
+                    $BuildPacks = @('_Mandatory')
+                    $BuildPacks = ($BuildPacks += $Task.BuildPacks)
+                }
                 $ExtraFiles = $Task.ExtraFiles
                 $Scripts = $Task.Scripts
                 $Drivers = $Task.Drivers
@@ -278,12 +280,12 @@ function Update-OSMedia {
                 if ($TaskOSMedia) {
                     $OSMediaName = $TaskOSMedia.Name
                     $OSMediaPath = $TaskOSMedia.FullName
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "Task Source OSMedia" -ForegroundColor Green
-                    Write-Host "-OSMedia Name:                  $OSMediaName"
-                    Write-Host "-OSMedia Path:                  $OSMediaPath"
-                    Write-Host "-OSMedia Family:                $TaskOSMFamily"
-                    Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
+                    #Write-Host '========================================================================================' -ForegroundColor DarkGray
+                    #Write-Host "Task Source OSMedia" -ForegroundColor Green
+                    #Write-Host "-OSMedia Name:                  $OSMediaName"
+                    #Write-Host "-OSMedia Path:                  $OSMediaPath"
+                    #Write-Host "-OSMedia Family:                $TaskOSMFamily"
+                    #Write-Host "-OSMedia Guid:                  $TaskOSMGuid"
                 }
                 $LatestOSMedia = Get-OSMedia -Revision OK | Where-Object {$_.OSMFamily -eq $TaskOSMFamily}
                 if ($LatestOSMedia) {
@@ -521,67 +523,72 @@ function Update-OSMedia {
                 Write-Warning "$WorkingPath will be replaced!"
             }
             #===================================================================================================
-            #   OSBuild
-            #   Driver Templates
+            #   Template Content
             #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {                
-                $DriverTemplates = Get-OSTemplateDrivers
-                if ($DriverTemplates) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "OSBuild Template Driver Directories (Applied)" -ForegroundColor Green
-                    foreach ($Item in $DriverTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}
+            if (Get-IsContentTemplatesEnabled) {
+                #===================================================================================================
+                #   OSBuild
+                #   Driver Templates
+                #===================================================================================================
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+                    $DriverTemplates = Get-OSTemplateDrivers
+                    if ($DriverTemplates) {
+                        Write-Host '========================================================================================' -ForegroundColor DarkGray
+                        Write-Host "OSBuild Template Driver Directories (Applied)" -ForegroundColor Green
+                        foreach ($Item in $DriverTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}
+                    }
                 }
-            }
-            #===================================================================================================
-            #   OSBuild
-            #   ExtraFiles Templates
-            #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
-                #Write-Host "OSBuild Template ExtraFiles Directories (Searched)" -ForegroundColor Green
-                $ExtraFilesTemplates = Get-OSTemplateExtraFiles
-                if ($ExtraFilesTemplates) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "OSBuild Template ExtraFiles Files (Applied)" -ForegroundColor Green
-                    foreach ($Item in $ExtraFilesTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}
+                #===================================================================================================
+                #   OSBuild
+                #   ExtraFiles Templates
+                #===================================================================================================
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+                    #Write-Host "OSBuild Template ExtraFiles Directories (Searched)" -ForegroundColor Green
+                    $ExtraFilesTemplates = Get-OSTemplateExtraFiles
+                    if ($ExtraFilesTemplates) {
+                        Write-Host '========================================================================================' -ForegroundColor DarkGray
+                        Write-Host "OSBuild Template ExtraFiles Files (Applied)" -ForegroundColor Green
+                        foreach ($Item in $ExtraFilesTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}
+                    }
                 }
-            }
-            #===================================================================================================
-            #   OSBuild
-            #   Registry REG Templates
-            #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
-                #Write-Host "OSBuild Template Registry REG Directories (Searched)" -ForegroundColor Green
-                $RegistryTemplatesReg = Get-OSTemplateRegistryReg
-                if ($RegistryTemplatesReg) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "OSBuild Template Registry REG Files (Applied)" -ForegroundColor Green
-                    foreach ($Item in $RegistryTemplatesReg) {Write-Host $Item.FullName -ForegroundColor Gray}
+                #===================================================================================================
+                #   OSBuild
+                #   Registry REG Templates
+                #===================================================================================================
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+                    #Write-Host "OSBuild Template Registry REG Directories (Searched)" -ForegroundColor Green
+                    $RegistryTemplatesReg = Get-OSTemplateRegistryReg
+                    if ($RegistryTemplatesReg) {
+                        Write-Host '========================================================================================' -ForegroundColor DarkGray
+                        Write-Host "OSBuild Template Registry REG Files (Applied)" -ForegroundColor Green
+                        foreach ($Item in $RegistryTemplatesReg) {Write-Host $Item.FullName -ForegroundColor Gray}
+                    }
                 }
-            }
-            #===================================================================================================
-            #   OSBuild
-            #   Registry XML Templates
-            #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
-                #Write-Host "OSBuild Template Registry XML Directories (Searched)" -ForegroundColor Green
-                $RegistryTemplatesXml = Get-OSTemplateRegistryXml
-                if ($RegistryTemplatesXml) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "OSBuild Template Registry XML Files (Applied)" -ForegroundColor Green
-                    foreach ($Item in $RegistryTemplatesXml) {Write-Host $Item.FullName -ForegroundColor Gray}
+                #===================================================================================================
+                #   OSBuild
+                #   Registry XML Templates
+                #===================================================================================================
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+                    #Write-Host "OSBuild Template Registry XML Directories (Searched)" -ForegroundColor Green
+                    $RegistryTemplatesXml = Get-OSTemplateRegistryXml
+                    if ($RegistryTemplatesXml) {
+                        Write-Host '========================================================================================' -ForegroundColor DarkGray
+                        Write-Host "OSBuild Template Registry XML Files (Applied)" -ForegroundColor Green
+                        foreach ($Item in $RegistryTemplatesXml) {Write-Host $Item.FullName -ForegroundColor Gray}
+                    }
                 }
-            }
-            #===================================================================================================
-            #   OSBuild
-            #   Script Templates
-            #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
-                #Write-Host "OSBuild Template Script Directories (Searched)" -ForegroundColor Green
-                $ScriptTemplates = Get-OSTemplateScripts
-                if ($ScriptTemplates) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "OSBuild Template Script Files (Applied)" -ForegroundColor Green
-                    foreach ($Item in $ScriptTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}
+                #===================================================================================================
+                #   OSBuild
+                #   Script Templates
+                #===================================================================================================
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$OSDBuilderTemplates") -and (!($SkipTemplates.IsPresent))) {
+                    #Write-Host "OSBuild Template Script Directories (Searched)" -ForegroundColor Green
+                    $ScriptTemplates = Get-OSTemplateScripts
+                    if ($ScriptTemplates) {
+                        Write-Host '========================================================================================' -ForegroundColor DarkGray
+                        Write-Host "OSBuild Template Script Files (Applied)" -ForegroundColor Green
+                        foreach ($Item in $ScriptTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}
+                    }
                 }
             }
             #===================================================================================================
@@ -590,32 +597,14 @@ function Update-OSMedia {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Host "Operating System Updates" -ForegroundColor Green
             #===================================================================================================
-            #   OSDUpdate Catalogs
+            #   OSDUpdates
             #===================================================================================================
             $OSDUpdates = $AllOSDUpdates
-            #===================================================================================================
-            #   SkipUpdates
-            #===================================================================================================
             if ($SkipUpdates.IsPresent) {$OSDUpdates = @()}
-            #===================================================================================================
-            #   Filter UpdateArch
-            #===================================================================================================
             $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateArch -eq $OSArchitecture}
-            #===================================================================================================
-            #   Filter UpdateOS
-            #===================================================================================================
             $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateOS -eq $UpdateOS}
-            #===================================================================================================
-            #   Filter UpdateBuild
-            #===================================================================================================
             $OSDUpdates = $OSDUpdates | Where-Object {($_.UpdateBuild -eq $ReleaseId) -or ($_.UpdateBuild -eq '')}
-            #===================================================================================================
-            #   Filter ServerCore
-            #===================================================================================================
             if ($OSInstallationType -match 'Core'){$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'AdobeSU'}}
-            #===================================================================================================
-            #   SelectUpdates
-            #===================================================================================================
             if ($SelectUpdates.IsPresent) {$OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Apply and press OK'}
             #===================================================================================================
             #   OSDBuilder 10 Setup Updates
@@ -880,12 +869,22 @@ function Update-OSMedia {
                 Import-AutoExtraFilesPE
                 Add-ContentExtraFilesPE
                 Add-ContentDriversPE
-                #Add-OSDBuildPack -BuildPackType PEDrivers -Verbose
                 Add-ContentADKWinPE
                 Add-ContentADKWinRE
                 Add-ContentADKWinSE
                 Add-ContentScriptsPE
-                #Update-CumulativePE -Force
+                #===================================================================================================
+                #   WinPE BuildPacks
+                #===================================================================================================
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsBuildPacksEnabled)) {
+                    Add-OSDBuildPack -BuildPackType PEDaRT
+                    Add-OSDBuildPack -BuildPackType PEADK
+                    Add-OSDBuildPack -BuildPackType PEDrivers
+                    Add-OSDBuildPack -BuildPackType PEExtraFiles
+                    Add-OSDBuildPack -BuildPackType PEPoshMods
+                    Add-OSDBuildPack -BuildPackType PERegistry
+                    Add-OSDBuildPack -BuildPackType PEScripts
+                }
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================
@@ -1033,11 +1032,12 @@ function Update-OSMedia {
                 Disable-WindowsOptionalFeatureOS
                 Add-WindowsPackageOS
                 Add-ContentDriversOS
-                #Add-OSDBuildPack -BuildPackType OSDrivers -MountDirectory $MountDirectory
                 Add-ContentExtraFilesOS
                 Add-ContentStartLayout
                 Add-ContentUnattend
                 Add-ContentScriptsOS
+                Import-RegistryRegOS
+                Import-RegistryXmlOS
                 Update-ServicingStackOS -Force
                 #===================================================================================================
                 #	Mirror OSMedia and OSBuild
@@ -1046,12 +1046,15 @@ function Update-OSMedia {
                 Save-SessionsXmlOS -OSMediaPath "$WorkingPath"
                 Save-InventoryOS -OSMediaPath "$WorkingPath"
                 #===================================================================================================
-                #   OSBuild Registry
+                #   BuildPacks
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                    Import-RegistryRegOS
-                    Import-RegistryXmlOS
-                    Add-OSDBuildPack -BuildPackType OSRegistry -MountDirectory $MountDirectory
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsBuildPacksEnabled)) {
+                    Add-OSDBuildPack -BuildPackType OSDrivers
+                    Add-OSDBuildPack -BuildPackType OSExtraFiles
+                    Add-OSDBuildPack -BuildPackType OSPoshMods
+                    Add-OSDBuildPack -BuildPackType OSRegistry
+                    Add-OSDBuildPack -BuildPackType OSScripts
+                    Add-OSDBuildPack -BuildPackType OSStartLayout
                 }
                 #===================================================================================================
                 #   Dismount

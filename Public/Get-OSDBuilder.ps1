@@ -7,14 +7,6 @@ Offline Servicing for Windows 7, Windows 10, Windows Server 2012 R2, Windows Ser
 
 .LINK
 https://osdbuilder.osdeploy.com/module/functions/get-osdbuilder
-
-.EXAMPLE
-Get-OSDBuilder -SetPath D:\OSDBuilder
-Sets the OSDBuilder Main directory to D:\OSDBuilder
-
-.EXAMPLE
-Get-OSDBuilder -CreatePaths
-Creates empty directories used by OSDBuilder
 #>
 function Get-OSDBuilder {
     [CmdletBinding()]
@@ -48,6 +40,8 @@ function Get-OSDBuilder {
         [Alias('Update')]
         [switch]$UpdateModule
     )
+
+    $global:OSDBuilder = @{}
     #===================================================================================================
     #   Get-OSDBuilderPath
     #===================================================================================================
@@ -74,17 +68,13 @@ function Get-OSDBuilder {
     $global:OSDBuilderTasks =        "$OSDBuilderPath\Tasks"
     $global:OSDBuilderTemplates =    "$OSDBuilderPath\Templates"
     #===================================================================================================
-    #   BuildPacks
-    #===================================================================================================
-    $global:BuildPacksEnabled = Test-OSDBuildPacks
-    #===================================================================================================
     #   Header
     #===================================================================================================
     if ($HideDetails -eq $false) {
         Write-Host "OSDBuilder $OSDBuilderVersion | OSDSUS $OSDSUSVersion | OSD $OSDVersion" -ForegroundColor Cyan
-        Write-Host "Home $OSDBuilderPath" -NoNewline
-        if ($global:BuildPacksEnabled -eq $true) {Write-Host " #MMSJazz Ready" -ForegroundColor Magenta}
-        else {Write-Host ""}
+        if (Get-IsBuildPacksEnabled) {Write-Host "#MMSJazz" -ForegroundColor Magenta -NoNewline}
+        else {Write-Host "Home" -NoNewline}
+        Write-Host " $OSDBuilderPath"
         Write-Host ""
     }
     #===================================================================================================
@@ -153,5 +143,8 @@ function Get-OSDBuilder {
         #Show-OSDBuilderHomeMap
         Show-OSDBuilderHomeTips
     }
-    if ($UpdateModule.IsPresent) {Update-ModuleOSDBuilder}
+    if ($UpdateModule.IsPresent) {
+        Update-OSDSUS
+        Update-ModuleOSDBuilder
+    }
 }
