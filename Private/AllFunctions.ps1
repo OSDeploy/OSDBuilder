@@ -563,7 +563,7 @@ function Add-OSDBuildPack {
         #[string]$BuildPackPath,
 
         [ValidateSet(
-            'Auto',
+            'MEDIA',
             'OSDrivers',
             'OSExtraFiles',
             'OSPackages',
@@ -591,6 +591,18 @@ function Add-OSDBuildPack {
     #   BUILD
     #===================================================================================================
     if ($BuildPacks) {
+        #===================================================================================================
+        #   MEDIA BuildPacks
+        #===================================================================================================
+        if ($BuildPackType -eq 'MEDIA') {
+            Show-ActionTime; Write-Host -ForegroundColor Green "MEDIA: BuildPack"
+            foreach ($BuildPack in $BuildPacks) {
+                $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\MEDIA"
+                Add-OSDBuildPackMEDIA -BuildPackContent "$BuildPackPath\ALL"
+                Add-OSDBuildPackMEDIA -BuildPackContent "$BuildPackPath\$OSArchitecture"
+                Add-OSDBuildPackMEDIA -BuildPackContent "$BuildPackPath\$ReleaseID $OSArchitecture"
+            }
+        }
         #===================================================================================================
         #   WinPE BuildPacks
         #===================================================================================================
@@ -635,7 +647,11 @@ function Add-OSDBuildPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: BuildPack PEPoshMods"
             foreach ($BuildPack in $BuildPacks) {
                 $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\PEPoshMods"
-                Add-OSDBuildPackPEPoshMods -BuildPackContent "$BuildPackPath\ALL"
+                Add-OSDBuildPackPEPoshMods -BuildPackContent "$BuildPackPath\ProgramFiles"
+            }
+            foreach ($BuildPack in $BuildPacks) {
+                $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\PEPoshMods"
+                Add-OSDBuildPackPEPoshModsSystem -BuildPackContent "$BuildPackPath\System"
             }
         }
         if ($BuildPackType -eq 'PERegistry') {
@@ -679,7 +695,11 @@ function Add-OSDBuildPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: BuildPack OSPoshMods"
             foreach ($BuildPack in $BuildPacks) {
                 $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\OSPoshMods"
-                Add-OSDBuildPackOSPoshMods -BuildPackContent "$BuildPackPath\ALL"
+                Add-OSDBuildPackOSPoshMods -BuildPackContent "$BuildPackPath\ProgramFiles"
+            }
+            foreach ($BuildPack in $BuildPacks) {
+                $BuildPackPath = "$OSDBuilderPath\BuildPacks\$BuildPack\OSPoshMods"
+                Add-OSDBuildPackOSPoshModsSystem -BuildPackContent "$BuildPackPath\System"
             }
         }
         if ($BuildPackType -eq 'OSRegistry') {
@@ -707,6 +727,31 @@ function Add-OSDBuildPack {
             }
         }
     }
+}
+function Add-OSDBuildPackMEDIA {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$BuildPackContent
+    )
+    #======================================================================================
+    #   Test
+    #======================================================================================
+    if (!(Test-Path "$BuildPackContent\*")) {
+        Write-Verbose "Add-OSDBuildPackMEDIA: Unable to locate content in $BuildPackContent"
+        Return
+    } else {
+        Write-Host "$BuildPackContent" -ForegroundColor Cyan
+    }
+    #======================================================================================
+    #   Import
+    #======================================================================================
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDBuildPackMEDIA.log"
+    Write-Verbose "CurrentLog: $CurrentLog"
+
+    Get-ChildItem "$BuildPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+
+    robocopy "$BuildPackContent" "$OS" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
 }
 function Add-OSDBuildPackOSDrivers {
     [CmdletBinding()]
@@ -787,6 +832,31 @@ function Add-OSDBuildPackOSPoshMods {
     Get-ChildItem "$BuildPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
     robocopy "$BuildPackContent" "$MountDirectory\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+}
+function Add-OSDBuildPackOSPoshModsSystem {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$BuildPackContent
+    )
+    #======================================================================================
+    #   Test
+    #======================================================================================
+    if (!(Test-Path "$BuildPackContent\*")) {
+        Write-Verbose "Add-OSDBuildPackOSPoshModsSystem: Unable to locate content in $BuildPackContent"
+        Return
+    } else {
+        Write-Host "$BuildPackContent" -ForegroundColor Cyan
+    }
+    #======================================================================================
+    #   Import
+    #======================================================================================
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDBuildPackOSPoshModsSystem.log"
+    Write-Verbose "CurrentLog: $CurrentLog"
+
+    Get-ChildItem "$BuildPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+
+    robocopy "$BuildPackContent" "$MountDirectory\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
 }
 function Add-OSDBuildPackOSRegistry {
     [CmdletBinding()]
@@ -1098,6 +1168,33 @@ function Add-OSDBuildPackPEPoshMods {
     robocopy "$BuildPackContent" "$MountWinPE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
     robocopy "$BuildPackContent" "$MountWinRE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
     robocopy "$BuildPackContent" "$MountWinSE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+}
+function Add-OSDBuildPackPEPoshModsSystem {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$BuildPackContent
+    )
+    #======================================================================================
+    #   Test
+    #======================================================================================
+    if (!(Test-Path "$BuildPackContent\*")) {
+        Write-Verbose "Add-OSDBuildPackPEPoshModsSystem: Unable to locate content in $BuildPackContent"
+        Return
+    } else {
+        Write-Host "$BuildPackContent" -ForegroundColor Cyan
+    }
+    #======================================================================================
+    #   Import
+    #======================================================================================
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDBuildPackPEPoshModsSystem.log"
+    Write-Verbose "CurrentLog: $CurrentLog"
+
+    Get-ChildItem "$BuildPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+
+    robocopy "$BuildPackContent" "$MountWinPE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    robocopy "$BuildPackContent" "$MountWinRE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    robocopy "$BuildPackContent" "$MountWinSE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
 }
 function Add-OSDBuildPackPERegistry {
     [CmdletBinding()]
@@ -3431,31 +3528,23 @@ function New-DirectoriesOSMedia {
     if (!(Test-Path "$MountWinSE"))     {New-Item "$MountWinSE" -ItemType Directory -Force | Out-Null}
     if (!(Test-Path "$MountWinRE"))     {New-Item "$MountWinRE" -ItemType Directory -Force | Out-Null}
 }
-function New-OSDBuilderCreatePaths {
+function New-ItemDirectoryOSDBuilderContent {
     [CmdletBinding()]
     Param ()
-
-    $OSDBuilderHomeDirectories = @(
-        $OSDBuilderPath
-        $OSDBuilderOSBuilds
-        $OSDBuilderOSImport
-        $OSDBuilderOSMedia
-        $OSDBuilderPEBuilds
-        $OSDBuilderTasks
-        $OSDBuilderTemplates
-        $OSDBuilderContent
-        "$OSDBuilderContent\ADK"
+    $ItemDirectories = @(
+        #$OSDBuilderContent
+        #"$OSDBuilderContent\ADK"
         "$OSDBuilderContent\ADK\Windows 10 1903\Windows Preinstallation Environment"
-        "$OSDBuilderContent\ADK\Windows 10 1909\Windows Preinstallation Environment"
-        "$OSDBuilderContent\DaRT"
+        #"$OSDBuilderContent\ADK\Windows 10 1909\Windows Preinstallation Environment"
+        #"$OSDBuilderContent\DaRT"
         "$OSDBuilderContent\DaRT\DaRT 10"
         "$OSDBuilderContent\Drivers"
         "$OSDBuilderContent\ExtraFiles"
-        "$OSDBuilderContent\IsoExtract"
+        #"$OSDBuilderContent\IsoExtract"
         "$OSDBuilderContent\IsoExtract\Windows 10 1903 FOD x64"
         "$OSDBuilderContent\IsoExtract\Windows 10 1903 FOD x64"
         "$OSDBuilderContent\IsoExtract\Windows 10 1903 Language"
-        "$OSDBuilderContent\IsoExtract\Windows 10 1909 Language"
+        #"$OSDBuilderContent\IsoExtract\Windows 10 1909 Language"
         "$OSDBuilderContent\IsoExtract\Windows Server 2019 1809 FOD x64"
         "$OSDBuilderContent\IsoExtract\Windows Server 2019 1809 Language"
         #"$OSDBuilderContent\LanguagePacks"
@@ -3479,92 +3568,26 @@ function New-OSDBuilderCreatePaths {
         #"$OSDBuilderContent\WinPE\Drivers\WinPE 10 x86"
         #"$OSDBuilderContent\WinPE\ExtraFiles"
         #"$OSDBuilderContent\WinPE\Scripts"
-        $OSDBuilderBuildPacks
-        "$OSDBuilderBuildPacks\_Mandatory\OSDrivers\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\OSDrivers\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\OSDrivers\x86"
-        "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\ALL Subdirs"
-        "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\x64 Subdirs"
-        "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\x86"
-        "$OSDBuilderBuildPacks\_Mandatory\OSExtraFiles\x86 Subdirs"
-        "$OSDBuilderBuildPacks\_Mandatory\OSPoshMods\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\OSRegistry\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\OSRegistry\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\OSRegistry\x86"
-        "$OSDBuilderBuildPacks\_Mandatory\OSScripts\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\OSScripts\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\OSScripts\x86"
-        "$OSDBuilderBuildPacks\_Mandatory\OSStartLayout\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\OSStartLayout\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\OSStartLayout\x86"
-        "$OSDBuilderBuildPacks\_Mandatory\PEADK\1809 x64"
-        "$OSDBuilderBuildPacks\_Mandatory\PEADK\1809 x86"
-        "$OSDBuilderBuildPacks\_Mandatory\PEADK\1903 x64"
-        "$OSDBuilderBuildPacks\_Mandatory\PEADK\1903 x86"
-        "$OSDBuilderBuildPacks\_Mandatory\PEADK\1909 x64"
-        "$OSDBuilderBuildPacks\_Mandatory\PEADK\1909 x86"
-        "$OSDBuilderBuildPacks\_Mandatory\PEDrivers\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\PEDrivers\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\PEDrivers\x86"
-        "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\ALL Subdirs"
-        "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\x64 Subdirs"
-        "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\x86"
-        "$OSDBuilderBuildPacks\_Mandatory\PEExtraFiles\x86 Subdirs"
-        "$OSDBuilderBuildPacks\_Mandatory\PEPoshMods\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\PERegistry\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\PERegistry\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\PERegistry\x86"
-        "$OSDBuilderBuildPacks\_Mandatory\PEScripts\ALL"
-        "$OSDBuilderBuildPacks\_Mandatory\PEScripts\x64"
-        "$OSDBuilderBuildPacks\_Mandatory\PEScripts\x86"
-        "$OSDBuilderBuildPacks\_Template\OSDrivers\ALL"
-        "$OSDBuilderBuildPacks\_Template\OSDrivers\x64"
-        "$OSDBuilderBuildPacks\_Template\OSDrivers\x86"
-        "$OSDBuilderBuildPacks\_Template\OSExtraFiles\ALL"
-        "$OSDBuilderBuildPacks\_Template\OSExtraFiles\ALL Subdirs"
-        "$OSDBuilderBuildPacks\_Template\OSExtraFiles\x64"
-        "$OSDBuilderBuildPacks\_Template\OSExtraFiles\x64 Subdirs"
-        "$OSDBuilderBuildPacks\_Template\OSExtraFiles\x86"
-        "$OSDBuilderBuildPacks\_Template\OSExtraFiles\x86 Subdirs"
-        "$OSDBuilderBuildPacks\_Template\OSPoshMods\ALL"
-        "$OSDBuilderBuildPacks\_Template\OSRegistry\ALL"
-        "$OSDBuilderBuildPacks\_Template\OSRegistry\x64"
-        "$OSDBuilderBuildPacks\_Template\OSRegistry\x86"
-        "$OSDBuilderBuildPacks\_Template\OSScripts\ALL"
-        "$OSDBuilderBuildPacks\_Template\OSScripts\x64"
-        "$OSDBuilderBuildPacks\_Template\OSScripts\x86"
-        "$OSDBuilderBuildPacks\_Template\OSStartLayout\ALL"
-        "$OSDBuilderBuildPacks\_Template\OSStartLayout\x64"
-        "$OSDBuilderBuildPacks\_Template\OSStartLayout\x86"
-        "$OSDBuilderBuildPacks\_Template\PEADK\1809 x64"
-        "$OSDBuilderBuildPacks\_Template\PEADK\1809 x86"
-        "$OSDBuilderBuildPacks\_Template\PEADK\1903 x64"
-        "$OSDBuilderBuildPacks\_Template\PEADK\1903 x86"
-        "$OSDBuilderBuildPacks\_Template\PEADK\1909 x64"
-        "$OSDBuilderBuildPacks\_Template\PEADK\1909 x86"
-        "$OSDBuilderBuildPacks\_Template\PEDrivers\ALL"
-        "$OSDBuilderBuildPacks\_Template\PEDrivers\x64"
-        "$OSDBuilderBuildPacks\_Template\PEDrivers\x86"
-        "$OSDBuilderBuildPacks\_Template\PEExtraFiles\ALL"
-        "$OSDBuilderBuildPacks\_Template\PEExtraFiles\ALL Subdirs"
-        "$OSDBuilderBuildPacks\_Template\PEExtraFiles\x64"
-        "$OSDBuilderBuildPacks\_Template\PEExtraFiles\x64 Subdirs"
-        "$OSDBuilderBuildPacks\_Template\PEExtraFiles\x86"
-        "$OSDBuilderBuildPacks\_Template\PEExtraFiles\x86 Subdirs"
-        "$OSDBuilderBuildPacks\_Template\PEPoshMods\ALL"
-        "$OSDBuilderBuildPacks\_Template\PERegistry\ALL"
-        "$OSDBuilderBuildPacks\_Template\PERegistry\x64"
-        "$OSDBuilderBuildPacks\_Template\PERegistry\x86"
-        "$OSDBuilderBuildPacks\_Template\PEScripts\ALL"
-        "$OSDBuilderBuildPacks\_Template\PEScripts\x64"
-        "$OSDBuilderBuildPacks\_Template\PEScripts\x86"
     )
 
-    foreach ($item in $OSDBuilderHomeDirectories) {
+    foreach ($item in $ItemDirectories) {
+        if (!(Test-Path "$item")) {New-Item "$item" -ItemType Directory -Force | Out-Null}
+    }
+}
+function New-ItemDirectoryOSDBuilderRoot {
+    [CmdletBinding()]
+    Param ()
+    $ItemDirectories = @(
+        $OSDBuilderPath
+        $OSDBuilderOSBuilds
+        $OSDBuilderOSImport
+        $OSDBuilderOSMedia
+        $OSDBuilderPEBuilds
+        $OSDBuilderTasks
+        $OSDBuilderTemplates
+    )
+
+    foreach ($item in $ItemDirectories) {
         if (!(Test-Path "$item")) {New-Item "$item" -ItemType Directory -Force | Out-Null}
     }
 }
@@ -4124,9 +4147,48 @@ function Show-OSDBuilderHomeOnline {
     } else {
         $LatestModuleVersion = @()
         $LatestModuleVersion = Invoke-RestMethod -Uri $OSDBuilderURL
+
+        if ([System.Version]$($LatestModuleVersion.OSDSUS) -lt [System.Version]$OSDSUSVersion) {
+            Write-Host
+            Write-Host "OSDSUS Release Preview" -ForegroundColor Green
+            Write-Host "The current Public version is $($LatestModuleVersion.OSDSUS)" -ForegroundColor DarkGray
+        } elseif ([System.Version]$($LatestModuleVersion.OSDSUS) -eq [System.Version]$OSDSUSVersion) {
+            #Write-Host "OSDSUS is up to date" -ForegroundColor Green
+        } else {
+            Write-Host
+            Write-Warning "OSDSUS can be updated to $($LatestModuleVersion.OSDSUS)"
+            Write-Host "Update-OSDSUS" -ForegroundColor Cyan
+        }
         
-        if ([System.Version]$($LatestModuleVersion.Version) -eq [System.Version]$OSDBuilderVersion) {
-            #Write-Host "OSDBuilder Module $OSDBuilderVersion" -ForegroundColor Green
+        if ([System.Version]$($LatestModuleVersion.Version) -lt [System.Version]$GetModuleOSDBuilderVersion) {
+            Write-Host
+            Write-Host "OSDBuilder Release Preview" -ForegroundColor Green
+            Write-Host "The current Public version is $($LatestModuleVersion.Version)" -ForegroundColor DarkGray
+        } elseif ([System.Version]$($LatestModuleVersion.Version) -eq [System.Version]$GetModuleOSDBuilderVersion) {
+            #Write-Host "OSDBuilder is up to date" -ForegroundColor Green
+            #""
+        } else {
+            Write-Host
+            Write-Warning "OSDBuilder can be updated to $($LatestModuleVersion.Version)"
+            Write-Host "OSDBuilder -Update" -ForegroundColor Cyan
+        }
+        Write-Host ""
+        Write-Host "Latest Updates:" -ForegroundColor Gray
+        foreach ($line in $($LatestModuleVersion.LatestUpdates)) {Write-Host $line -ForegroundColor DarkGray}
+        Write-Host ""
+        Write-Host "Helpful Links:" -ForegroundColor Gray
+        foreach ($line in $($LatestModuleVersion.HelpfulLinks)) {Write-Host $line -ForegroundColor DarkGray}
+        Write-Host ""
+        Write-Host "New Links:" -ForegroundColor Gray
+        foreach ($line in $($LatestModuleVersion.NewLinks)) {Write-Host $line -ForegroundColor DarkGray}
+<# 
+
+        if ([System.Version]$($LatestModuleVersion.OSDSUS) -eq [System.Version]$OSDSUSVersion) {
+            Write-Host "OSDSUS Module $OSDSUSVersion is up to date" -ForegroundColor Green
+        }
+
+        if ([System.Version]$($LatestModuleVersion.Version) -eq [System.Version]$GetModuleOSDBuilderVersion) {
+            #Write-Host "OSDBuilder Module $GetModuleOSDBuilderVersion" -ForegroundColor Green
             foreach ($line in $($LatestModuleVersion.LatestUpdates)) {Write-Host $line -ForegroundColor DarkGray}
             Write-Host ""
             Write-Host "Helpful Links:" -ForegroundColor Cyan
@@ -4134,54 +4196,47 @@ function Show-OSDBuilderHomeOnline {
             Write-Host ""
             Write-Host "New Links:" -ForegroundColor Cyan
             foreach ($line in $($LatestModuleVersion.NewLinks)) {Write-Host $line -ForegroundColor Gray}
-        } elseif ([System.Version]$($LatestModuleVersion.Version) -lt [System.Version]$OSDBuilderVersion) {
-            #Write-Host "OSDBuilder Module $OSDBuilderVersion" -ForegroundColor Green
-            Write-Warning "OSDBuilder $OSDBuilderVersion is a Preview Version"
+        } elseif ([System.Version]$($LatestModuleVersion.Version) -lt [System.Version]$GetModuleOSDBuilderVersion) {
+            #Write-Host "OSDBuilder Module $GetModuleOSDBuilderVersion" -ForegroundColor Green
+            Write-Warning "OSDBuilder $GetModuleOSDBuilderVersion is a Preview Version"
             Write-Host "Release Version: $($LatestModuleVersion.Version)" -ForegroundColor DarkGray
-            foreach ($line in $($LatestModuleVersion.LatestUpdates)) {Write-Host $line -ForegroundColor DarkGray}
-            Write-Host ""
-            Write-Host "Helpful Links:" -ForegroundColor Cyan
-            foreach ($line in $($LatestModuleVersion.HelpfulLinks)) {Write-Host $line -ForegroundColor Gray}
-            Write-Host ""
-            Write-Host "New Links:" -ForegroundColor Cyan
-            foreach ($line in $($LatestModuleVersion.NewLinks)) {Write-Host $line -ForegroundColor Gray}
+
         } else {
             Write-Host "PowerShell Gallery: $($LatestModuleVersion.Version)" -ForegroundColor Gray
-            #Write-Host "Installed Version: $OSDBuilderVersion" -ForegroundColor DarkGray
+            #Write-Host "Installed Version: $GetModuleOSDBuilderVersion" -ForegroundColor DarkGray
             Write-Warning "Updated OSDBuilder Module on PowerShell Gallery"
             foreach ($line in $($LatestModuleVersion.PSGallery)) {Write-Host $line -ForegroundColor DarkGray}
             Write-Host "Update Module Command: OSDBuilder -Update" -ForegroundColor Cyan
         }
+
+ #>
+
     }  
 }
 function Show-OSDBuilderHomeTips {
     [CmdletBinding()]
     Param ()
     Write-Host ''
-    Write-Host 'Update-OSDSUS                           ' -ForegroundColor Cyan -NoNewline
-    Write-Host 'Get the latest Microsoft WSUS Updates in OSDBuilder'
-    Write-Host 'OSDBuilder -Update                      ' -ForegroundColor Cyan -NoNewline
-    Write-Host 'Update OSDBuilder and OSDSUS to the latest version'
-
-    Write-Host 'OSDBuilder -SetPath D:\OSDBuilder       '   -ForegroundColor Gray -NoNewline
+    Write-Host "Shortcuts:" -ForegroundColor Gray
+    Write-Host 'OSDBuilder -SetPath D:\OSDBuilder       '   -ForegroundColor DarkGray -NoNewline
     Write-Host 'Change OSDBuilder Home Path' -ForegroundColor DarkGray
-    Write-Host 'OSDBuilder -CreatePaths                 ' -ForegroundColor Gray -NoNewline
+    Write-Host 'OSDBuilder -CreatePaths                 ' -ForegroundColor DarkGray -NoNewline
     Write-Host 'Create OSDBuilder Directory Structure' -ForegroundColor DarkGray
 
-    Write-Host 'OSDBuilder -Download OSMediaUpdates     ' -ForegroundColor Gray -NoNewline
+    Write-Host 'OSDBuilder -Download OSMediaUpdates     ' -ForegroundColor DarkGray -NoNewline
     Write-Host 'Download missing Microsoft Updates for OSMedia' -ForegroundColor DarkGray
-    Write-Host 'OSDBuilder -Download FeatureUpdates     ' -ForegroundColor Gray -NoNewline
+    Write-Host 'OSDBuilder -Download FeatureUpdates     ' -ForegroundColor DarkGray -NoNewline
     Write-Host 'Download Windows 10 Feature Updates for Import' -ForegroundColor DarkGray
-    Write-Host 'OSDBuilder -Download OneDrive           ' -ForegroundColor Gray -NoNewline
+    Write-Host 'OSDBuilder -Download OneDrive           ' -ForegroundColor DarkGray -NoNewline
     Write-Host 'Download the latest OneDriveSetup.exe' -ForegroundColor DarkGray
-    Write-Host 'OSDBuilder -Download OneDriveEnterprise ' -ForegroundColor Gray -NoNewline
+    Write-Host 'OSDBuilder -Download OneDriveEnterprise ' -ForegroundColor DarkGray -NoNewline
     Write-Host 'Download the latest OneDriveSetup.exe (Enterprise)' -ForegroundColor DarkGray
     Write-Host 'Import-OSMedia -Update                  '   -ForegroundColor Green -NoNewline
-    Write-Host 'Import and Update an OS (Downloads Updates)' -ForegroundColor DarkGray
-    Write-Host 'Import-OSMedia -Update -Build           '   -ForegroundColor Green -NoNewline
-    Write-Host 'Import, Update, and Build (NetFX) an OS (Downloads Updates)' -ForegroundColor DarkGray
+    Write-Host 'Import and Update an OS (Downloads Updates)'
+    Write-Host 'Import-OSMedia -Update -BuildNetFX      '   -ForegroundColor Green -NoNewline
+    Write-Host 'Import, Update, and Build (NetFX) an OS (Downloads Updates)'
     Write-Host 'Update-OSMedia -Download -Execute       '   -ForegroundColor Green -NoNewline
-    Write-Host 'Update an OS (Downloads Updates)' -ForegroundColor DarkGray
+    Write-Host 'Update an OS (Downloads Updates)'
 }
 function Show-SkipUpdatesInfo {
     #Show-ActionTime
@@ -4195,14 +4250,17 @@ function Show-TaskInfo {
     #===================================================================================================
     Write-Host '========================================================================================' -ForegroundColor DarkGray
     Write-Host -ForegroundColor Green "OSBuild Task Information"
-    Write-Host "-TaskName:                      $TaskName"
-    Write-Host "-TaskVersion:                   $TaskVersion"
-    Write-Host "-TaskType:                      $TaskType"
-    Write-Host "-OSMedia Name:                  $OSMediaName"
-    Write-Host "-OSMedia Path:                  $OSMediaPath"
-    if ($CustomName) {Write-Host "-Custom Name:                   $CustomName"}
-    if ($EnableNetFX3 -eq $true) {Write-Host "-Enable NetFx3:                 $EnableNetFX3"}
-    if ($WinPEAutoExtraFiles -eq $true) {Write-Host "-WinPE Auto ExtraFiles:         $WinPEAutoExtraFiles"}
+    Write-Host "-TaskName:              $TaskName"
+    Write-Host "-TaskVersion:           $TaskVersion"
+    Write-Host "-TaskType:              $TaskType"
+    Write-Host "-OSMedia Name:          $OSMediaName"
+    Write-Host "-OSMedia Path:          $OSMediaPath"
+    if ($CustomName) {
+    Write-Host "-Custom Name:           $CustomName"}
+    if ($EnableNetFX3 -eq $true) {
+    Write-Host "-Enable NetFx3:         $EnableNetFX3"}
+    if ($WinPEAutoExtraFiles -eq $true) {
+    Write-Host "-WinPE Auto ExtraFiles: $WinPEAutoExtraFiles"}
 
     if ($DisableFeature) {
         Write-Host "-Disable Feature:"
@@ -4225,9 +4283,12 @@ function Show-TaskInfo {
         foreach ($item in $RemovePackage)       {Write-Host $item -ForegroundColor DarkGray}}
 
 
-    if ($StartLayoutXML)    {Write-Host "-Start Layout:                  $OSDBuilderContent\$StartLayoutXML"}
-    if ($UnattendXML)       {Write-Host "-Unattend:                      $OSDBuilderContent\$UnattendXML"}
-    if ($WinPEDaRT)         {Write-Host "-WinPE DaRT:                    $OSDBuilderContent\$WinPEDaRT"}
+    if ($StartLayoutXML)    {
+    Write-Host "-Start Layout:          $OSDBuilderContent\$StartLayoutXML"}
+    if ($UnattendXML)       {
+    Write-Host "-Unattend:              $OSDBuilderContent\$UnattendXML"}
+    if ($WinPEDaRT)         {
+    Write-Host "-WinPE DaRT:            $OSDBuilderContent\$WinPEDaRT"}
     
     if ($BuildPacks) {
         Write-Host "-BuildPacks:"
@@ -5840,7 +5901,7 @@ function Repair-OSBuildTask {
             $NewTask = [ordered]@{
                 "TaskType" = [string]"OSBuild";
                 "TaskName" = [string]$Task.TaskName;
-                "TaskVersion" = [string]$OSDBuilderVersion;
+                "TaskVersion" = [string]$GetModuleOSDBuilderVersion;
                 "TaskGuid" = [string]$(New-Guid);
                 "CustomName" = [string]$Task.BuildName;
     
@@ -5993,7 +6054,7 @@ function Repair-PEBuildTask {
             $NewTask = [ordered]@{
                 "TaskType" = 'PEBuild'
                 "TaskName" = [string]$Task.TaskName;
-                "TaskVersion" = [string]$OSDBuilderVersion;
+                "TaskVersion" = [string]$GetModuleOSDBuilderVersion;
                 "TaskGuid" = [string]$(New-Guid);
     
                 "OSMFamily" = [string]$OSMedia.OSMFamily;

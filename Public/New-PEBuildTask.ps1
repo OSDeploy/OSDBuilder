@@ -298,7 +298,7 @@ function New-PEBuildTask {
         #===================================================================================================
         $Task = [ordered]@{
             "TaskType" = [string]'PEBuild';
-            "TaskVersion" = [string]$OSDBuilderVersion;
+            "TaskVersion" = [string]$GetModuleOSDBuilderVersion;
             "TaskGuid" = [string]$(New-Guid);
 
             "TaskName" = [string]$TaskName;

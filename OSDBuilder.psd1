@@ -16,7 +16,7 @@ ModuleVersion = '19.10.24.0'
 GUID = 'adda1fa3-c13e-408b-b83f-f22b9cb3fd47'
 
 # Author of this module
-Author = 'David Segura'
+Author = 'David Segura @SeguraOSD'
 
 # Company or vendor of this module
 CompanyName = 'osdeploy.com'
@@ -26,24 +26,21 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-OSDBuilder https://osdbuilder.osdeploy.com/
-19.10.21: Updates for Johan
+https://osdbuilder.osdeploy.com
+
+19.10.24: MMSJazz Phase 3 Precache
+19.10.21: MMSJazz Phase 2 Precache
 19.10.18: Support for Windows 10 1909
-19.10.13: MMSJazz Phase 1
+19.10.13: MMSJazz Phase 1 Precache
 19.9.20: Support for Windows Server 2019 1903
 19.9.12: Added OSDSUS requirement
 
 Requirements:
-PowerShell Module OSD 19.10.17.1 or newer
+PowerShell Module OSD 19.10.26.1 or newer
 PowerShell Module OSDSUS 19.10.13 or newer
 
-Latest Microsoft Updates:
+Latest Microsoft Updates (WSUS):
 https://raw.githubusercontent.com/OSDeploy/OSDSUS/master/UPDATES.md
-
-WSUS Update Catalogs:
-These are contained within this PowerShell Module, so regular Module updating is needed to
-ensure you receive the latest Microsoft Updates.  Updates published in WSUS will be different
-from Microsoft Update Catalog website due to Preview Releases
 '@
 
 # Minimum version of the Windows PowerShell engine required by this module
@@ -66,7 +63,7 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName = 'OSD'; ModuleVersion = '19.10.17.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+    @{ModuleName = 'OSD'; ModuleVersion = '19.10.26.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
     @{ModuleName = 'OSDSUS'; ModuleVersion = '19.10.13.0'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
 )
 
@@ -93,6 +90,7 @@ FunctionsToExport = 'Get-OSDBuilder',
                     'New-OSDBuilderISO','New-OSDBuilderUSB','Show-OSDBuilderInfo',
                     'Get-DownOSDBuilder',
                     'New-OSBuildMultiLang',
+                    'New-OSDBuildPack',
                     'New-OSDBuilderVHD'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -122,16 +120,16 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('OSDeploy','OSDBuilder','OSDSUS','OSBuilder','Servicing','SCCM','MDT')
+        Tags = @('OSD','OSDeploy','OSDBuilder','OSDSUS','OSBuilder','Servicing','SCCM','MDT')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/OSDeploy/OSDBuilder/blob/master/LICENSE'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/OSDeploy/OSDBuilder'
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/OSD.png'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://osdbuilder.osdeploy.com/release'
@@ -147,5 +145,4 @@ PrivateData = @{
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
-
 }

@@ -11,14 +11,11 @@ https://osdbuilder.osdeploy.com/module/functions/get-downosdbuilder
 function Get-DownOSDBuilder {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]
     Param (
-        #===================================================================================================
-        #   FeatureUpdates
-        #===================================================================================================
+        #Downloads Feature Updates
         [Parameter(ParameterSetName='FeatureUpdates')]
         [switch]$FeatureUpdates,
-        #===================================================================================================
-        #   OSDUpdateSuperseded
-        #===================================================================================================
+        
+        #Remove Superseded Updates that are no longer needed
         [Parameter(ParameterSetName='OSDUpdateSuperseded', Mandatory=$True)]
         [ValidateSet ('List','Remove')]
         [string]$Superseded,

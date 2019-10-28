@@ -123,7 +123,7 @@ function Use-OSDUpdateBuilder {
         #===================================================================================================
         $OSDUpdateBuilder = New-Object PSObject
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name Catalog -Value $Catalog
-        Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDVersion -Value $OSDBuilderVersion
+        Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDVersion -Value $GetModuleOSDBuilderVersion
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDStatus -Value ''
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name UpdateOS -Value $UpdateOS
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name UpdateBuild -Value $UpdateBuild

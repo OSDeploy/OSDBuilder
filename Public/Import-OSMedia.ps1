@@ -128,17 +128,17 @@ function Import-OSMedia {
         #Import-OSMedia -Edition Enterprise -SkipGrid -QuickUpdate
         #Execute Command:
         #Update-OSMedia -Name $OSMediaName -Download -Execute -HideCleanupProgress
-        #Alias: Update,UpdateOSMedia,OSMediaUpdate
-        [Alias('Update','UpdateOSMedia','OSMediaUpdate')]
-        [switch]$QuickUpdate,
+        #Alias: UpdateOSMedia
+        [Alias('UpdateOSMedia')]
+        [switch]$Update,
         
         #Creates an OSBuild with NetFX enabled
         #Import-OSMedia -Edition Enterprise -SkipGrid -QuickBuild
         #Execute Command:
         #New-OSBuild -Name $OSMediaName -Download -Execute -HideCleanupProgress -SkipTask -QuickEnableNetFX
-        #Alias: Build,NetFXBuild
-        [Alias('Build','NetFXBuild')]
-        [switch]$QuickBuild,
+        #Alias: Build,BuildNetFX
+        [Alias('Build')]
+        [switch]$BuildNetFX,
 
         #Displays Media Information after Import
         #Show-OSDBuilderInfo -FullName $OSMediaPath
@@ -478,7 +478,7 @@ function Import-OSMedia {
             #===================================================================================================
             #   Update-OSMedia
             #===================================================================================================
-            if ($QuickUpdate.IsPresent) {
+            if ($Update.IsPresent) {
                 if ($OSMajorVersion -eq '10') {
                     Update-OSMedia -Name "$OSMediaName" -Download -Execute -HideCleanupProgress
                 } else  {
@@ -488,9 +488,9 @@ function Import-OSMedia {
             #===================================================================================================
             #   New-QuickOSBuild
             #===================================================================================================
-            if ($QuickBuild.IsPresent) {
+            if ($BuildNetFX.IsPresent) {
                 if ($OSMajorVersion -eq '10') {
-                    New-OSBuild -Name "$OSMediaName" -Download -Execute -HideCleanupProgress -SkipTask -QuickEnableNetFX
+                    New-OSBuild -Name "$OSMediaName" -Download -Execute -HideCleanupProgress -SkipTask -EnableNetFX
                 } else  {
                     Write-Verbose "Import-OSMedia: New-OSBuild requires a Operating System Major Version of 10"
                 }

@@ -924,7 +924,7 @@ function New-OSBuildTask {
         #===================================================================================================
         $Task = [ordered]@{
             "TaskType" = [string]"OSBuild";
-            "TaskVersion" = [string]$OSDBuilderVersion;
+            "TaskVersion" = [string]$GetModuleOSDBuilderVersion;
             "TaskGuid" = [string]$(New-Guid);
             
             "TaskName" = [string]$TaskName;

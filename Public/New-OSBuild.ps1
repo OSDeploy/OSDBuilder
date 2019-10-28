@@ -9,6 +9,7 @@ Creates a new OSBuild from an OSBuild Task created with New-OSBuildTask
 https://osdbuilder.osdeploy.com/module/functions/osbuild/new-osbuild
 
 .NOTES
+19.10.24 MMSJazz
 19.10.14 Added HideCleanupProgress
 19.10.13 Added SelectUpdates SkipUpdates
 #>
@@ -77,7 +78,7 @@ function New-OSBuild {
         [switch]$SkipTask,
 
         [Parameter(ParameterSetName='Taskless')]
-        [switch]$QuickEnableNetFX,
+        [switch]$EnableNetFX,
 
         #By default only the OSMedia that needs to be updated is displayed
         #This parameter includes the hidden OSMedia
@@ -284,7 +285,9 @@ function New-OSBuild {
                 } else {
                     $TaskOSMedia = Get-OSMedia | Where-Object {$_.OSMGuid -eq $TaskOSMGuid}
                 }
-                
+
+                $OSMediaName = $TaskOSMedia.Name
+                $OSMediaPath = $TaskOSMedia.FullName
                 if ($TaskOSMedia) {
                     $OSMediaName = $TaskOSMedia.Name
                     $OSMediaPath = $TaskOSMedia.FullName
@@ -309,6 +312,11 @@ function New-OSBuild {
                     Write-Warning "Unable to find a matching OSMFamily $TaskOSMFamily"
                     Return
                 }
+
+<#                 if ($null -eq $OSMediaPath) {
+                    Write-Warning "Unable to find a matching OSMedia"
+                    Return
+                } #>
             }
             
             #===================================================================================================
@@ -380,7 +388,7 @@ function New-OSBuild {
                 }
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                if ($QuickEnableNetFX.IsPresent) {$EnableNetFX3 = $true}
+                if ($EnableNetFX.IsPresent) {$EnableNetFX3 = $true}
                 if (!($SkipTemplates.IsPresent)) {Show-TaskInfo}
             }
             #===================================================================================================
@@ -394,7 +402,11 @@ function New-OSBuild {
 
             if (!(Test-Path "$OSMediaPath\WindowsImage.txt")) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Warning "$OSMediaPath is not a valid OSMedia Directory"
+                if ($null -eq $OSMediaPath) {
+                    Write-Warning "Unable to find an OSMedia to use"
+                } else {
+                    Write-Warning "$OSMediaPath is not a valid OSMedia Directory"
+                }
                 Return
             }
 
@@ -1063,6 +1075,7 @@ function New-OSBuild {
                     Add-OSDBuildPack -BuildPackType OSRegistry
                     Add-OSDBuildPack -BuildPackType OSScripts
                     Add-OSDBuildPack -BuildPackType OSStartLayout
+                    Add-OSDBuildPack -BuildPackType MEDIA
                 }
                 #===================================================================================================
                 #   Dismount
