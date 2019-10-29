@@ -7,7 +7,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '19.10.24.0'
+ModuleVersion = '19.10.28.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,13 +27,6 @@ Copyright = '(c) 2019 David Segura osdeploy.com. All rights reserved.'
 # Description of the functionality provided by this module
 Description = @'
 https://osdbuilder.osdeploy.com
-
-19.10.24: MMSJazz Phase 3 Precache
-19.10.21: MMSJazz Phase 2 Precache
-19.10.18: Support for Windows 10 1909
-19.10.13: MMSJazz Phase 1 Precache
-19.9.20: Support for Windows Server 2019 1903
-19.9.12: Added OSDSUS requirement
 
 Requirements:
 PowerShell Module OSD 19.10.26.1 or newer
@@ -90,7 +83,7 @@ FunctionsToExport = 'Get-OSDBuilder',
                     'New-OSDBuilderISO','New-OSDBuilderUSB','Show-OSDBuilderInfo',
                     'Get-DownOSDBuilder',
                     'New-OSBuildMultiLang',
-                    'New-OSDBuildPack',
+                    'New-OSDTemplatePack',
                     'New-OSDBuilderVHD'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

@@ -117,7 +117,7 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
             foreach ($Item in $FeatureUpdateDownloads) {
-                $DownloadPath = "$OSDBuilderPath\Media"
+                $DownloadPath = $global:GetOSDBuilder.PathMedia
                 $DownloadFullPath = "$DownloadPath\$($Item.FileName)"
 
                 if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
@@ -132,7 +132,7 @@ function Get-DownOSDBuilder {
                 }
 
                 $esdbasename = (Get-Item "$DownloadFullPath").Basename
-                $esddirectory = "$OSDBuilderPath\Media\$esdbasename"
+                $esddirectory = "$($global:GetOSDBuilder.PathMedia)\$esdbasename"
 
                 if (Test-Path "$esddirectory") {
                     Remove-Item "$esddirectory" -Force | Out-Null
@@ -221,8 +221,8 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($Superseded) {
                 $ExistingUpdates = @()
-                if (!(Test-Path "$OSDBuilderPath\Content\OSDUpdate")) {New-Item $OSDBuilderPath\Content\OSDUpdate -ItemType Directory -Force | Out-Null}
-                $ExistingUpdates = Get-ChildItem -Path "$OSDBuilderPath\Content\OSDUpdate\*\*" -Directory
+                if (!(Test-Path $global:GetOSDBuilder.PathOSDUpdate)) {New-Item $global:GetOSDBuilder.PathOSDUpdate -ItemType Directory -Force | Out-Null}
+                $ExistingUpdates = Get-ChildItem -Path "$($global:GetOSDBuilder.PathOSDUpdate)\*\*" -Directory
 
                 $SupersededUpdates = @()
                 foreach ($Update in $ExistingUpdates) {
@@ -280,7 +280,7 @@ function Get-DownOSDBuilder {
             if ($Download.IsPresent) {
 				if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
                 foreach ($Update in $OSDUpdates) {
-                    $DownloadPath = "$OSDBuilderPath\Content\OSDUpdate\$($Update.Catalog)\$($Update.Title)"
+                    $DownloadPath = "$($global:GetOSDBuilder.PathOSDUpdate)\$($Update.Catalog)\$($Update.Title)"
                     $DownloadFullPath = "$DownloadPath\$($Update.FileName)"
 
                     if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}

@@ -281,7 +281,7 @@ function Get-OSMedia {
             #   Corrections
             #===================================================================================================
             Repair-GetOSMediaWinSE
-            if (Get-IsContentTemplatesEnabled) {Repair-GetOSDMediaTemplateDirectories}
+            if (Get-IsTemplatesEnabled) {Repair-GetOSDMediaTemplateDirectories}
         }
         #===================================================================================================
         #   Revision

@@ -173,7 +173,7 @@ function Import-OSMedia {
         #===================================================================================================
         #   Import Media Directory
         #===================================================================================================
-        $ImportMedia = Get-ChildItem "$OSDBuilderPath\Media" -ErrorAction SilentlyContinue
+        $ImportMedia = Get-ChildItem $global:GetOSDBuilder.PathMedia -ErrorAction SilentlyContinue
         foreach ($ImportDrive in $ImportMedia) {
             if (Test-Path "$($ImportDrive.FullName)\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.FullName)\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
         }

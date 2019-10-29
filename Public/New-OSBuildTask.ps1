@@ -115,7 +115,7 @@ function New-OSBuildTask {
         #===================================================================================================
         #   Basic
         #===================================================================================================
-        [switch]$AddBuildPacks,
+        [switch]$AddTemplatePacks,
         [string]$CustomName,
         [switch]$EnableNetFX3,
         [switch]$WinPEAutoExtraFiles,
@@ -355,26 +355,26 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         #===================================================================================================
-        #   BuildPacks
+        #   TemplatePacks
         #===================================================================================================
-        Write-Host "BuildPacks" -ForegroundColor Cyan
-        if ($ExistingTask.BuildPacks) {
-            foreach ($Item in $ExistingTask.BuildPacks) {
+        Write-Host "TemplatePacks" -ForegroundColor Green
+        if ($ExistingTask.TemplatePacks) {
+            foreach ($Item in $ExistingTask.TemplatePacks) {
                 Write-Host "$Item" -ForegroundColor DarkGray
             }
         }
-        $BuildPacks = $null
-        if ($AddBuildPacks.IsPresent) {
-            if (Get-IsBuildPacksEnabled) {
-                [array]$BuildPacks = (Get-TaskBuildPacks).FullName
+        $TemplatePacks = $null
+        if ($AddTemplatePacks.IsPresent) {
+            if (Get-IsTemplatePacksEnabled) {
+                [array]$TemplatePacks = (Get-TaskTemplatePacks).Name
             
-                $BuildPacks = [array]$BuildPacks + [array]$ExistingTask.BuildPacks
-                $BuildPacks = $BuildPacks | Sort-Object -Unique
+                $TemplatePacks = [array]$TemplatePacks + [array]$ExistingTask.TemplatePacks
+                $TemplatePacks = $TemplatePacks | Sort-Object -Unique
             } else {
-                Write-Warning "BuildPacks will not be enabled until after #MMSJazz"
+                Write-Warning "TemplatePacks are not enabled for this OSBuild Task"
             }
         } else {
-            if ($ExistingTask.BuildPacks) {$BuildPacks = $ExistingTask.BuildPacks}
+            if ($ExistingTask.TemplatePacks) {$TemplatePacks = $ExistingTask.TemplatePacks}
         }
         #===================================================================================================
         #   RemoveAppx
@@ -949,7 +949,7 @@ function New-OSBuildTask {
             #===================================================================================================
             #   Switch
             #===================================================================================================
-            "BuildPacks" = [string[]]$BuildPacks;
+            "TemplatePacks" = [string[]]$TemplatePacks;
             "EnableNetFX3" = [string]$EnableNetFX3;
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
             #===================================================================================================

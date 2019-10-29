@@ -9,7 +9,7 @@ Creates a new OSBuild from an OSBuild Task created with New-OSBuildTask
 https://osdbuilder.osdeploy.com/module/functions/osbuild/new-osbuild
 
 .NOTES
-19.10.24 MMSJazz
+19.10.28 MMSJazz Ready
 19.10.14 Added HideCleanupProgress
 19.10.13 Added SelectUpdates SkipUpdates
 #>
@@ -40,8 +40,6 @@ function New-OSBuild {
         [Alias('PausePE')]
         [switch]$PauseDismountPE,
 
-        #[switch]$AddBuildPacks,
-
         #Allows you to select Updates to apply in GridView
         #Useful for Testing
         [switch]$SelectUpdates,
@@ -69,6 +67,9 @@ function New-OSBuild {
         #Create a new OSBuild without applying Templates
         [switch]$SkipTemplates,
 
+        #Create a new OSBuild without applying TemplatePacks
+        [switch]$SkipTemplatePacks,
+
         #Specify the Name of the OSMedia to use with New-OSBuild
         [Parameter(ParameterSetName='Taskless', ValueFromPipelineByPropertyName=$True)]
         [string[]]$Name,
@@ -77,6 +78,11 @@ function New-OSBuild {
         [Parameter(ParameterSetName='Taskless', Mandatory=$True)]
         [switch]$SkipTask,
 
+        #Add a TemplatePack without creating a Task
+        [Parameter(ParameterSetName='Taskless')]
+        [switch]$SelectTemplatePacks,
+
+        #Enables NetFX without creating a Task
         [Parameter(ParameterSetName='Taskless')]
         [switch]$EnableNetFX,
 
@@ -218,9 +224,13 @@ function New-OSBuild {
                 $UnattendXML = $Task.UnattendXML
                 $WinPEAutoExtraFiles = $Task.WinPEAutoExtraFiles
                 $WinPEDaRT = $Task.WinPEDart
-                if (Get-IsBuildPacksEnabled) {
-                    $BuildPacks = @('_Mandatory')
-                    $BuildPacks = ($BuildPacks += $Task.BuildPacks)
+                if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
+                    if ($null -eq $Task.TemplatePacks) {
+                        $TemplatePacks = @('_Global')
+                    } else {
+                        $TemplatePacks = @('_Global')
+                        $TemplatePacks = ($TemplatePacks += $Task.TemplatePacks)
+                    }
                 }
                 $ExtraFiles = $Task.ExtraFiles
                 $Scripts = $Task.Scripts
@@ -273,7 +283,6 @@ function New-OSBuild {
                     Return
                 }
             }
-
             #===================================================================================================
             #   OSBuild
             Write-Verbose '19.3.21 Select Latest OSMedia'
@@ -304,10 +313,10 @@ function New-OSBuild {
                     $OSMediaPath = $LatestOSMedia.FullName
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Host "Latest Source OSMedia" -ForegroundColor Green
-                    Write-Host "-OSMedia Name:                  $OSMediaName"
-                    Write-Host "-OSMedia Path:                  $OSMediaPath"
-                    Write-Host "-OSMedia Family:                $($LatestOSMedia.OSMFamily)"
-                    Write-Host "-OSMedia Guid:                  $($LatestOSMedia.OSMGuid)"
+                    Write-Host "-OSMedia Name:              $OSMediaName"
+                    Write-Host "-OSMedia Path:              $OSMediaPath"
+                    Write-Host "-OSMedia Family:            $($LatestOSMedia.OSMFamily)"
+                    Write-Host "-OSMedia Guid:              $($LatestOSMedia.OSMGuid)"
                 } else {
                     Write-Warning "Unable to find a matching OSMFamily $TaskOSMFamily"
                     Return
@@ -342,6 +351,7 @@ function New-OSBuild {
                         Write-Host "Skipping: $($Task.TaskName)" -ForegroundColor DarkGray
                         Continue
                     }
+                    $TemplatePacks += @($Task.TemplatePacks | Where-Object {$_})
 
                     if (!($Task.EnableNetFX3 -eq $False)) {$EnableNetFX3 = $Task.EnableNetFX3}
                     if ($Task.StartLayoutXML) {$StartLayoutXML = $Task.StartLayoutXML}
@@ -389,7 +399,10 @@ function New-OSBuild {
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($EnableNetFX.IsPresent) {$EnableNetFX3 = $true}
-                if (!($SkipTemplates.IsPresent)) {Show-TaskInfo}
+                if ((Get-IsTemplatePacksEnabled) -and ($SelectTemplatePacks.IsPresent)) {
+                    $TemplatePacks = (Get-TaskTemplatePacks -Select).Name
+                }
+                Show-TaskInfo
             }
             #===================================================================================================
             Write-Verbose '19.1.1 Set Proper Paths'
@@ -545,7 +558,7 @@ function New-OSBuild {
             #===================================================================================================
             #   Template Content
             #===================================================================================================
-            if (Get-IsContentTemplatesEnabled) {
+            if (Get-IsTemplatesEnabled) {
                 #===================================================================================================
                 #   OSBuild
                 #   Driver Templates
@@ -626,6 +639,7 @@ function New-OSBuild {
             $OSDUpdates = $OSDUpdates | Where-Object {($_.UpdateBuild -eq $ReleaseId) -or ($_.UpdateBuild -eq '')}
             if ($OSInstallationType -match 'Core'){$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'AdobeSU'}}
             if ($SelectUpdates.IsPresent) {$OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Apply and press OK'}
+            $MissingUpdate = $false
             #===================================================================================================
             #   OSDBuilder 10 Setup Updates
             #===================================================================================================
@@ -641,6 +655,7 @@ function New-OSBuild {
                     } else {
                         Write-Host "Missing     SetupDU         $($Update.Title)" -ForegroundColor Yellow
                         $Execute = $false
+                        $MissingUpdate = $true
                     }
                 }
             }
@@ -659,6 +674,7 @@ function New-OSBuild {
                     } else {
                         Write-Host "Missing     ComponentDU     $($Update.Title)" -ForegroundColor Yellow
                         $Execute = $false
+                        $MissingUpdate = $true
                     }
                 }
             }
@@ -678,6 +694,7 @@ function New-OSBuild {
                         } else {
                             Write-Host "Missing     Servicing       $($Update.Title)" -ForegroundColor Yellow
                             $Execute = $false
+                            $MissingUpdate = $true
                         }
                     }
                 }
@@ -698,6 +715,7 @@ function New-OSBuild {
                         } else {
                             Write-Host "Missing     Cumulative      $($Update.Title)" -ForegroundColor Yellow
                             $Execute = $false
+                            $MissingUpdate = $true
                         }
                     }
                 }
@@ -718,6 +736,7 @@ function New-OSBuild {
                         } else {
                             Write-Host "Missing     AdobeSU         $($Update.Title)" -ForegroundColor Yellow
                             $Execute = $false
+                            $MissingUpdate = $true
                         }
                     }
                 }
@@ -738,6 +757,7 @@ function New-OSBuild {
                         } else {
                             Write-Host "Missing     DotNet          $($Update.Title)" -ForegroundColor Yellow
                             $Execute = $false
+                            $MissingUpdate = $true
                         }
                     }
                 }
@@ -757,7 +777,10 @@ function New-OSBuild {
                             Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
                         } else {
                             Write-Host "Missing     Seven       $($Update.Title)" -ForegroundColor Yellow
-                            if ($_.UpdateGroup -ne 'Optional') {$Execute = $false}
+                            if ($_.UpdateGroup -ne 'Optional') {
+                                $Execute = $false
+                                $MissingUpdate = $true
+                            }
                         }
                     }
                 }
@@ -836,7 +859,11 @@ function New-OSBuild {
             #===================================================================================================
             #   Execution Check
             #===================================================================================================
-            if ($Execute -eq $False) {Write-Warning "Execution is currently disabled"}
+            if ($MissingUpdate -eq $true) {
+                Write-Warning "Execution is currently disabled because one or more updates are missing"
+            } elseif ($Execute -eq $false) {
+                Write-Warning "Execution is disabled without the -Execute parameter"
+            }
             #===================================================================================================
             if ($Execute.IsPresent) {
                 #===================================================================================================
@@ -894,16 +921,16 @@ function New-OSBuild {
                 Add-ContentADKWinSE
                 Add-ContentScriptsPE
                 #===================================================================================================
-                #   WinPE BuildPacks
+                #   WinPE TemplatePacks
                 #===================================================================================================
-                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsBuildPacksEnabled)) {
-                    Add-OSDBuildPack -BuildPackType PEDaRT
-                    Add-OSDBuildPack -BuildPackType PEADK
-                    Add-OSDBuildPack -BuildPackType PEDrivers
-                    Add-OSDBuildPack -BuildPackType PEExtraFiles
-                    Add-OSDBuildPack -BuildPackType PEPoshMods
-                    Add-OSDBuildPack -BuildPackType PERegistry
-                    Add-OSDBuildPack -BuildPackType PEScripts
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
+                    Add-OSDTemplatePack -PackType PEDaRT
+                    Add-OSDTemplatePack -PackType PEADK
+                    Add-OSDTemplatePack -PackType PEDrivers
+                    Add-OSDTemplatePack -PackType PEExtraFiles
+                    Add-OSDTemplatePack -PackType PEPoshMods
+                    Add-OSDTemplatePack -PackType PERegistry
+                    Add-OSDTemplatePack -PackType PEScripts
                 }
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
@@ -1066,16 +1093,16 @@ function New-OSBuild {
                 Save-SessionsXmlOS -OSMediaPath "$WorkingPath"
                 Save-InventoryOS -OSMediaPath "$WorkingPath"
                 #===================================================================================================
-                #   BuildPacks
+                #   TemplatePacks
                 #===================================================================================================
-                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsBuildPacksEnabled)) {
-                    Add-OSDBuildPack -BuildPackType OSDrivers
-                    Add-OSDBuildPack -BuildPackType OSExtraFiles
-                    Add-OSDBuildPack -BuildPackType OSPoshMods
-                    Add-OSDBuildPack -BuildPackType OSRegistry
-                    Add-OSDBuildPack -BuildPackType OSScripts
-                    Add-OSDBuildPack -BuildPackType OSStartLayout
-                    Add-OSDBuildPack -BuildPackType MEDIA
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
+                    Add-OSDTemplatePack -PackType OSDrivers
+                    Add-OSDTemplatePack -PackType OSExtraFiles
+                    Add-OSDTemplatePack -PackType OSPoshMods
+                    Add-OSDTemplatePack -PackType OSRegistry
+                    Add-OSDTemplatePack -PackType OSScripts
+                    Add-OSDTemplatePack -PackType OSStartLayout
+                    Add-OSDTemplatePack -PackType MEDIA
                 }
                 #===================================================================================================
                 #   Dismount

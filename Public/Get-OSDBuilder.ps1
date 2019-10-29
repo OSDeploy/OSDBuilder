@@ -40,129 +40,151 @@ function Get-OSDBuilder {
         [Alias('Update')]
         [switch]$UpdateModule
     )
-
-    $global:OSDBuilder = @{}
     #===================================================================================================
-    #   Get-OSDBuilderPath
+    #   OSDBuilder Hashtable
+    #===================================================================================================
+    if ($null -eq $global:GetOSDBuilder) {$global:GetOSDBuilder = [ordered]@{}}
+    #===================================================================================================
+    #   OSDBuilder.Home
     #===================================================================================================
     if (!(Test-Path HKCU:\Software\OSDeploy\OSBuilder)) {New-Item HKCU:\Software\OSDeploy -Name OSBuilder -Force | Out-Null}
     if (!(Get-ItemProperty -Path 'HKCU:\Software\OSDeploy' -Name OSBuilderPath -ErrorAction SilentlyContinue)) {New-ItemProperty -Path "HKCU:\Software\OSDeploy" -Name OSBuilderPath -Force | Out-Null}
     if ($SetPath) {Set-ItemProperty -Path "HKCU:\Software\OSDeploy" -Name "OSBuilderPath" -Value "$SetPath" -Force}
-    $global:OSDBuilderPath = $(Get-ItemProperty "HKCU:\Software\OSDeploy").OSBuilderPath
-    if (!($OSDBuilderPath)) {$global:OSDBuilderPath = "$Env:SystemDrive\OSDBuilder"}
+    $global:GetOSDBuilder.Home = $(Get-ItemProperty "HKCU:\Software\OSDeploy").OSBuilderPath
+    if (!($global:GetOSDBuilder.Home)) {$global:GetOSDBuilder.Home = "$Env:SystemDrive\OSDBuilder"}
     #===================================================================================================
-    #   OSDBuilder Primary Directories
+    #   OSDBuilder.Path*
     #===================================================================================================
-    $global:OSDBuilderBuildPacks =   "$OSDBuilderPath\BuildPacks"
-    $global:OSDBuilderContent =      "$OSDBuilderPath\Content"
-    $global:OSDBuilderOSBuilds =     "$OSDBuilderPath\OSBuilds"
-    $global:OSDBuilderOSImport =     "$OSDBuilderPath\OSImport"
-    $global:OSDBuilderOSMedia =      "$OSDBuilderPath\OSMedia"
-    $global:OSDBuilderPEBuilds =     "$OSDBuilderPath\PEBuilds"
-    $global:OSDBuilderTasks =        "$OSDBuilderPath\Tasks"
-    $global:OSDBuilderTemplates =    "$OSDBuilderPath\Templates"
-    if (Get-IsBuildPacksEnabled) {
-        #$global:OSDBuilderTemplates =    "$OSDBuilderPath\BuildPacks\_Mandatory"
-    } else {
-        #$global:OSDBuilderTemplates =    "$OSDBuilderPath\Templates"
+    $global:GetOSDBuilder.PathOSImport         = "$($global:GetOSDBuilder.Home)\OSImport"
+    $global:GetOSDBuilder.PathOSMedia          = "$($global:GetOSDBuilder.Home)\OSMedia"
+    $global:GetOSDBuilder.PathOSBuilds         = "$($global:GetOSDBuilder.Home)\OSBuilds"
+    $global:GetOSDBuilder.PathPEBuilds         = "$($global:GetOSDBuilder.Home)\PEBuilds"
+    $global:GetOSDBuilder.PathMedia            = "$($global:GetOSDBuilder.Home)\Media"
+    $global:GetOSDBuilder.PathTasks            = "$($global:GetOSDBuilder.Home)\Tasks"
+    $global:GetOSDBuilder.PathTemplates        = "$($global:GetOSDBuilder.Home)\Templates"
+    $global:GetOSDBuilder.PathContent          = "$($global:GetOSDBuilder.Home)\Content"
+    $global:GetOSDBuilder.PathOSDUpdate        = "$($global:GetOSDBuilder.Home)\Content\OSDUpdate"
+    #===================================================================================================
+    #   OSDBuilder.json
+    #===================================================================================================
+    if (Test-Path $env:ProgramData\OSDeploy\OSDBuilder.json) {
+        Try {
+            $OSDBuilderJson = Get-OSDFromJson -Path $env:ProgramData\OSDeploy\OSDBuilder.json
+            if ($OSDBuilderJson.PathOSImport) {$global:GetOSDBuilder.PathOSImport = $OSDBuilderJson.PathOSImport}
+            if ($OSDBuilderJson.PathOSMedia) {$global:GetOSDBuilder.PathOSMedia = $OSDBuilderJson.PathOSMedia}
+            if ($OSDBuilderJson.PathContent) {$global:GetOSDBuilder.PathContent = $OSDBuilderJson.PathContent}
+            if ($OSDBuilderJson.PathOSDUpdate) {$global:GetOSDBuilder.PathOSDUpdate = $OSDBuilderJson.PathOSDUpdate}
+        }
+        Catch {
+            Write-Warning "Unable to import $env:ProgramData\OSDeploy\OSDBuilder.json"
+        }
     }
     #===================================================================================================
-    #   Get Module Information
+    #   OSDBuilder.PSModule*
     #===================================================================================================
-    $global:GetModuleOSD = Get-Module -Name OSD | Select-Object *
-    $global:GetModuleOSDSUS = Get-Module -Name OSDSUS | Select-Object *
-    $global:GetModuleOSDBuilder = Get-Module -Name OSDBuilder | Select-Object *
-
-    $global:GetModuleOSDVersion = ($global:GetModuleOSD | Sort-Object Version | Select-Object Version -Last 1).Version
-    $global:GetModuleOSDSUSVersion = ($global:GetModuleOSDSUS | Sort-Object Version | Select-Object Version -Last 1).Version
-    $global:GetModuleOSDBuilderVersion = ($global:GetModuleOSDBuilder | Sort-Object Version | Select-Object Version -Last 1).Version
+    $global:GetOSDBuilder.PSModuleOSD          = Get-Module -Name OSD | Select-Object *
+    $global:GetOSDBuilder.PSModuleOSDSUS       = Get-Module -Name OSDSUS | Select-Object *
+    $global:GetOSDBuilder.PSModuleOSDBuilder   = Get-Module -Name OSDBuilder | Select-Object *
     #===================================================================================================
-    #   GitHub Update URL
+    #   OSDBuilder.Version*
     #===================================================================================================
-    $global:OSDBuilderPublicURL = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
+    $global:GetOSDBuilder.VersionOSD           = $global:GetOSDBuilder.PSModuleOSD.Version | Sort-Object | Select-Object -Last 1
+    $global:GetOSDBuilder.VersionOSDSUS        = $global:GetOSDBuilder.PSModuleOSDSUS.Version | Sort-Object | Select-Object -Last 1
+    $global:GetOSDBuilder.VersionOSDBuilder    = $global:GetOSDBuilder.PSModuleOSDBuilder.Version | Sort-Object | Select-Object -Last 1
     #===================================================================================================
-    #   Get Online Module Information
+    #   OSDBuilder.Public*
     #===================================================================================================
-    $global:OSDBuilderPublic = $null
-
-    $global:OSDBuilderPublicOSD = $GetModuleOSDVersion
-    $global:OSDBuilderPublicOSDSUS = $GetModuleOSDSUSVersion
-    $global:OSDBuilderPublicOSDBuilder = $GetModuleOSDBuilderVersion
+    $global:GetOSDBuilder.PublicJson               = $null
+    $global:GetOSDBuilder.PublicJsonURL            = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
+    $global:GetOSDBuilder.VersionOSDPublic         = $global:GetOSDBuilder.VersionOSD
+    $global:GetOSDBuilder.VersionOSDSUSPublic      = $global:GetOSDBuilder.VersionOSDSUS
+    $global:GetOSDBuilder.VersionOSDBuilderPublic  = $global:GetOSDBuilder.VersionOSDBuilder
 
     if (!($HideDetails.IsPresent)) {
-        $StatusCode = try {(Invoke-WebRequest -Uri $OSDBuilderPublicURL -UseBasicParsing -DisableKeepAlive).StatusCode}
+        $StatusCode = try {(Invoke-WebRequest -Uri $global:GetOSDBuilder.PublicJsonURL -UseBasicParsing -DisableKeepAlive).StatusCode}
         catch [Net.WebException]{[int]$_.Exception.Response.StatusCode}
         if ($StatusCode -ne "200") {
             #Check Failed
         } else {
-            $global:OSDBuilderPublic = Invoke-RestMethod -Uri $OSDBuilderPublicURL
-            $global:OSDBuilderPublicOSD = $OSDBuilderPublic.OSD
-            $global:OSDBuilderPublicOSDSUS = $OSDBuilderPublic.OSDSUS
-            $global:OSDBuilderPublicOSDBuilder = $OSDBuilderPublic.OSDBuilder
+            $global:GetOSDBuilder.PublicJson               = Invoke-RestMethod -Uri $global:GetOSDBuilder.PublicJsonURL
+            $global:GetOSDBuilder.VersionOSDPublic         = $global:GetOSDBuilder.PublicJson.OSD
+            $global:GetOSDBuilder.VersionOSDSUSPublic      = $global:GetOSDBuilder.PublicJson.OSDSUS
+            $global:GetOSDBuilder.VersionOSDBuilderPublic  = $global:GetOSDBuilder.PublicJson.OSDBuilder
         }
     }
     #===================================================================================================
     #   Display Version Information
     #===================================================================================================
-    if ($HideDetails.IsPresent) {
-        #Write-Verbose "OSDBuilder $GetModuleOSDBuilderVersion | OSDSUS $GetModuleOSDSUSVersion" -Verbose
-        #Write-Verbose "OSDBuilder $GetModuleOSDBuilderVersion | OSDSUS $GetModuleOSDSUSVersion | OSD $GetModuleOSDVersion" -Verbose
-    } else {
-        if ($null -eq $global:OSDBuilderPublic) {
-            Write-Verbose "OSDBuilder $GetModuleOSDBuilderVersion | OSDSUS $GetModuleOSDSUSVersion | OFFLINE" -Verbose
-            #Write-Verbose "OSDBuilder $GetModuleOSDBuilderVersion | OSDSUS $GetModuleOSDSUSVersion | OSD $GetModuleOSDVersion | OFFLINE" -Verbose
+    if (!($HideDetails.IsPresent)) {
+        if ($null -eq $global:GetOSDBuilder.PublicJson) {
+            Write-Verbose "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) | OSDSUS $($global:GetOSDBuilder.VersionOSDSUS) | OFFLINE" -Verbose
         } else {
-            if ($GetModuleOSDBuilderVersion -ge $OSDBuilderPublicOSDBuilder) {
-                Write-Host "OSDBuilder $GetModuleOSDBuilderVersion " -ForegroundColor Green -NoNewline
+            if ($global:GetOSDBuilder.VersionOSDBuilder -ge $global:GetOSDBuilder.VersionOSDBuilderPublic) {
+                Write-Host "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) " -ForegroundColor Green -NoNewline
             } else {
-                Write-Host "OSDBuilder $GetModuleOSDBuilderVersion " -ForegroundColor Yellow -NoNewline
+                Write-Host "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) " -ForegroundColor Yellow -NoNewline
             }
             Write-Host "| " -ForegroundColor White -NoNewline
         
-            if ($GetModuleOSDSUSVersion -ge $OSDBuilderPublicOSDSUS) {
-                Write-Host "OSDSUS $GetModuleOSDSUSVersion " -ForegroundColor Green -NoNewline
-                #Write-Host "OSDSUS $GetModuleOSDSUSVersion " -ForegroundColor Yellow -NoNewline
+            if ($global:GetOSDBuilder.VersionOSDSUS -ge $global:GetOSDBuilder.VersionOSDSUSPublic) {
+                Write-Host "OSDSUS $($global:GetOSDBuilder.VersionOSDSUS) " -ForegroundColor Green -NoNewline
             } else {
-                Write-Host "OSDSUS $GetModuleOSDSUSVersion " -ForegroundColor Yellow -NoNewline
-                #Write-Host "OSDSUS $GetModuleOSDSUSVersion " -ForegroundColor Green -NoNewline
+                Write-Host "OSDSUS $($global:GetOSDBuilder.VersionOSDSUS) " -ForegroundColor Yellow -NoNewline
             }
-            if (Get-IsBuildPacksEnabled) {
+            if (Get-IsTemplatePacksEnabled) {
                 Write-Host "| " -ForegroundColor White -NoNewline
                 Write-Host "#MMSJazz Ready" -ForegroundColor Magenta
             } else {
                 Write-Host
             }
-            #Write-Host "| " -ForegroundColor White -NoNewline
-            #if ($GetModuleOSDVersion -ne $OSDBuilderPublicOSD) {
-            #    Write-Host "OSD $GetModuleOSDVersion " -ForegroundColor Yellow
-            #} else {
-            #    Write-Host "OSD $GetModuleOSDVersion " -ForegroundColor Green
-            #}
         }
     }
     #===================================================================================================
     #   Display OSDBulder Home Path
     #===================================================================================================
-    if (!($HideDetails.IsPresent)) {
-        Write-Host "Home" -NoNewline
-        Write-Host " $OSDBuilderPath"
-    }
+    if (!($HideDetails.IsPresent)) {Write-Host "Home $($global:GetOSDBuilder.Home)"}
     #===================================================================================================
     #   Verify Single Version of OSDBuilder
     #===================================================================================================
-    if (($global:GetModuleOSDBuilder).Count -gt 1) {
+    if (($global:GetOSDBuilder.PSModuleOSDBuilder).Count -gt 1) {
         Write-Warning "Multiple OSDBuilder Modules are loaded"
         Write-Warning "Close all open PowerShell sessions before using OSDBuilder"
         Break
     }
+    #===================================================================================================
+    #   Backward Compatibility
+    #===================================================================================================
+    $global:OSDBuilderPath                  = $global:GetOSDBuilder.Home
+
+    $global:OSDBuilderOSImport              = $global:GetOSDBuilder.PathOSImport
+    $global:OSDBuilderOSMedia               = $global:GetOSDBuilder.PathOSMedia
+    $global:OSDBuilderOSBuilds              = $global:GetOSDBuilder.PathOSBuilds
+    $global:OSDBuilderPEBuilds              = $global:GetOSDBuilder.PathPEBuilds
+    $global:OSDBuilderTasks                 = $global:GetOSDBuilder.PathTasks
+    $global:OSDBuilderTemplates             = $global:GetOSDBuilder.PathTemplates
+    $global:OSDBuilderContent               = $global:GetOSDBuilder.PathContent
+
+    $global:GetModuleOSD                    = $global:GetOSDBuilder.PSModuleOSD
+    $global:GetModuleOSDSUS                 = $global:GetOSDBuilder.PSModuleOSDSUS
+    $global:GetModuleOSDBuilder             = $global:GetOSDBuilder.PSModuleOSDBuilder
+
+    $global:GetModuleOSDVersion             = $global:GetOSDBuilder.VersionOSD
+    $global:GetModuleOSDSUSVersion          = $global:GetOSDBuilder.VersionOSDSUS
+    $global:GetModuleOSDBuilderVersion      = $global:GetOSDBuilder.VersionOSDBuilder
+
+    $global:OSDBuilderPublic                = $global:GetOSDBuilder.PublicJson
+    $global:OSDBuilderPublicURL             = $global:GetOSDBuilder.PublicJsonURL
+
+    $global:OSDBuilderPublicOSD             = $global:GetOSDBuilder.VersionOSDPublic
+    $global:OSDBuilderPublicOSDSUS          = $global:GetOSDBuilder.VersionOSDSUSPublic
+    $global:OSDBuilderPublicOSDBuilder      = $global:GetOSDBuilder.VersionOSDBuilderPublic
     #===================================================================================================
     #   CreatePaths
     #===================================================================================================
     if ($CreatePaths.IsPresent) {
         New-ItemDirectoryOSDBuilderRoot
         New-ItemDirectoryOSDBuilderContent
-        New-OSDBuildPack -Name '_Mandatory'
-        New-OSDBuildPack -Name '_Template'
+        New-OSDTemplatePack -TemplateName '_Global'
     }
     #===================================================================================================
     #   Remove Directories
@@ -214,45 +236,42 @@ function Get-OSDBuilder {
         #   Display Home Content
         #===================================================================================================
         if (!($HideDetails.IsPresent)) {
-            if ($GetModuleOSDBuilderVersion -gt $OSDBuilderPublicOSDBuilder) {
+            if ($global:GetOSDBuilder.VersionOSDBuilder -gt $global:GetOSDBuilder.VersionOSDBuilderPublic) {
                 Write-Host
                 Write-Host "OSDBuilder Release Preview" -ForegroundColor Green
-                Write-Host "The current Public version is $OSDBuilderPublicOSDBuilder" -ForegroundColor DarkGray
-            } elseif ($GetModuleOSDBuilderVersion -eq $OSDBuilderPublicOSDBuilder) {
+                Write-Host "The current Public version is $($global:GetOSDBuilder.VersionOSDBuilderPublic)" -ForegroundColor DarkGray
+            } elseif ($global:GetOSDBuilder.VersionOSDBuilder -eq $global:GetOSDBuilder.VersionOSDBuilderPublic) {
                 #Write-Host "OSDBuilder is up to date" -ForegroundColor Green
                 #""
             } else {
                 Write-Host
-                Write-Warning "OSDBuilder can be updated to $OSDBuilderPublicOSDBuilder"
+                Write-Warning "OSDBuilder can be updated to $($global:GetOSDBuilder.VersionOSDBuilderPublic)"
                 Write-Host "OSDBuilder -Update" -ForegroundColor Cyan
             }
 
-            if ($GetModuleOSDSUSVersion -gt $OSDBuilderPublicOSDSUS) {
+            if ($global:GetOSDBuilder.VersionOSDSUS -gt $global:GetOSDBuilder.VersionOSDSUSPublic) {
                 Write-Host
                 Write-Host "OSDSUS Release Preview" -ForegroundColor Green
-                Write-Host "The current Public version is $OSDBuilderPublicOSDSUS" -ForegroundColor DarkGray
-            } elseif ($GetModuleOSDSUSVersion -eq $OSDBuilderPublicOSDSUS) {
+                Write-Host "The current Public version is $($global:GetOSDBuilder.VersionOSDSUSPublic)" -ForegroundColor DarkGray
+            } elseif ($global:GetOSDBuilder.VersionOSDSUS -eq $global:GetOSDBuilder.VersionOSDSUSPublic) {
                 #Write-Host "OSDSUS is up to date" -ForegroundColor Green
             } else {
                 Write-Host
-                Write-Warning "OSDSUS can be updated to $OSDBuilderPublicOSDSUS"
+                Write-Warning "OSDSUS can be updated to $($global:GetOSDBuilder.VersionOSDSUSPublic)"
                 Write-Host "Update-OSDSUS" -ForegroundColor Cyan
             }
 
             Write-Host ""
             Write-Host "Latest Updates:" -ForegroundColor Gray
-            foreach ($line in $($OSDBuilderPublic.LatestUpdates)) {Write-Host $line -ForegroundColor DarkGray}
+            foreach ($line in $global:GetOSDBuilder.PublicJson.LatestUpdates) {Write-Host $line -ForegroundColor DarkGray}
             Write-Host ""
             Write-Host "Helpful Links:" -ForegroundColor Gray
-            foreach ($line in $($OSDBuilderPublic.HelpfulLinks)) {Write-Host $line -ForegroundColor DarkGray}
+            foreach ($line in $global:GetOSDBuilder.PublicJson.HelpfulLinks) {Write-Host $line -ForegroundColor DarkGray}
             Write-Host ""
             Write-Host "New Links:" -ForegroundColor Gray
-            foreach ($line in $($OSDBuilderPublic.NewLinks)) {Write-Host $line -ForegroundColor DarkGray}
+            foreach ($line in $global:GetOSDBuilder.PublicJson.NewLinks) {Write-Host $line -ForegroundColor DarkGray}
 
         }
-
-
-        #Show-OSDBuilderHomeOnline
         #Show-OSDBuilderHomeMap
         Show-OSDBuilderHomeTips
     }
