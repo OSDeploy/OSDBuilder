@@ -93,7 +93,7 @@ function Get-DownOSDBuilder {
         #===================================================================================================
         if ($FeatureUpdates.IsPresent) {
             Write-Warning "FeatureUpdates are downloaded using BITS Transfer"
-            Write-Warning "Windows Server 2016 (1607) does not support ESD Files"
+            Write-Warning "Windows Server 2016 (1607) does not support decompressing ESD Files"
             #===================================================================================================
             #   Get FeatureUpdateDownloads
             #===================================================================================================
@@ -117,10 +117,10 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
             foreach ($Item in $FeatureUpdateDownloads) {
-                $DownloadPath = $global:GetOSDBuilder.PathMedia
-                $DownloadFullPath = "$DownloadPath\$($Item.FileName)"
+                #$DownloadPath = $GetOSDBuilderPathFeatureUpdates
+                $DownloadFullPath = "$GetOSDBuilderPathFeatureUpdates\$($Item.FileName)"
 
-                if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
+                if (!(Test-Path $GetOSDBuilderPathFeatureUpdates)) {New-Item -Path "$GetOSDBuilderPathFeatureUpdates" -ItemType Directory -Force | Out-Null}
                 Write-Host "$DownloadFullPath" -ForegroundColor Cyan
                 Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
                 if (!(Test-Path $DownloadFullPath)) {
@@ -132,7 +132,7 @@ function Get-DownOSDBuilder {
                 }
 
                 $esdbasename = (Get-Item "$DownloadFullPath").Basename
-                $esddirectory = "$($global:GetOSDBuilder.PathMedia)\$esdbasename"
+                $esddirectory = "$GetOSDBuilderPathFeatureUpdates\$esdbasename"
 
                 if (Test-Path "$esddirectory") {
                     Remove-Item "$esddirectory" -Force | Out-Null
@@ -175,12 +175,12 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($ContentDownload -eq 'OneDriveSetup Production') {
                 $DownloadUrl = 'https://go.microsoft.com/fwlink/p/?LinkId=248256'
-                $DownloadPath = "$OSDBuilderContent\OneDrive"
+                $DownloadPath = "$GetOSDBuilderPathContent\OneDrive"
                 $DownloadFile = 'OneDriveSetup.exe'
             }
             if ($ContentDownload -eq 'OneDriveSetup Enterprise') {
                 $DownloadUrl = 'https://go.microsoft.com/fwlink/p/?linkid=860987'
-                $DownloadPath = "$OSDBuilderContent\OneDrive"
+                $DownloadPath = "$GetOSDBuilderPathContent\OneDrive"
                 $DownloadFile = 'OneDriveSetup.exe'
             }
             #===================================================================================================
@@ -221,8 +221,8 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($Superseded) {
                 $ExistingUpdates = @()
-                if (!(Test-Path $global:GetOSDBuilder.PathOSDUpdate)) {New-Item $global:GetOSDBuilder.PathOSDUpdate -ItemType Directory -Force | Out-Null}
-                $ExistingUpdates = Get-ChildItem -Path "$($global:GetOSDBuilder.PathOSDUpdate)\*\*" -Directory
+                if (!(Test-Path $GetOSDBuilder.PathOSDUpdate)) {New-Item $GetOSDBuilder.PathOSDUpdate -ItemType Directory -Force | Out-Null}
+                $ExistingUpdates = Get-ChildItem -Path "$($GetOSDBuilder.PathOSDUpdate)\*\*" -Directory
 
                 $SupersededUpdates = @()
                 foreach ($Update in $ExistingUpdates) {
@@ -280,7 +280,7 @@ function Get-DownOSDBuilder {
             if ($Download.IsPresent) {
 				if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
                 foreach ($Update in $OSDUpdates) {
-                    $DownloadPath = "$($global:GetOSDBuilder.PathOSDUpdate)\$($Update.Catalog)\$($Update.Title)"
+                    $DownloadPath = "$($GetOSDBuilder.PathOSDUpdate)\$($Update.Catalog)\$($Update.Title)"
                     $DownloadFullPath = "$DownloadPath\$($Update.FileName)"
 
                     if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}

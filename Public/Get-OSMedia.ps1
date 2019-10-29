@@ -74,7 +74,7 @@ function Get-OSMedia {
         #   19.10.17 Require CurrentVersion.xml
         #===================================================================================================
         $AllOSMedia = @()
-        $AllOSMedia = Get-ChildItem -Path "$OSDBuilderOSImport","$OSDBuilderOSMedia" -Directory | Select-Object -Property * | `
+        $AllOSMedia = Get-ChildItem -Path "$GetOSDBuilderPathOSImport","$GetOSDBuilderPathOSMedia" -Directory | Select-Object -Property * | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\CurrentVersion.xml")} | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Get-WindowsImage.xml")} | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Sessions.xml")}
@@ -366,49 +366,49 @@ function Repair-GetOSDMediaTemplateDirectories {
     #===================================================================================================
     #   Template Drivers
     #===================================================================================================
-    if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\Global")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\Global" -ItemType Directory -Force | Out-Null}
-    if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\Global $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
-    if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\Global")) {New-Item -Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\Global" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\Global $OSMArch")) {New-Item -Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\$UpdateOS")) {New-Item -Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
     if ($OSMInstallationType -notlike "*Server*") {
-        if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS $OSMArch" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\$UpdateOS $OSMArch")) {New-Item -Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\$UpdateOS $OSMArch" -ItemType Directory -Force | Out-Null}
     }
     if ($OSMInstallationType -notlike "*Server*" -and $OSMMajorVersion -eq 10) {
-        if (!(Test-Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS $OSMArch $RegReleaseId")) {New-Item -Path "$OSDBuilderTemplates\Drivers\AutoApply\$UpdateOS $OSMArch $RegReleaseId" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\$UpdateOS $OSMArch $RegReleaseId")) {New-Item -Path "$GetOSDBuilderPathTemplates\Drivers\AutoApply\$UpdateOS $OSMArch $RegReleaseId" -ItemType Directory -Force | Out-Null}
     }
     #===================================================================================================
     #   Template ExtraFiles
     #===================================================================================================
-    if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\Global")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\Global" -ItemType Directory -Force | Out-Null}
-    if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\Global $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
-    if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\Global")) {New-Item -Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\Global" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\Global $OSMArch")) {New-Item -Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\$UpdateOS")) {New-Item -Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
     if ($OSMInstallationType -notlike "*Server*") {
-        if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch")) {New-Item -Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch" -ItemType Directory -Force | Out-Null}
     }
     if ($OSMInstallationType -notlike "*Server*" -and $OSMMajorVersion -eq 10) {
-        if (!(Test-Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch $RegReleaseId")) {New-Item -Path "$OSDBuilderTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch $RegReleaseId" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch $RegReleaseId")) {New-Item -Path "$GetOSDBuilderPathTemplates\ExtraFiles\AutoApply\$UpdateOS $OSMArch $RegReleaseId" -ItemType Directory -Force | Out-Null}
     }
     #===================================================================================================
     #   Template Registry
     #===================================================================================================
-    if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\Global")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\Global" -ItemType Directory -Force | Out-Null}
-    if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\Global $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
-    if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\Global")) {New-Item -Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\Global" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\Global $OSMArch")) {New-Item -Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\$UpdateOS")) {New-Item -Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
     if ($OSMInstallationType -notlike "*Server*") {
-        if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS $OSMArch" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\$UpdateOS $OSMArch")) {New-Item -Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\$UpdateOS $OSMArch" -ItemType Directory -Force | Out-Null}
     }
     if ($OSMInstallationType -notlike "*Server*" -and $OSMMajorVersion -eq 10) {
-        if (!(Test-Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS $OSMArch $RegReleaseId")) {New-Item -Path "$OSDBuilderTemplates\Registry\AutoApply\$UpdateOS $OSMArch $RegReleaseId" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\$UpdateOS $OSMArch $RegReleaseId")) {New-Item -Path "$GetOSDBuilderPathTemplates\Registry\AutoApply\$UpdateOS $OSMArch $RegReleaseId" -ItemType Directory -Force | Out-Null}
     }
     #===================================================================================================
     #   Template Scripts
     #===================================================================================================
-    if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\Global")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\Global" -ItemType Directory -Force | Out-Null}
-    if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\Global $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
-    if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\Global")) {New-Item -Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\Global" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\Global $OSMArch")) {New-Item -Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\Global $OSMArch" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\$UpdateOS")) {New-Item -Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\$UpdateOS" -ItemType Directory -Force | Out-Null}
     if ($OSMInstallationType -notlike "*Server*") {
-        if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS $OSMArch")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS $OSMArch" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\$UpdateOS $OSMArch")) {New-Item -Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\$UpdateOS $OSMArch" -ItemType Directory -Force | Out-Null}
     }
     if ($OSMInstallationType -notlike "*Server*" -and $OSMMajorVersion -eq 10) {
-        if (!(Test-Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS $OSMArch $RegReleaseId")) {New-Item -Path "$OSDBuilderTemplates\Scripts\AutoApply\$UpdateOS $OSMArch $RegReleaseId" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\$UpdateOS $OSMArch $RegReleaseId")) {New-Item -Path "$GetOSDBuilderPathTemplates\Scripts\AutoApply\$UpdateOS $OSMArch $RegReleaseId" -ItemType Directory -Force | Out-Null}
     }
 }

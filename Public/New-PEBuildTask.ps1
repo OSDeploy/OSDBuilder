@@ -84,7 +84,7 @@ function New-PEBuildTask {
         if ($WinPEOutput -eq 'Recovery') {$SourceWim = 'WinRE'}
 
         $TaskName = "$TaskName"
-        $TaskPath = "$OSDBuilderTasks\$WinPEOutput $TaskName.json"
+        $TaskPath = "$GetOSDBuilderPathTasks\$WinPEOutput $TaskName.json"
 
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
@@ -298,7 +298,7 @@ function New-PEBuildTask {
         #===================================================================================================
         $Task = [ordered]@{
             "TaskType" = [string]'PEBuild';
-            "TaskVersion" = [string]$GetModuleOSDBuilderVersion;
+            "TaskVersion" = [string]$GetOSDBuilderVersionOSDBuilder;
             "TaskGuid" = [string]$(New-Guid);
 
             "TaskName" = [string]$TaskName;

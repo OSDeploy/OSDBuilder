@@ -235,9 +235,9 @@ function New-OSBuildTask {
         #===================================================================================================
         $Task = @()
         $TaskName = "$TaskName"
-        if ($SaveAs -eq 'Task') {$TaskPath = "$OSDBuilderTasks\OSBuild $TaskName.json"}
-        if ($SaveAs -eq 'Template') {$TaskPath = "$OSDBuilderTemplates\OSBuild $TaskName.json"}
-        #if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$OSDBuilderTemplates\OSBuild Global $TaskName.json"}
+        if ($SaveAs -eq 'Task') {$TaskPath = "$GetOSDBuilderPathTasks\OSBuild $TaskName.json"}
+        if ($SaveAs -eq 'Template') {$TaskPath = "$GetOSDBuilderPathTemplates\OSBuild $TaskName.json"}
+        #if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$GetOSDBuilderPathTemplates\OSBuild Global $TaskName.json"}
         
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
@@ -924,7 +924,7 @@ function New-OSBuildTask {
         #===================================================================================================
         $Task = [ordered]@{
             "TaskType" = [string]"OSBuild";
-            "TaskVersion" = [string]$GetModuleOSDBuilderVersion;
+            "TaskVersion" = [string]$GetOSDBuilderVersionOSDBuilder;
             "TaskGuid" = [string]$(New-Guid);
             
             "TaskName" = [string]$TaskName;

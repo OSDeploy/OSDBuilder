@@ -65,8 +65,8 @@ function New-OSDTemplatePack {
         "PEScripts\x86"
     )
     foreach ($TemplateDirectory in $TemplateDirectories) {
-        if (!(Test-Path "$OSDBuilderTemplates\$TemplateName\$TemplateDirectory")) {
-            New-Item "$OSDBuilderTemplates\$TemplateName\$TemplateDirectory" -ItemType Directory -Force | Out-Null
+        if (!(Test-Path "$GetOSDBuilderPathTemplates\$TemplateName\$TemplateDirectory")) {
+            New-Item "$GetOSDBuilderPathTemplates\$TemplateName\$TemplateDirectory" -ItemType Directory -Force | Out-Null
         }
     }
 }

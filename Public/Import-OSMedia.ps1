@@ -173,7 +173,7 @@ function Import-OSMedia {
         #===================================================================================================
         #   Import Media Directory
         #===================================================================================================
-        $ImportMedia = Get-ChildItem $global:GetOSDBuilder.PathMedia -ErrorAction SilentlyContinue
+        $ImportMedia = Get-ChildItem $GetOSDBuilderPathFeatureUpdates -ErrorAction SilentlyContinue
         foreach ($ImportDrive in $ImportMedia) {
             if (Test-Path "$($ImportDrive.FullName)\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.FullName)\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
         }
@@ -298,7 +298,7 @@ function Import-OSMedia {
                 $InstallWimType = "wim"
             }
 
-            $MountDirectory = Join-Path $OSDBuilderContent\Mount "os$((Get-Date).ToString('HHmmss'))"
+            $MountDirectory = Join-Path $GetOSDBuilderPathContent\Mount "os$((Get-Date).ToString('HHmmss'))"
             Mount-InstallwimMEDIA
             #===================================================================================================
             #   REGISTRY
@@ -347,7 +347,7 @@ function Import-OSMedia {
             #===================================================================================================
             #===================================================================================================
             Write-Verbose 'Set OSMediaPath'
-            $OSMediaPath = Join-Path $OSDBuilderOSImport $OSMediaName
+            $OSMediaPath = Join-Path $GetOSDBuilderPathOSImport $OSMediaName
             #===================================================================================================
             #===================================================================================================
             Write-Verbose 'Remove Existing OSMedia'

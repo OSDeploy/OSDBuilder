@@ -63,7 +63,7 @@ function New-OSBuildMultiLang {
         foreach ($Media in $SelectedOSBuild) {
             $SourceFullName = "$($Media.FullName)"
             $BuildName = "$CustomName MultiLang"
-            $DestinationFullName = "$OSDBuilderOSBuilds\$BuildName"
+            $DestinationFullName = "$GetOSDBuilderPathOSBuilds\$BuildName"
             #===================================================================================================
             #   Copy Media
             #===================================================================================================
