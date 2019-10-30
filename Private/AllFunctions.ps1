@@ -2059,6 +2059,7 @@ function Get-FeatureUpdateDownloads {
 function Get-IsContentPacksEnabled {
     [CmdletBinding()]
     Param ()
+    if ($global:GetOSDBuilder.AllowContentPacks -eq $false) {Return $false}
     if (Test-Path $GetOSDBuilderPathTemplates\Drivers) {Return $false}
     if (Test-Path $GetOSDBuilderPathTemplates\ExtraFiles) {Return $false}
     if (Test-Path $GetOSDBuilderPathTemplates\Registry) {Return $false}
