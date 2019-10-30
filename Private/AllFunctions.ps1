@@ -4,7 +4,7 @@ function Add-ContentADKWinPE {
     #===================================================================================================
     #   Abort
     #===================================================================================================
-    if ($ScriptName -ne 'New-OSBuild') {Return}
+    if (($ScriptName -ne 'New-OSBuild') -and ($ScriptName -ne 'New-PEBuild')) {Return}
     if ([string]::IsNullOrWhiteSpace($WinPEADKPE)) {Return}
     #===================================================================================================
     #   Execute
@@ -1015,9 +1015,9 @@ function Add-OSDTemplatePackPEADK {
         Write-Verbose "CurrentLog: $CurrentLog"
         
         Write-Host "$($ADKFile.FullName)" -ForegroundColor DarkGray
-        Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
-        Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
-        Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
+        if ($MountWinPE) {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinRE) {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinSE) {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
     }
 
     foreach ($ADKFile in $ADKFilesSub) {
@@ -1025,9 +1025,9 @@ function Add-OSDTemplatePackPEADK {
         Write-Verbose "CurrentLog: $CurrentLog"
 
         Write-Host "$($ADKFile.FullName)" -ForegroundColor DarkGray
-        Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
-        Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
-        Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
+        if ($MountWinPE) {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinRE) {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinSE) {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
     }
 }
 function Add-OSDTemplatePackPEDaRT {
@@ -1048,29 +1048,37 @@ function Add-OSDTemplatePackPEDaRT {
     #   BUILD
     #======================================================================================
     $MicrosoftDartCab = "$TemplatePackContent\Tools$($OSArchitecture).cab"
+    if (Test-Path $MicrosoftDartCab) {
+        if ($MountWinPE) {expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinPE" | Out-Null}
+        if ($MountWinRE) {expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinRE" | Out-Null}
+        if ($MountWinSE) {expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinSE" | Out-Null}
 
-    expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinPE" | Out-Null
-    if (Test-Path "$MountWinPE\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountWinPE\Windows\System32\winpeshl.ini" -Force}
-    #===================================================================================================
-    expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinRE" | Out-Null
-    (Get-Content "$MountWinRE\Windows\System32\winpeshl.ini") | ForEach-Object {$_ -replace '-prompt','-network'} | Out-File "$MountWinRE\Windows\System32\winpeshl.ini"
-    #===================================================================================================
-    expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinSE" | Out-Null
-    if (Test-Path "$MountWinSE\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountWinSE\Windows\System32\winpeshl.ini" -Force}
+        $MicrosoftDartConfig = $(Join-Path $(Split-Path "$MicrosoftDartCab") 'DartConfig.dat')
+        if (Test-Path $MicrosoftDartConfig) {
+            if ($MountWinPE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinPE\Windows\System32\DartConfig.dat" -Force}
+            if ($MountWinRE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinSE\Windows\System32\DartConfig.dat" -Force}
+            if ($MountWinSE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinRE\Windows\System32\DartConfig.dat" -Force}
+        }
 
-    $MicrosoftDartConfig = $(Join-Path $(Split-Path "$MicrosoftDartCab") 'DartConfig.dat')
-    if (Test-Path $MicrosoftDartConfig) {
-        Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinPE\Windows\System32\DartConfig.dat" -Force
-        Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinSE\Windows\System32\DartConfig.dat" -Force
-        Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinRE\Windows\System32\DartConfig.dat" -Force
-    }
-    
-    $MicrosoftDartConfig = $(Join-Path $(Split-Path "$MicrosoftDartCab") 'DartConfig8.dat')
-    if (Test-Path $MicrosoftDartConfig) {
-        Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinPE\Windows\System32\DartConfig.dat" -Force
-        Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinSE\Windows\System32\DartConfig.dat" -Force
-        Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinRE\Windows\System32\DartConfig.dat" -Force
-    }
+        $MicrosoftDartConfig = $(Join-Path $(Split-Path "$MicrosoftDartCab") 'DartConfig8.dat')
+        if (Test-Path $MicrosoftDartConfig) {
+            if ($MountWinPE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinPE\Windows\System32\DartConfig.dat" -Force}
+            if ($MountWinRE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinSE\Windows\System32\DartConfig.dat" -Force}
+            if ($MountWinSE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinRE\Windows\System32\DartConfig.dat" -Force}
+        }
+
+        if ($ScriptName -eq 'New-OSBuild') {
+            if (Test-Path "$MountWinPE\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountWinPE\Windows\System32\winpeshl.ini" -Force}
+            (Get-Content "$MountWinRE\Windows\System32\winpeshl.ini") | ForEach-Object {$_ -replace '-prompt','-network'} | Out-File "$MountWinRE\Windows\System32\winpeshl.ini"
+            if (Test-Path "$MountWinSE\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountWinSE\Windows\System32\winpeshl.ini" -Force}
+        }
+
+        if ($ScriptName -eq 'New-PEBuild') {
+            if ($WinPEOutput -eq 'Recovery') {
+                (Get-Content "$MountDirectory\Windows\System32\winpeshl.ini") | ForEach-Object {$_ -replace '-prompt','-network'} | Out-File "$MountDirectory\Windows\System32\winpeshl.ini"
+            }
+        }
+    } else {Write-Warning "Microsoft DaRT do not exist in $MicrosoftDartCab"}
 }
 function Add-OSDTemplatePackPEDrivers {
     [CmdletBinding()]
@@ -1096,13 +1104,13 @@ function Add-OSDTemplatePackPEDrivers {
     Get-ChildItem "$TemplatePackContent" *.inf -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
     if ($OSMajorVersion -eq 6) {
-        dism /Image:"$MountWinPE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
-        dism /Image:"$MountWinRE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
-        dism /Image:"$MountWinSE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
+        if ($MountWinPE) {dism /Image:"$MountWinPE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
+        if ($MountWinRE) {dism /Image:"$MountWinRE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
+        if ($MountWinSE) {dism /Image:"$MountWinSE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
     } else {
-        Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinPE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
-        Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinRE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
-        Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinSE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+        if ($MountWinPE) {Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinPE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinRE) {Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinRE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinSE) {Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinSE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
     }
 }
 function Add-OSDTemplatePackPEExtraFiles {
@@ -1128,9 +1136,9 @@ function Add-OSDTemplatePackPEExtraFiles {
 
     Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    robocopy "$TemplatePackContent" "$MountWinPE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-    robocopy "$TemplatePackContent" "$MountWinRE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-    robocopy "$TemplatePackContent" "$MountWinSE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    if ($MountWinPE) {robocopy "$TemplatePackContent" "$MountWinPE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinRE) {robocopy "$TemplatePackContent" "$MountWinRE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinSE) {robocopy "$TemplatePackContent" "$MountWinSE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
 }
 function Add-OSDTemplatePackPEPoshMods {
     [CmdletBinding()]
@@ -1155,9 +1163,9 @@ function Add-OSDTemplatePackPEPoshMods {
 
     Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    robocopy "$TemplatePackContent" "$MountWinPE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-    robocopy "$TemplatePackContent" "$MountWinRE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-    robocopy "$TemplatePackContent" "$MountWinSE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    if ($MountWinPE) {robocopy "$TemplatePackContent" "$MountWinPE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinRE) {robocopy "$TemplatePackContent" "$MountWinRE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinSE) {robocopy "$TemplatePackContent" "$MountWinSE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
 }
 function Add-OSDTemplatePackPEPoshModsSystem {
     [CmdletBinding()]
@@ -1182,9 +1190,9 @@ function Add-OSDTemplatePackPEPoshModsSystem {
 
     Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    robocopy "$TemplatePackContent" "$MountWinPE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-    robocopy "$TemplatePackContent" "$MountWinRE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-    robocopy "$TemplatePackContent" "$MountWinSE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    if ($MountWinPE) {robocopy "$TemplatePackContent" "$MountWinPE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinRE) {robocopy "$TemplatePackContent" "$MountWinRE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinSE) {robocopy "$TemplatePackContent" "$MountWinSE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
 }
 function Add-OSDTemplatePackPERegistry {
     [CmdletBinding()]
@@ -1202,7 +1210,6 @@ function Add-OSDTemplatePackPERegistry {
     } else {
         Write-Host "$TemplatePackContent" -ForegroundColor Cyan
     }
-
     #======================================================================================
     #   Mount-OfflineRegistryHives
     #======================================================================================
@@ -1763,42 +1770,48 @@ function Expand-DaRTPE {
     #===================================================================================================
     #   Abort
     #===================================================================================================
-    if ($ScriptName -ne 'New-OSBuild') {Return}
+    if (($ScriptName -ne 'New-OSBuild') -and ($ScriptName -ne 'New-PEBuild')) {Return}
     if ([string]::IsNullOrWhiteSpace($WinPEDaRT)) {Return}
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Show-ActionTime
     $MicrosoftDartCab = "$GetOSDBuilderPathContent\$WinPEDaRT"
-    Write-Host -ForegroundColor Green "Microsoft DaRT: $MicrosoftDartCab"
+    Show-ActionTime; Write-Host -ForegroundColor Green "Microsoft DaRT: $MicrosoftDartCab"
     #===================================================================================================
     #   Execute
     #===================================================================================================
     if (Test-Path "$MicrosoftDartCab") {
-        #===================================================================================================
-        expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinPE" | Out-Null
-        if (Test-Path "$MountWinPE\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountWinPE\Windows\System32\winpeshl.ini" -Force}
-        #===================================================================================================
-        expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinRE" | Out-Null
-        (Get-Content "$MountWinRE\Windows\System32\winpeshl.ini") | ForEach-Object {$_ -replace '-prompt','-network'} | Out-File "$MountWinRE\Windows\System32\winpeshl.ini"
-        #===================================================================================================
-        expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinSE" | Out-Null
-        if (Test-Path "$MountWinSE\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountWinSE\Windows\System32\winpeshl.ini" -Force}
+        if ($MountWinPE) {expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinPE" | Out-Null}
+        if ($MountWinRE) {expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinRE" | Out-Null}
+        if ($MountWinSE) {expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinSE" | Out-Null}
 
         $MicrosoftDartConfig = $(Join-Path $(Split-Path "$MicrosoftDartCab") 'DartConfig.dat')
         if (Test-Path $MicrosoftDartConfig) {
-            Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinPE\Windows\System32\DartConfig.dat" -Force
-            Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinSE\Windows\System32\DartConfig.dat" -Force
-            Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinRE\Windows\System32\DartConfig.dat" -Force
+            if ($MountWinPE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinPE\Windows\System32\DartConfig.dat" -Force}
+            if ($MountWinRE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinSE\Windows\System32\DartConfig.dat" -Force}
+            if ($MountWinSE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinRE\Windows\System32\DartConfig.dat" -Force}
         }
-        
+
         $MicrosoftDartConfig = $(Join-Path $(Split-Path "$MicrosoftDartCab") 'DartConfig8.dat')
         if (Test-Path $MicrosoftDartConfig) {
-            Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinPE\Windows\System32\DartConfig.dat" -Force
-            Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinSE\Windows\System32\DartConfig.dat" -Force
-            Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinRE\Windows\System32\DartConfig.dat" -Force
+            if ($MountWinPE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinPE\Windows\System32\DartConfig.dat" -Force}
+            if ($MountWinRE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinSE\Windows\System32\DartConfig.dat" -Force}
+            if ($MountWinSE) {Copy-Item -Path $MicrosoftDartConfig -Destination "$MountWinRE\Windows\System32\DartConfig.dat" -Force}
         }
-        #===================================================================================================
+
+        if ($ScriptName -eq 'New-OSBuild') {
+            if (Test-Path "$MountWinPE\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountWinPE\Windows\System32\winpeshl.ini" -Force}
+            (Get-Content "$MountWinRE\Windows\System32\winpeshl.ini") | ForEach-Object {$_ -replace '-prompt','-network'} | Out-File "$MountWinRE\Windows\System32\winpeshl.ini"
+            if (Test-Path "$MountWinSE\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountWinSE\Windows\System32\winpeshl.ini" -Force}
+        }
+
+        if ($ScriptName -eq 'New-PEBuild') {
+            if ($WinPEOutput -eq 'Recovery') {
+                (Get-Content "$MountDirectory\Windows\System32\winpeshl.ini") | ForEach-Object {$_ -replace '-prompt','-network'} | Out-File "$MountDirectory\Windows\System32\winpeshl.ini"
+            } else {
+                if (Test-Path "$MountDirectory\Windows\System32\winpeshl.ini") {Remove-Item -Path "$MountDirectory\Windows\System32\winpeshl.ini" -Force}
+            }
+        }
     } else {Write-Warning "Microsoft DaRT do not exist in $MicrosoftDartCab"}
 }
 #   Export
@@ -3504,6 +3517,64 @@ function Mount-OSDOfflineRegistryPE {
         }
     }
 }
+function Set-PEBuildScratchSpace {
+    [CmdletBinding()]
+    Param (
+        [string]$MountDirectory,
+        [string]$ScratchSpace
+    )
+    #===================================================================================================
+    #   Header
+    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Set-ScratchSpace $ScratchSpace"
+    #===================================================================================================
+    #   Execute
+    #===================================================================================================
+    Try {
+        Dism /Image:"$MountDirectory" /Set-ScratchSpace:$ScratchSpace /LogPath:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Set-PEBuildScratchSpace.log" | Out-Null
+    }
+    Catch {
+        $ErrorMessage = $_.Exception.Message
+        Write-Warning "$ErrorMessage"
+    }
+}
+function Set-PEBuildTargetPath {
+    [CmdletBinding()]
+    Param (
+        [string]$MountDirectory
+    )
+    #===================================================================================================
+    #   Header
+    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Set-TargetPath X:\"
+    #===================================================================================================
+    #   Execute
+    #===================================================================================================
+    Try {
+        Dism /Image:"$MountDirectory" /Set-TargetPath:"X:\" /LogPath:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Set-PEBuildTargetPath.log" | Out-Null
+    }
+    Catch {
+        $ErrorMessage = $_.Exception.Message
+        Write-Warning "$ErrorMessage"
+    }
+}
+function Mount-PEBuild {
+    [CmdletBinding()]
+    Param (
+        [string]$MountDirectory,
+        [string]$WorkingWim
+    )
+    #===================================================================================================
+    #   Header
+    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Mount WinPE to $MountDirectory"
+    #===================================================================================================
+    #   Execute
+    #===================================================================================================
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-PEBuild.log"
+    Write-Verbose "CurrentLog: $CurrentLog"
+    Mount-WindowsImage -ImagePath $WorkingWim -Index 1 -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null
+}
 function Mount-WinPEwim {
     [CmdletBinding()]
     Param (
@@ -3512,8 +3583,7 @@ function Mount-WinPEwim {
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "WinPE: Mount WinPE.wim to $MountWinPE"
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Mount WinPE.wim to $MountWinPE"
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -3529,8 +3599,7 @@ function Mount-WinREwim {
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "WinPE: Mount WinRE.wim to $MountWinRE"
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Mount WinRE.wim to $MountWinRE"
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -3546,8 +3615,7 @@ function Mount-WinSEwim {
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "WinPE: Mount WinSE.wim to $MountWinSE"
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Mount WinSE.wim to $MountWinSE"
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -4217,12 +4285,12 @@ function Show-SkipUpdatesInfo {
 }
 function Show-TaskInfo {
     [CmdletBinding()]
-    Param ()        
+    Param ()
     #===================================================================================================
-    Write-Verbose '19.1.25 OSBuild Task Information'
+    Write-Verbose 'Show-TaskInfo'
     #===================================================================================================
     Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host -ForegroundColor Green "OSBuild Task Information"
+    Write-Host "OSBuild Task Information" -ForegroundColor Green
     Write-Host "-TaskName:                  $TaskName"
     Write-Host "-TaskVersion:               $TaskVersion"
     Write-Host "-TaskType:                  $TaskType"
@@ -4230,6 +4298,11 @@ function Show-TaskInfo {
     Write-Host "-OSMedia Path:              $OSMediaPath"
     if ($CustomName) {
     Write-Host "-Custom Name:               $CustomName"}
+    
+    if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
+        Write-Host "-TemplatePacks:" -ForegroundColor Cyan
+        foreach ($item in $TemplatePacks)       {Write-Host "   $GetOSDBuilderPathTemplates\$item" -ForegroundColor Cyan}}
+    
     if ($EnableNetFX3 -eq $true) {
     Write-Host "-Enable NetFx3:             $EnableNetFX3"}
     if ($WinPEAutoExtraFiles -eq $true) {
@@ -4262,11 +4335,7 @@ function Show-TaskInfo {
     Write-Host "-Unattend:                  $GetOSDBuilderPathContent\$UnattendXML"}
     if ($WinPEDaRT)         {
     Write-Host "-WinPE DaRT:                $GetOSDBuilderPathContent\$WinPEDaRT"}
-    
-    if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-        Write-Host "-TemplatePacks:" -ForegroundColor Cyan
-        foreach ($item in $TemplatePacks)       {Write-Host "   $GetOSDBuilderPathTemplates\$item" -ForegroundColor Cyan}}
-    
+
     if ($Drivers) {
         Write-Host "-Drivers:"
         foreach ($item in $Drivers)             {Write-Host "   $GetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}

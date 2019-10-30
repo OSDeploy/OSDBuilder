@@ -115,7 +115,7 @@ function New-OSBuild {
         }
     }
 
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
@@ -213,7 +213,14 @@ function New-OSBuild {
                 }
                 $TaskVersion = $Task.TaskVersion
                 $CustomName = $Task.CustomName
-
+                if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
+                    if ($null -eq $Task.TemplatePacks) {
+                        $TemplatePacks = @('_Global')
+                    } else {
+                        $TemplatePacks = @('_Global')
+                        $TemplatePacks = ($TemplatePacks += $Task.TemplatePacks)
+                    }
+                }
                 $TaskOSMFamily = $Task.OSMFamily
                 $TaskOSMGuid = $Task.OSMGuid
                 $OSMediaName = $Task.Name
@@ -224,14 +231,6 @@ function New-OSBuild {
                 $UnattendXML = $Task.UnattendXML
                 $WinPEAutoExtraFiles = $Task.WinPEAutoExtraFiles
                 $WinPEDaRT = $Task.WinPEDart
-                if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-                    if ($null -eq $Task.TemplatePacks) {
-                        $TemplatePacks = @('_Global')
-                    } else {
-                        $TemplatePacks = @('_Global')
-                        $TemplatePacks = ($TemplatePacks += $Task.TemplatePacks)
-                    }
-                }
                 $ExtraFiles = $Task.ExtraFiles
                 $Scripts = $Task.Scripts
                 $Drivers = $Task.Drivers
@@ -910,17 +909,6 @@ function New-OSBuild {
                 Update-ServicingStackPE
                 Update-CumulativePE
                 #===================================================================================================
-                #   WinPE OSBuild
-                #===================================================================================================
-                Expand-DaRTPE
-                Import-AutoExtraFilesPE
-                Add-ContentExtraFilesPE
-                Add-ContentDriversPE
-                Add-ContentADKWinPE
-                Add-ContentADKWinRE
-                Add-ContentADKWinSE
-                Add-ContentScriptsPE
-                #===================================================================================================
                 #   WinPE TemplatePacks
                 #===================================================================================================
                 if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
@@ -932,6 +920,17 @@ function New-OSBuild {
                     Add-OSDTemplatePack -PackType PERegistry
                     Add-OSDTemplatePack -PackType PEScripts
                 }
+                #===================================================================================================
+                #   WinPE OSBuild
+                #===================================================================================================
+                Expand-DaRTPE
+                Import-AutoExtraFilesPE
+                Add-ContentExtraFilesPE
+                Add-ContentDriversPE
+                Add-ContentADKWinPE
+                Add-ContentADKWinRE
+                Add-ContentADKWinSE
+                Add-ContentScriptsPE
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================

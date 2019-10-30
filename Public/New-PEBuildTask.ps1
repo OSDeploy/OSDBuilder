@@ -6,45 +6,48 @@ Creates a JSON Task for use with New-PEBuild
 Creates a JSON Task for use with New-PEBuild
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/pebuild/new-pebuildtask
-
-.PARAMETER SourceWim
-Wim to use for the PEBuild
-
-.PARAMETER TaskName
-Name of the Task to create
-
-.PARAMETER MDTDeploymentShare
-MDT DeployRoot Full Path
-
-.PARAMETER AutoExtraFiles
-Add Auto ExtraFiles to WinPE
-
-.PARAMETER ScratchSpace
-Set the Scratch Space for WinPE
+https://osdbuilder.osdeploy.com/module/functions/new-pebuildtask
 #>
 
 function New-PEBuildTask {
     [CmdletBinding(DefaultParameterSetName='Recovery')]
     Param (
-        #==========================================================
+        #===================================================================================================
+        #   Basic Parameters
+        #===================================================================================================
+        #Sets the name of the Task
         [Parameter(Mandatory)]
         [string]$TaskName,
-        #==========================================================
-        [Parameter(Mandatory,ParameterSetName='MDT')]
-        [string]$MDTDeploymentShare,
-        #==========================================================
+
+        #Custom name of the Build used in the final output directory
+        #This parameter is recommended
+        [string]$CustomName,
+
+        #Adds some handy files copied from the Windows OS
+        #This parameter is recommended
+        [switch]$WinPEAutoExtraFiles,
+
+        #Allows selection of a Template Pack to this Build
+        [switch]$AddTemplatePacks,
+
+        #Set the Scratch Space for WinPE
+        #Default is 512MB
+        [ValidateSet('64','128','256','512')]
+        [string]$ScratchSpace = '512',
+
+        #Wim to use for the PEBuild
         [Parameter(Mandatory,ParameterSetName='WinPE')]
         [Parameter(Mandatory,ParameterSetName='MDT')]
         [ValidateSet('WinRE','WinPE')]
         [string]$SourceWim,
-        #==========================================================
-        [switch]$WinPEAutoExtraFiles,
-        [string]$CustomName,
-        [ValidateSet('64','128','256','512')]
-        [string]$ScratchSpace = '128',
         #===================================================================================================
-        #   WinPE Content
+        #   MDT
+        #===================================================================================================
+        #Full Path to an MDT DeployRoot
+        [Parameter(Mandatory,ParameterSetName='MDT')]
+        [string]$MDTDeploymentShare,
+        #===================================================================================================
+        #   Add Content
         #===================================================================================================
         [switch]$ContentWinPEADK,
         [switch]$ContentWinPEDart,
@@ -73,10 +76,11 @@ function New-PEBuildTask {
         }
     }
 
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
-
+        Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
+        Write-Verbose "PSCmdlet.ParameterSetName: $($PSCmdlet.ParameterSetName)"
         #===================================================================================================
         #   Set Task Name
         #===================================================================================================
@@ -85,7 +89,9 @@ function New-PEBuildTask {
 
         $TaskName = "$TaskName"
         $TaskPath = "$GetOSDBuilderPathTasks\$WinPEOutput $TaskName.json"
-
+        #===================================================================================================
+        #   Existing Task
+        #===================================================================================================
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -106,10 +112,10 @@ function New-PEBuildTask {
         Write-Host "-Deployment Share:              $MDTDeploymentShare"
         Write-Host "-Scratch Space:                 $ScratchSpace"
         #===================================================================================================
-        Write-Verbose '19.3.26 Get-OSMedia'
+        #   Get-OSMedia
         #===================================================================================================
         $OSMedia = @()
-        $OSMedia = Get-OSMedia -Revision OK -OSMajorVersion 10
+        $OSMedia = Get-OSMedia -Revision OK -OSMajorVersion 10 | Sort-Object Name
 
         if ($TaskName -like "*x64*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x64'}}
         if ($TaskName -like "*x86*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x86'}}
@@ -122,19 +128,24 @@ function New-PEBuildTask {
         if ($TaskName -like "*1903*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1903'}}
         if ($TaskName -like "*1909*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1909'}}
 
-        $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title "Select a Source OSMedia to use for this Task (Cancel to Exit)"
+        Try {
+            $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title "Select a Source OSMedia to use for this Task (Cancel to Exit)"
+        }
+        Catch {
+            Write-Warning "Source OSMedia was not selected . . . Exiting!"
+            Break
+        }
         if($null -eq $OSMedia) {
             Write-Warning "Source OSMedia was not selected . . . Exiting!"
             Return
         }
-
         #===================================================================================================
-        Write-Verbose '19.1.7 Get Windows Image Information'
+        Write-Verbose 'Get-WindowsImage Information'
         #===================================================================================================
         $WindowsImage = Get-WindowsImage -ImagePath "$($OSMedia.FullName)\OS\sources\install.wim" -Index 1 | Select-Object -Property *
 
         #===================================================================================================
-        Write-Verbose '19.1.7 Source OSMedia Windows Image Information'
+        Write-Verbose 'Source OSMedia Windows Image Information'
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "Source OSMedia Windows Image Information" -ForegroundColor Green
@@ -161,19 +172,20 @@ function New-PEBuildTask {
         Write-Host "-WimBoot:                       $($WindowsImage.WIMBoot)"
         Write-Host "-Created Time:                  $($OSMedia.CreatedTime)"
         Write-Host "-Modified Time:                 $($OSMedia.ModifiedTime)"
-        
         #===================================================================================================
-        Write-Verbose '19.1.1 Validate Registry CurrentVersion.xml'
+        Write-Verbose '19.10.29 Validate Registry CurrentVersion.xml'
         #===================================================================================================
-        if (Test-Path "$OSSourcePath\info\xml\CurrentVersion.xml") {
-            $RegKeyCurrentVersion = Import-Clixml -Path "$OSSourcePath\info\xml\CurrentVersion.xml"
-            $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-            if ($ReleaseId -gt 1909) {
-                Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
+        if ($null -eq $($OSMedia.ReleaseId)) {
+            if (Test-Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml") {
+                $RegKeyCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
+                $OSMedia.ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
+                if ($($OSMedia.ReleaseId) -gt 1909) {
+                    Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
+                }
             }
         }
         #===================================================================================================
-        Write-Verbose '19.1.1 Set OSMedia.ReleaseId'
+        Write-Verbose '19.10.29 Set-OSMedia.ReleaseId'
         #===================================================================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
             if ($($OSMedia.Build) -eq 7601) {$OSMedia.ReleaseId = 7601}
@@ -187,6 +199,28 @@ function New-PEBuildTask {
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #===================================================================================================
+        #   Validate-TemplatePacks
+        #===================================================================================================
+        Write-Host "TemplatePacks" -ForegroundColor Green
+        if ($ExistingTask.TemplatePacks) {
+            foreach ($Item in $ExistingTask.TemplatePacks) {
+                Write-Host "$Item" -ForegroundColor DarkGray
+            }
+        }
+        $TemplatePacks = $null
+        if ($AddTemplatePacks.IsPresent) {
+            if (Get-IsTemplatePacksEnabled) {
+                [array]$TemplatePacks = (Get-TaskTemplatePacks).Name
+            
+                $TemplatePacks = [array]$TemplatePacks + [array]$ExistingTask.TemplatePacks
+                $TemplatePacks = $TemplatePacks | Sort-Object -Unique
+            } else {
+                Write-Warning "TemplatePacks are not enabled for this OSBuild Task"
+            }
+        } else {
+            if ($ExistingTask.TemplatePacks) {$TemplatePacks = $ExistingTask.TemplatePacks}
+        }
         #===================================================================================================
         #   Content WinPEDaRT
         #===================================================================================================
@@ -304,6 +338,10 @@ function New-PEBuildTask {
             "TaskName" = [string]$TaskName;
             "CustomName" = [string]$CustomName;
             #===================================================================================================
+            #   TemplatePacks
+            #===================================================================================================
+            "TemplatePacks" = [string[]]$TemplatePacks;
+            #===================================================================================================
             #   OSMedia
             #===================================================================================================
             "OSMFamily" = [string]$OSMedia.OSMFamily;
@@ -327,14 +365,11 @@ function New-PEBuildTask {
             "SourceWim" = [string]$SourceWim;
             "MDTDeploymentShare" = [string]$MDTDeploymentShare;
             "WinPEDaRT" = [string]$WinPEDaRT;
+            "ScratchSpace" = [string]$ScratchSpace;
             #===================================================================================================
             #   Switch
             #===================================================================================================
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
-            #===================================================================================================
-            #   Int
-            #===================================================================================================
-            "ScratchSpace" = [string]$ScratchSpace;
             #===================================================================================================
             #   Array
             #===================================================================================================
@@ -345,7 +380,7 @@ function New-PEBuildTask {
         }
 
         #===================================================================================================
-        Write-Verbose '19.1.1 New-OSBuildTask Complete'
+        #   Task Complete
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "PEBuild Task: $TaskName" -ForegroundColor Green
@@ -353,7 +388,7 @@ function New-PEBuildTask {
         $Task
     }
     
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }

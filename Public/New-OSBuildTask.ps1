@@ -6,7 +6,7 @@ Creates a JSON Task for use with New-OSBuild
 Creates a JSON Task for use with New-OSBuild
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/osbuild/new-osbuildtask
+https://osdbuilder.osdeploy.com/module/functions/new-osbuildtask
 
 .PARAMETER TaskName
 Name of the Task to create
@@ -107,18 +107,34 @@ Get-OSMedia entry used to create task (bypasses Out-GridView)
 function New-OSBuildTask {
     [CmdletBinding(DefaultParameterSetName='Basic')]
     Param (
-        #[Parameter(Mandatory)]
-        [ValidateSet('Task','Template')]
-        [string]$SaveAs = 'Task',
-        [Parameter(Mandatory)]
-        [string]$TaskName,
         #===================================================================================================
         #   Basic
         #===================================================================================================
-        [switch]$AddTemplatePacks,
+        #Sets the name of the Task
+        [Parameter(Mandatory)]
+        [string]$TaskName,
+
+        #Custom name of the Build used in the final output directory
+        #This parameter is recommended
         [string]$CustomName,
-        [switch]$EnableNetFX3,
+
+        #Adds some handy files copied from the Windows OS
+        #This parameter is recommended
         [switch]$WinPEAutoExtraFiles,
+
+        #Allows selection of a Template Pack to this Build
+        [switch]$AddTemplatePacks,
+
+        #Save as a Task or a Template
+        #Default: Task
+        [ValidateSet('Task','Template')]
+        [string]$SaveAs = 'Task',
+
+        #Enable .NET Framework 3.5 for supported Operating Systems
+        [switch]$EnableNetFX3,
+        #===================================================================================================
+        #   Windows Components
+        #===================================================================================================
         [switch]$RemoveAppx,
         [switch]$RemoveCapability,
         [switch]$RemovePackage,
@@ -226,10 +242,11 @@ function New-OSBuildTask {
         }
     }
     
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
-        
+        Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
+        Write-Verbose "PSCmdlet.ParameterSetName: $($PSCmdlet.ParameterSetName)"
         #===================================================================================================
         #   Set Task Name
         #===================================================================================================
@@ -238,7 +255,9 @@ function New-OSBuildTask {
         if ($SaveAs -eq 'Task') {$TaskPath = "$GetOSDBuilderPathTasks\OSBuild $TaskName.json"}
         if ($SaveAs -eq 'Template') {$TaskPath = "$GetOSDBuilderPathTemplates\OSBuild $TaskName.json"}
         #if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$GetOSDBuilderPathTemplates\OSBuild Global $TaskName.json"}
-        
+        #===================================================================================================
+        #   Existing Task
+        #===================================================================================================
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -265,7 +284,7 @@ function New-OSBuildTask {
         Write-Host "-SetUserLocale:                 $SetUserLocale"
         Write-Host "-WinPEAutoExtraFiles:           $WinPEAutoExtraFiles"
         #===================================================================================================
-        Write-Verbose '19.8.22 Get-OSMedia'
+        #   Get-OSMedia
         #===================================================================================================
         if (!$OSMedia) {
             $OSMedia = @()
@@ -295,12 +314,12 @@ function New-OSBuildTask {
         }
 
         #===================================================================================================
-        Write-Verbose '19.1.7 Get Windows Image Information'
+        Write-Verbose 'Get-WindowsImage Information'
         #===================================================================================================
         $WindowsImage = Get-WindowsImage -ImagePath "$($OSMedia.FullName)\OS\sources\install.wim" -Index 1 | Select-Object -Property *
 
         #===================================================================================================
-        Write-Verbose '19.1.7 Source OSMedia Windows Image Information'
+        Write-Verbose 'Source OSMedia Windows Image Information'
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "Source OSMedia Windows Image Information" -ForegroundColor Green
@@ -328,19 +347,19 @@ function New-OSBuildTask {
         Write-Host "-Created Time:                  $($OSMedia.CreatedTime)"
         Write-Host "-Modified Time:                 $($OSMedia.ModifiedTime)"
         #===================================================================================================
-        Write-Verbose '19.1.1 Validate Registry CurrentVersion.xml'
+        Write-Verbose '19.10.29 Validate Registry CurrentVersion.xml'
         #===================================================================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
             if (Test-Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
                 $OSMedia.ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-                if ($($OSMedia.ReleaseId) -gt 1903) {
+                if ($($OSMedia.ReleaseId) -gt 1909) {
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
                 }
             }
         }
         #===================================================================================================
-        Write-Verbose '19.1.1 Set OSMedia.ReleaseId'
+        Write-Verbose '19.10.29 Set-OSMedia.ReleaseId'
         #===================================================================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
             if ($($OSMedia.Build) -eq 7601) {$OSMedia.ReleaseId = 7601}
@@ -355,7 +374,7 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         #===================================================================================================
-        #   TemplatePacks
+        #   Validate-TemplatePacks
         #===================================================================================================
         Write-Host "TemplatePacks" -ForegroundColor Green
         if ($ExistingTask.TemplatePacks) {
@@ -947,9 +966,12 @@ function New-OSBuildTask {
             "CreatedTime" = [datetime]$OSMedia.CreatedTime;
             "ModifiedTime" = [datetime]$OSMedia.ModifiedTime;
             #===================================================================================================
-            #   Switch
+            #   TemplatePacks
             #===================================================================================================
             "TemplatePacks" = [string[]]$TemplatePacks;
+            #===================================================================================================
+            #   Switch
+            #===================================================================================================
             "EnableNetFX3" = [string]$EnableNetFX3;
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
             #===================================================================================================
@@ -1010,7 +1032,7 @@ function New-OSBuildTask {
         }
 
         #===================================================================================================
-        Write-Verbose '19.1.1 New-OSBuildTask Complete'
+        #   Task Complete
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "OSBuild Task: $TaskName" -ForegroundColor Green
@@ -1018,7 +1040,7 @@ function New-OSBuildTask {
         $Task
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
