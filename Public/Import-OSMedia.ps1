@@ -298,7 +298,7 @@ function Import-OSMedia {
                 $InstallWimType = "wim"
             }
 
-            $MountDirectory = Join-Path $GetOSDBuilderPathContent\Mount "os$((Get-Date).ToString('HHmmss'))"
+            $MountDirectory = Join-Path $GetOSDBuilderPathMount "os$((Get-Date).ToString('HHmmss'))"
             Mount-InstallwimMEDIA
             #===================================================================================================
             #   REGISTRY

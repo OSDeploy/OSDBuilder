@@ -545,12 +545,12 @@ function Add-LocalExperiencePacksOS {
         }
     }
 }
-function Add-OSDTemplatePack {
+function Add-OSDContentPack {
     [CmdletBinding()]
     Param (
         #[Alias('Path')]
         #[Parameter(Mandatory)]
-        #[string]$TemplatePackPath,
+        #[string]$ContentPackPath,
 
         [ValidateSet(
             'MEDIA',
@@ -580,291 +580,291 @@ function Add-OSDTemplatePack {
     #===================================================================================================
     #   BUILD
     #===================================================================================================
-    if ($TemplatePacks) {
+    if ($ContentPacks) {
         #===================================================================================================
-        #   MEDIA TemplatePacks
+        #   MEDIA ContentPacks
         #===================================================================================================
         if ($PackType -eq 'MEDIA') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "MEDIA: TemplatePack"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\MEDIA"
-                Add-OSDTemplatePackMEDIA -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackMEDIA -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
-                Add-OSDTemplatePackMEDIA -TemplatePackContent "$TemplatePackPath\$ReleaseID $OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "MEDIA: ContentPack"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\MEDIA"
+                Add-OSDContentPackMEDIA -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackMEDIA -ContentPackContent "$ContentPackPath\$OSArchitecture"
+                Add-OSDContentPackMEDIA -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
         #===================================================================================================
-        #   WinPE TemplatePacks
+        #   WinPE ContentPacks
         #===================================================================================================
         if ($PackType -eq 'PEADK') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: TemplatePack PEADK"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\PEADK"
-                Add-OSDTemplatePackPEADK -TemplatePackContent "$TemplatePackPath\$ReleaseID $OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEADK"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\PEADK"
+                Add-OSDContentPackPEADK -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'PEDaRT') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: TemplatePack PEDaRT"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\PEDaRT"
-                Add-OSDTemplatePackPEDaRT -TemplatePackContent "$TemplatePackPath"
+            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEDaRT"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\PEDaRT"
+                Add-OSDContentPackPEDaRT -ContentPackContent "$ContentPackPath"
             }
         }
         if ($PackType -eq 'PEDrivers') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: TemplatePack PEDrivers"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\PEDrivers"
-                Add-OSDTemplatePackPEDrivers -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackPEDrivers -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEDrivers"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\PEDrivers"
+                Add-OSDContentPackPEDrivers -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackPEDrivers -ContentPackContent "$ContentPackPath\$OSArchitecture"
             }
         }
         if ($PackType -eq 'PEExtraFiles') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: TemplatePack PEExtraFiles"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\PEExtraFiles"
-                Add-OSDTemplatePackPEExtraFiles -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackPEExtraFiles -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEExtraFiles"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\PEExtraFiles"
+                Add-OSDContentPackPEExtraFiles -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackPEExtraFiles -ContentPackContent "$ContentPackPath\$OSArchitecture"
 
-                Get-ChildItem "$TemplatePackPath\ALL Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {
-                    Add-OSDTemplatePackPEExtraFiles -TemplatePackContent "$($_.FullName)"
+                Get-ChildItem "$ContentPackPath\ALL Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {
+                    Add-OSDContentPackPEExtraFiles -ContentPackContent "$($_.FullName)"
                 }
-                Get-ChildItem "$TemplatePackPath\$OSArchitecture Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {
-                    Add-OSDTemplatePackPEExtraFiles -TemplatePackContent "$($_.FullName)"
+                Get-ChildItem "$ContentPackPath\$OSArchitecture Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {
+                    Add-OSDContentPackPEExtraFiles -ContentPackContent "$($_.FullName)"
                 }
             }
         }
         if ($PackType -eq 'PEPoshMods') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: TemplatePack PEPoshMods"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\PEPoshMods"
-                Add-OSDTemplatePackPEPoshMods -TemplatePackContent "$TemplatePackPath\ProgramFiles"
+            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEPoshMods"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\PEPoshMods"
+                Add-OSDContentPackPEPoshMods -ContentPackContent "$ContentPackPath\ProgramFiles"
             }
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\PEPoshMods"
-                Add-OSDTemplatePackPEPoshModsSystem -TemplatePackContent "$TemplatePackPath\System"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\PEPoshMods"
+                Add-OSDContentPackPEPoshModsSystem -ContentPackContent "$ContentPackPath\System"
             }
         }
         if ($PackType -eq 'PERegistry') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: TemplatePack PERegistry"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\PERegistry"
-                Add-OSDTemplatePackPERegistry -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackPERegistry -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PERegistry"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\PERegistry"
+                Add-OSDContentPackPERegistry -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackPERegistry -ContentPackContent "$ContentPackPath\$OSArchitecture"
             }
         }
         if ($PackType -eq 'PEScripts') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: TemplatePack PEScripts"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\PEScripts"
-                Add-OSDTemplatePackPEScripts -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackPEScripts -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEScripts"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\PEScripts"
+                Add-OSDContentPackPEScripts -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackPEScripts -ContentPackContent "$ContentPackPath\$OSArchitecture"
             }
         }
         #===================================================================================================
-        #   OS TemplatePacks
+        #   OS ContentPacks
         #===================================================================================================
         if ($PackType -eq 'OSDrivers') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "OS: TemplatePack OSDrivers"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\OSDrivers"
-                Add-OSDTemplatePackOSDrivers -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackOSDrivers -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSDrivers"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\OSDrivers"
+                Add-OSDContentPackOSDrivers -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackOSDrivers -ContentPackContent "$ContentPackPath\$OSArchitecture"
             }
         }
         if ($PackType -eq 'OSExtraFiles') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "OS: TemplatePack OSExtraFiles"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\OSExtraFiles"
-                Add-OSDTemplatePackOSExtraFiles -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackOSExtraFiles -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
-                Get-ChildItem "$TemplatePackPath\All Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-OSDTemplatePackOSExtraFiles -TemplatePackContent "$($_.FullName)"}
-                Get-ChildItem "$TemplatePackPath\$OSArchitecture Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-OSDTemplatePackOSExtraFiles -TemplatePackContent "$($_.FullName)"}
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSExtraFiles"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\OSExtraFiles"
+                Add-OSDContentPackOSExtraFiles -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackOSExtraFiles -ContentPackContent "$ContentPackPath\$OSArchitecture"
+                Get-ChildItem "$ContentPackPath\All Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-OSDContentPackOSExtraFiles -ContentPackContent "$($_.FullName)"}
+                Get-ChildItem "$ContentPackPath\$OSArchitecture Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-OSDContentPackOSExtraFiles -ContentPackContent "$($_.FullName)"}
             }
         }
         if ($PackType -eq 'OSPoshMods') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "OS: TemplatePack OSPoshMods"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\OSPoshMods"
-                Add-OSDTemplatePackOSPoshMods -TemplatePackContent "$TemplatePackPath\ProgramFiles"
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSPoshMods"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\OSPoshMods"
+                Add-OSDContentPackOSPoshMods -ContentPackContent "$ContentPackPath\ProgramFiles"
             }
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\OSPoshMods"
-                Add-OSDTemplatePackOSPoshModsSystem -TemplatePackContent "$TemplatePackPath\System"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\OSPoshMods"
+                Add-OSDContentPackOSPoshModsSystem -ContentPackContent "$ContentPackPath\System"
             }
         }
         if ($PackType -eq 'OSRegistry') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "OS: TemplatePack OSRegistry"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\OSRegistry"
-                Add-OSDTemplatePackOSRegistry -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackOSRegistry -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSRegistry"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\OSRegistry"
+                Add-OSDContentPackOSRegistry -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackOSRegistry -ContentPackContent "$ContentPackPath\$OSArchitecture"
             }
         }
         if ($PackType -eq 'OSScripts') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "OS: TemplatePack OSScripts"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\OSScripts"
-                Add-OSDTemplatePackOSScripts -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackOSScripts -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSScripts"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\OSScripts"
+                Add-OSDContentPackOSScripts -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackOSScripts -ContentPackContent "$ContentPackPath\$OSArchitecture"
             }
         }
         if ($PackType -eq 'OSStartLayout') {
-            Show-ActionTime; Write-Host -ForegroundColor Green "OS: TemplatePack OSStartLayout"
-            foreach ($TemplatePack in $TemplatePacks) {
-                $TemplatePackPath = "$GetOSDBuilderPathTemplates\$TemplatePack\OSStartLayout"
-                Add-OSDTemplatePackOSStartLayouts -TemplatePackContent "$TemplatePackPath\ALL"
-                Add-OSDTemplatePackOSStartLayouts -TemplatePackContent "$TemplatePackPath\$OSArchitecture"
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSStartLayout"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = "$GetOSDBuilderPathContentPacks\$ContentPack\OSStartLayout"
+                Add-OSDContentPackOSStartLayouts -ContentPackContent "$ContentPackPath\ALL"
+                Add-OSDContentPackOSStartLayouts -ContentPackContent "$ContentPackPath\$OSArchitecture"
             }
         }
     }
 }
-function Add-OSDTemplatePackMEDIA {
+function Add-OSDContentPackMEDIA {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackMEDIA: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackMEDIA: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackMEDIA.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackMEDIA.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    robocopy "$TemplatePackContent" "$OS" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    robocopy "$ContentPackContent" "$OS" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
 }
-function Add-OSDTemplatePackOSDrivers {
+function Add-OSDContentPackOSDrivers {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
         #[string]$MountDirectory
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackOSDrivers: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackOSDrivers: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackOSDrivers.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackOSDrivers.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.inf -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.inf -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
     if ($OSMajorVersion -eq 6) {
-        dism /Image:"$MountDirectory" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
+        dism /Image:"$MountDirectory" /Add-Driver /Driver:"$ContentPackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
     } else {
-        Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+        Add-WindowsDriver -Driver "$ContentPackContent" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
     }
 }
-function Add-OSDTemplatePackOSExtraFiles {
+function Add-OSDContentPackOSExtraFiles {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackOSExtraFiles: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackOSExtraFiles: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackOSExtraFiles.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackOSExtraFiles.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    robocopy "$TemplatePackContent" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    robocopy "$ContentPackContent" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
 }
-function Add-OSDTemplatePackOSPoshMods {
+function Add-OSDContentPackOSPoshMods {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackOSPoshMods: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackOSPoshMods: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackOSPoshMods.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackOSPoshMods.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    robocopy "$TemplatePackContent" "$MountDirectory\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    robocopy "$ContentPackContent" "$MountDirectory\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
 }
-function Add-OSDTemplatePackOSPoshModsSystem {
+function Add-OSDContentPackOSPoshModsSystem {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackOSPoshModsSystem: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackOSPoshModsSystem: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackOSPoshModsSystem.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackOSPoshModsSystem.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    robocopy "$TemplatePackContent" "$MountDirectory\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+    robocopy "$ContentPackContent" "$MountDirectory\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
 }
-function Add-OSDTemplatePackOSRegistry {
+function Add-OSDContentPackOSRegistry {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent,
+        [string]$ContentPackContent,
 
         [switch]$ShowRegContent
     )
 
     #======================================================================================
-    #   Test-OSDTemplatePackOSRegistry
+    #   Test-OSDContentPackOSRegistry
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackOSRegistry: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackOSRegistry: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
 
     #======================================================================================
@@ -887,25 +887,25 @@ function Add-OSDTemplatePackOSRegistry {
             Write-Verbose "Loading Offline Registry Hive SYSTEM" 
             Start-Process reg -ArgumentList "load HKLM\OfflineSystem $MountDirectory\Windows\System32\Config\SYSTEM" -Wait -WindowStyle Hidden -ErrorAction Stop
         }
-        $OSDTemplatePackTemp = "$env:TEMP\$(Get-Random)"
-        if (!(Test-Path $OSDTemplatePackTemp)) {New-Item -Path "$OSDTemplatePackTemp" -ItemType Directory -Force | Out-Null}
+        $OSDContentPackTemp = "$env:TEMP\$(Get-Random)"
+        if (!(Test-Path $OSDContentPackTemp)) {New-Item -Path "$OSDContentPackTemp" -ItemType Directory -Force | Out-Null}
     }
 
     #======================================================================================
     #   Get-RegFiles
     #======================================================================================
-    [array]$TemplatePackContentFiles = @()
-    [array]$TemplatePackContentFiles = Get-ChildItem "$TemplatePackContent" *.reg -Recurse | Select-Object -Property Name, BaseName, Extension, Directory, FullName
+    [array]$ContentPackContentFiles = @()
+    [array]$ContentPackContentFiles = Get-ChildItem "$ContentPackContent" *.reg -Recurse | Select-Object -Property Name, BaseName, Extension, Directory, FullName
 
     #======================================================================================
-    #	Add-OSDTemplatePackOSRegistryFiles
+    #	Add-OSDContentPackOSRegistryFiles
     #======================================================================================
-    foreach ($OSDRegistryRegFile in $TemplatePackContentFiles) {
+    foreach ($OSDRegistryRegFile in $ContentPackContentFiles) {
         $OSDRegistryImportFile = $OSDRegistryRegFile.FullName
 
         if ($MountDirectory) {
             $RegFileContent = Get-Content -Path $OSDRegistryImportFile
-            $OSDRegistryImportFile = "$OSDTemplatePackTemp\$($OSDRegistryRegFile.BaseName).reg"
+            $OSDRegistryImportFile = "$OSDContentPackTemp\$($OSDRegistryRegFile.BaseName).reg"
 
             $RegFileContent = $RegFileContent -replace 'HKEY_CURRENT_USER','HKEY_LOCAL_MACHINE\OfflineDefaultUser'
             $RegFileContent = $RegFileContent -replace 'HKEY_LOCAL_MACHINE\\SOFTWARE','HKEY_LOCAL_MACHINE\OfflineSoftware'
@@ -916,9 +916,9 @@ function Add-OSDTemplatePackOSRegistry {
 
         Write-Host "$OSDRegistryImportFile"  -ForegroundColor DarkGray
         if ($ShowRegContent.IsPresent){
-            $OSDTemplatePackRegFileContent = @()
-            $OSDTemplatePackRegFileContent = Get-Content -Path $OSDRegistryImportFile
-            foreach ($Line in $OSDTemplatePackRegFileContent) {
+            $OSDContentPackRegFileContent = @()
+            $OSDContentPackRegFileContent = Get-Content -Path $OSDRegistryImportFile
+            foreach ($Line in $OSDContentPackRegFileContent) {
                 Write-Host "$Line" -ForegroundColor Gray
             }
         }
@@ -926,10 +926,10 @@ function Add-OSDTemplatePackOSRegistry {
     }
     
     #======================================================================================
-    #	Remove-OSDTemplatePackTemp
+    #	Remove-OSDContentPackTemp
     #======================================================================================
     if ($MountDirectory) {
-        if (Test-Path $OSDTemplatePackTemp) {Remove-Item -Path "$OSDTemplatePackTemp" -Recurse -Force | Out-Null}
+        if (Test-Path $OSDContentPackTemp) {Remove-Item -Path "$OSDContentPackTemp" -Recurse -Force | Out-Null}
     }
 
     #======================================================================================
@@ -937,51 +937,51 @@ function Add-OSDTemplatePackOSRegistry {
     #======================================================================================
     Dismount-OSDOfflineRegistry -MountPath $MountDirectory
 }
-function Add-OSDTemplatePackOSScripts {
+function Add-OSDContentPackOSScripts {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   TEST
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackOSScripts: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackOSScripts: Unable to locate content in $ContentPackContent"
         Return
     }
-    else {Write-Host "$TemplatePackContent" -ForegroundColor Cyan}
+    else {Write-Host "$ContentPackContent" -ForegroundColor Cyan}
     #======================================================================================
     #   BUILD
     #======================================================================================
-    $TemplatePackOSScripts = Get-ChildItem "$TemplatePackContent" *.ps1 -File -Recurse | Select-Object -Property FullName
-    foreach ($TemplatePackOSScript in $TemplatePackOSScripts) {
-        Write-Host "$($TemplatePackOSScript.FullName)" -ForegroundColor DarkGray
-        Invoke-Expression "& '$($TemplatePackOSScript.FullName)'"
+    $ContentPackOSScripts = Get-ChildItem "$ContentPackContent" *.ps1 -File -Recurse | Select-Object -Property FullName
+    foreach ($ContentPackOSScript in $ContentPackOSScripts) {
+        Write-Host "$($ContentPackOSScript.FullName)" -ForegroundColor DarkGray
+        Invoke-Expression "& '$($ContentPackOSScript.FullName)'"
     }
 }
-function Add-OSDTemplatePackOSStartLayouts {
+function Add-OSDContentPackOSStartLayouts {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   TEST
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackOSStartLayouts: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackOSStartLayouts: Unable to locate content in $ContentPackContent"
         Return
     }
-    else {Write-Host "$TemplatePackContent" -ForegroundColor Cyan}
+    else {Write-Host "$ContentPackContent" -ForegroundColor Cyan}
     #======================================================================================
     #   BUILD
     #======================================================================================
-    $TemplatePackOSStartLayouts = Get-ChildItem "$TemplatePackContent\*.xml" -File | Select-Object -Property FullName
-    foreach ($TemplatePackOSStartLayout in $TemplatePackOSStartLayouts) {
-        Write-Host "$($TemplatePackOSStartLayout.FullName)" -ForegroundColor DarkGray
+    $ContentPackOSStartLayouts = Get-ChildItem "$ContentPackContent\*.xml" -File | Select-Object -Property FullName
+    foreach ($ContentPackOSStartLayout in $ContentPackOSStartLayouts) {
+        Write-Host "$($ContentPackOSStartLayout.FullName)" -ForegroundColor DarkGray
         Try {
-            Copy-Item -Path "$($TemplatePackOSStartLayout.FullName)" -Destination "$MountDirectory\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml" -Recurse -Force | Out-Null
+            Copy-Item -Path "$($ContentPackOSStartLayout.FullName)" -Destination "$MountDirectory\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml" -Recurse -Force | Out-Null
         }
         Catch {
             $ErrorMessage = $_.Exception.Message
@@ -989,29 +989,29 @@ function Add-OSDTemplatePackOSStartLayouts {
         }
     }
 }
-function Add-OSDTemplatePackPEADK {
+function Add-OSDContentPackPEADK {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackPEADK: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackPEADK: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $ADKFiles = Get-ChildItem "$TemplatePackContent\*" -Include *.cab -File | Sort-Object Length -Descending | Select-Object Name, FullName
-    $ADKFilesSub = Get-ChildItem "$TemplatePackContent\*\*" -Include *.cab -File -Recurse | Sort-Object Length -Descending | Select-Object Name, FullName
+    $ADKFiles = Get-ChildItem "$ContentPackContent\*" -Include *.cab -File | Sort-Object Length -Descending | Select-Object Name, FullName
+    $ADKFilesSub = Get-ChildItem "$ContentPackContent\*\*" -Include *.cab -File -Recurse | Sort-Object Length -Descending | Select-Object Name, FullName
 
     foreach ($ADKFile in $ADKFiles) {
-        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-TemplatePackPEADK-$($ADKFile.Name).log"
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackPEADK-$($ADKFile.Name).log"
         Write-Verbose "CurrentLog: $CurrentLog"
         
         Write-Host "$($ADKFile.FullName)" -ForegroundColor DarkGray
@@ -1021,7 +1021,7 @@ function Add-OSDTemplatePackPEADK {
     }
 
     foreach ($ADKFile in $ADKFilesSub) {
-        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-TemplatePackPEADK-$($ADKFile.Name).log"
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackPEADK-$($ADKFile.Name).log"
         Write-Verbose "CurrentLog: $CurrentLog"
 
         Write-Host "$($ADKFile.FullName)" -ForegroundColor DarkGray
@@ -1030,24 +1030,24 @@ function Add-OSDTemplatePackPEADK {
         if ($MountWinSE) {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
     }
 }
-function Add-OSDTemplatePackPEDaRT {
+function Add-OSDContentPackPEDaRT {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   TEST
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\Tools$($OSArchitecture).cab")) {
-        Write-Verbose "Add-OSDTemplatePackPEDaRT: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\Tools$($OSArchitecture).cab")) {
+        Write-Verbose "Add-OSDContentPackPEDaRT: Unable to locate content in $ContentPackContent"
         Return
     }
-    else {Write-Host "$TemplatePackContent\Tools$($OSArchitecture).cab" -ForegroundColor Cyan}
+    else {Write-Host "$ContentPackContent\Tools$($OSArchitecture).cab" -ForegroundColor Cyan}
     #======================================================================================
     #   BUILD
     #======================================================================================
-    $MicrosoftDartCab = "$TemplatePackContent\Tools$($OSArchitecture).cab"
+    $MicrosoftDartCab = "$ContentPackContent\Tools$($OSArchitecture).cab"
     if (Test-Path $MicrosoftDartCab) {
         if ($MountWinPE) {expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinPE" | Out-Null}
         if ($MountWinRE) {expand.exe "$MicrosoftDartCab" -F:*.* "$MountWinRE" | Out-Null}
@@ -1080,135 +1080,135 @@ function Add-OSDTemplatePackPEDaRT {
         }
     } else {Write-Warning "Microsoft DaRT do not exist in $MicrosoftDartCab"}
 }
-function Add-OSDTemplatePackPEDrivers {
+function Add-OSDContentPackPEDrivers {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackPEDrivers: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackPEDrivers: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackPEDrivers.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackPEDrivers.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.inf -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.inf -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
     if ($OSMajorVersion -eq 6) {
-        if ($MountWinPE) {dism /Image:"$MountWinPE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
-        if ($MountWinRE) {dism /Image:"$MountWinRE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
-        if ($MountWinSE) {dism /Image:"$MountWinSE" /Add-Driver /Driver:"$TemplatePackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
+        if ($MountWinPE) {dism /Image:"$MountWinPE" /Add-Driver /Driver:"$ContentPackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
+        if ($MountWinRE) {dism /Image:"$MountWinRE" /Add-Driver /Driver:"$ContentPackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
+        if ($MountWinSE) {dism /Image:"$MountWinSE" /Add-Driver /Driver:"$ContentPackContent" /Recurse /ForceUnsigned /LogPath:"$CurrentLog" | Out-Null}
     } else {
-        if ($MountWinPE) {Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinPE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
-        if ($MountWinRE) {Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinRE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
-        if ($MountWinSE) {Add-WindowsDriver -Driver "$TemplatePackContent" -Recurse -Path "$MountWinSE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinPE) {Add-WindowsDriver -Driver "$ContentPackContent" -Recurse -Path "$MountWinPE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinRE) {Add-WindowsDriver -Driver "$ContentPackContent" -Recurse -Path "$MountWinRE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
+        if ($MountWinSE) {Add-WindowsDriver -Driver "$ContentPackContent" -Recurse -Path "$MountWinSE" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
     }
 }
-function Add-OSDTemplatePackPEExtraFiles {
+function Add-OSDContentPackPEExtraFiles {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackPEExtraFiles: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackPEExtraFiles: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackPEExtraFiles.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackPEExtraFiles.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    if ($MountWinPE) {robocopy "$TemplatePackContent" "$MountWinPE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
-    if ($MountWinRE) {robocopy "$TemplatePackContent" "$MountWinRE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
-    if ($MountWinSE) {robocopy "$TemplatePackContent" "$MountWinSE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinPE) {robocopy "$ContentPackContent" "$MountWinPE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinRE) {robocopy "$ContentPackContent" "$MountWinRE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinSE) {robocopy "$ContentPackContent" "$MountWinSE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
 }
-function Add-OSDTemplatePackPEPoshMods {
+function Add-OSDContentPackPEPoshMods {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackPEPoshMods: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackPEPoshMods: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackPEPoshMods.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackPEPoshMods.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    if ($MountWinPE) {robocopy "$TemplatePackContent" "$MountWinPE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
-    if ($MountWinRE) {robocopy "$TemplatePackContent" "$MountWinRE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
-    if ($MountWinSE) {robocopy "$TemplatePackContent" "$MountWinSE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinPE) {robocopy "$ContentPackContent" "$MountWinPE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinRE) {robocopy "$ContentPackContent" "$MountWinRE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinSE) {robocopy "$ContentPackContent" "$MountWinSE\Program Files\WindowsPowerShell\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
 }
-function Add-OSDTemplatePackPEPoshModsSystem {
+function Add-OSDContentPackPEPoshModsSystem {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   Test
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackPEPoshModsSystem: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackPEPoshModsSystem: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Import
     #======================================================================================
-    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDTemplatePackPEPoshModsSystem.log"
+    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-OSDContentPackPEPoshModsSystem.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Get-ChildItem "$TemplatePackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
+    Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
-    if ($MountWinPE) {robocopy "$TemplatePackContent" "$MountWinPE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
-    if ($MountWinRE) {robocopy "$TemplatePackContent" "$MountWinRE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
-    if ($MountWinSE) {robocopy "$TemplatePackContent" "$MountWinSE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinPE) {robocopy "$ContentPackContent" "$MountWinPE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinRE) {robocopy "$ContentPackContent" "$MountWinRE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    if ($MountWinSE) {robocopy "$ContentPackContent" "$MountWinSE\Windows\System32\WindowsPowerShell\v1.0\Modules" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
 }
-function Add-OSDTemplatePackPERegistry {
+function Add-OSDContentPackPERegistry {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent,
+        [string]$ContentPackContent,
         [switch]$ShowRegContent
     )
     #======================================================================================
-    #   Test-OSDTemplatePackPERegistry
+    #   Test-OSDContentPackPERegistry
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackPERegistry: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackPERegistry: Unable to locate content in $ContentPackContent"
         Return
     } else {
-        Write-Host "$TemplatePackContent" -ForegroundColor Cyan
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
     #======================================================================================
     #   Mount-OfflineRegistryHives
@@ -1216,24 +1216,24 @@ function Add-OSDTemplatePackPERegistry {
     if (($MountWinPE) -and (Test-Path "$MountWinPE" -ErrorAction SilentlyContinue)) {
         Mount-OSDOfflineRegistryPE -MountPath $MountWinPE
     } else {Return}
-    $OSDTemplatePackTemp = "$env:TEMP\$(Get-Random)"
-    if (!(Test-Path $OSDTemplatePackTemp)) {New-Item -Path "$OSDTemplatePackTemp" -ItemType Directory -Force | Out-Null}
+    $OSDContentPackTemp = "$env:TEMP\$(Get-Random)"
+    if (!(Test-Path $OSDContentPackTemp)) {New-Item -Path "$OSDContentPackTemp" -ItemType Directory -Force | Out-Null}
 
     #======================================================================================
     #   Get-RegFiles
     #======================================================================================
-    [array]$TemplatePackContentFiles = @()
-    [array]$TemplatePackContentFiles = Get-ChildItem "$TemplatePackContent" *.reg -Recurse | Select-Object -Property Name, BaseName, Extension, Directory, FullName
+    [array]$ContentPackContentFiles = @()
+    [array]$ContentPackContentFiles = Get-ChildItem "$ContentPackContent" *.reg -Recurse | Select-Object -Property Name, BaseName, Extension, Directory, FullName
 
     #======================================================================================
-    #	Add-OSDTemplatePackPERegistryFiles
+    #	Add-OSDContentPackPERegistryFiles
     #======================================================================================
-    foreach ($OSDRegistryRegFile in $TemplatePackContentFiles) {
+    foreach ($OSDRegistryRegFile in $ContentPackContentFiles) {
         $OSDRegistryImportFile = $OSDRegistryRegFile.FullName
 
         if ($MountWinPE) {
             $RegFileContent = Get-Content -Path $OSDRegistryImportFile
-            $OSDRegistryImportFile = "$OSDTemplatePackTemp\$($OSDRegistryRegFile.BaseName).reg"
+            $OSDRegistryImportFile = "$OSDContentPackTemp\$($OSDRegistryRegFile.BaseName).reg"
 
             $RegFileContent = $RegFileContent -replace 'HKEY_CURRENT_USER','HKEY_LOCAL_MACHINE\OfflineDefaultUser'
             $RegFileContent = $RegFileContent -replace 'HKEY_LOCAL_MACHINE\\SOFTWARE','HKEY_LOCAL_MACHINE\OfflineSoftware'
@@ -1244,9 +1244,9 @@ function Add-OSDTemplatePackPERegistry {
 
         Write-Host "$OSDRegistryImportFile"  -ForegroundColor DarkGray
         if ($ShowRegContent.IsPresent){
-            $OSDTemplatePackRegFileContent = @()
-            $OSDTemplatePackRegFileContent = Get-Content -Path $OSDRegistryImportFile
-            foreach ($Line in $OSDTemplatePackRegFileContent) {
+            $OSDContentPackRegFileContent = @()
+            $OSDContentPackRegFileContent = Get-Content -Path $OSDRegistryImportFile
+            foreach ($Line in $OSDContentPackRegFileContent) {
                 Write-Host "$Line" -ForegroundColor Gray
             }
         }
@@ -1254,10 +1254,10 @@ function Add-OSDTemplatePackPERegistry {
     }
     
     #======================================================================================
-    #	Remove-OSDTemplatePackTemp
+    #	Remove-OSDContentPackTemp
     #======================================================================================
     if ($MountWinPE) {
-        if (Test-Path $OSDTemplatePackTemp) {Remove-Item -Path "$OSDTemplatePackTemp" -Recurse -Force | Out-Null}
+        if (Test-Path $OSDContentPackTemp) {Remove-Item -Path "$OSDContentPackTemp" -Recurse -Force | Out-Null}
     }
     #======================================================================================
     #	Dismount-RegistryHives
@@ -1269,24 +1269,24 @@ function Add-OSDTemplatePackPERegistry {
     if (($MountWinRE) -and (Test-Path "$MountWinRE" -ErrorAction SilentlyContinue)) {
         Mount-OSDOfflineRegistryPE -MountPath $MountWinRE
     } else {Return}
-    $OSDTemplatePackTemp = "$env:TEMP\$(Get-Random)"
-    if (!(Test-Path $OSDTemplatePackTemp)) {New-Item -Path "$OSDTemplatePackTemp" -ItemType Directory -Force | Out-Null}
+    $OSDContentPackTemp = "$env:TEMP\$(Get-Random)"
+    if (!(Test-Path $OSDContentPackTemp)) {New-Item -Path "$OSDContentPackTemp" -ItemType Directory -Force | Out-Null}
 
     #======================================================================================
     #   Get-RegFiles
     #======================================================================================
-    [array]$TemplatePackContentFiles = @()
-    [array]$TemplatePackContentFiles = Get-ChildItem "$TemplatePackContent" *.reg -Recurse | Select-Object -Property Name, BaseName, Extension, Directory, FullName
+    [array]$ContentPackContentFiles = @()
+    [array]$ContentPackContentFiles = Get-ChildItem "$ContentPackContent" *.reg -Recurse | Select-Object -Property Name, BaseName, Extension, Directory, FullName
 
     #======================================================================================
-    #	Add-OSDTemplatePackPERegistryFiles
+    #	Add-OSDContentPackPERegistryFiles
     #======================================================================================
-    foreach ($OSDRegistryRegFile in $TemplatePackContentFiles) {
+    foreach ($OSDRegistryRegFile in $ContentPackContentFiles) {
         $OSDRegistryImportFile = $OSDRegistryRegFile.FullName
 
         if ($MountWinRE) {
             $RegFileContent = Get-Content -Path $OSDRegistryImportFile
-            $OSDRegistryImportFile = "$OSDTemplatePackTemp\$($OSDRegistryRegFile.BaseName).reg"
+            $OSDRegistryImportFile = "$OSDContentPackTemp\$($OSDRegistryRegFile.BaseName).reg"
 
             $RegFileContent = $RegFileContent -replace 'HKEY_CURRENT_USER','HKEY_LOCAL_MACHINE\OfflineDefaultUser'
             $RegFileContent = $RegFileContent -replace 'HKEY_LOCAL_MACHINE\\SOFTWARE','HKEY_LOCAL_MACHINE\OfflineSoftware'
@@ -1297,9 +1297,9 @@ function Add-OSDTemplatePackPERegistry {
 
         Write-Host "$OSDRegistryImportFile"  -ForegroundColor DarkGray
         if ($ShowRegContent.IsPresent){
-            $OSDTemplatePackRegFileContent = @()
-            $OSDTemplatePackRegFileContent = Get-Content -Path $OSDRegistryImportFile
-            foreach ($Line in $OSDTemplatePackRegFileContent) {
+            $OSDContentPackRegFileContent = @()
+            $OSDContentPackRegFileContent = Get-Content -Path $OSDRegistryImportFile
+            foreach ($Line in $OSDContentPackRegFileContent) {
                 Write-Host "$Line" -ForegroundColor Gray
             }
         }
@@ -1307,10 +1307,10 @@ function Add-OSDTemplatePackPERegistry {
     }
     
     #======================================================================================
-    #	Remove-OSDTemplatePackTemp
+    #	Remove-OSDContentPackTemp
     #======================================================================================
     if ($MountWinRE) {
-        if (Test-Path $OSDTemplatePackTemp) {Remove-Item -Path "$OSDTemplatePackTemp" -Recurse -Force | Out-Null}
+        if (Test-Path $OSDContentPackTemp) {Remove-Item -Path "$OSDContentPackTemp" -Recurse -Force | Out-Null}
     }
     #======================================================================================
     #	Dismount-RegistryHives
@@ -1322,24 +1322,24 @@ function Add-OSDTemplatePackPERegistry {
     if (($MountWinSE) -and (Test-Path "$MountWinSE" -ErrorAction SilentlyContinue)) {
         Mount-OSDOfflineRegistryPE -MountPath $MountWinSE
     } else {Return}
-    $OSDTemplatePackTemp = "$env:TEMP\$(Get-Random)"
-    if (!(Test-Path $OSDTemplatePackTemp)) {New-Item -Path "$OSDTemplatePackTemp" -ItemType Directory -Force | Out-Null}
+    $OSDContentPackTemp = "$env:TEMP\$(Get-Random)"
+    if (!(Test-Path $OSDContentPackTemp)) {New-Item -Path "$OSDContentPackTemp" -ItemType Directory -Force | Out-Null}
 
     #======================================================================================
     #   Get-RegFiles
     #======================================================================================
-    [array]$TemplatePackContentFiles = @()
-    [array]$TemplatePackContentFiles = Get-ChildItem "$TemplatePackContent" *.reg -Recurse | Select-Object -Property Name, BaseName, Extension, Directory, FullName
+    [array]$ContentPackContentFiles = @()
+    [array]$ContentPackContentFiles = Get-ChildItem "$ContentPackContent" *.reg -Recurse | Select-Object -Property Name, BaseName, Extension, Directory, FullName
 
     #======================================================================================
-    #	Add-OSDTemplatePackPERegistryFiles
+    #	Add-OSDContentPackPERegistryFiles
     #======================================================================================
-    foreach ($OSDRegistryRegFile in $TemplatePackContentFiles) {
+    foreach ($OSDRegistryRegFile in $ContentPackContentFiles) {
         $OSDRegistryImportFile = $OSDRegistryRegFile.FullName
 
         if ($MountWinSE) {
             $RegFileContent = Get-Content -Path $OSDRegistryImportFile
-            $OSDRegistryImportFile = "$OSDTemplatePackTemp\$($OSDRegistryRegFile.BaseName).reg"
+            $OSDRegistryImportFile = "$OSDContentPackTemp\$($OSDRegistryRegFile.BaseName).reg"
 
             $RegFileContent = $RegFileContent -replace 'HKEY_CURRENT_USER','HKEY_LOCAL_MACHINE\OfflineDefaultUser'
             $RegFileContent = $RegFileContent -replace 'HKEY_LOCAL_MACHINE\\SOFTWARE','HKEY_LOCAL_MACHINE\OfflineSoftware'
@@ -1350,9 +1350,9 @@ function Add-OSDTemplatePackPERegistry {
 
         Write-Host "$OSDRegistryImportFile"  -ForegroundColor DarkGray
         if ($ShowRegContent.IsPresent){
-            $OSDTemplatePackRegFileContent = @()
-            $OSDTemplatePackRegFileContent = Get-Content -Path $OSDRegistryImportFile
-            foreach ($Line in $OSDTemplatePackRegFileContent) {
+            $OSDContentPackRegFileContent = @()
+            $OSDContentPackRegFileContent = Get-Content -Path $OSDRegistryImportFile
+            foreach ($Line in $OSDContentPackRegFileContent) {
                 Write-Host "$Line" -ForegroundColor Gray
             }
         }
@@ -1360,37 +1360,37 @@ function Add-OSDTemplatePackPERegistry {
     }
     
     #======================================================================================
-    #	Remove-OSDTemplatePackTemp
+    #	Remove-OSDContentPackTemp
     #======================================================================================
     if ($MountWinSE) {
-        if (Test-Path $OSDTemplatePackTemp) {Remove-Item -Path "$OSDTemplatePackTemp" -Recurse -Force | Out-Null}
+        if (Test-Path $OSDContentPackTemp) {Remove-Item -Path "$OSDContentPackTemp" -Recurse -Force | Out-Null}
     }
     #======================================================================================
     #	Dismount-RegistryHives
     #======================================================================================
     Dismount-OSDOfflineRegistry -MountPath $MountWinSE
 }
-function Add-OSDTemplatePackPEScripts {
+function Add-OSDContentPackPEScripts {
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory)]
-        [string]$TemplatePackContent
+        [string]$ContentPackContent
     )
     #======================================================================================
     #   TEST
     #======================================================================================
-    if (!(Test-Path "$TemplatePackContent\*")) {
-        Write-Verbose "Add-OSDTemplatePackPEScripts: Unable to locate content in $TemplatePackContent"
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-OSDContentPackPEScripts: Unable to locate content in $ContentPackContent"
         Return
     }
-    else {Write-Host "$TemplatePackContent" -ForegroundColor Cyan}
+    else {Write-Host "$ContentPackContent" -ForegroundColor Cyan}
     #======================================================================================
     #   BUILD
     #======================================================================================
-    $TemplatePackPEScripts = Get-ChildItem "$TemplatePackContent" *.ps1 -File -Recurse | Select-Object -Property FullName
-    foreach ($TemplatePackPEScript in $TemplatePackPEScripts) {
-        Write-Host "$($TemplatePackPEScript.FullName)" -ForegroundColor DarkGray
-        Invoke-Expression "& '$($TemplatePackPEScript.FullName)'"
+    $ContentPackPEScripts = Get-ChildItem "$ContentPackContent" *.ps1 -File -Recurse | Select-Object -Property FullName
+    foreach ($ContentPackPEScript in $ContentPackPEScripts) {
+        Write-Host "$($ContentPackPEScript.FullName)" -ForegroundColor DarkGray
+        Invoke-Expression "& '$($ContentPackPEScript.FullName)'"
     }
 }
 function Add-WindowsPackageOS {
@@ -1952,7 +1952,7 @@ function Get-OSDFromJson
 
     return $hashtable
 }
-function Get-IsTemplatePacksEnabled {
+function Get-IsContentPacksEnabled {
     [CmdletBinding()]
     Param ()
     if (Test-Path $GetOSDBuilderPathTemplates\Drivers) {Return $false}
@@ -2251,7 +2251,7 @@ function Get-PEBuildTask {
         #Write-Host "$($MyInvocation.MyCommand.Name) END"
     }
 }
-function Get-TaskTemplatePacks {
+function Get-TaskContentPacks {
     #===================================================================================================
     #   Content Box 
     #===================================================================================================
@@ -2259,24 +2259,24 @@ function Get-TaskTemplatePacks {
     Param (
         [switch]$Select
     )
-    $TaskTemplatePacks = Get-ChildItem -Path "$GetOSDBuilderPathTemplates" -Directory -ErrorAction SilentlyContinue | Select-Object -Property Name
-    if (!($Select.IsPresent)) {$TaskTemplatePacks = $TaskTemplatePacks | Where-Object {$_.Name -ne '_Global'}}
+    $TaskContentPacks = Get-ChildItem -Path "$GetOSDBuilderPathTemplates" -Directory -ErrorAction SilentlyContinue | Select-Object -Property Name
+    if (!($Select.IsPresent)) {$TaskContentPacks = $TaskContentPacks | Where-Object {$_.Name -ne '_Global'}}
 
-    if ($null -eq $TaskTemplatePacks) {Write-Warning "TemplatePacks: No Packs exist in $GetOSDBuilderPathTemplates"}
+    if ($null -eq $TaskContentPacks) {Write-Warning "ContentPacks: No Packs exist in $GetOSDBuilderPathTemplates"}
     else {
-        if ($ExistingTask.TemplatePacks) {
-            foreach ($Item in $ExistingTask.TemplatePacks) {
-                $TaskTemplatePacks = $TaskTemplatePacks | Where-Object {$_.Name -ne $Item}
+        if ($ExistingTask.ContentPacks) {
+            foreach ($Item in $ExistingTask.ContentPacks) {
+                $TaskContentPacks = $TaskContentPacks | Where-Object {$_.Name -ne $Item}
             }
         }
         if ($Select.IsPresent) {
-            $TaskTemplatePacks = $TaskTemplatePacks | Out-GridView -Title "TemplatePacks: Select only the TemplatePacks to apply and press OK (Esc or Cancel to Skip)" -PassThru
+            $TaskContentPacks = $TaskContentPacks | Out-GridView -Title "ContentPacks: Select only the ContentPacks to apply and press OK (Esc or Cancel to Skip)" -PassThru
         } else {
-            $TaskTemplatePacks = $TaskTemplatePacks | Out-GridView -Title "TemplatePacks: Select TemplatePacks to add to this Task and press OK (Esc or Cancel to Skip)" -PassThru
+            $TaskContentPacks = $TaskContentPacks | Out-GridView -Title "ContentPacks: Select ContentPacks to add to this Task and press OK (Esc or Cancel to Skip)" -PassThru
         }
     }
-    if (!($Select.IsPresent)) {foreach ($Item in $TaskTemplatePacks) {Write-Host "$($Item.Name)" -ForegroundColor White}}
-    Return $TaskTemplatePacks
+    if (!($Select.IsPresent)) {foreach ($Item in $TaskContentPacks) {Write-Host "$($Item.Name)" -ForegroundColor White}}
+    Return $TaskContentPacks
 }
 function Get-TaskContentAddFeatureOnDemand {
     #===================================================================================================
@@ -3693,6 +3693,7 @@ function New-ItemDirectoryGetOSDBuilderHome {
     $ItemDirectories = @(
         $GetOSDBuilder.Home
         $GetOSDBuilder.PathContent
+        $GetOSDBuilder.PathContentPacks
         $GetOSDBuilder.PathFeatureUpdates
         $GetOSDBuilder.PathOSBuilds
         $GetOSDBuilder.PathOSImport
@@ -4233,9 +4234,9 @@ function Show-OSDBuilderHomeMap {
     
     if (Test-Path $GetOSDBuilderHome)            {Write-Host "OSDBuilder Home:                                    $GetOSDBuilderHome" -ForegroundColor White}
     else                                        {Write-Host "OSDBuilder Home:                                    $GetOSDBuilderHome (does not exist)" -ForegroundColor White}
-    if (Get-IsTemplatePacksEnabled) {
-        if (Test-Path "$GetOSDBuilderPathTemplates")  {Write-Host "TemplatePacks:                                         $GetOSDBuilderPathTemplates" -ForegroundColor Cyan}
-        else                                    {Write-Host "TemplatePacks:                                         $GetOSDBuilderPathTemplates (does not exist)" -ForegroundColor Gray}
+    if (Get-IsContentPacksEnabled) {
+        if (Test-Path "$GetOSDBuilderPathTemplates")  {Write-Host "ContentPacks:                                         $GetOSDBuilderPathTemplates" -ForegroundColor Cyan}
+        else                                    {Write-Host "ContentPacks:                                         $GetOSDBuilderPathTemplates (does not exist)" -ForegroundColor Gray}
     }
 
 <#     if (Test-Path "$GetOSDBuilderPathOSImport")            {Write-Host "OSImport:          $GetOSDBuilderPathOSImport" -ForegroundColor Gray}
@@ -4299,9 +4300,9 @@ function Show-TaskInfo {
     if ($CustomName) {
     Write-Host "-Custom Name:               $CustomName"}
     
-    if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-        Write-Host "-TemplatePacks:" -ForegroundColor Cyan
-        foreach ($item in $TemplatePacks)       {Write-Host "   $GetOSDBuilderPathTemplates\$item" -ForegroundColor Cyan}}
+    if ((Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
+        Write-Host "-ContentPacks:" -ForegroundColor Cyan
+        foreach ($item in $ContentPacks)       {Write-Host "   $GetOSDBuilderPathTemplates\$item" -ForegroundColor Cyan}}
     
     if ($EnableNetFX3 -eq $true) {
     Write-Host "-Enable NetFx3:             $EnableNetFX3"}
@@ -4454,7 +4455,7 @@ function Show-TaskInfo {
         "UnattendXML" = [string]$UnattendXML;
         "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
         "WinPEDaRT" = [string]$WinPEDaRT;
-        TemplatePacks = [string[]]$($TemplatePacks | Sort-Object -Unique);
+        ContentPacks = [string[]]$($ContentPacks | Sort-Object -Unique);
         "ExtraFiles" = [string[]]$($ExtraFiles | Sort-Object -Unique);
         "Scripts" = [string[]]$($Scripts | Sort-Object -Unique);
         "Drivers" = [string[]]$($Drivers | Sort-Object -Unique);
@@ -4964,7 +4965,7 @@ function Update-LangIniMEDIA {
     #===================================================================================================
     #   Execute
     #===================================================================================================
-    $MountWinSELangIni = Join-Path $GetOSDBuilderPathContent\Mount "winselangini$((Get-Date).ToString('hhmmss'))"
+    $MountWinSELangIni = Join-Path $GetOSDBuilderPathMount "winselangini$((Get-Date).ToString('hhmmss'))"
     if (!(Test-Path "$MountWinSELangIni")) {New-Item "$MountWinSELangIni" -ItemType Directory -Force | Out-Null}
 
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-WinSELangIni.log"
@@ -4985,7 +4986,7 @@ function Update-LangIniMEDIA {
     if (Test-Path "$MountWinSELangIni") {Remove-Item -Path "$MountWinSELangIni" -Force -Recurse | Out-Null}
 
     Write-Host "Install.wim: Updating Boot.wim Index 2 with updated Lang.ini"
-    $MountBootLangIni = Join-Path $GetOSDBuilderPathContent\Mount "bootlangini$((Get-Date).ToString('hhmmss'))"
+    $MountBootLangIni = Join-Path $GetOSDBuilderPathMount "bootlangini$((Get-Date).ToString('hhmmss'))"
     if (!(Test-Path "$MountBootLangIni")) {New-Item "$MountBootLangIni" -ItemType Directory -Force | Out-Null}
 
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-BootLangIni.log"

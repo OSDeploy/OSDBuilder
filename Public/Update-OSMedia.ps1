@@ -209,12 +209,12 @@ function Update-OSMedia {
                 $UnattendXML = $Task.UnattendXML
                 $WinPEAutoExtraFiles = $Task.WinPEAutoExtraFiles
                 $WinPEDaRT = $Task.WinPEDart
-                if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-                    if ($null -eq $Task.TemplatePacks) {
-                        $TemplatePacks = @('_Global')
+                if ((Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
+                    if ($null -eq $Task.ContentPacks) {
+                        $ContentPacks = @('_Global')
                     } else {
-                        $TemplatePacks = @('_Global')
-                        $TemplatePacks = ($TemplatePacks += $Task.TemplatePacks)
+                        $ContentPacks = @('_Global')
+                        $ContentPacks = ($ContentPacks += $Task.ContentPacks)
                     }
                 }
                 $ExtraFiles = $Task.ExtraFiles
@@ -336,7 +336,7 @@ function Update-OSMedia {
                         Write-Host "Skipping: $($Task.TaskName)" -ForegroundColor DarkGray
                         Continue
                     }
-                    $TemplatePacks += @($Task.TemplatePacks | Where-Object {$_})
+                    $ContentPacks += @($Task.ContentPacks | Where-Object {$_})
 
                     if (!($Task.EnableNetFX3 -eq $False)) {$EnableNetFX3 = $Task.EnableNetFX3}
                     if ($Task.StartLayoutXML) {$StartLayoutXML = $Task.StartLayoutXML}
@@ -384,8 +384,8 @@ function Update-OSMedia {
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($EnableNetFX.IsPresent) {$EnableNetFX3 = $true}
-                if ((Get-IsTemplatePacksEnabled) -and ($SelectTemplatePacks.IsPresent)) {
-                    $TemplatePacks = (Get-TaskTemplatePacks -Select).Name
+                if ((Get-IsContentPacksEnabled) -and ($SelectContentPacks.IsPresent)) {
+                    $ContentPacks = (Get-TaskContentPacks -Select).Name
                 }
                 Show-TaskInfo
             }
@@ -861,10 +861,10 @@ function Update-OSMedia {
                 #===================================================================================================
                 Write-Verbose '19.2.25 Set Variables'
                 #===================================================================================================
-                $MountDirectory = Join-Path $GetOSDBuilderPathContent\Mount "os$((Get-Date).ToString('mmss'))"
-                $MountWinPE = Join-Path $GetOSDBuilderPathContent\Mount "winpe$((Get-Date).ToString('mmss'))"
-                $MountWinRE = Join-Path $GetOSDBuilderPathContent\Mount "winre$((Get-Date).ToString('mmss'))"
-                $MountWinSE = Join-Path $GetOSDBuilderPathContent\Mount "setup$((Get-Date).ToString('mmss'))"
+                $MountDirectory = Join-Path $GetOSDBuilderPathMount "os$((Get-Date).ToString('mmss'))"
+                $MountWinPE = Join-Path $GetOSDBuilderPathMount "winpe$((Get-Date).ToString('mmss'))"
+                $MountWinRE = Join-Path $GetOSDBuilderPathMount "winre$((Get-Date).ToString('mmss'))"
+                $MountWinSE = Join-Path $GetOSDBuilderPathMount "setup$((Get-Date).ToString('mmss'))"
                 $Info = Join-Path $WorkingPath 'info'
                     $Logs = Join-Path $Info 'logs'
                 $OS = Join-Path $WorkingPath 'OS'
@@ -906,16 +906,16 @@ function Update-OSMedia {
                 Add-ContentADKWinSE
                 Add-ContentScriptsPE
                 #===================================================================================================
-                #   WinPE TemplatePacks
+                #   WinPE ContentPacks
                 #===================================================================================================
-                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-                    Add-OSDTemplatePack -PackType PEDaRT
-                    Add-OSDTemplatePack -PackType PEADK
-                    Add-OSDTemplatePack -PackType PEDrivers
-                    Add-OSDTemplatePack -PackType PEExtraFiles
-                    Add-OSDTemplatePack -PackType PEPoshMods
-                    Add-OSDTemplatePack -PackType PERegistry
-                    Add-OSDTemplatePack -PackType PEScripts
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
+                    Add-OSDContentPack -PackType PEDaRT
+                    Add-OSDContentPack -PackType PEADK
+                    Add-OSDContentPack -PackType PEDrivers
+                    Add-OSDContentPack -PackType PEExtraFiles
+                    Add-OSDContentPack -PackType PEPoshMods
+                    Add-OSDContentPack -PackType PERegistry
+                    Add-OSDContentPack -PackType PEScripts
                 }
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
@@ -1078,16 +1078,16 @@ function Update-OSMedia {
                 Save-SessionsXmlOS -OSMediaPath "$WorkingPath"
                 Save-InventoryOS -OSMediaPath "$WorkingPath"
                 #===================================================================================================
-                #   TemplatePacks
+                #   ContentPacks
                 #===================================================================================================
-                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-                    Add-OSDTemplatePack -PackType OSDrivers
-                    Add-OSDTemplatePack -PackType OSExtraFiles
-                    Add-OSDTemplatePack -PackType OSPoshMods
-                    Add-OSDTemplatePack -PackType OSRegistry
-                    Add-OSDTemplatePack -PackType OSScripts
-                    Add-OSDTemplatePack -PackType OSStartLayout
-                    Add-OSDTemplatePack -PackType MEDIA
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
+                    Add-OSDContentPack -PackType OSDrivers
+                    Add-OSDContentPack -PackType OSExtraFiles
+                    Add-OSDContentPack -PackType OSPoshMods
+                    Add-OSDContentPack -PackType OSRegistry
+                    Add-OSDContentPack -PackType OSScripts
+                    Add-OSDContentPack -PackType OSStartLayout
+                    Add-OSDContentPack -PackType MEDIA
                 }
                 #===================================================================================================
                 #   Dismount

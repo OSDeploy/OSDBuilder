@@ -1,22 +1,21 @@
 <#
 .SYNOPSIS
-Creates an OSDBuilder TemplatePack
+Creates an OSDBuilder ContentPack
 
 .DESCRIPTION
-Creates an OSDBuilder TemplatePack in the Templatesdirectory
+Creates or Updates an OSDBuilder ContentPack in the ContentPack directory
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/new-osdtemplatepack
+https://osdbuilder.osdeploy.com/module/functions/new-osdbuildercontentpack
 #>
-function New-OSDTemplatePack {
+function New-OSDBuilderContentPack {
     [CmdletBinding()]
     Param (
-        #Name of the Template to create
-        #Template Name must start with an Underscore
+        #Name of the ContentPack to create
         [Parameter(Mandatory)]
-        [string]$TemplateName
+        [string]$ContentPackName
     )
-    $TemplateDirectories = @(
+    $ContentDirectories = @(
         "Media\ALL"
         "Media\x64"
         "Media\x86"
@@ -64,9 +63,9 @@ function New-OSDTemplatePack {
         "PEScripts\x64"
         "PEScripts\x86"
     )
-    foreach ($TemplateDirectory in $TemplateDirectories) {
-        if (!(Test-Path "$GetOSDBuilderPathTemplates\$TemplateName\$TemplateDirectory")) {
-            New-Item "$GetOSDBuilderPathTemplates\$TemplateName\$TemplateDirectory" -ItemType Directory -Force | Out-Null
+    foreach ($ContentDirectory in $ContentDirectories) {
+        if (!(Test-Path "$GetOSDBuilderPathContentPacks\$ContentPackName\$ContentDirectory")) {
+            New-Item "$GetOSDBuilderPathContentPacks\$ContentPackName\$ContentDirectory" -ItemType Directory -Force | Out-Null
         }
     }
 }

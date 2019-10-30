@@ -67,8 +67,8 @@ function New-OSBuild {
         #Create a new OSBuild without applying Templates
         [switch]$SkipTemplates,
 
-        #Create a new OSBuild without applying TemplatePacks
-        [switch]$SkipTemplatePacks,
+        #Create a new OSBuild without applying ContentPacks
+        [switch]$SkipContentPacks,
 
         #Specify the Name of the OSMedia to use with New-OSBuild
         [Parameter(ParameterSetName='Taskless', ValueFromPipelineByPropertyName=$True)]
@@ -78,9 +78,9 @@ function New-OSBuild {
         [Parameter(ParameterSetName='Taskless', Mandatory=$True)]
         [switch]$SkipTask,
 
-        #Add a TemplatePack without creating a Task
+        #Add a ContentPack without creating a Task
         [Parameter(ParameterSetName='Taskless')]
-        [switch]$SelectTemplatePacks,
+        [switch]$SelectContentPacks,
 
         #Enables NetFX without creating a Task
         [Parameter(ParameterSetName='Taskless')]
@@ -213,12 +213,12 @@ function New-OSBuild {
                 }
                 $TaskVersion = $Task.TaskVersion
                 $CustomName = $Task.CustomName
-                if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-                    if ($null -eq $Task.TemplatePacks) {
-                        $TemplatePacks = @('_Global')
+                if ((Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
+                    if ($null -eq $Task.ContentPacks) {
+                        $ContentPacks = @('_Global')
                     } else {
-                        $TemplatePacks = @('_Global')
-                        $TemplatePacks = ($TemplatePacks += $Task.TemplatePacks)
+                        $ContentPacks = @('_Global')
+                        $ContentPacks = ($ContentPacks += $Task.ContentPacks)
                     }
                 }
                 $TaskOSMFamily = $Task.OSMFamily
@@ -350,7 +350,7 @@ function New-OSBuild {
                         Write-Host "Skipping: $($Task.TaskName)" -ForegroundColor DarkGray
                         Continue
                     }
-                    $TemplatePacks += @($Task.TemplatePacks | Where-Object {$_})
+                    $ContentPacks += @($Task.ContentPacks | Where-Object {$_})
 
                     if (!($Task.EnableNetFX3 -eq $False)) {$EnableNetFX3 = $Task.EnableNetFX3}
                     if ($Task.StartLayoutXML) {$StartLayoutXML = $Task.StartLayoutXML}
@@ -398,8 +398,8 @@ function New-OSBuild {
             }
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($EnableNetFX.IsPresent) {$EnableNetFX3 = $true}
-                if ((Get-IsTemplatePacksEnabled) -and ($SelectTemplatePacks.IsPresent)) {
-                    $TemplatePacks = (Get-TaskTemplatePacks -Select).Name
+                if ((Get-IsContentPacksEnabled) -and ($SelectContentPacks.IsPresent)) {
+                    $ContentPacks = (Get-TaskContentPacks -Select).Name
                 }
                 Show-TaskInfo
             }
@@ -875,10 +875,10 @@ function New-OSBuild {
                 #===================================================================================================
                 Write-Verbose '19.2.25 Set Variables'
                 #===================================================================================================
-                $MountDirectory = Join-Path $GetOSDBuilderPathContent\Mount "os$((Get-Date).ToString('mmss'))"
-                $MountWinPE = Join-Path $GetOSDBuilderPathContent\Mount "winpe$((Get-Date).ToString('mmss'))"
-                $MountWinRE = Join-Path $GetOSDBuilderPathContent\Mount "winre$((Get-Date).ToString('mmss'))"
-                $MountWinSE = Join-Path $GetOSDBuilderPathContent\Mount "setup$((Get-Date).ToString('mmss'))"
+                $MountDirectory = Join-Path $GetOSDBuilderPathMount "os$((Get-Date).ToString('mmss'))"
+                $MountWinPE = Join-Path $GetOSDBuilderPathMount "winpe$((Get-Date).ToString('mmss'))"
+                $MountWinRE = Join-Path $GetOSDBuilderPathMount "winre$((Get-Date).ToString('mmss'))"
+                $MountWinSE = Join-Path $GetOSDBuilderPathMount "setup$((Get-Date).ToString('mmss'))"
                 $Info = Join-Path $WorkingPath 'info'
                     $Logs = Join-Path $Info 'logs'
                 $OS = Join-Path $WorkingPath 'OS'
@@ -909,16 +909,16 @@ function New-OSBuild {
                 Update-ServicingStackPE
                 Update-CumulativePE
                 #===================================================================================================
-                #   WinPE TemplatePacks
+                #   WinPE ContentPacks
                 #===================================================================================================
-                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-                    Add-OSDTemplatePack -PackType PEDaRT
-                    Add-OSDTemplatePack -PackType PEADK
-                    Add-OSDTemplatePack -PackType PEDrivers
-                    Add-OSDTemplatePack -PackType PEExtraFiles
-                    Add-OSDTemplatePack -PackType PEPoshMods
-                    Add-OSDTemplatePack -PackType PERegistry
-                    Add-OSDTemplatePack -PackType PEScripts
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
+                    Add-OSDContentPack -PackType PEDaRT
+                    Add-OSDContentPack -PackType PEADK
+                    Add-OSDContentPack -PackType PEDrivers
+                    Add-OSDContentPack -PackType PEExtraFiles
+                    Add-OSDContentPack -PackType PEPoshMods
+                    Add-OSDContentPack -PackType PERegistry
+                    Add-OSDContentPack -PackType PEScripts
                 }
                 #===================================================================================================
                 #   WinPE OSBuild
@@ -1092,16 +1092,16 @@ function New-OSBuild {
                 Save-SessionsXmlOS -OSMediaPath "$WorkingPath"
                 Save-InventoryOS -OSMediaPath "$WorkingPath"
                 #===================================================================================================
-                #   TemplatePacks
+                #   ContentPacks
                 #===================================================================================================
-                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-                    Add-OSDTemplatePack -PackType OSDrivers
-                    Add-OSDTemplatePack -PackType OSExtraFiles
-                    Add-OSDTemplatePack -PackType OSPoshMods
-                    Add-OSDTemplatePack -PackType OSRegistry
-                    Add-OSDTemplatePack -PackType OSScripts
-                    Add-OSDTemplatePack -PackType OSStartLayout
-                    Add-OSDTemplatePack -PackType MEDIA
+                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
+                    Add-OSDContentPack -PackType OSDrivers
+                    Add-OSDContentPack -PackType OSExtraFiles
+                    Add-OSDContentPack -PackType OSPoshMods
+                    Add-OSDContentPack -PackType OSRegistry
+                    Add-OSDContentPack -PackType OSScripts
+                    Add-OSDContentPack -PackType OSStartLayout
+                    Add-OSDContentPack -PackType MEDIA
                 }
                 #===================================================================================================
                 #   Dismount

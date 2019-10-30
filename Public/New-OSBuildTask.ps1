@@ -123,7 +123,7 @@ function New-OSBuildTask {
         [switch]$WinPEAutoExtraFiles,
 
         #Allows selection of a Template Pack to this Build
-        [switch]$AddTemplatePacks,
+        [switch]$AddContentPacks,
 
         #Save as a Task or a Template
         #Default: Task
@@ -270,8 +270,9 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "New-OSBuild $SaveAs Information" -ForegroundColor Green
-        Write-Host "-$SaveAs Name:                  $TaskName"
-        Write-Host "-$SaveAs Path:                  $TaskPath"
+        Write-Host "-Task Name:                     $TaskName"
+        Write-Host "-Task Path:                     $TaskPath"
+        Write-Host "-Save As:                       $SaveAs"
         Write-Host "-Custom Name:                   $CustomName"
         Write-Host "-DotNet 3.5:                    $EnableNetFX3"
         Write-Host "-SetAllIntl:                    $SetAllIntl"
@@ -374,26 +375,26 @@ function New-OSBuildTask {
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         #===================================================================================================
-        #   Validate-TemplatePacks
+        #   Validate-ContentPacks
         #===================================================================================================
-        Write-Host "TemplatePacks" -ForegroundColor Green
-        if ($ExistingTask.TemplatePacks) {
-            foreach ($Item in $ExistingTask.TemplatePacks) {
+        Write-Host "ContentPacks" -ForegroundColor Green
+        if ($ExistingTask.ContentPacks) {
+            foreach ($Item in $ExistingTask.ContentPacks) {
                 Write-Host "$Item" -ForegroundColor DarkGray
             }
         }
-        $TemplatePacks = $null
-        if ($AddTemplatePacks.IsPresent) {
-            if (Get-IsTemplatePacksEnabled) {
-                [array]$TemplatePacks = (Get-TaskTemplatePacks).Name
+        $ContentPacks = $null
+        if ($AddContentPacks.IsPresent) {
+            if (Get-IsContentPacksEnabled) {
+                [array]$ContentPacks = (Get-TaskContentPacks).Name
             
-                $TemplatePacks = [array]$TemplatePacks + [array]$ExistingTask.TemplatePacks
-                $TemplatePacks = $TemplatePacks | Sort-Object -Unique
+                $ContentPacks = [array]$ContentPacks + [array]$ExistingTask.ContentPacks
+                $ContentPacks = $ContentPacks | Sort-Object -Unique
             } else {
-                Write-Warning "TemplatePacks are not enabled for this OSBuild Task"
+                Write-Warning "ContentPacks are not enabled for this OSBuild Task"
             }
         } else {
-            if ($ExistingTask.TemplatePacks) {$TemplatePacks = $ExistingTask.TemplatePacks}
+            if ($ExistingTask.ContentPacks) {$ContentPacks = $ExistingTask.ContentPacks}
         }
         #===================================================================================================
         #   RemoveAppx
@@ -966,9 +967,9 @@ function New-OSBuildTask {
             "CreatedTime" = [datetime]$OSMedia.CreatedTime;
             "ModifiedTime" = [datetime]$OSMedia.ModifiedTime;
             #===================================================================================================
-            #   TemplatePacks
+            #   ContentPacks
             #===================================================================================================
-            "TemplatePacks" = [string[]]$TemplatePacks;
+            "ContentPacks" = [string[]]$ContentPacks;
             #===================================================================================================
             #   Switch
             #===================================================================================================

@@ -141,12 +141,12 @@ $MDTUnattendPEx86 = @'
 
             $WinPEOutput = $($Task.WinPEOutput)
             $CustomName = $($Task.CustomName)
-            if ((Get-IsTemplatePacksEnabled) -and (!($SkipTemplatePacks.IsPresent))) {
-                if ($null -eq $Task.TemplatePacks) {
-                    $TemplatePacks = @('_Global')
+            if ((Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
+                if ($null -eq $Task.ContentPacks) {
+                    $ContentPacks = @('_Global')
                 } else {
-                    $TemplatePacks = @('_Global')
-                    $TemplatePacks = ($TemplatePacks += $Task.TemplatePacks)
+                    $ContentPacks = @('_Global')
+                    $ContentPacks = ($ContentPacks += $Task.ContentPacks)
                 }
             }
 
@@ -179,9 +179,9 @@ $MDTUnattendPEx86 = @'
             Write-Host "-WinPE Output:                  $WinPEOutput"
             Write-Host "-Custom Name:                   $CustomName"
 
-            if (Get-IsTemplatePacksEnabled) {
-                Write-Host "-TemplatePacks:" -ForegroundColor Cyan
-                foreach ($item in $TemplatePacks)       {Write-Host "   $GetOSDBuilderPathTemplates\$item" -ForegroundColor Cyan}}
+            if (Get-IsContentPacksEnabled) {
+                Write-Host "-ContentPacks:" -ForegroundColor Cyan
+                foreach ($item in $ContentPacks)       {Write-Host "   $GetOSDBuilderPathTemplates\$item" -ForegroundColor Cyan}}
     
             Write-Host "-MDT Deployment Share:          $MDTDeploymentShare"
             Write-Host "-WinPE Auto ExtraFiles:         $WinPEAutoExtraFiles"
@@ -423,7 +423,7 @@ $MDTUnattendPEx86 = @'
                 #===================================================================================================
                 Write-Verbose '19.1.1 Create Mount Directories'
                 #===================================================================================================
-                $MountDirectory = Join-Path $GetOSDBuilderPathContent\Mount "pebuild$((Get-Date).ToString('mmss'))"
+                $MountDirectory = Join-Path $GetOSDBuilderPathMount "pebuild$((Get-Date).ToString('mmss'))"
                 $MountWinPE = $MountDirectory
                 $MountWinRE = $null
                 $MountWinSE = $null
@@ -475,16 +475,16 @@ $MDTUnattendPEx86 = @'
                 Set-PEBuildScratchSpace -MountDirectory $MountDirectory -ScratchSpace $ScratchSpace
                 Set-PEBuildTargetPath -MountDirectory $MountDirectory
                 #===================================================================================================
-                #   WinPE TemplatePacks
+                #   WinPE ContentPacks
                 #===================================================================================================
-                if (Get-IsTemplatePacksEnabled) {
-                    Add-OSDTemplatePack -PackType PEDaRT
-                    Add-OSDTemplatePack -PackType PEADK
-                    Add-OSDTemplatePack -PackType PEDrivers
-                    Add-OSDTemplatePack -PackType PEExtraFiles
-                    Add-OSDTemplatePack -PackType PEPoshMods
-                    Add-OSDTemplatePack -PackType PERegistry
-                    Add-OSDTemplatePack -PackType PEScripts
+                if (Get-IsContentPacksEnabled) {
+                    Add-OSDContentPack -PackType PEDaRT
+                    Add-OSDContentPack -PackType PEADK
+                    Add-OSDContentPack -PackType PEDrivers
+                    Add-OSDContentPack -PackType PEExtraFiles
+                    Add-OSDContentPack -PackType PEPoshMods
+                    Add-OSDContentPack -PackType PERegistry
+                    Add-OSDContentPack -PackType PEScripts
                 }
                 $WinPEADKPE = $WinPEADK
                 Add-ContentADKWinPE

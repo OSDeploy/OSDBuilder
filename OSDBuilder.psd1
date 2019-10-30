@@ -83,7 +83,7 @@ FunctionsToExport = 'Get-OSDBuilder',
                     'New-OSDBuilderISO','New-OSDBuilderUSB','Show-OSDBuilderInfo',
                     'Get-DownOSDBuilder',
                     'New-OSBuildMultiLang',
-                    'New-OSDTemplatePack',
+                    'New-OSDBuilderContentPack',
                     'New-OSDBuilderVHD'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

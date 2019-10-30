@@ -59,18 +59,22 @@ function Get-OSDBuilder {
         Rename-Item "$($global:GetOSDBuilder.Home)\Media" "$($global:GetOSDBuilder.Home)\FeatureUpdates" -Force | Out-Null
     }
     #===================================================================================================
-    #   OSDBuilder.Path*
+    #   OSDBuilder.Path* Redirectable
     #===================================================================================================
     $global:GetOSDBuilder.PathContent          = "$($global:GetOSDBuilder.Home)\Content"
+    $global:GetOSDBuilder.PathContentPacks     = "$($global:GetOSDBuilder.Home)\ContentPacks"
     $global:GetOSDBuilder.PathFeatureUpdates   = "$($global:GetOSDBuilder.Home)\FeatureUpdates"
     $global:GetOSDBuilder.PathOSBuilds         = "$($global:GetOSDBuilder.Home)\OSBuilds"
     $global:GetOSDBuilder.PathOSImport         = "$($global:GetOSDBuilder.Home)\OSImport"
     $global:GetOSDBuilder.PathOSMedia          = "$($global:GetOSDBuilder.Home)\OSMedia"
     $global:GetOSDBuilder.PathPEBuilds         = "$($global:GetOSDBuilder.Home)\PEBuilds"
-    $global:GetOSDBuilder.PathTasks            = "$($global:GetOSDBuilder.Home)\Tasks"
-    $global:GetOSDBuilder.PathTemplates        = "$($global:GetOSDBuilder.Home)\Templates"
     $global:GetOSDBuilder.PathMount            = "$($global:GetOSDBuilder.PathContent)\Mount"
     $global:GetOSDBuilder.PathOSDUpdate        = "$($global:GetOSDBuilder.PathContent)\OSDUpdate"
+    #===================================================================================================
+    #   OSDBuilder.Path* Static
+    #===================================================================================================
+    $global:GetOSDBuilder.PathTasks            = "$($global:GetOSDBuilder.Home)\Tasks"
+    $global:GetOSDBuilder.PathTemplates        = "$($global:GetOSDBuilder.Home)\Templates"
     #===================================================================================================
     #   OSDBuilder.json
     #===================================================================================================
@@ -78,10 +82,12 @@ function Get-OSDBuilder {
         Try {
             $OSDBuilderJson = Get-OSDFromJson -Path $env:ProgramData\OSDeploy\OSDBuilder.json
             if ($OSDBuilderJson.PathContent)        {$global:GetOSDBuilder.PathContent = $OSDBuilderJson.PathContent}
+            if ($OSDBuilderJson.PathContentPacks)   {$global:GetOSDBuilder.PathContentPacks = $OSDBuilderJson.PathContentPacks}
             if ($OSDBuilderJson.PathFeatureUpdates) {$global:GetOSDBuilder.PathFeatureUpdates = $OSDBuilderJson.PathFeatureUpdates}
             if ($OSDBuilderJson.PathOSBuilds)       {$global:GetOSDBuilder.PathOSBuilds = $OSDBuilderJson.PathOSBuilds}
             if ($OSDBuilderJson.PathOSImport)       {$global:GetOSDBuilder.PathOSImport = $OSDBuilderJson.PathOSImport}
             if ($OSDBuilderJson.PathOSMedia)        {$global:GetOSDBuilder.PathOSMedia = $OSDBuilderJson.PathOSMedia}
+            if ($OSDBuilderJson.PathPEBuilds)        {$global:GetOSDBuilder.PathPEBuilds = $OSDBuilderJson.PathPEBuilds}
             #Content
             if ($OSDBuilderJson.PathMount)          {$global:GetOSDBuilder.PathMount = $OSDBuilderJson.PathMount}
             if ($OSDBuilderJson.PathOSDUpdate)      {$global:GetOSDBuilder.PathOSDUpdate = $OSDBuilderJson.PathOSDUpdate}
@@ -137,7 +143,9 @@ function Get-OSDBuilder {
 
     $global:GetOSDBuilderHome               = $global:GetOSDBuilder.Home
     $global:GetOSDBuilderPathContent        = $global:GetOSDBuilder.PathContent
+    $global:GetOSDBuilderPathContentPacks   = $global:GetOSDBuilder.PathContentPacks
     $global:GetOSDBuilderPathFeatureUpdates = $global:GetOSDBuilder.PathFeatureUpdates
+    $global:GetOSDBuilderPathMount          = $global:GetOSDBuilder.PathMount
     $global:GetOSDBuilderPathOSBuilds       = $global:GetOSDBuilder.PathOSBuilds
     $global:GetOSDBuilderPathOSDUpdate      = $global:GetOSDBuilder.PathOSDUpdate
     $global:GetOSDBuilderPathOSImport       = $global:GetOSDBuilder.PathOSImport
@@ -180,7 +188,7 @@ function Get-OSDBuilder {
             } else {
                 Write-Host "OSDSUS $($global:GetOSDBuilder.VersionOSDSUS) " -ForegroundColor Yellow -NoNewline
             }
-            if (Get-IsTemplatePacksEnabled) {
+            if (Get-IsContentPacksEnabled) {
                 Write-Host "| " -ForegroundColor White -NoNewline
                 Write-Host "#MMSJazz Ready" -ForegroundColor Magenta
             } else {
@@ -206,7 +214,7 @@ function Get-OSDBuilder {
     if ($CreatePaths.IsPresent) {
         New-ItemDirectoryGetOSDBuilderHome
         New-ItemDirectoryGetOSDBuilderPathContent
-        New-OSDTemplatePack -TemplateName '_Global'
+        New-OSDBuilderContentPack -ContentPackName '_Global'
     }
     #===================================================================================================
     #   Remove Directories
