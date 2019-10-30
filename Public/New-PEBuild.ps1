@@ -478,13 +478,14 @@ $MDTUnattendPEx86 = @'
                 #   WinPE ContentPacks
                 #===================================================================================================
                 if (Get-IsContentPacksEnabled) {
-                    Add-OSDContentPack -PackType PEDaRT
-                    Add-OSDContentPack -PackType PEADK
-                    Add-OSDContentPack -PackType PEDrivers
-                    Add-OSDContentPack -PackType PEExtraFiles
-                    Add-OSDContentPack -PackType PEPoshMods
-                    Add-OSDContentPack -PackType PERegistry
-                    Add-OSDContentPack -PackType PEScripts
+                    Add-ContentPack -PackType PEDaRT
+                    Add-ContentPack -PackType PEADK
+                    #Add-ContentPack -PackType PEADK -WinPEOutput $WinPEOutput -SourceWim $SourceWim
+                    Add-ContentPack -PackType PEDrivers
+                    Add-ContentPack -PackType PEExtraFiles
+                    Add-ContentPack -PackType PEPoshMods
+                    Add-ContentPack -PackType PERegistry
+                    Add-ContentPack -PackType PEScripts
                 }
                 $WinPEADKPE = $WinPEADK
                 Add-ContentADKWinPE

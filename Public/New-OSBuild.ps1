@@ -912,13 +912,13 @@ function New-OSBuild {
                 #   WinPE ContentPacks
                 #===================================================================================================
                 if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
-                    Add-OSDContentPack -PackType PEDaRT
-                    Add-OSDContentPack -PackType PEADK
-                    Add-OSDContentPack -PackType PEDrivers
-                    Add-OSDContentPack -PackType PEExtraFiles
-                    Add-OSDContentPack -PackType PEPoshMods
-                    Add-OSDContentPack -PackType PERegistry
-                    Add-OSDContentPack -PackType PEScripts
+                    Add-ContentPack -PackType PEDaRT
+                    Add-ContentPack -PackType PEADK
+                    Add-ContentPack -PackType PEDrivers
+                    Add-ContentPack -PackType PEExtraFiles
+                    Add-ContentPack -PackType PEPoshMods
+                    Add-ContentPack -PackType PERegistry
+                    Add-ContentPack -PackType PEScripts
                 }
                 #===================================================================================================
                 #   WinPE OSBuild
@@ -1095,13 +1095,13 @@ function New-OSBuild {
                 #   ContentPacks
                 #===================================================================================================
                 if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
-                    Add-OSDContentPack -PackType OSDrivers
-                    Add-OSDContentPack -PackType OSExtraFiles
-                    Add-OSDContentPack -PackType OSPoshMods
-                    Add-OSDContentPack -PackType OSRegistry
-                    Add-OSDContentPack -PackType OSScripts
-                    Add-OSDContentPack -PackType OSStartLayout
-                    Add-OSDContentPack -PackType MEDIA
+                    Add-ContentPack -PackType OSDrivers
+                    Add-ContentPack -PackType OSExtraFiles
+                    Add-ContentPack -PackType OSPoshMods
+                    Add-ContentPack -PackType OSRegistry
+                    Add-ContentPack -PackType OSScripts
+                    Add-ContentPack -PackType OSStartLayout
+                    Add-ContentPack -PackType MEDIA
                 }
                 #===================================================================================================
                 #   Dismount
