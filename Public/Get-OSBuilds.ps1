@@ -6,12 +6,12 @@ Returns all Operating Systems in OSDBuilder\OSBuilds
 Returns all Operating Systems in OSDBuilder\OSBuilds as a PowerShell Custom Object
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/osbuild/get-osbuilds
+https://osdbuilder.osdeploy.com/module/functions/get-osbuilds
 #>
 function Get-OSBuilds {
     [CmdletBinding()]
     Param (
-        #Displays results in PowerShell ISE GridView with an added PassThru Parameter
+        #Displays results in GridView with PassThru
         [switch]$GridView
     )
 

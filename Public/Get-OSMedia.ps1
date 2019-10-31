@@ -6,57 +6,40 @@ Returns all Operating Systems in OSDBuilder\OSMedia
 Returns all Operating Systems in OSDBuilder\OSMedia as a PowerShell Custom Object
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/osmedia/get-osmedia
-
-.PARAMETER GridView
-Displays results in PowerShell ISE GridView with an added PassThru Parameter.  This can also be displayed with the following command
-Get-OSMedia -Passthru | Out-GridView
-
-.PARAMETER OSArch
-OSMedia Architecture
-
-.PARAMETER OSInstallationType
-OSMedia InstallationType
-
-.PARAMETER OSMajorVersion
-OSMedia MajorVersion
-
-.PARAMETER OSReleaseId
-OSMedia ReleaseId
-
-.PARAMETER Revision
-OK (Latest) or Superseded
-
-.PARAMETER Updates
-OK (Current) or Update (needs updates)
+https://osdbuilder.osdeploy.com/module/functions/get-osmedia
 #>
 function Get-OSMedia {
     [CmdletBinding()]
     Param (
-        #===================================================================================================
-        #   Basic
-        #===================================================================================================
+        #Displays results in GridView with PassThru
         [switch]$GridView,
-        [switch]$Newest,
-        #===================================================================================================
-        #   Filters
-        #===================================================================================================
+        
+        #Filter the OSMedia by OS Architecture
         [ValidateSet('x64','x86')]
         [string]$OSArch,
+        
+        #Returns the latest OSMedia
+        [switch]$Newest,
+
+        #Filter the OSMedia by OS Installation Type
         [ValidateSet('Client','Server')]
         [string]$OSInstallationType,
+
+        #Filter the OSMedia by OS Major Version
         [ValidateSet(6,10)]
         [string]$OSMajorVersion,
+
+        #Filter the OSMedia by OS Release Id
         [ValidateSet (1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [string]$OSReleaseId,
-        #===================================================================================================
-        #   Status
-        #===================================================================================================
+        
+        #Filter the OSMedia by Image Revision
         [ValidateSet('OK','Superseded')]
         [string]$Revision,
+
+        #Filter the OSMedia by Update status
         [ValidateSet('OK','Update')]
         [string]$Updates
-        #===================================================================================================
     )
 
     Begin {

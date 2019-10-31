@@ -12,9 +12,11 @@ function New-OSDBuilderContentPack {
     [CmdletBinding()]
     Param (
         #Name of the ContentPack to create
-        [Parameter(Mandatory)]
-        [string]$ContentPackName
+        [Parameter(Position = 0, Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name
     )
+    
     $ContentDirectories = @(
         "Media\ALL"
         "Media\x64"
@@ -82,8 +84,8 @@ function New-OSDBuilderContentPack {
         #"PEScripts\x86"
     )
     foreach ($ContentDirectory in $ContentDirectories) {
-        if (!(Test-Path "$GetOSDBuilderPathContentPacks\$ContentPackName\$ContentDirectory")) {
-            New-Item "$GetOSDBuilderPathContentPacks\$ContentPackName\$ContentDirectory" -ItemType Directory -Force | Out-Null
+        if (!(Test-Path "$GetOSDBuilderPathContentPacks\$Name\$ContentDirectory")) {
+            New-Item "$GetOSDBuilderPathContentPacks\$Name\$ContentDirectory" -ItemType Directory -Force | Out-Null
         }
     }
 }

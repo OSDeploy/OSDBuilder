@@ -2059,7 +2059,7 @@ function Get-FeatureUpdateDownloads {
 function Get-IsContentPacksEnabled {
     [CmdletBinding()]
     Param ()
-    if ($global:GetOSDBuilder.AllowContentPacks -eq $false) {Return $false}
+    if ($global:SetOSDBuilder.AllowContentPacks -eq $false) {Return $false}
     if (Test-Path $GetOSDBuilderPathTemplates\Drivers) {Return $false}
     if (Test-Path $GetOSDBuilderPathTemplates\ExtraFiles) {Return $false}
     if (Test-Path $GetOSDBuilderPathTemplates\Registry) {Return $false}
@@ -3959,16 +3959,16 @@ function New-ItemDirectoryGetOSDBuilderHome {
     $ItemDirectories = @(
         $GetOSDBuilder.Home
         $GetOSDBuilder.PathContent
-        $GetOSDBuilder.PathContentPacks
-        $GetOSDBuilder.PathFeatureUpdates
-        $GetOSDBuilder.PathOSBuilds
-        $GetOSDBuilder.PathOSImport
-        $GetOSDBuilder.PathOSMedia
-        $GetOSDBuilder.PathPEBuilds
+        $SetOSDBuilder.PathContentPacks
+        $SetOSDBuilder.PathFeatureUpdates
+        $SetOSDBuilder.PathOSBuilds
+        $SetOSDBuilder.PathOSImport
+        $SetOSDBuilder.PathOSMedia
+        $SetOSDBuilder.PathPEBuilds
         $GetOSDBuilder.PathTasks
         $GetOSDBuilder.PathTemplates
-        $GetOSDBuilder.PathMount
-        $GetOSDBuilder.PathOSDUpdate
+        $SetOSDBuilder.PathMount
+        $SetOSDBuilder.PathOSDUpdate
     )
 
     foreach ($ItemDirectory in $ItemDirectories) {

@@ -6,7 +6,7 @@ Creates a new PEBuild from an PEBuild Task
 Creates a new PEBuild from an PEBuild Task created with New-PEBuildTask
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/pebuild/new-pebuild
+https://osdbuilder.osdeploy.com/module/functions/new-pebuild
 
 .PARAMETER Execute
 Creates the PEBuild

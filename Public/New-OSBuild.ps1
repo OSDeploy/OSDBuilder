@@ -6,7 +6,7 @@ Creates a new OSBuild from an OSBuild Task
 Creates a new OSBuild from an OSBuild Task created with New-OSBuildTask
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/osbuild/new-osbuild
+https://osdbuilder.osdeploy.com/module/functions/new-osbuild
 
 .NOTES
 19.10.28 MMSJazz Ready
@@ -200,7 +200,7 @@ function New-OSBuild {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
                     #$Task = Get-OSMedia -Revision OK | Where-Object {$_.Name -eq $Bird.Name}
-                    $Task = Get-OSMedia | Where-Object {$_.Name -eq $Bird.Name}
+                    $Task = Get-OSMedia | Where-Object {$_.Name -eq $Bird.Name} | Sort-Object ModifiedTime | Select-Object -Last 1
 
                     $TaskType = 'OSBuild'
                     $TaskName = 'Taskless'

@@ -6,20 +6,13 @@ Returns all Operating Systems in OSDBuilder\PEBuilds
 Returns all Operating Systems in OSDBuilder\PEBuilds as a PowerShell Custom Object
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/pebuild/get-pebuilds
-
-.PARAMETER GridView
-Displays results in PowerShell ISE GridView with an added PassThru Parameter.  This can also be displayed with the following command
-Get-PEBuilds | Out-GridView
+https://osdbuilder.osdeploy.com/module/functions/get-pebuilds
 #>
 function Get-PEBuilds {
     [CmdletBinding()]
     Param (
-        #===================================================================================================
-        #   Basic
-        #===================================================================================================
+        #Displays results in GridView with PassThru
         [switch]$GridView
-        #===================================================================================================
     )
 
     Begin {

@@ -11,49 +11,44 @@ https://osdbuilder.osdeploy.com/module/functions/get-downosdbuilder
 function Get-DownOSDBuilder {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]
     Param (
-        #Downloads Feature Updates
-        [Parameter(ParameterSetName='FeatureUpdates')]
-        [switch]$FeatureUpdates,
-        
-        #Remove Superseded Updates that are no longer needed
-        [Parameter(ParameterSetName='OSDUpdateSuperseded', Mandatory=$True)]
-        [ValidateSet ('List','Remove')]
-        [string]$Superseded,
-        #===================================================================================================
-        #   Content
-        #===================================================================================================
+
+        #Download OneDrive Sync Client
         [Parameter(ParameterSetName='Content')]
         [ValidateSet(
             'OneDriveSetup Production',
             'OneDriveSetup Enterprise')]
         [string]$ContentDownload,
-        #===================================================================================================
-        #   OSDUpdate
-        #===================================================================================================
-        [Parameter(ParameterSetName='OSDUpdate')]
-        [ValidateSet(
-            'Windows 7',
-            #'Windows 8.1',
-            'Windows 10',
-            'Windows Server 2012 R2',
-            'Windows Server 2016',
-            'Windows Server 2019')]
-        [string]$UpdateOS,
         
+        #Download the selected Microsoft Updates
+        #By default, updates are not downloaded
         [Parameter(ParameterSetName='OSDUpdate')]
         [switch]$Download,
 
+        #Downloads Feature Updates
+        [Parameter(ParameterSetName='FeatureUpdates')]
+        [switch]$FeatureUpdates,
+
+        #Display the results in a GridView with PassThru enabled
         [Parameter(ParameterSetName='OSDUpdate')]
         [switch]$GridView,
+        
+        #Remove Superseded Updates that are no longer needed
+        [Parameter(ParameterSetName='OSDUpdateSuperseded', Mandatory=$True)]
+        [ValidateSet ('List','Remove')]
+        [string]$Superseded,
 
+        #Filter Microsoft Updates for a specific OS Architecture
         [Parameter(ParameterSetName='OSDUpdate')]
         [ValidateSet ('x64','x86')]
         [string]$UpdateArch,
 
+        #Filter Microsoft Updates for a specific ReleaseId
         [Parameter(ParameterSetName='OSDUpdate')]
-        [ValidateSet (1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [ValidateSet (1909, 1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [Alias('ReleaseId')]
         [string]$UpdateBuild,
 
+        #Filter Microsoft Updates for a specific Update type
         [Parameter(ParameterSetName='OSDUpdate')]
         [ValidateSet(
             'SSU Servicing Stack Update',
@@ -64,7 +59,18 @@ function Get-DownOSDBuilder {
             'DotNet Framework',
             'Optional')]
         [string]$UpdateGroup,
+        
+        #Filter Microsoft Updates for a specific OS
+        [Parameter(ParameterSetName='OSDUpdate')]
+        [ValidateSet(
+            'Windows 7',
+            'Windows 10',
+            'Windows Server 2012 R2',
+            'Windows Server 2016',
+            'Windows Server 2019')]
+        [string]$UpdateOS,
 
+        #Download updates using Webclient instead of BITS
         [Parameter(ParameterSetName='OSDUpdate')]
         [switch]$WebClient
     )
@@ -221,8 +227,8 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($Superseded) {
                 $ExistingUpdates = @()
-                if (!(Test-Path $GetOSDBuilder.PathOSDUpdate)) {New-Item $GetOSDBuilder.PathOSDUpdate -ItemType Directory -Force | Out-Null}
-                $ExistingUpdates = Get-ChildItem -Path "$($GetOSDBuilder.PathOSDUpdate)\*\*" -Directory
+                if (!(Test-Path $SetOSDBuilder.PathOSDUpdate)) {New-Item $SetOSDBuilder.PathOSDUpdate -ItemType Directory -Force | Out-Null}
+                $ExistingUpdates = Get-ChildItem -Path "$($SetOSDBuilder.PathOSDUpdate)\*\*" -Directory
 
                 $SupersededUpdates = @()
                 foreach ($Update in $ExistingUpdates) {
@@ -280,7 +286,7 @@ function Get-DownOSDBuilder {
             if ($Download.IsPresent) {
 				if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
                 foreach ($Update in $OSDUpdates) {
-                    $DownloadPath = "$($GetOSDBuilder.PathOSDUpdate)\$($Update.Catalog)\$($Update.Title)"
+                    $DownloadPath = "$($SetOSDBuilder.PathOSDUpdate)\$($Update.Catalog)\$($Update.Title)"
                     $DownloadFullPath = "$DownloadPath\$($Update.FileName)"
 
                     if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}

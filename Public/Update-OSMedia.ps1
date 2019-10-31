@@ -6,7 +6,7 @@ Applies Adobe, Component, Cumulative, Servicing Stack, and Setup Updates to Wind
 Updates are gathered from the OSDBuilder Update Catalogs
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/osmedia/update-osmedia
+https://osdbuilder.osdeploy.com/module/functions/update-osmedia
 
 .EXAMPLE
 Update-OSMedia -Name 'Win10 Ent x64 1803 17134.345'
