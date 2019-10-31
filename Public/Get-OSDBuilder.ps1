@@ -65,6 +65,12 @@ function Get-OSDBuilder {
         Rename-Item "$($global:GetOSDBuilder.Home)\Media" "$($global:GetOSDBuilder.Home)\FeatureUpdates" -Force | Out-Null
     }
     #===================================================================================================
+    #   OSDBuilder Get (Read Only)
+    #===================================================================================================
+    $global:GetOSDBuilder.PathTasks             = "$($global:GetOSDBuilder.Home)\Tasks"
+    $global:GetOSDBuilder.PathTemplates         = "$($global:GetOSDBuilder.Home)\Templates"
+    $global:GetOSDBuilder.PathContent           = "$($global:GetOSDBuilder.Home)\Content"
+    #===================================================================================================
     #   OSDBuilder Set (Read Write)
     #===================================================================================================
     $global:SetOSDBuilder.PathFeatureUpdates    = "$($global:GetOSDBuilder.Home)\FeatureUpdates"
@@ -75,12 +81,6 @@ function Get-OSDBuilder {
     $global:SetOSDBuilder.PathContentPacks      = "$($global:GetOSDBuilder.Home)\ContentPacks"
     $global:SetOSDBuilder.PathMount             = "$($global:GetOSDBuilder.PathContent)\Mount"
     $global:SetOSDBuilder.PathOSDUpdate         = "$($global:GetOSDBuilder.PathContent)\OSDUpdate"
-    #===================================================================================================
-    #   OSDBuilder Get (Read Only)
-    #===================================================================================================
-    $global:GetOSDBuilder.PathTasks             = "$($global:GetOSDBuilder.Home)\Tasks"
-    $global:GetOSDBuilder.PathTemplates         = "$($global:GetOSDBuilder.Home)\Templates"
-    $global:GetOSDBuilder.PathContent           = "$($global:GetOSDBuilder.Home)\Content"
     #===================================================================================================
     #   OSDBuilder.PSModule*
     #===================================================================================================
