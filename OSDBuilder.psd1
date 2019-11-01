@@ -76,15 +76,24 @@ RequiredModules = @(
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Get-OSDBuilder',
-                    'Get-OSMedia','Import-OSMedia','Update-OSMedia',
-                    'Get-OSBuilds','New-OSBuild','New-OSBuildTask',
-                    'Get-PEBuilds','New-PEBuild','New-PEBuildTask',
-                    'New-OSDBuilderISO','New-OSDBuilderUSB','Show-OSDBuilderInfo',
-                    'Get-DownOSDBuilder',
+FunctionsToExport = 'Get-DownOSDBuilder',
+                    'Get-OSBuilds',
+                    'Get-OSDBuilder',
+                    'Get-OSMedia',
+                    'Get-PEBuilds',
+                    'Import-OSMedia',
+                    'Initialize-OSDBuilder',
+                    'New-OSBuild',
                     'New-OSBuildMultiLang',
+                    'New-OSBuildTask',
                     'New-OSDBuilderContentPack',
-                    'New-OSDBuilderVHD'
+                    'New-OSDBuilderISO',
+                    'New-OSDBuilderUSB',
+                    'New-OSDBuilderVHD',
+                    'New-PEBuild',
+                    'New-PEBuildTask',
+                    'Show-OSDBuilderInfo',
+                    'Update-OSMedia'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

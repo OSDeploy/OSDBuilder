@@ -53,14 +53,14 @@ function Import-OSMedia {
         )]
         #Alias: Edition
         [Alias('Edition')]
-        [string]$EditionId,
+        [string]$EditionId = $global:SetOSDBuilder.ImportOSMediaEditionId,
 
         #The Operating System Index to Import
         #Import-OSMedia -ImageIndex 3
         #Import-OSMedia -ImageIndex 3 -SkipGrid
         #Alias: Index
         [Alias('Index')]
-        [int]$ImageIndex,
+        [int]$ImageIndex = $global:SetOSDBuilder.ImportOSMediaImageIndex,
         
         #The Operating System ImageName to Import
         #Import-OSMedia -ImageName 'Windows 10 Enterprise'
@@ -116,13 +116,13 @@ function Import-OSMedia {
             'Windows Server 2019 Datacenter',`
             'Windows Server 2019 Datacenter (Desktop Experience)'
         )]
-        [string]$ImageName,
+        [string]$ImageName = $global:SetOSDBuilder.ImportOSMediaImageName,
         
         #Used to bypass the ISE GridView Operating System Selection
         #Must use EditionId or ImageName Parameter for best results
         #Alias: SkipGridView
         [Alias('SkipGridView')]
-        [switch]$SkipGrid,
+        [switch]$SkipGrid = $global:SetOSDBuilder.ImportOSMediaSkipGrid,
 
         #Creates an OSMedia with all Microsoft Updates applied
         #Import-OSMedia -Edition Enterprise -SkipGrid -QuickUpdate
@@ -130,7 +130,7 @@ function Import-OSMedia {
         #Update-OSMedia -Name $OSMediaName -Download -Execute -HideCleanupProgress
         #Alias: UpdateOSMedia
         [Alias('UpdateOSMedia')]
-        [switch]$Update,
+        [switch]$Update = $global:SetOSDBuilder.ImportOSMediaUpdate,
         
         #Creates an OSBuild with NetFX enabled
         #Import-OSMedia -Edition Enterprise -SkipGrid -QuickBuild
@@ -138,13 +138,13 @@ function Import-OSMedia {
         #New-OSBuild -Name $OSMediaName -Download -Execute -HideCleanupProgress -SkipTask -QuickEnableNetFX
         #Alias: Build,BuildNetFX
         [Alias('Build')]
-        [switch]$BuildNetFX,
+        [switch]$BuildNetFX = $global:SetOSDBuilder.ImportOSMediaBuildNetFX,
 
         #Displays Media Information after Import
         #Show-OSDBuilderInfo -FullName $OSMediaPath
         #Alias: OSDInfo
         [Alias('OSDInfo')]
-        [switch]$ShowInfo
+        [switch]$ShowInfo = $global:SetOSDBuilder.ImportOSMediaShowInfo
     )
 
     Begin {
@@ -173,7 +173,7 @@ function Import-OSMedia {
         #===================================================================================================
         #   Import Media Directory
         #===================================================================================================
-        $ImportMedia = Get-ChildItem $GetOSDBuilderPathFeatureUpdates -ErrorAction SilentlyContinue
+        $ImportMedia = Get-ChildItem $SetOSDBuilderPathFeatureUpdates -ErrorAction SilentlyContinue
         foreach ($ImportDrive in $ImportMedia) {
             if (Test-Path "$($ImportDrive.FullName)\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.FullName)\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
         }
@@ -298,7 +298,7 @@ function Import-OSMedia {
                 $InstallWimType = "wim"
             }
 
-            $MountDirectory = Join-Path $GetOSDBuilderPathMount "os$((Get-Date).ToString('HHmmss'))"
+            $MountDirectory = Join-Path $SetOSDBuilderPathContentMount "os$((Get-Date).ToString('HHmmss'))"
             Mount-InstallwimMEDIA
             #===================================================================================================
             #   REGISTRY
@@ -347,7 +347,7 @@ function Import-OSMedia {
             #===================================================================================================
             #===================================================================================================
             Write-Verbose 'Set OSMediaPath'
-            $OSMediaPath = Join-Path $GetOSDBuilderPathOSImport $OSMediaName
+            $OSMediaPath = Join-Path $SetOSDBuilderPathOSImport $OSMediaName
             #===================================================================================================
             #===================================================================================================
             Write-Verbose 'Remove Existing OSMedia'

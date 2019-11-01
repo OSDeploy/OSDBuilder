@@ -24,7 +24,7 @@ function Get-PEBuilds {
         #   Get PEBuilds
         #===================================================================================================
         $AllPEBuilds = @()
-        $AllPEBuilds = Get-ChildItem -Path "$GetOSDBuilderPathPEBuilds" -Directory | Select-Object -Property * | `
+        $AllPEBuilds = Get-ChildItem -Path "$SetOSDBuilderPathPEBuilds" -Directory | Select-Object -Property * | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\CurrentVersion.xml")} | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Get-WindowsImage.xml")}
         #===================================================================================================

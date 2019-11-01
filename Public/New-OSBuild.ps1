@@ -224,8 +224,8 @@ function New-OSBuild {
                 $TaskOSMFamily = $Task.OSMFamily
                 $TaskOSMGuid = $Task.OSMGuid
                 $OSMediaName = $Task.Name
-                if (Test-Path "$GetOSDBuilderPathOSMedia\$OSMediaName") {$OSMediaPath = "$GetOSDBuilderPathOSMedia\$OSMediaName"}
-                if (Test-Path "$GetOSDBuilderPathOSImport\$OSMediaName") {$OSMediaPath = "$GetOSDBuilderPathOSImport\$OSMediaName"}
+                if (Test-Path "$SetOSDBuilderPathOSMedia\$OSMediaName") {$OSMediaPath = "$SetOSDBuilderPathOSMedia\$OSMediaName"}
+                if (Test-Path "$SetOSDBuilderPathOSImport\$OSMediaName") {$OSMediaPath = "$SetOSDBuilderPathOSImport\$OSMediaName"}
                 $EnableNetFX3 = $Task.EnableNetFX3
                 $StartLayoutXML = $Task.StartLayoutXML
                 $UnattendXML = $Task.UnattendXML
@@ -331,10 +331,10 @@ function New-OSBuild {
             #   OSBuild
             Write-Verbose '19.1.22 Templates'
             #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$GetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
-                Get-ChildItem -Path "$GetOSDBuilderPathTemplates" *.json | foreach {(Get-Content "$($_.FullName)").replace('WinPEAddDaRT', 'WinPEDaRT') | Set-Content "$($_.FullName)"}
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                Get-ChildItem -Path "$SetOSDBuilderPathTemplates" *.json | foreach {(Get-Content "$($_.FullName)").replace('WinPEAddDaRT', 'WinPEDaRT') | Set-Content "$($_.FullName)"}
                 $Templates = @()
-                $Templates = Get-ChildItem -Path "$GetOSDBuilderPathTemplates" OSBuild*.json | ForEach-Object {Get-Content -Path $_.FullName | ConvertFrom-Json | Select-Object -Property *}
+                $Templates = Get-ChildItem -Path "$SetOSDBuilderPathTemplates" OSBuild*.json | ForEach-Object {Get-Content -Path $_.FullName | ConvertFrom-Json | Select-Object -Property *}
 
                 if ($Templates){
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -407,8 +407,8 @@ function New-OSBuild {
             Write-Verbose '19.1.1 Set Proper Paths'
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
-                if (Test-Path "$GetOSDBuilderPathOSImport\$($Bird.Name)") {$OSMediaPath = "$GetOSDBuilderPathOSImport\$($Bird.Name)"}
-                if (Test-Path "$GetOSDBuilderPathOSMedia\$($Bird.Name)") {$OSMediaPath = "$GetOSDBuilderPathOSMedia\$($Bird.Name)"}
+                if (Test-Path "$SetOSDBuilderPathOSImport\$($Bird.Name)") {$OSMediaPath = "$SetOSDBuilderPathOSImport\$($Bird.Name)"}
+                if (Test-Path "$SetOSDBuilderPathOSMedia\$($Bird.Name)") {$OSMediaPath = "$SetOSDBuilderPathOSMedia\$($Bird.Name)"}
             }
             $OSImagePath = "$OSMediaPath\OS\sources\install.wim"
 
@@ -542,10 +542,10 @@ function New-OSBuild {
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 $WorkingName = "build$((Get-Date).ToString('mmss'))"
-                $WorkingPath = "$GetOSDBuilderPathOSBuilds\$WorkingName"
+                $WorkingPath = "$SetOSDBuilderPathOSBuilds\$WorkingName"
             } else {
                 $WorkingName = "build$((Get-Date).ToString('mmss'))"
-                $WorkingPath = "$GetOSDBuilderPathOSMedia\$WorkingName"
+                $WorkingPath = "$SetOSDBuilderPathOSMedia\$WorkingName"
             }
             #===================================================================================================
             Write-Verbose '19.1.1 Remove Existing OSMedia'
@@ -562,7 +562,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   Driver Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$GetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
                     $DriverTemplates = Get-OSTemplateDrivers
                     if ($DriverTemplates) {
                         Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -574,7 +574,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   ExtraFiles Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$GetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template ExtraFiles Directories (Searched)" -ForegroundColor Green
                     $ExtraFilesTemplates = Get-OSTemplateExtraFiles
                     if ($ExtraFilesTemplates) {
@@ -587,7 +587,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   Registry REG Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$GetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Registry REG Directories (Searched)" -ForegroundColor Green
                     $RegistryTemplatesReg = Get-OSTemplateRegistryReg
                     if ($RegistryTemplatesReg) {
@@ -600,7 +600,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   Registry XML Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$GetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Registry XML Directories (Searched)" -ForegroundColor Green
                     $RegistryTemplatesXml = Get-OSTemplateRegistryXml
                     if ($RegistryTemplatesXml) {
@@ -613,7 +613,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   Script Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$GetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Script Directories (Searched)" -ForegroundColor Green
                     $ScriptTemplates = Get-OSTemplateScripts
                     if ($ScriptTemplates) {
@@ -875,10 +875,10 @@ function New-OSBuild {
                 #===================================================================================================
                 Write-Verbose '19.2.25 Set Variables'
                 #===================================================================================================
-                $MountDirectory = Join-Path $GetOSDBuilderPathMount "os$((Get-Date).ToString('mmss'))"
-                $MountWinPE = Join-Path $GetOSDBuilderPathMount "winpe$((Get-Date).ToString('mmss'))"
-                $MountWinRE = Join-Path $GetOSDBuilderPathMount "winre$((Get-Date).ToString('mmss'))"
-                $MountWinSE = Join-Path $GetOSDBuilderPathMount "setup$((Get-Date).ToString('mmss'))"
+                $MountDirectory = Join-Path $SetOSDBuilderPathContentMount "os$((Get-Date).ToString('mmss'))"
+                $MountWinPE = Join-Path $SetOSDBuilderPathContentMount "winpe$((Get-Date).ToString('mmss'))"
+                $MountWinRE = Join-Path $SetOSDBuilderPathContentMount "winre$((Get-Date).ToString('mmss'))"
+                $MountWinSE = Join-Path $SetOSDBuilderPathContentMount "setup$((Get-Date).ToString('mmss'))"
                 $Info = Join-Path $WorkingPath 'info'
                     $Logs = Join-Path $Info 'logs'
                 $OS = Join-Path $WorkingPath 'OS'
@@ -1209,8 +1209,8 @@ function New-OSBuild {
                     if ($CustomName) {$NewOSMediaName = "$CustomName $UBR"}
                 }
                 
-                if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {$NewOSMediaPath = "$GetOSDBuilderPathOSMedia\$NewOSMediaName"}
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {$NewOSMediaPath = "$GetOSDBuilderPathOSBuilds\$NewOSMediaName"}
+                if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {$NewOSMediaPath = "$SetOSDBuilderPathOSMedia\$NewOSMediaName"}
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {$NewOSMediaPath = "$SetOSDBuilderPathOSBuilds\$NewOSMediaName"}
 
                 #===================================================================================================
                 Write-Verbose '19.1.1 Rename Build Directory'
@@ -1222,7 +1222,7 @@ function New-OSBuild {
                     Write-Warning "Appending $mmss to the directory Name"
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     $NewOSMediaName = "$NewOSMediaName $mmss"
-                    $NewOSMediaPath = "$GetOSDBuilderPathOSMedia\$NewOSMediaName"
+                    $NewOSMediaPath = "$SetOSDBuilderPathOSMedia\$NewOSMediaName"
                 }
                 #===================================================================================================
                 #   OSD-Export

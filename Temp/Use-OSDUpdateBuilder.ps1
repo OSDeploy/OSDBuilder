@@ -171,12 +171,12 @@ function Use-OSDUpdateBuilder {
         #===================================================================================================
         #   Create OSDBuilder Update Category Directory
         #===================================================================================================
-        if (!(Test-Path "$GetOSDBuilderPathOSDUpdate")) {New-Item -Path "$GetOSDBuilderPathOSDUpdate" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$SetOSDBuilderPathContentOSDUpdate")) {New-Item -Path "$SetOSDBuilderPathContentOSDUpdate" -ItemType Directory -Force | Out-Null}
 
         #===================================================================================================
         #   Create OSDBuilder Update Catalog
         #===================================================================================================
-        $OSDUpdateBuilder | Export-Clixml -Path "$GetOSDBuilderPathOSDUpdate\$Catalog $KBTitle.xml"
+        $OSDUpdateBuilder | Export-Clixml -Path "$SetOSDBuilderPathContentOSDUpdate\$Catalog $KBTitle.xml"
     }
 
     END {

@@ -120,7 +120,7 @@ $MDTUnattendPEx86 = @'
         #   PEBuild
         #===================================================================================================
         $GetPEBuildTask = @()
-        #$GetPEBuildTask = Get-ChildItem -Path $GetOSDBuilderPathTasks *.json -File | Select-Object -Property BaseName, FullName, Length, CreationTime, LastWriteTime | Sort-Object -Property BaseName
+        #$GetPEBuildTask = Get-ChildItem -Path $SetOSDBuilderPathTasks *.json -File | Select-Object -Property BaseName, FullName, Length, CreationTime, LastWriteTime | Sort-Object -Property BaseName
         #$GetPEBuildTask = $GetPEBuildTask | Where-Object {$_.BaseName -like "MDT*" -or $_.BaseName -like "Recovery*" -or $_.BaseName -like "WinPE*"}
         #$GetPEBuildTask = $GetPEBuildTask | Out-GridView -Title "OSDBuilder Tasks: Select one or more Tasks to execute and press OK (Cancel to Exit)" -Passthru
         $GetPEBuildTask = Get-PEBuildTask | Out-GridView -PassThru -Title "PEBuild Tasks: Select one or more Tasks to execute and press OK (Cancel to Exit)"
@@ -153,7 +153,7 @@ $MDTUnattendPEx86 = @'
             $TaskOSMFamily = $($Task.OSMFamily)
             $TaskOSMGuid = $($Task.OSMGuid)
             $OSMediaName = $($Task.Name)
-            $OSMediaPath = "$GetOSDBuilderPathOSMedia\$OSMediaName"
+            $OSMediaPath = "$SetOSDBuilderPathOSMedia\$OSMediaName"
 
             $WinPEAutoExtraFiles = $($Task.WinPEAutoExtraFiles)
 
@@ -181,7 +181,7 @@ $MDTUnattendPEx86 = @'
 
             if (Get-IsContentPacksEnabled) {
                 Write-Host "-ContentPacks:" -ForegroundColor Cyan
-                foreach ($item in $ContentPacks)       {Write-Host "   $GetOSDBuilderPathTemplates\$item" -ForegroundColor Cyan}}
+                foreach ($item in $ContentPacks)       {Write-Host "   $SetOSDBuilderPathTemplates\$item" -ForegroundColor Cyan}}
     
             Write-Host "-MDT Deployment Share:          $MDTDeploymentShare"
             Write-Host "-WinPE Auto ExtraFiles:         $WinPEAutoExtraFiles"
@@ -347,9 +347,9 @@ $MDTUnattendPEx86 = @'
             Write-Verbose '19.1.1 Set Working Path'
             #===================================================================================================
             #$BuildName = "build$((Get-Date).ToString('mmss'))"
-            $WorkingPath = "$GetOSDBuilderPathPEBuilds\$Taskname $($LatestOSMedia.UBR)"
+            $WorkingPath = "$SetOSDBuilderPathPEBuilds\$Taskname $($LatestOSMedia.UBR)"
             if ($CustomName) {
-                $WorkingPath = "$GetOSDBuilderPathPEBuilds\$CustomName"
+                $WorkingPath = "$SetOSDBuilderPathPEBuilds\$CustomName"
             }
 
             #===================================================================================================
@@ -423,7 +423,7 @@ $MDTUnattendPEx86 = @'
                 #===================================================================================================
                 Write-Verbose '19.1.1 Create Mount Directories'
                 #===================================================================================================
-                $MountDirectory = Join-Path $GetOSDBuilderPathMount "pebuild$((Get-Date).ToString('mmss'))"
+                $MountDirectory = Join-Path $SetOSDBuilderPathContentMount "pebuild$((Get-Date).ToString('mmss'))"
                 $MountWinPE = $MountDirectory
                 $MountWinRE = $null
                 $MountWinSE = $null

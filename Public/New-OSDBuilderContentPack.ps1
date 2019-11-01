@@ -84,8 +84,8 @@ function New-OSDBuilderContentPack {
         #"PEScripts\x86"
     )
     foreach ($ContentDirectory in $ContentDirectories) {
-        if (!(Test-Path "$GetOSDBuilderPathContentPacks\$Name\$ContentDirectory")) {
-            New-Item "$GetOSDBuilderPathContentPacks\$Name\$ContentDirectory" -ItemType Directory -Force | Out-Null
+        if (!(Test-Path "$SetOSDBuilderPathContentPacks\$Name\$ContentDirectory")) {
+            New-Item "$SetOSDBuilderPathContentPacks\$Name\$ContentDirectory" -ItemType Directory -Force | Out-Null
         }
     }
 }

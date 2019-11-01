@@ -58,7 +58,7 @@ function Split-OSBuildMultiLang {
         foreach ($Media in $SelectedOSBuild) {
             $SourceFullName = "$($Media.FullName)"
             $BuildName = "$CustomName MultiIndex"
-            $DestinationFullName = "$GetOSDBuilderPathOSBuilds\$BuildName"
+            $DestinationFullName = "$SetOSDBuilderPathOSBuilds\$BuildName"
             #===================================================================================================
             #   Copy Media
             #===================================================================================================

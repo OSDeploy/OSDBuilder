@@ -30,7 +30,7 @@ function Get-OSBuilds {
         #   19.10.17 Require CurrentVersion.xml
         #===================================================================================================
         $AllOSBuilds = @()
-        $AllOSBuilds = Get-ChildItem -Path "$GetOSDBuilderPathOSBuilds" -Directory | Select-Object -Property * | `
+        $AllOSBuilds = Get-ChildItem -Path "$SetOSDBuilderPathOSBuilds" -Directory | Select-Object -Property * | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\CurrentVersion.xml")} | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Get-WindowsImage.xml")} | `
         Where-Object {Test-Path $(Join-Path $_.FullName "info\xml\Sessions.xml")}

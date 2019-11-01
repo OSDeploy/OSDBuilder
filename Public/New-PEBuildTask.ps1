@@ -88,7 +88,7 @@ function New-PEBuildTask {
         if ($WinPEOutput -eq 'Recovery') {$SourceWim = 'WinRE'}
 
         $TaskName = "$TaskName"
-        $TaskPath = "$GetOSDBuilderPathTasks\$WinPEOutput $TaskName.json"
+        $TaskPath = "$SetOSDBuilderPathTasks\$WinPEOutput $TaskName.json"
         #===================================================================================================
         #   Existing Task
         #===================================================================================================

@@ -178,9 +178,9 @@ function New-OSBuildTask {
         #===================================================================================================
         $Task = @()
         $TaskName = "$TaskName"
-        if ($SaveAs -eq 'Task') {$TaskPath = "$GetOSDBuilderPathTasks\OSBuild $TaskName.json"}
-        if ($SaveAs -eq 'Template') {$TaskPath = "$GetOSDBuilderPathTemplates\OSBuild $TaskName.json"}
-        #if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$GetOSDBuilderPathTemplates\OSBuild Global $TaskName.json"}
+        if ($SaveAs -eq 'Task') {$TaskPath = "$SetOSDBuilderPathTasks\OSBuild $TaskName.json"}
+        if ($SaveAs -eq 'Template') {$TaskPath = "$SetOSDBuilderPathTemplates\OSBuild $TaskName.json"}
+        #if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$SetOSDBuilderPathTemplates\OSBuild Global $TaskName.json"}
         #===================================================================================================
         #   Existing Task
         #===================================================================================================
