@@ -11,95 +11,96 @@ https://osdbuilder.osdeploy.com/module/functions/new-osbuildtask
 function New-OSBuildTask {
     [CmdletBinding(DefaultParameterSetName='Basic')]
     Param (
-        #Sets the name of the Task
-        [Parameter(Mandatory)]
-        [string]$TaskName,
+        #Allows selection of a Template Pack to this Build
+        [switch]$AddContentPacks = $global:SetOSDBuilder.NewOSBuildTaskAddContentPacks,
+
+
+        #Select Drivers in GridView from the Content\Drivers directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentDrivers = $global:SetOSDBuilder.NewOSBuildTaskContentDrivers,
+
+        #Select ExtraFiles in GridView from the Content\ExtraFiles directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentExtraFiles = $global:SetOSDBuilder.NewOSBuildTaskContentExtraFiles,
+
+        #Select Features on Demand from IsoExtract
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentFeaturesOnDemand = $global:SetOSDBuilder.NewOSBuildTaskContentFeaturesOnDemand,
+
+        #Select Language Packages in GridView from the Content\IsoExtract directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentLanguagePackages = $global:SetOSDBuilder.NewOSBuildTaskContentLanguagePackages,
+
+        #Select Packages in GridView from the Content\Packages directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentPackages = $global:SetOSDBuilder.NewOSBuildTaskContentPackages,
+        
+        #Select PowerShell Script in GridView from the Content\Scripts directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentScripts = $global:SetOSDBuilder.NewOSBuildTaskContentScripts,
+        
+        #Select a StartLayout.xml in GridView from the Content\StartLayout directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentStartLayout = $global:SetOSDBuilder.NewOSBuildTaskContentStartLayout,
+        
+        #Select an Unattend.xml file in GridView from the Content\Unattend directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentUnattend = $global:SetOSDBuilder.NewOSBuildTaskContentUnattend,
+
+        #Select WinPE ADK files in GridView from the Content\ADK directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentWinPEADK = $global:SetOSDBuilder.NewOSBuildTaskContentWinPEADK,
+
+        #Select WinPE DaRT files in GridView from the Content\DaRT directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentWinPEDart = $global:SetOSDBuilder.NewOSBuildTaskContentWinPEDart,
+
+        #Select WinPE Drivers GridView from the Content\Drivers directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentWinPEDrivers = $global:SetOSDBuilder.NewOSBuildTaskContentWinPEDrivers,
+
+        #Select WinPE ExtraFiles in GridView from the Content\ExtraFiles directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentWinPEExtraFiles = $global:SetOSDBuilder.NewOSBuildTaskContentWinPEExtraFiles,
+
+        #Select WinPE PowerShell Scripts in GridView from the Content\Scripts directory
+        [Parameter(ParameterSetName='All')]
+        [switch]$ContentWinPEScripts = $global:SetOSDBuilder.NewOSBuildTaskContentWinPEScripts,
 
         #Custom name of the Build used in the final output directory
         #This parameter is recommended
-        [string]$CustomName,
+        [string]$CustomName = $global:SetOSDBuilder.NewOSBuildTaskCustomName,
 
-        #Adds some handy files copied from the Windows OS
-        #This parameter is recommended
-        [switch]$WinPEAutoExtraFiles,
+        #Disables an Enabled Windows Optional Feature
+        [switch]$DisableFeature = $global:SetOSDBuilder.NewOSBuildTaskDisableFeature,
 
-        #Allows selection of a Template Pack to this Build
-        [switch]$AddContentPacks,
+        #Enables a Disabled Windows Optional Feature
+        [switch]$EnableFeature = $global:SetOSDBuilder.NewOSBuildTaskEnableFeature,
+
+        #Enable .NET Framework 3.5 for supported Operating Systems
+        [switch]$EnableNetFX3 = $global:SetOSDBuilder.NewOSBuildTaskEnableNetFX3,
+
+        #Displays a GridView to select Appx Provisioned Packages to Remove
+        [switch]$RemoveAppx = $global:SetOSDBuilder.NewOSBuildTaskRemoveAppx,
+
+        #Displays a GridView to select Windows Capabilities to Remove
+        [switch]$RemoveCapability = $global:SetOSDBuilder.NewOSBuildTaskRemoveCapability,
+
+        #Displays a GridView to select Windows Packages to Remove
+        [switch]$RemovePackage = $global:SetOSDBuilder.NewOSBuildTaskRemovePackage,
+
+        #Sets the name of the Task
+        [Parameter(Mandatory)]
+        [string]$TaskName = $global:SetOSDBuilder.NewOSBuildTaskTaskName,
 
         #Save as a Task or a Template
         #Default: Task
         [ValidateSet('Task','Template')]
         [string]$SaveAs = 'Task',
 
-        #Enable .NET Framework 3.5 for supported Operating Systems
-        [switch]$EnableNetFX3,
-
-        #Displays a GridView to select Appx Provisioned Packages to Remove
-        [switch]$RemoveAppx,
-
-        #Displays a GridView to select Windows Capabilities to Remove
-        [switch]$RemoveCapability,
-
-        #Displays a GridView to select Windows Packages to Remove
-        [switch]$RemovePackage,
-
-        #Disables an Enabled Windows Optional Feature
-        [switch]$DisableFeature,
-
-        #Enables a Disabled Windows Optional Feature
-        [switch]$EnableFeature,
-
-        #Select Drivers in GridView from the Content\Drivers directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentDrivers,
-
-        #Select ExtraFiles in GridView from the Content\ExtraFiles directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentExtraFiles,
-
-        #Select Features on Demand from IsoExtract
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentFeaturesOnDemand,
-
-        #Select Packages in GridView from the Content\Packages directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentPackages,
-        
-        #Select PowerShell Script in GridView from the Content\Scripts directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentScripts,
-        
-        #Select a StartLayout.xml in GridView from the Content\StartLayout directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentStartLayout,
-        
-        #Select an Unattend.xml file in GridView from the Content\Unattend directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentUnattend,
-
-        #Select WinPE ADK files in GridView from the Content\ADK directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentWinPEADK,
-
-        #Select WinPE DaRT files in GridView from the Content\DaRT directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentWinPEDart,
-
-        #Select WinPE Drivers GridView from the Content\Drivers directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentWinPEDrivers,
-
-        #Select WinPE ExtraFiles in GridView from the Content\ExtraFiles directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentWinPEExtraFiles,
-
-        #Select WinPE PowerShell Scripts in GridView from the Content\Scripts directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentWinPEScripts,
-
-        #Select Language Packages in GridView from the Content\IsoExtract directory
-        [Parameter(ParameterSetName='All')]
-        [switch]$ContentLanguagePackages,
+        #Adds some handy files copied from the Windows OS
+        #This parameter is recommended
+        [switch]$WinPEAutoExtraFiles = $global:SetOSDBuilder.NewOSBuildTaskWinPEAutoExtraFiles,
 
         #Options: ar-SA,bg-BG,zh-CN,zh-TW,hr-HR,cs-CZ,da-DK,nl-NL,en-US,en-GB,et-EE,fi-FI,fr-CA,fr-FR,de-DE,el-GR,he-IL,hu-HU,it-IT,ja-JP,ko-KR,lv-LV,lt-LT,nb-NO,pl-PL,pt-BR,pt-PT,ro-RO,ru-RU,sr-Latn-RS,sk-SK,sl-SI,es-MX,es-ES,sv-SE,th-TH,tr-TR,uk-UA,af-ZA,am-ET,as-IN,az-Latn-AZ,be-BY,bn-BD,bn-IN,bs-Latn-BA,ca-ES,ca-ES-valencia,chr-CHER-US,cy-GB,eu-ES,fa-IR,fil-PH,ga-IE,gd-GB,gl-ES,gu-IN,ha-Latn-NG,hi-IN,hy-AM,id-ID,ig-NG,is-IS,ka-GE,kk-KZ,km-KH,kn-IN,kok-IN,ku-ARAB-IQ,ky-KG,lb-LU,lo-LA,mi-NZ,mk-MK,ml-IN,mn-MN,mr-IN,ms-MY,mt-MT,ne-NP,nn-NO,nso-ZA,or-IN,pa-Arab-PK,pa-IN,prs-AF,quc-Latn-GT,quz-PE,rw-RW,sd-Arab-PK,si-LK,sq-AL,sr-Cyrl-BA,sr-Cyrl-RS,sw-KE,ta-IN,te-IN,tg-Cyrl-TJ,ti-ET,tk-TM,tn-ZA,tt-RU,ug-CN,ur-PK,uz-Latn-UZ,vi-VN,wo-SN,xh-ZA,yo-NG,zu-ZA
         [Parameter(ParameterSetName='All')]
@@ -870,7 +871,7 @@ function New-OSBuildTask {
         #===================================================================================================
         $Task = [ordered]@{
             "TaskType" = [string]"OSBuild";
-            "TaskVersion" = [string]$GetOSDBuilderVersionOSDBuilder;
+            "TaskVersion" = [string]$global:GetOSDBuilder.VersionOSDBuilder;
             "TaskGuid" = [string]$(New-Guid);
             
             "TaskName" = [string]$TaskName;

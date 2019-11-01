@@ -36,9 +36,9 @@ function Get-OSDBuilder {
         
         #Changes the path from the default of C:\OSDBuilder to the path specified
         #Alias: Path
-        [Alias('Path')]
+        [Alias('Path','SetPath')]
         [ValidateNotNullOrEmpty()]
-        [string]$SetPath,
+        [string]$SetHome,
 
         #Updates the OSDBuilder Module
         #Alias: Update
@@ -50,74 +50,31 @@ function Get-OSDBuilder {
     #===================================================================================================
     #Must initialize the OSDBuilder variables.  This will set all to defaults
     #If Home is not set, then we need to initialize as well
-    if ($SetPath) {Initialize-OSDBuilder -OSDBuilderHome $SetPath}
+    if ($SetHome) {Initialize-OSDBuilder -SetHome $SetHome}
     elseif (($Initialize.IsPresent) -or (!($global:GetOSDBuilder.Home))) {Initialize-OSDBuilder}
-    #===================================================================================================
-    #   Corrections
-    #===================================================================================================
-    if (Test-Path "$($global:GetOSDBuilder.Home)\Media") {
-        Rename-Item "$($global:GetOSDBuilder.Home)\Media" "$($global:GetOSDBuilder.Home)\FeatureUpdates" -Force | Out-Null
-    }
-    #===================================================================================================
-    #   OSDBuilder Hashtable
-    #===================================================================================================
-<#     if ($null -eq $global:GetOSDBuilder) {$global:GetOSDBuilder = [ordered]@{}}
-    if ($null -eq $global:SetOSDBuilder) {$global:SetOSDBuilder = [ordered]@{}} #>
-    #===================================================================================================
-    #   OSDBuilder Defaults
-    #===================================================================================================
-<#     $global:SetOSDBuilder.AllowContentPacks    = $false
-    $global:SetOSDBuilder.AllowGlobalOptions   = $true #>
-    #===================================================================================================
-    #   OSDBuilder.Home
-    #===================================================================================================
-<#     if (!(Test-Path HKCU:\Software\OSDeploy\OSBuilder)) {New-Item HKCU:\Software\OSDeploy -Name OSBuilder -Force | Out-Null}
-    if (!(Get-ItemProperty -Path 'HKCU:\Software\OSDeploy' -Name OSBuilderPath -ErrorAction SilentlyContinue)) {New-ItemProperty -Path "HKCU:\Software\OSDeploy" -Name OSBuilderPath -Force | Out-Null}
-    if ($SetPath) {Set-ItemProperty -Path "HKCU:\Software\OSDeploy" -Name "OSBuilderPath" -Value "$SetPath" -Force}
-    $global:GetOSDBuilder.Home = $(Get-ItemProperty "HKCU:\Software\OSDeploy").OSBuilderPath
-    if (!($global:GetOSDBuilder.Home)) {$global:GetOSDBuilder.Home = "$Env:SystemDrive\OSDBuilder"} #>
-
-    #===================================================================================================
-    #   OSDBuilder Get (Read Only)
-    #===================================================================================================
-    #===================================================================================================
-    #   OSDBuilder Set (Read Write)
-    #===================================================================================================
-<#     $global:SetOSDBuilder.PathFeatureUpdates    = "$($global:GetOSDBuilder.Home)\FeatureUpdates"
-    $global:SetOSDBuilder.PathOSImport          = "$($global:GetOSDBuilder.Home)\OSImport"
-    $global:SetOSDBuilder.PathOSMedia           = "$($global:GetOSDBuilder.Home)\OSMedia"
-    $global:SetOSDBuilder.PathOSBuilds          = "$($global:GetOSDBuilder.Home)\OSBuilds"
-    $global:SetOSDBuilder.PathPEBuilds          = "$($global:GetOSDBuilder.Home)\PEBuilds"
-    $global:SetOSDBuilder.PathContentPacks      = "$($global:GetOSDBuilder.Home)\ContentPacks"
-
-    $global:GetOSDBuilder.PathTasks             = "$($global:GetOSDBuilder.Home)\Tasks"
-    $global:GetOSDBuilder.PathTemplates         = "$($global:GetOSDBuilder.Home)\Templates"
-    $global:GetOSDBuilder.PathContent           = "$($global:GetOSDBuilder.Home)\Content"
-
-    $global:SetOSDBuilder.PathMount             = "$($global:GetOSDBuilder.PathContent)\Mount"
-    $global:SetOSDBuilder.PathOSDUpdate         = "$($global:GetOSDBuilder.PathContent)\OSDUpdate" #>
+    if (($(Get-ItemProperty "HKCU:\Software\OSDeploy").GetOSDBuilderHome) -ne $global:GetOSDBuilderHome) {Initialize-OSDBuilder}
     #===================================================================================================
     #   OSDBuilder.PSModule*
     #===================================================================================================
-    $global:GetOSDBuilder.PSModuleOSD          = Get-Module -Name OSD | Select-Object *
-    $global:GetOSDBuilder.PSModuleOSDSUS       = Get-Module -Name OSDSUS | Select-Object *
-    $global:GetOSDBuilder.PSModuleOSDBuilder   = Get-Module -Name OSDBuilder | Select-Object *
+    $global:GetOSDBuilder.PSModuleOSD               = Get-Module -Name OSD | Select-Object *
+    $global:GetOSDBuilder.PSModuleOSDSUS            = Get-Module -Name OSDSUS | Select-Object *
+    $global:GetOSDBuilder.PSModuleOSDBuilder        = Get-Module -Name OSDBuilder | Select-Object *
     #===================================================================================================
     #   OSDBuilder.Public*
     #===================================================================================================
-    $global:GetOSDBuilder.PublicJson               = $null
-    $global:GetOSDBuilder.PublicJsonURL            = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
+    $global:GetOSDBuilder.PublicJson                = $null
+    $global:GetOSDBuilder.PublicJsonURL             = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
     #===================================================================================================
     #   OSDBuilder.Version*
     #===================================================================================================
-    $global:GetOSDBuilder.VersionOSD           = $global:GetOSDBuilder.PSModuleOSD.Version | Sort-Object | Select-Object -Last 1
-    $global:GetOSDBuilder.VersionOSDPublic         = $global:GetOSDBuilder.VersionOSD
+    $global:GetOSDBuilder.VersionOSD                = $global:GetOSDBuilder.PSModuleOSD.Version | Sort-Object | Select-Object -Last 1
+    $global:GetOSDBuilder.VersionOSDPublic          = $global:GetOSDBuilder.VersionOSD
 
-    $global:GetOSDBuilder.VersionOSDSUS        = $global:GetOSDBuilder.PSModuleOSDSUS.Version | Sort-Object | Select-Object -Last 1
-    $global:GetOSDBuilder.VersionOSDSUSPublic      = $global:GetOSDBuilder.VersionOSDSUS
+    $global:GetOSDBuilder.VersionOSDSUS             = $global:GetOSDBuilder.PSModuleOSDSUS.Version | Sort-Object | Select-Object -Last 1
+    $global:GetOSDBuilder.VersionOSDSUSPublic       = $global:GetOSDBuilder.VersionOSDSUS
     
-    $global:GetOSDBuilder.VersionOSDBuilder    = $global:GetOSDBuilder.PSModuleOSDBuilder.Version | Sort-Object | Select-Object -Last 1
-    $global:GetOSDBuilder.VersionOSDBuilderPublic  = $global:GetOSDBuilder.VersionOSDBuilder
+    $global:GetOSDBuilder.VersionOSDBuilder         = $global:GetOSDBuilder.PSModuleOSDBuilder.Version | Sort-Object | Select-Object -Last 1
+    $global:GetOSDBuilder.VersionOSDBuilderPublic   = $global:GetOSDBuilder.VersionOSDBuilder
 
     if (!($HideDetails.IsPresent)) {
         $StatusCode = try {(Invoke-WebRequest -Uri $global:GetOSDBuilder.PublicJsonURL -UseBasicParsing -DisableKeepAlive).StatusCode}
@@ -132,52 +89,7 @@ function Get-OSDBuilder {
         }
     }
     #===================================================================================================
-    #   OSDBuilder.json
-    #===================================================================================================
-<#     $OSDBuilderJsonLocal = "$($global:GetOSDBuilder.Home)\OSDBuilder.json"
-    if (Test-Path $OSDBuilderJsonLocal) {
-        Try {
-            $global:GetOSDBuilder.LocalSettings = (Get-Content $OSDBuilderJsonLocal | ConvertFrom-Json).PSObject.Properties | foreach {[ordered]@{Name = $_.Name; Value = $_.Value}} | ConvertTo-Json | ConvertFrom-Json
-            $global:GetOSDBuilder.LocalSettings | foreach {$global:SetOSDBuilder.$($_.Name) = $($_.Value)}
-        }
-        Catch {
-            Write-Warning "Unable to import $OSDBuilderJsonLocal"
-        }
-    }
-
-    if ($global:SetOSDBuilder.AllowGlobalOptions -eq $true) {
-        $OSDBuilderJsonGlobal = "$env:ProgramData\OSDeploy\OSDBuilder.json"
-        if ((Test-Path $OSDBuilderJsonGlobal)) {
-            Try {
-                $global:GetOSDBuilder.GlobalSettings = (Get-Content $OSDBuilderJsonGlobal | ConvertFrom-Json).PSObject.Properties | foreach {[ordered]@{Name = $_.Name; Value = $_.Value}} | ConvertTo-Json | ConvertFrom-Json
-                $global:GetOSDBuilder.GlobalSettings | foreach {$global:SetOSDBuilder.$($_.Name) = $($_.Value)}
-            }
-            Catch {
-                Write-Warning "Unable to import $OSDBuilderJsonGlobal"
-            }
-        }
-    } #>
-
-<#     if (Test-Path $env:ProgramData\OSDeploy\OSDBuilder.json) {
-        Try {
-            $OSDBuilderJson = Get-OSDFromJson -Path $env:ProgramData\OSDeploy\OSDBuilder.json
-            if ($OSDBuilderJson.PathContent)        {$global:GetOSDBuilder.PathContent = $OSDBuilderJson.PathContent}
-            if ($OSDBuilderJson.PathContentPacks)   {$global:SetOSDBuilder.PathContentPacks = $OSDBuilderJson.PathContentPacks}
-            if ($OSDBuilderJson.PathFeatureUpdates) {$global:SetOSDBuilder.PathFeatureUpdates = $OSDBuilderJson.PathFeatureUpdates}
-            if ($OSDBuilderJson.PathOSBuilds)       {$global:SetOSDBuilder.PathOSBuilds = $OSDBuilderJson.PathOSBuilds}
-            if ($OSDBuilderJson.PathOSImport)       {$global:SetOSDBuilder.PathOSImport = $OSDBuilderJson.PathOSImport}
-            if ($OSDBuilderJson.PathOSMedia)        {$global:SetOSDBuilder.PathOSMedia = $OSDBuilderJson.PathOSMedia}
-            if ($OSDBuilderJson.PathPEBuilds)        {$global:SetOSDBuilder.PathPEBuilds = $OSDBuilderJson.PathPEBuilds}
-            #Content
-            if ($OSDBuilderJson.PathMount)          {$global:SetOSDBuilder.PathMount = $OSDBuilderJson.PathMount}
-            if ($OSDBuilderJson.PathOSDUpdate)      {$global:SetOSDBuilder.PathOSDUpdate = $OSDBuilderJson.PathOSDUpdate}
-        }
-        Catch {
-            Write-Warning "Unable to import $env:ProgramData\OSDeploy\OSDBuilder.json"
-        }
-    } #>
-    #===================================================================================================
-    #   Backward Compatibility
+    #   Archive
     #===================================================================================================
     #$global:OSDBuilderPath                  = $global:GetOSDBuilder.Home
     #$global:OSDBuilderOSImport              = $global:SetOSDBuilder.PathOSImport
@@ -186,22 +98,7 @@ function Get-OSDBuilder {
     #$global:OSDBuilderPEBuilds              = $global:SetOSDBuilder.PathPEBuilds
     #$global:OSDBuilderTasks                 = $global:GetOSDBuilder.PathTasks
     #$global:OSDBuilderTemplates             = $global:GetOSDBuilder.PathTemplates
-    #$global:OSDBuilderContent               = $global:GetOSDBuilder.PathContent
-
-    $global:GetOSDBuilderHome                   = $global:GetOSDBuilder.Home
-    $global:GetOSDBuilderPathContent            = $global:GetOSDBuilder.PathContent
-
-    $global:SetOSDBuilderPathContentPacks       = $global:SetOSDBuilder.PathContentPacks
-    $global:SetOSDBuilderPathFeatureUpdates     = $global:SetOSDBuilder.PathFeatureUpdates
-    $global:SetOSDBuilderPathOSBuilds           = $global:SetOSDBuilder.PathOSBuilds
-    $global:SetOSDBuilderPathOSImport           = $global:SetOSDBuilder.PathOSImport
-    $global:SetOSDBuilderPathOSMedia            = $global:SetOSDBuilder.PathOSMedia
-    $global:SetOSDBuilderPathPEBuilds           = $global:SetOSDBuilder.PathPEBuilds
-    $global:SetOSDBuilderPathTasks              = $global:SetOSDBuilder.PathTasks
-    $global:SetOSDBuilderPathTemplates          = $global:SetOSDBuilder.PathTemplates
-
-    $global:SetOSDBuilderPathContentMount       = $global:SetOSDBuilder.PathContentMount
-    $global:SetOSDBuilderPathContentOSDUpdate   = $global:SetOSDBuilder.PathContentOSDUpdate
+    #$global:OSDBuilderContent               = $global:SetOSDBuilder.PathContent
 
     #$global:GetModuleOSD                    = $global:GetOSDBuilder.PSModuleOSD
     #$global:GetModuleOSDSUS                 = $global:GetOSDBuilder.PSModuleOSDSUS
@@ -210,7 +107,7 @@ function Get-OSDBuilder {
     #$global:GetModuleOSDVersion             = $global:GetOSDBuilder.VersionOSD
     #$global:GetModuleOSDSUSVersion          = $global:GetOSDBuilder.VersionOSDSUS
     #$global:GetModuleOSDBuilderVersion      = $global:GetOSDBuilder.VersionOSDBuilder
-    $global:GetOSDBuilderVersionOSDBuilder      = $global:GetOSDBuilder.VersionOSDBuilder
+    #$global:GetOSDBuilderVersionOSDBuilder      = $global:GetOSDBuilder.VersionOSDBuilder
 
     #$global:OSDBuilderPublic                = $global:GetOSDBuilder.PublicJson
     #$global:OSDBuilderPublicURL             = $global:GetOSDBuilder.PublicJsonURL
@@ -248,7 +145,21 @@ function Get-OSDBuilder {
     #===================================================================================================
     #   Display OSDBulder Home Path
     #===================================================================================================
-    if (!($HideDetails.IsPresent)) {Write-Host "Home $($global:GetOSDBuilder.Home)"}
+    if (!($HideDetails.IsPresent)) {
+        Write-Host "Home            $global:GetOSDBuilderHome"
+        Write-Host "-Content        $global:SetOSDBuilderPathContent" -ForegroundColor Gray
+        Write-Host "-ContentPacks   $global:SetOSDBuilderPathContentPacks" -ForegroundColor Gray
+        Write-Host "-OSDownload     $global:SetOSDBuilderPathOSDownload" -ForegroundColor Gray
+        Write-Host "-OSImport       $global:SetOSDBuilderPathOSImport" -ForegroundColor Gray
+        Write-Host "-OSMedia        $global:SetOSDBuilderPathOSMedia" -ForegroundColor Gray
+        Write-Host "-OSBuilds       $global:SetOSDBuilderPathOSBuilds" -ForegroundColor Gray
+        Write-Host "-PEBuilds       $global:SetOSDBuilderPathPEBuilds" -ForegroundColor Gray
+        Write-Host "-Mount          $global:SetOSDBuilderPathMount" -ForegroundColor Gray
+        Write-Host "-Tasks          $global:SetOSDBuilderPathTasks" -ForegroundColor Gray
+        Write-Host "-Templates      $global:SetOSDBuilderPathTemplates" -ForegroundColor Gray
+        Write-Host "-Updates        $global:SetOSDBuilderPathUpdates" -ForegroundColor Gray
+        #Show-OSDBuilderHomeMap
+    }
     #===================================================================================================
     #   Verify Single Version of OSDBuilder
     #===================================================================================================
@@ -262,16 +173,16 @@ function Get-OSDBuilder {
     #===================================================================================================
     if ($CreatePaths.IsPresent) {
         New-ItemDirectoryGetOSDBuilderHome
-        New-ItemDirectoryGetOSDBuilderPathContent
+        New-ItemDirectorySetOSDBuilderPathContent
         New-OSDBuilderContentPack -Name '_Global'
     }
     #===================================================================================================
     #   Remove Directories
     #===================================================================================================
     $OSDBuilderOldDirectories = @(
-        "$GetOSDBuilderPathContent\UpdateStacks"
-        "$GetOSDBuilderPathContent\UpdateWindows"
-        "$GetOSDBuilderPathContentOSDUpdate\Windows 10 1903"
+        "$SetOSDBuilderPathContent\UpdateStacks"
+        "$SetOSDBuilderPathContent\UpdateWindows"
+        "$GetOSDBuilderPathUpdates\Windows 10 1903"
     )
 
     foreach ($OSDBuilderDir in $OSDBuilderOldDirectories) {
@@ -351,7 +262,6 @@ function Get-OSDBuilder {
             foreach ($line in $global:GetOSDBuilder.PublicJson.NewLinks) {Write-Host $line -ForegroundColor DarkGray}
 
         }
-        #Show-OSDBuilderHomeMap
         Show-OSDBuilderHomeTips
     }
     if ($UpdateModule.IsPresent) {

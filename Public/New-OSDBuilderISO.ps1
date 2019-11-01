@@ -50,8 +50,8 @@ function New-OSDBuilderISO {
         #===================================================================================================
         Write-Verbose '19.1.1 Locate OSCDIMG'
         #===================================================================================================
-        if (Test-Path "$GetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe") {
-            $oscdimg = "$GetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe"
+        if (Test-Path "$SetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe") {
+            $oscdimg = "$SetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe"
         } elseif (Test-Path "C:\Program Files\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe") {
             $oscdimg = "C:\Program Files\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe"
         } elseif (Test-Path "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe") {
@@ -61,7 +61,7 @@ function New-OSDBuilderISO {
             Write-Warning "Could not locate OSCDIMG in Windows ADK at:"
             Write-Warning "${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\Oscdimg\oscdimg.exe"
             Write-Warning "You can optionally copy OSCDIMG to:"
-            Write-Warning "$GetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe"
+            Write-Warning "$SetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe"
             Break
         }
         Write-Verbose "OSCDIMG: $oscdimg"
@@ -185,8 +185,8 @@ function New-OSDBuilderISO {
             $efisys = "$ISOSourceFolder\efi\microsoft\boot\efisys.bin"
             if (Test-Path "$ISOSourceFolder\efi\microsoft\boot\efisys.bin") {
                 $efisys = "$ISOSourceFolder\efi\microsoft\boot\efisys.bin"
-            } elseif (Test-Path "$GetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\efisys.bin") {
-                $efisys = "$GetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\efisys.bin"
+            } elseif (Test-Path "$SetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\efisys.bin") {
+                $efisys = "$SetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\efisys.bin"
             } elseif (Test-Path "C:\Program Files\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\efisys.bin") {
                 $efisys = "C:\Program Files\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\efisys.bin"
             } elseif (Test-Path "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\efisys.bin") {

@@ -16,83 +16,85 @@ https://osdbuilder.osdeploy.com/module/functions/new-osbuild
 function New-OSBuild {
     [CmdletBinding(DefaultParameterSetName='Basic')]
     Param (
-        #Automatically download the required updates if they are not present in the Content\OSDUpdate directory
-        [Alias('GetDown')]
-        [switch]$Download,
+        #Specify the Name of the OSMedia to use with New-OSBuild
+        [Parameter(ParameterSetName='Taskless', ValueFromPipelineByPropertyName=$True)]
+        [string[]]$Name,
 
-        #Executes Update-OSMedia
-        #Without this parameter, Update-OSMedia is in Sandbox Mode where changes will not be made
-        [Alias('Force')]
-        [switch]$Execute,
+        #Name of the Task to execute
+        [Parameter(ParameterSetName='Basic')]
+        [string]$ByTaskName = $global:SetOSDBuilder.NewOSBuildByTaskName,
 
         #Creates an ISO of the Updated Media
         #oscdimg.exe from Windows ADK is required
         [Alias('ISO','OSDISO')]
-        [switch]$CreateISO,
+        [switch]$CreateISO = $global:SetOSDBuilder.NewOSBuildCreateISO,
+        
+        #Use the OSMedia specified in the Task
+        [Parameter(ParameterSetName='Basic')]
+        [switch]$DontUseNewestMedia = $global:SetOSDBuilder.NewOSBuildDontUseNewestMedia,
+
+        #Automatically download the required updates if they are not present in the Content\OSDUpdate directory
+        [Alias('GetDown')]
+        [switch]$Download = $global:SetOSDBuilder.NewOSBuildDownload,
+
+        #Executes Update-OSMedia
+        #Without this parameter, Update-OSMedia is in Sandbox Mode where changes will not be made
+        [Alias('Force')]
+        [switch]$Execute = $global:SetOSDBuilder.NewOSBuildExecute,
+
+        #Enables NetFX without creating a Task
+        [Parameter(ParameterSetName='Taskless')]
+        [switch]$EnableNetFX = $global:SetOSDBuilder.NewOSBuildEnableNetFX,
+
+        #Hides the Dism Cleanup-Image Progress
+        [switch]$HideCleanupProgress = $global:SetOSDBuilder.NewOSBuildHideCleanupProgress,
 
         #Pauses the function the Install.wim is dismounted
         #Useful for Testing
         [Alias('PauseOS','PauseDismount')]
-        [switch]$PauseDismountOS,
+        [switch]$PauseDismountOS = $global:SetOSDBuilder.NewOSBuildPauseDismountOS,
 
         #Pauses the function before WinPE is dismounted
         #Useful for Testing
         [Alias('PausePE')]
-        [switch]$PauseDismountPE,
+        [switch]$PauseDismountPE = $global:SetOSDBuilder.NewOSBuildPauseDismountPE,
+
+        #Add a ContentPack without creating a Task
+        [Parameter(ParameterSetName='Taskless')]
+        [switch]$SelectContentPacks = $global:SetOSDBuilder.NewOSBuildSelectContentPacks,
 
         #Allows you to select Updates to apply in GridView
         #Useful for Testing
-        [switch]$SelectUpdates,
-        
-        #Allows you to skip all Updates from being applied
-        #Useful for Testing
-        [switch]$SkipUpdates,
+        [switch]$SelectUpdates = $global:SetOSDBuilder.NewOSBuildSelectUpdates,
 
-        [switch]$SkipUpdatesPE,
+        #By default only the OSMedia that needs to be updated is displayed
+        #This parameter includes the hidden OSMedia
+        [Alias('ShowAllOSMedia','Superseded')]
+        [switch]$ShowHiddenOSMedia = $global:SetOSDBuilder.NewOSBuildShowHiddenOSMedia,
 
         #Skips DISM /Cleanup-Image /StartComponentCleanup /ResetBase
         #Images created for Citrix PVS require this parameter
         #Useful for testing to reduce the time
         [Alias('SkipCleanup','Citrix','PVS')]
-        [switch]$SkipComponentCleanup,
-
-        #Name of the Task to execute
-        [Parameter(ParameterSetName='Basic')]
-        [string]$ByTaskName,
-        
-        #Use the OSMedia specified in the Task
-        [Parameter(ParameterSetName='Basic')]
-        [switch]$DontUseNewestMedia,
-
-        #Create a new OSBuild without applying Templates
-        [switch]$SkipTemplates,
+        [switch]$SkipComponentCleanup = $global:SetOSDBuilder.NewOSBuildSkipComponentCleanup,
 
         #Create a new OSBuild without applying ContentPacks
-        [switch]$SkipContentPacks,
+        [switch]$SkipContentPacks = $global:SetOSDBuilder.NewOSBuildSkipContentPacks,
 
-        #Specify the Name of the OSMedia to use with New-OSBuild
-        [Parameter(ParameterSetName='Taskless', ValueFromPipelineByPropertyName=$True)]
-        [string[]]$Name,
+        #Create a new OSBuild without applying Templates
+        [switch]$SkipTemplates = $global:SetOSDBuilder.NewOSBuildSkipTemplates,
+        
+        #Allows you to skip all Updates from being applied
+        #Useful for Testing
+        [switch]$SkipUpdates = $global:SetOSDBuilder.NewOSBuildSkipUpdates,
+
+        #Skip applying updates in WinPE
+        #Useful for Testing
+        [switch]$SkipUpdatesPE = $global:SetOSDBuilder.NewOSBuildSkipUpdatesPE,
 
         #Create a new OSBuild from OSMedia without a Task
         [Parameter(ParameterSetName='Taskless', Mandatory=$True)]
-        [switch]$SkipTask,
-
-        #Add a ContentPack without creating a Task
-        [Parameter(ParameterSetName='Taskless')]
-        [switch]$SelectContentPacks,
-
-        #Enables NetFX without creating a Task
-        [Parameter(ParameterSetName='Taskless')]
-        [switch]$EnableNetFX,
-
-        #By default only the OSMedia that needs to be updated is displayed
-        #This parameter includes the hidden OSMedia
-        [Alias('ShowAllOSMedia','Superseded')]
-        [switch]$ShowHiddenOSMedia,
-
-        #Hides the Dism Cleanup-Image Progress
-        [switch]$HideCleanupProgress
+        [switch]$SkipTask = $global:SetOSDBuilder.NewOSBuildSkipTask
     )
 
     Begin {
@@ -331,10 +333,10 @@ function New-OSBuild {
             #   OSBuild
             Write-Verbose '19.1.22 Templates'
             #===================================================================================================
-            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
-                Get-ChildItem -Path "$SetOSDBuilderPathTemplates" *.json | foreach {(Get-Content "$($_.FullName)").replace('WinPEAddDaRT', 'WinPEDaRT') | Set-Content "$($_.FullName)"}
+            if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
+                Get-ChildItem -Path $SetOSDBuilderPathTemplates *.json | foreach {(Get-Content "$($_.FullName)").replace('WinPEAddDaRT', 'WinPEDaRT') | Set-Content "$($_.FullName)"}
                 $Templates = @()
-                $Templates = Get-ChildItem -Path "$SetOSDBuilderPathTemplates" OSBuild*.json | ForEach-Object {Get-Content -Path $_.FullName | ConvertFrom-Json | Select-Object -Property *}
+                $Templates = Get-ChildItem -Path $SetOSDBuilderPathTemplates OSBuild*.json | ForEach-Object {Get-Content -Path $_.FullName | ConvertFrom-Json | Select-Object -Property *}
 
                 if ($Templates){
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -562,7 +564,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   Driver Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     $DriverTemplates = Get-OSTemplateDrivers
                     if ($DriverTemplates) {
                         Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -574,7 +576,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   ExtraFiles Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template ExtraFiles Directories (Searched)" -ForegroundColor Green
                     $ExtraFilesTemplates = Get-OSTemplateExtraFiles
                     if ($ExtraFilesTemplates) {
@@ -587,7 +589,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   Registry REG Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Registry REG Directories (Searched)" -ForegroundColor Green
                     $RegistryTemplatesReg = Get-OSTemplateRegistryReg
                     if ($RegistryTemplatesReg) {
@@ -600,7 +602,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   Registry XML Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Registry XML Directories (Searched)" -ForegroundColor Green
                     $RegistryTemplatesXml = Get-OSTemplateRegistryXml
                     if ($RegistryTemplatesXml) {
@@ -613,7 +615,7 @@ function New-OSBuild {
                 #   OSBuild
                 #   Script Templates
                 #===================================================================================================
-                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path "$SetOSDBuilderPathTemplates") -and (!($SkipTemplates.IsPresent))) {
+                if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Script Directories (Searched)" -ForegroundColor Green
                     $ScriptTemplates = Get-OSTemplateScripts
                     if ($ScriptTemplates) {
@@ -875,10 +877,10 @@ function New-OSBuild {
                 #===================================================================================================
                 Write-Verbose '19.2.25 Set Variables'
                 #===================================================================================================
-                $MountDirectory = Join-Path $SetOSDBuilderPathContentMount "os$((Get-Date).ToString('mmss'))"
-                $MountWinPE = Join-Path $SetOSDBuilderPathContentMount "winpe$((Get-Date).ToString('mmss'))"
-                $MountWinRE = Join-Path $SetOSDBuilderPathContentMount "winre$((Get-Date).ToString('mmss'))"
-                $MountWinSE = Join-Path $SetOSDBuilderPathContentMount "setup$((Get-Date).ToString('mmss'))"
+                $MountDirectory = Join-Path $SetOSDBuilderPathMount "os$((Get-Date).ToString('mmss'))"
+                $MountWinPE = Join-Path $SetOSDBuilderPathMount "winpe$((Get-Date).ToString('mmss'))"
+                $MountWinRE = Join-Path $SetOSDBuilderPathMount "winre$((Get-Date).ToString('mmss'))"
+                $MountWinSE = Join-Path $SetOSDBuilderPathMount "setup$((Get-Date).ToString('mmss'))"
                 $Info = Join-Path $WorkingPath 'info'
                     $Logs = Join-Path $Info 'logs'
                 $OS = Join-Path $WorkingPath 'OS'
@@ -1015,7 +1017,7 @@ function New-OSBuild {
                     Show-ActionTime
                     Write-Host -ForegroundColor Green "OS: Update OneDriveSetup.exe"
                     $OneDriveSetupDownload = $false
-                    $OneDriveSetup = "$GetOSDBuilderPathContent\OneDrive\OneDriveSetup.exe"
+                    $OneDriveSetup = Join-Path $GetOSDBuilderPathContentOneDrive 'OneDriveSetup.exe'
                     if (!(Test-Path $OneDriveSetup)) {$OneDriveSetupDownload = $true}
 
                     if (Test-Path $OneDriveSetup) {
@@ -1033,7 +1035,7 @@ function New-OSBuild {
                         $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
                         Write-Host -ForegroundColor Gray "                  Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
                         if (Test-Path $OneDriveSetup) {
-                            robocopy "$GetOSDBuilderPathContent\OneDrive" "$MountDirectory\Windows\System32" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
+                            robocopy "$GetOSDBuilderPathContentOneDrive" "$MountDirectory\Windows\System32" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
                             Write-Host -ForegroundColor Gray "                  Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
                         }
@@ -1041,7 +1043,7 @@ function New-OSBuild {
                         $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
                         Write-Host -ForegroundColor Gray "                  Install.wim version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
                         if (Test-Path $OneDriveSetup) {
-                            robocopy "$GetOSDBuilderPathContent\OneDrive" "$MountDirectory\Windows\SysWOW64" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
+                            robocopy "$GetOSDBuilderPathContentOneDrive" "$MountDirectory\Windows\SysWOW64" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
                             Write-Host -ForegroundColor Gray "                  Updated version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
                         }

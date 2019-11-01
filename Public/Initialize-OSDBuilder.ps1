@@ -1,12 +1,8 @@
 function Initialize-OSDBuilder {
     [CmdletBinding()]
     Param (
-        #Initializes OSDBuilder variables
-        #This action will occur automatically if OSDBuilder variables are not set
-        [switch]$Default,
-
         #Sets the OSDBuilder Path in the Registry
-        [string]$OSDBuilderHome
+        [string]$SetHome
     )
     #===================================================================================================
     #   GetOSDBuilderHome
@@ -26,9 +22,9 @@ function Initialize-OSDBuilder {
         Catch {Write-Warning 'Unable to New-ItemProperty HKCU:\Software\OSDeploy GetOSDBuilderHome'; Break}
     }
 
-    if ($OSDBuilderHome) {
-        Try {Set-ItemProperty -Path HKCU:\Software\OSDeploy -Name GetOSDBuilderHome -Value $OSDBuilderHome -Force}
-        Catch {Write-Warning "Unable to Set-ItemProperty HKCU:\Software\OSDeploy GetOSDBuilderHome to $OSDBuilderHome"; Break}
+    if ($SetHome) {
+        Try {Set-ItemProperty -Path HKCU:\Software\OSDeploy -Name GetOSDBuilderHome -Value $SetHome -Force}
+        Catch {Write-Warning "Unable to Set-ItemProperty HKCU:\Software\OSDeploy GetOSDBuilderHome to $SetHome"; Break}
     }
 
     $global:GetOSDBuilderHome = $(Get-ItemProperty "HKCU:\Software\OSDeploy").GetOSDBuilderHome
@@ -36,57 +32,110 @@ function Initialize-OSDBuilder {
     #===================================================================================================
     #   Initialize OSDBuilder Variables
     #===================================================================================================
-    Write-Verbose "Initializing OSDBuilder Defaults" -Verbose
+    Write-Verbose "Initializing OSDBuilder ..." -Verbose
 
+    
     $global:GetOSDBuilder = [ordered]@{
         Home                    = $global:GetOSDBuilderHome
         Initialize              = $true
         JsonLocal               = Join-Path $global:GetOSDBuilderHome 'OSDBuilder.json'
         JsonGlobal              = Join-Path $env:ProgramData 'OSDeploy\OSDBuilder.json'
-        PathContent             = Join-Path $global:GetOSDBuilderHome 'Content'
+<#         PathContentADK          = Join-Path $global:GetOSDBuilderHome 'Content\ADK'
+        PathContentDaRT         = Join-Path $global:GetOSDBuilderHome 'Content\DaRT'
+        PathContentDrivers      = Join-Path $global:GetOSDBuilderHome 'Content\Drivers'
+        PathContentExtraFiles   = Join-Path $global:GetOSDBuilderHome 'Content\ExtraFiles'
+        PathContentIsoExtract   = Join-Path $global:GetOSDBuilderHome 'Content\IsoExtract'
+        PathContentOneDrive     = Join-Path $global:GetOSDBuilderHome 'Content\OneDrive'
+        PathContentPackages     = Join-Path $global:GetOSDBuilderHome 'Content\Packages'
+        PathContentScripts      = Join-Path $global:GetOSDBuilderHome 'Content\Scripts'
+        PathContentStartLayout  = Join-Path $global:GetOSDBuilderHome 'Content\StartLayout'
+        PathContentUnattend     = Join-Path $global:GetOSDBuilderHome 'Content\Unattend' #>
     }
+
     $global:SetOSDBuilder = [ordered]@{
         AllowContentPacks       = $false
         AllowGlobalOptions      = $true
-        AllowLocalOptions       = $true
+        PathContent             = Join-Path $global:GetOSDBuilderHome 'Content'
         PathContentPacks        = Join-Path $global:GetOSDBuilderHome 'ContentPacks'
-        PathFeatureUpdates      = Join-Path $global:GetOSDBuilderHome 'FeatureUpdates'
+        PathMount               = Join-Path $global:GetOSDBuilderHome 'Mount'
         PathOSBuilds            = Join-Path $global:GetOSDBuilderHome 'OSBuilds'
+        PathOSDownload      	= Join-Path $global:GetOSDBuilderHome 'OSDownload'
         PathOSImport            = Join-Path $global:GetOSDBuilderHome 'OSImport'
         PathOSMedia             = Join-Path $global:GetOSDBuilderHome 'OSMedia'
         PathPEBuilds            = Join-Path $global:GetOSDBuilderHome 'PEBuilds'
         PathTasks               = Join-Path $global:GetOSDBuilderHome 'Tasks'
         PathTemplates           = Join-Path $global:GetOSDBuilderHome 'Templates'
+        PathUpdates             = Join-Path $global:GetOSDBuilderHome 'Updates'
 
-        PathContentADK          = Join-Path $global:GetOSDBuilder.PathContent 'ADK'
-        PathContentDaRT         = Join-Path $global:GetOSDBuilder.PathContent 'DaRT'
-        PathContentDrivers      = Join-Path $global:GetOSDBuilder.PathContent 'Drivers'
-        PathContentExtraFiles   = Join-Path $global:GetOSDBuilder.PathContent 'ExtraFiles'
-        PathContentIsoExtract   = Join-Path $global:GetOSDBuilder.PathContent 'IsoExtract'
-        PathContentMount        = Join-Path $global:GetOSDBuilder.PathContent 'Mount'
-        PathContentOneDrive     = Join-Path $global:GetOSDBuilder.PathContent 'OneDrive'
-        PathContentOSDUpdate    = Join-Path $global:GetOSDBuilder.PathContent 'OSDUpdate'
-        PathContentPackages     = Join-Path $global:GetOSDBuilder.PathContent 'Packages'
-        PathContentScripts      = Join-Path $global:GetOSDBuilder.PathContent 'Scripts'
-        PathContentStartLayout  = Join-Path $global:GetOSDBuilder.PathContent 'StartLayout'
-        PathContentUnattend     = Join-Path $global:GetOSDBuilder.PathContent 'Unattend'
-
+        #Get-DownOSDBuilder
+        #Get-OSBuilds
+        #Get-OSDBuilder
+        #Get-OSMedia
+        #Get-PEBuilds
+        #Import-OSMedia
         ImportOSMediaBuildNetFX = $false
-        ImportOSMediaEditionId  = $null
+        ImportOSMediaEditionId = $null
         ImportOSMediaImageIndex = $null
-        ImportOSMediaImageName  = $null
-        ImportOSMediaShowInfo   = $false
-        ImportOSMediaSkipGrid   = $false
-        ImportOSMediaUpdate     = $false
-
+        ImportOSMediaImageName = $null
+        ImportOSMediaShowInfo = $false
+        ImportOSMediaSkipGrid = $false
+        ImportOSMediaUpdate = $false
+        #Initialize-OSDBuilder
+        #New-OSBuild
+        NewOSBuildByTaskName = $null
         NewOSBuildCreateISO = $false
+        NewOSBuildDontUseNewestMedia = $false
         NewOSBuildDownload = $false
+        NewOSBuildExecute = $false
         NewOSBuildEnableNetFX = $false
         NewOSBuildHideCleanupProgress = $false
+        NewOSBuildPauseDismountOS = $false
+        NewOSBuildPauseDismountPE = $false
         NewOSBuildSelectContentPacks = $false
+        NewOSBuildSelectUpdates = $false
+        NewOSBuildShowHiddenOSMedia = $false
+        NewOSBuildSkipComponentCleanup = $false
+        NewOSBuildSkipContentPacks = $false
+        NewOSBuildSkipTask = $false
         NewOSBuildSkipTemplates = $false
         NewOSBuildSkipUpdates = $false
-
+        #New-OSBuildMultiLang
+        #New-OSBuildTask
+        NewOSBuildTaskAddContentPacks = $false
+        NewOSBuildTaskContentDrivers = $false
+        NewOSBuildTaskContentExtraFiles = $false
+        NewOSBuildTaskContentFeaturesOnDemand = $false
+        NewOSBuildTaskContentLanguagePackages = $false
+        NewOSBuildTaskContentPackages = $false
+        NewOSBuildTaskContentScripts = $false
+        NewOSBuildTaskContentStartLayout = $false
+        NewOSBuildTaskContentUnattend = $false
+        NewOSBuildTaskContentWinPEADK = $false
+        NewOSBuildTaskContentWinPEDart = $false
+        NewOSBuildTaskContentWinPEDrivers = $false
+        NewOSBuildTaskContentWinPEExtraFiles = $false
+        NewOSBuildTaskContentWinPEScripts = $false
+        NewOSBuildTaskCustomName = $null
+        NewOSBuildTaskDisableFeature = $false
+        NewOSBuildTaskEnableFeature = $false
+        NewOSBuildTaskEnableNetFX3 = $false
+        NewOSBuildTaskRemoveAppx = $false
+        NewOSBuildTaskRemoveCapability = $false
+        NewOSBuildTaskRemovePackage = $false
+        NewOSBuildTaskTaskName = $null
+        NewOSBuildTaskWinPEAutoExtraFiles = $false
+        #New-OSDBuilderContentPack
+        #New-OSDBuilderISO
+        #New-OSDBuilderUSB
+        #New-OSDBuilderVHD
+        #New-PEBuild
+        NewPEBuildCreateISO = $false
+        NewPEBuildExecute = $false
+        NewPEBuildPauseDismount = $false
+        NewPEBuildPauseMount = $false
+        #New-PEBuildTask
+        #Show-OSDBuilderInfo
+        #Update-OSMedia
         UpdateOSMediaCreateISO = $false
         UpdateOSMediaDownload = $false
         UpdateOSMediaExecute = $false
@@ -99,19 +148,15 @@ function Initialize-OSDBuilder {
         UpdateOSMediaSkipComponentCleanup = $false
         UpdateOSMediaSkipUpdates = $false
     }
-
-<#     $global:GetOSDBuilder.PathContent       = Join-Path $global:GetOSDBuilder.Home 'Content'
-    $global:GetOSDBuilder.PathTasks         = Join-Path $global:GetOSDBuilder.Home 'Tasks'
-    $global:GetOSDBuilder.PathTemplates     = Join-Path $global:GetOSDBuilder.Home 'Templates' #>
     #===================================================================================================
     #   Import Local JSON
     #===================================================================================================
     if (Test-Path $global:GetOSDBuilder.JsonLocal) {
-        Write-Verbose "Importing $($global:GetOSDBuilder.JsonLocal)" -Verbose
+        Write-Verbose "Importing $($global:GetOSDBuilder.JsonLocal)"
         Try {
             $global:GetOSDBuilder.LocalSettings = (Get-Content $global:GetOSDBuilder.JsonLocal -RAW | ConvertFrom-Json).PSObject.Properties | foreach {[ordered]@{Name = $_.Name; Value = $_.Value}} | ConvertTo-Json | ConvertFrom-Json
             $global:GetOSDBuilder.LocalSettings | foreach {
-                Write-Verbose "$($_.Name) = $($_.Value)" -Verbose
+                Write-Verbose "$($_.Name) = $($_.Value)"
                 $global:SetOSDBuilder.$($_.Name) = $($_.Value)
             }
         }
@@ -120,11 +165,11 @@ function Initialize-OSDBuilder {
 
     if ($global:SetOSDBuilder.AllowGlobalOptions -eq $true) {
         if (Test-Path $global:GetOSDBuilder.JsonGlobal) {
-            Write-Verbose "Importing $($global:GetOSDBuilder.JsonGlobal)" -Verbose
+            Write-Verbose "Importing $($global:GetOSDBuilder.JsonGlobal)"
             Try {
                 $global:GetOSDBuilder.LocalSettings = (Get-Content $global:GetOSDBuilder.JsonGlobal -RAW | ConvertFrom-Json).PSObject.Properties | foreach {[ordered]@{Name = $_.Name; Value = $_.Value}} | ConvertTo-Json | ConvertFrom-Json
                 $global:GetOSDBuilder.LocalSettings | foreach {
-                    Write-Verbose "$($_.Name) = $($_.Value)" -Verbose
+                    Write-Verbose "$($_.Name) = $($_.Value)"
                     $global:SetOSDBuilder.$($_.Name) = $($_.Value)
                 }
             }
@@ -132,111 +177,66 @@ function Initialize-OSDBuilder {
         }
     }
 
-
-<#     #if ($null -eq $global:SetOSDBuilder.PathContent) {}
-
-    #$global:SetOSDBuilder.PathContent               = Join-Path $global:GetOSDBuilder.Home 'Content'
-    $global:SetOSDBuilder.PathContentPacks          = Join-Path $global:GetOSDBuilder.Home 'ContentPacks'
-    $global:SetOSDBuilder.PathFeatureUpdates        = Join-Path $global:GetOSDBuilder.Home 'FeatureUpdates'
-    $global:SetOSDBuilder.PathOSBuilds              = Join-Path $global:GetOSDBuilder.Home 'OSBuilds'
-    $global:SetOSDBuilder.PathOSImport              = Join-Path $global:GetOSDBuilder.Home 'OSImport'
-    $global:SetOSDBuilder.PathOSMedia               = Join-Path $global:GetOSDBuilder.Home 'OSMedia'
-    $global:SetOSDBuilder.PathPEBuilds              = Join-Path $global:GetOSDBuilder.Home 'PEBuilds'
-    #$global:SetOSDBuilder.PathTasks                 = Join-Path $global:GetOSDBuilder.Home 'Tasks'
-    #$global:SetOSDBuilder.PathTemplates             = Join-Path $global:GetOSDBuilder.Home 'Templates'
-
-    $global:SetOSDBuilder.PathContentADK            = Join-Path $global:SetOSDBuilder.PathContent 'ADK'
-    $global:SetOSDBuilder.PathContentDaRT           = Join-Path $global:SetOSDBuilder.PathContent 'DaRT'
-    $global:SetOSDBuilder.PathContentDrivers        = Join-Path $global:SetOSDBuilder.PathContent 'Drivers'
-    $global:SetOSDBuilder.PathContentExtraFiles     = Join-Path $global:SetOSDBuilder.PathContent 'ExtraFiles'
-    $global:SetOSDBuilder.PathContentIsoExtract     = Join-Path $global:SetOSDBuilder.PathContent 'IsoExtract'
-    $global:SetOSDBuilder.PathContentMount          = Join-Path $global:SetOSDBuilder.PathContent 'Mount'
-    $global:SetOSDBuilder.PathContentOneDrive       = Join-Path $global:SetOSDBuilder.PathContent 'OneDrive'
-    $global:SetOSDBuilder.PathContentOSDUpdate      = Join-Path $global:SetOSDBuilder.PathContent 'OSDUpdate'
-    $global:SetOSDBuilder.PathContentPackages       = Join-Path $global:SetOSDBuilder.PathContent 'Packages'
-    $global:SetOSDBuilder.PathContentScripts        = Join-Path $global:SetOSDBuilder.PathContent 'Scripts'
-    $global:SetOSDBuilder.PathContentStartLayout    = Join-Path $global:SetOSDBuilder.PathContent 'StartLayout'
-    $global:SetOSDBuilder.PathContentUnattend       = Join-Path $global:SetOSDBuilder.PathContent 'Unattend' #>
-
-<#     $global:GetOSDBuilder.PathContent               = Join-Path $global:GetOSDBuilder.Home 'Content'
-    $global:SetOSDBuilder.PathContentADK            = Join-Path $global:GetOSDBuilder.PathContent 'ADK'
-    $global:SetOSDBuilder.PathContentDaRT           = Join-Path $global:GetOSDBuilder.PathContent 'DaRT'
-    $global:SetOSDBuilder.PathContentDrivers        = Join-Path $global:GetOSDBuilder.PathContent 'Drivers'
-    $global:SetOSDBuilder.PathContentExtraFiles     = Join-Path $global:GetOSDBuilder.PathContent 'ExtraFiles'
-    $global:SetOSDBuilder.PathContentIsoExtract     = Join-Path $global:GetOSDBuilder.PathContent 'IsoExtract'
-    $global:SetOSDBuilder.PathContentMount          = Join-Path $global:GetOSDBuilder.PathContent 'Mount'
-    $global:SetOSDBuilder.PathContentOneDrive       = Join-Path $global:GetOSDBuilder.PathContent 'OneDrive'
-    $global:SetOSDBuilder.PathContentOSDUpdate      = Join-Path $global:GetOSDBuilder.PathContent 'OSDUpdate'
-    $global:SetOSDBuilder.PathContentPackages       = Join-Path $global:GetOSDBuilder.PathContent 'Packages'
-    $global:SetOSDBuilder.PathContentScripts        = Join-Path $global:GetOSDBuilder.PathContent 'Scripts'
-    $global:SetOSDBuilder.PathContentStartLayout    = Join-Path $global:GetOSDBuilder.PathContent 'StartLayout'
-    $global:SetOSDBuilder.PathContentUnattend       = Join-Path $global:GetOSDBuilder.PathContent 'Unattend'
-    $global:SetOSDBuilder.PathContentPacks          = Join-Path $global:GetOSDBuilder.Home 'ContentPacks'
-    $global:SetOSDBuilder.PathFeatureUpdates        = Join-Path $global:GetOSDBuilder.Home 'FeatureUpdates'
-    $global:SetOSDBuilder.PathOSBuilds              = Join-Path $global:GetOSDBuilder.Home 'OSBuilds'
-    $global:SetOSDBuilder.PathOSImport              = Join-Path $global:GetOSDBuilder.Home 'OSImport'
-    $global:SetOSDBuilder.PathOSMedia               = Join-Path $global:GetOSDBuilder.Home 'OSMedia'
-    $global:SetOSDBuilder.PathPEBuilds              = Join-Path $global:GetOSDBuilder.Home 'PEBuilds'
-    $global:GetOSDBuilder.PathTasks                 = Join-Path $global:GetOSDBuilder.Home 'Tasks'
-    $global:GetOSDBuilder.PathTemplates             = Join-Path $global:GetOSDBuilder.Home 'Templates' #>
-
-
-<#     $global:GetOSDBuilder = [ordered]@{
-        Home                = $global:GetOSDBuilderHome
-        Initialize          = $true
+    #===================================================================================================
+    #   Set Content Paths
+    #===================================================================================================
+    $global:GetOSDBuilder.PathContentADK            = Join-Path $global:SetOSDBuilder.PathContent 'ADK'
+    $global:GetOSDBuilder.PathContentDaRT           = Join-Path $global:SetOSDBuilder.PathContent 'DaRT'
+    $global:GetOSDBuilder.PathContentDrivers        = Join-Path $global:SetOSDBuilder.PathContent 'Drivers'
+    $global:GetOSDBuilder.PathContentExtraFiles     = Join-Path $global:SetOSDBuilder.PathContent 'ExtraFiles'
+    $global:GetOSDBuilder.PathContentIsoExtract     = Join-Path $global:SetOSDBuilder.PathContent 'IsoExtract'
+    $global:GetOSDBuilder.PathContentOneDrive       = Join-Path $global:SetOSDBuilder.PathContent 'OneDrive'
+    $global:GetOSDBuilder.PathContentPackages       = Join-Path $global:SetOSDBuilder.PathContent 'Packages'
+    $global:GetOSDBuilder.PathContentScripts        = Join-Path $global:SetOSDBuilder.PathContent 'Scripts'
+    $global:GetOSDBuilder.PathContentStartLayout    = Join-Path $global:SetOSDBuilder.PathContent 'StartLayout'
+    $global:GetOSDBuilder.PathContentUnattend       = Join-Path $global:SetOSDBuilder.PathContent 'Unattend'
+    #===================================================================================================
+    #   Get Variables
+    #===================================================================================================
+    $global:GetOSDBuilderHome                   = $global:GetOSDBuilder.Home
+    $global:GetOSDBuilderPathContentADK         = $global:GetOSDBuilder.PathContentADK
+    $global:GetOSDBuilderPathContentDaRT        = $global:GetOSDBuilder.PathContentDaRT
+    $global:GetOSDBuilderPathContentDrivers     = $global:GetOSDBuilder.PathContentDrivers
+    $global:GetOSDBuilderPathContentExtraFiles  = $global:GetOSDBuilder.PathContentExtraFiles
+    $global:GetOSDBuilderPathContentIsoExtract  = $global:GetOSDBuilder.PathContentIsoExtract
+    $global:GetOSDBuilderPathContentOneDrive    = $global:GetOSDBuilder.PathContentOneDrive
+    $global:GetOSDBuilderPathContentPackages    = $global:GetOSDBuilder.PathContentPackages
+    $global:GetOSDBuilderPathContentScripts     = $global:GetOSDBuilder.PathContentScripts
+    $global:GetOSDBuilderPathContentStartLayout = $global:GetOSDBuilder.PathContentStartLayout
+    $global:GetOSDBuilderPathContentUnattend    = $global:GetOSDBuilder.PathContentUnattend
+    #===================================================================================================
+    #   Set Variables
+    #===================================================================================================
+    $global:SetOSDBuilderPathContent            = $global:SetOSDBuilder.PathContent
+    $global:SetOSDBuilderPathContentPacks       = $global:SetOSDBuilder.PathContentPacks
+    $global:SetOSDBuilderPathMount              = $global:SetOSDBuilder.PathMount
+    $global:SetOSDBuilderPathOSBuilds           = $global:SetOSDBuilder.PathOSBuilds
+    $global:SetOSDBuilderPathOSDownload         = $global:SetOSDBuilder.PathOSDownload
+    $global:SetOSDBuilderPathOSImport           = $global:SetOSDBuilder.PathOSImport
+    $global:SetOSDBuilderPathOSMedia            = $global:SetOSDBuilder.PathOSMedia
+    $global:SetOSDBuilderPathPEBuilds           = $global:SetOSDBuilder.PathPEBuilds
+    $global:SetOSDBuilderPathTasks              = $global:SetOSDBuilder.PathTasks
+    $global:SetOSDBuilderPathTemplates          = $global:SetOSDBuilder.PathTemplates
+    $global:SetOSDBuilderPathUpdates            = $global:SetOSDBuilder.PathUpdates
+    #===================================================================================================
+    #   Corrections
+    #===================================================================================================
+    if (Test-Path "$GetOSDBuilderHome\Media") {
+        Write-Warning "Renaming $GetOSDBuilderHome\Media to $SetOSDBuilderPathOSDownload"
+        Rename-Item "$GetOSDBuilderHome\Media" "$SetOSDBuilderPathOSDownload" -Force | Out-Null
     }
-    $global:SetOSDBuilder = [ordered]@{
-        AllowContentPacks   = $false
-        AllowGlobalOptions  = $true
-        AllowLocalOptions   = $true
+    if (Test-Path "$GetOSDBuilderHome\FeatureUpdates") {
+        Write-Warning "Renaming $GetOSDBuilderHome\FeatureUpdates to $SetOSDBuilderPathOSDownload"
+        Rename-Item "$GetOSDBuilderHome\FeatureUpdates" "$SetOSDBuilderPathOSDownload" -Force | Out-Null
     }
-    $global:SetOSDBuilder.Paths = [ordered]@{}
-    $global:SetOSDBuilder.GetDownOSDBuilder = [ordered]@{}
-    $global:SetOSDBuilder.GetOSBuilds = [ordered]@{}
-    $global:SetOSDBuilder.GetOSDBuilder = [ordered]@{}
-    $global:SetOSDBuilder.GetOSMedia = [ordered]@{}
-    $global:SetOSDBuilder.GetPEBuilds = [ordered]@{}
-    $global:SetOSDBuilder.ImportOSMedia = [ordered]@{
-        BuildNetFX = $false
-        EditionId = $null
-        ImageIndex = $null
-        ImageName = $null
-        ShowInfo = $false
-        SkipGrid = $false
-        Update = $false
+    if (Test-Path "$SetOSDBuilderPathContent\OSDUpdate") {
+        Write-Warning "Moving $SetOSDBuilderPathContent\OSDUpdate to $SetOSDBuilderPathUpdates"
+        if (! (Test-Path $SetOSDBuilderPathUpdates)) {New-Item $SetOSDBuilderPathUpdates -ItemType Directory -Force | Out-Null}
+        Move-Item -Path "$SetOSDBuilderPathContent\OSDUpdate\*" -Destination $SetOSDBuilderPathUpdates -Force -ErrorAction SilentlyContinue | Out-Null
+        Remove-Item "$SetOSDBuilderPathContent\OSDUpdate" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
     }
-    $global:SetOSDBuilder.NewOSBuild = [ordered]@{
-        CreateISO = $false
-        Download = $false
-        EnableNetFX = $false
-        HideCleanupProgress = $false
-        SelectContentPacks = $false
-        SkipTemplates = $false
-        SkipUpdates = $false
+    if (Test-Path "$SetOSDBuilderPathContent\Mount") {
+        Write-Warning "$SetOSDBuilderPathContent\Mount has been moved to $SetOSDBuilderPathMount"
+        Write-Warning "Verify that you don't have any active mounted images and remove this directory"
     }
-    $global:SetOSDBuilder.NewOSBuildMultiLang = [ordered]@{}
-    $global:SetOSDBuilder.NewOSBuildTask = [ordered]@{}
-    $global:SetOSDBuilder.NewOSDBuilderContentPack = [ordered]@{}
-    $global:SetOSDBuilder.NewOSDBuilderISO = [ordered]@{}
-    $global:SetOSDBuilder.NewOSDBuilderUSB = [ordered]@{}
-    $global:SetOSDBuilder.NewOSDBuilderVHD = [ordered]@{}
-    $global:SetOSDBuilder.NewPEBuild = [ordered]@{}
-    $global:SetOSDBuilder.NewPEBuildTask = [ordered]@{}
-    $global:SetOSDBuilder.ShowOSDBuilderInfo = [ordered]@{}
-    $global:SetOSDBuilder.UpdateOSMedia = [ordered]@{
-        CreateISO = $false
-        Download = $false
-        Execute = $false
-        HideCleanupProgress = $false
-        Name = $null
-        PauseDismountOS = $false
-        PauseDismountPE = $false
-        SelectUpdates = $false
-        ShowHiddenOSMedia = $false
-        SkipComponentCleanup = $false
-        SkipUpdates = $false
-    }
-
-    $global:SetOSDBuilder | ConvertTo-Json | Set-Content 'C:\OSDBuilder\Defaults.json' #>
-
 }

@@ -123,10 +123,9 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
             foreach ($Item in $FeatureUpdateDownloads) {
-                #$DownloadPath = $SetOSDBuilderPathFeatureUpdates
-                $DownloadFullPath = "$SetOSDBuilderPathFeatureUpdates\$($Item.FileName)"
+                $DownloadFullPath = Join-Path $SetOSDBuilderPathOSDownload $Item.FileName
 
-                if (!(Test-Path $SetOSDBuilderPathFeatureUpdates)) {New-Item -Path "$SetOSDBuilderPathFeatureUpdates" -ItemType Directory -Force | Out-Null}
+                if (!(Test-Path $SetOSDBuilderPathOSDownload)) {New-Item -Path $SetOSDBuilderPathOSDownload -ItemType Directory -Force | Out-Null}
                 Write-Host "$DownloadFullPath" -ForegroundColor Cyan
                 Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
                 if (!(Test-Path $DownloadFullPath)) {
@@ -138,7 +137,7 @@ function Get-DownOSDBuilder {
                 }
 
                 $esdbasename = (Get-Item "$DownloadFullPath").Basename
-                $esddirectory = "$SetOSDBuilderPathFeatureUpdates\$esdbasename"
+                $esddirectory = Join-Path $SetOSDBuilderPathOSDownload $esdbasename
 
                 if (Test-Path "$esddirectory") {
                     Remove-Item "$esddirectory" -Force | Out-Null
@@ -181,12 +180,12 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($ContentDownload -eq 'OneDriveSetup Production') {
                 $DownloadUrl = 'https://go.microsoft.com/fwlink/p/?LinkId=248256'
-                $DownloadPath = "$GetOSDBuilderPathContent\OneDrive"
+                $DownloadPath = $GetOSDBuilderPathContentOneDrive
                 $DownloadFile = 'OneDriveSetup.exe'
             }
             if ($ContentDownload -eq 'OneDriveSetup Enterprise') {
                 $DownloadUrl = 'https://go.microsoft.com/fwlink/p/?linkid=860987'
-                $DownloadPath = "$GetOSDBuilderPathContent\OneDrive"
+                $DownloadPath = $GetOSDBuilderPathContentOneDrive
                 $DownloadFile = 'OneDriveSetup.exe'
             }
             #===================================================================================================
@@ -227,8 +226,8 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($Superseded) {
                 $ExistingUpdates = @()
-                if (!(Test-Path $SetOSDBuilder.PathContentOSDUpdate)) {New-Item $SetOSDBuilder.PathContentOSDUpdate -ItemType Directory -Force | Out-Null}
-                $ExistingUpdates = Get-ChildItem -Path "$($SetOSDBuilder.PathContentOSDUpdate)\*\*" -Directory
+                if (!(Test-Path $SetOSDBuilderPathUpdates)) {New-Item $SetOSDBuilderPathUpdates -ItemType Directory -Force | Out-Null}
+                $ExistingUpdates = Get-ChildItem -Path "$SetOSDBuilderPathUpdates\*\*" -Directory
 
                 $SupersededUpdates = @()
                 foreach ($Update in $ExistingUpdates) {
@@ -286,7 +285,7 @@ function Get-DownOSDBuilder {
             if ($Download.IsPresent) {
 				if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
                 foreach ($Update in $OSDUpdates) {
-                    $DownloadPath = "$($SetOSDBuilder.PathContentOSDUpdate)\$($Update.Catalog)\$($Update.Title)"
+                    $DownloadPath = "$SetOSDBuilderPathUpdates\$($Update.Catalog)\$($Update.Title)"
                     $DownloadFullPath = "$DownloadPath\$($Update.FileName)"
 
                     if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}

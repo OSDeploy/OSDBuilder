@@ -123,7 +123,7 @@ function Use-OSDUpdateBuilder {
         #===================================================================================================
         $OSDUpdateBuilder = New-Object PSObject
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name Catalog -Value $Catalog
-        Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDVersion -Value $GetOSDBuilderVersionOSDBuilder
+        Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDVersion -Value $global:GetOSDBuilder.VersionOSDBuilder
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDStatus -Value ''
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name UpdateOS -Value $UpdateOS
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name UpdateBuild -Value $UpdateBuild
@@ -171,12 +171,12 @@ function Use-OSDUpdateBuilder {
         #===================================================================================================
         #   Create OSDBuilder Update Category Directory
         #===================================================================================================
-        if (!(Test-Path "$SetOSDBuilderPathContentOSDUpdate")) {New-Item -Path "$SetOSDBuilderPathContentOSDUpdate" -ItemType Directory -Force | Out-Null}
+        if (!(Test-Path "$SetOSDBuilderPathUpdates")) {New-Item -Path "$SetOSDBuilderPathUpdates" -ItemType Directory -Force | Out-Null}
 
         #===================================================================================================
         #   Create OSDBuilder Update Catalog
         #===================================================================================================
-        $OSDUpdateBuilder | Export-Clixml -Path "$SetOSDBuilderPathContentOSDUpdate\$Catalog $KBTitle.xml"
+        $OSDUpdateBuilder | Export-Clixml -Path "$SetOSDBuilderPathUpdates\$Catalog $KBTitle.xml"
     }
 
     END {
