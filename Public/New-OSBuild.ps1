@@ -908,31 +908,37 @@ function New-OSBuild {
                 Mount-WinPEwim -OSMediaPath "$WorkingPath"
                 Mount-WinREwim -OSMediaPath "$WorkingPath"
                 Mount-WinSEwim -OSMediaPath "$WorkingPath"
-                Update-ServicingStackPE
-                Update-CumulativePE
                 #===================================================================================================
-                #   WinPE ContentPacks
+                #   WinPE ADK
                 #===================================================================================================
-                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
-                    Add-ContentPack -PackType PEDaRT
-                    Add-ContentPack -PackType PEADK
-                    Add-ContentPack -PackType PEDrivers
-                    Add-ContentPack -PackType PEExtraFiles
-                    Add-ContentPack -PackType PEPoshMods
-                    Add-ContentPack -PackType PERegistry
-                    Add-ContentPack -PackType PEScripts
-                }
-                #===================================================================================================
-                #   WinPE OSBuild
-                #===================================================================================================
-                Expand-DaRTPE
-                Import-AutoExtraFilesPE
-                Add-ContentExtraFilesPE
-                Add-ContentDriversPE
+                $global:ReapplyLCU = $false
                 Add-ContentADKWinPE
                 Add-ContentADKWinRE
                 Add-ContentADKWinSE
+                Add-ContentPack -PackType PEADK
+                Add-ContentPack -PackType PEADKLang
+                #===================================================================================================
+                #   WinPE DaRT
+                #===================================================================================================
+                Expand-DaRTPE
+                Add-ContentPack -PackType PEDaRT
+                #===================================================================================================
+                #   WinPE Updates
+                #===================================================================================================
+                Update-ServicingStackPE
+                Update-CumulativePE
+                #===================================================================================================
+                #   WinPE Content
+                #===================================================================================================
+                Import-AutoExtraFilesPE
+                Add-ContentExtraFilesPE
+                Add-ContentDriversPE
                 Add-ContentScriptsPE
+                Add-ContentPack -PackType PEDrivers
+                Add-ContentPack -PackType PEExtraFiles
+                Add-ContentPack -PackType PEPoshMods
+                Add-ContentPack -PackType PERegistry
+                Add-ContentPack -PackType PEScripts
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================
@@ -956,29 +962,49 @@ function New-OSBuild {
                 reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
                 $RegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
                 reg UNLOAD 'HKLM\OSMedia' | Out-Null
-
                 if ($($RegKeyCurrentVersion.ReleaseId)) {$ReleaseId = $($RegKeyCurrentVersion.ReleaseId)}
-
                 if ($($RegKeyCurrentVersion.CurrentBuild)) {$RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)}
                 else {$RegValueCurrentBuild = $OSSPBuild}
-
                 if ($($RegKeyCurrentVersion.UBR)) {$RegValueUbr = $($RegKeyCurrentVersion.UBR)}
                 else {$RegValueUbr = $OSSPBuild}
-
                 $UBR = "$RegValueCurrentBuild.$RegValueUbr"
-				 
                 Save-RegistryCurrentVersionOS
+                $UBRPre = $UBR
+                #===================================================================================================
+                #   Language Content
+                #===================================================================================================
+                $global:UpdateLanguageContent = $false
+                Add-LanguagePacksOS
+                Add-ContentPack -PackType OSLanguagePacks
+                Add-LanguageInterfacePacksOS
+                Add-LanguageFeaturesOnDemandOS
+                Add-ContentPack -PackType OSLanguageFeatures
+                Add-LocalExperiencePacksOS
+                Add-ContentPack -PackType OSLocalExperiencePacks
+                Copy-MediaLanguageSources
+                Add-ContentPack -PackType MEDIA
+                #if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks -or ($global:UpdateLanguageContent -eq $true)) {
+                    Set-LanguageSettingsOS
+                    #Update-CumulativeOS -Force
+                    #if ($HideCleanupProgress.IsPresent) {Invoke-DismCleanupImage -HideCleanupProgress} else {Invoke-DismCleanupImage}
+                #}
+                #===================================================================================================
+                #   Optional Content
+                #===================================================================================================
+                Add-ContentPack -PackType OSCapability
+                Add-ContentPack -PackType OSPackages
+                Add-WindowsPackageOS
+                Add-FeaturesOnDemandOS
                 #===================================================================================================
                 #   Install.wim Updates
                 #===================================================================================================
                 Update-ComponentOS
                 Update-ServicingStackOS
-                $UBRPre = $UBR
                 #===================================================================================================
                 #   Install.wim UBR Post-Update
                 #===================================================================================================
                 Show-ActionTime; Write-Host -ForegroundColor Green "OS: Update Build Revision $UBRPre (Pre-LCU)"
-                Update-CumulativeOS
+                Update-CumulativeOS -Force
                 #===================================================================================================
                 #   Update-OSMedia
                 #===================================================================================================
@@ -990,17 +1016,12 @@ function New-OSBuild {
                 reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
                 $RegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
                 reg UNLOAD 'HKLM\OSMedia' | Out-Null
-
                 if ($($RegKeyCurrentVersion.ReleaseId)) {$ReleaseId = $($RegKeyCurrentVersion.ReleaseId)}
-
                 if ($($RegKeyCurrentVersion.CurrentBuild)) {$RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)}
                 else {$RegValueCurrentBuild = $OSSPBuild}
-
                 if ($($RegKeyCurrentVersion.UBR)) {$RegValueUbr = $($RegKeyCurrentVersion.UBR)}
                 else {$RegValueUbr = $OSSPBuild}
-
                 $UBR = "$RegValueCurrentBuild.$RegValueUbr"
-				 
                 Save-RegistryCurrentVersionOS
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Update Build Revision $UBR (Post-LCU)"
@@ -1057,28 +1078,14 @@ function New-OSBuild {
                 #===================================================================================================
                 if ($HideCleanupProgress.IsPresent) {Invoke-DismCleanupImage -HideCleanupProgress} else {Invoke-DismCleanupImage}
                 #===================================================================================================
-                #	New-OSBuild
+                #   Content
                 #===================================================================================================
-                Add-LanguagePacksOS
-                Add-LanguageInterfacePacksOS
-                Add-LocalExperiencePacksOS
-                Add-LanguageFeaturesOnDemandOS
-                Copy-MediaLanguageSources
-                if ($ScriptName -eq 'New-OSBuild') {
-                    if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks) {
-                        Set-LanguageSettingsOS
-                        Update-CumulativeOS -Force
-                        if ($HideCleanupProgress.IsPresent) {Invoke-DismCleanupImage -HideCleanupProgress} else {Invoke-DismCleanupImage}
-                    }
-                }
-                Add-FeaturesOnDemandOS
                 Enable-WindowsOptionalFeatureOS
                 Enable-NetFXOS
                 Remove-AppxProvisionedPackageOS
                 Remove-WindowsPackageOS
                 Remove-WindowsCapabilityOS
                 Disable-WindowsOptionalFeatureOS
-                Add-WindowsPackageOS
                 Add-ContentDriversOS
                 Add-ContentExtraFilesOS
                 Add-ContentStartLayout
@@ -1086,25 +1093,22 @@ function New-OSBuild {
                 Add-ContentScriptsOS
                 Import-RegistryRegOS
                 Import-RegistryXmlOS
-                Update-ServicingStackOS -Force
+                Add-ContentPack -PackType OSDrivers
+                Add-ContentPack -PackType OSExtraFiles
+                Add-ContentPack -PackType OSPoshMods
+                Add-ContentPack -PackType OSRegistry
+                Add-ContentPack -PackType OSScripts
+                Add-ContentPack -PackType OSStartLayout
+                #===================================================================================================
+                #	Updates
+                #===================================================================================================
+                #Update-ServicingStackOS -Force
                 #===================================================================================================
                 #	Mirror OSMedia and OSBuild
                 #===================================================================================================
-                Backup-AutoExtraFilesOS -OSMediaPath "$WorkingPath"
+                Save-AutoExtraFilesOS -OSMediaPath "$WorkingPath"
                 Save-SessionsXmlOS -OSMediaPath "$WorkingPath"
                 Save-InventoryOS -OSMediaPath "$WorkingPath"
-                #===================================================================================================
-                #   ContentPacks
-                #===================================================================================================
-                if (($MyInvocation.MyCommand.Name -eq 'New-OSBuild') -and (Get-IsContentPacksEnabled) -and (!($SkipContentPacks.IsPresent))) {
-                    Add-ContentPack -PackType OSDrivers
-                    Add-ContentPack -PackType OSExtraFiles
-                    Add-ContentPack -PackType OSPoshMods
-                    Add-ContentPack -PackType OSRegistry
-                    Add-ContentPack -PackType OSScripts
-                    Add-ContentPack -PackType OSStartLayout
-                    Add-ContentPack -PackType MEDIA
-                }
                 #===================================================================================================
                 #   Dismount
                 #===================================================================================================

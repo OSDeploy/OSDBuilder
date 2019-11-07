@@ -6,6 +6,7 @@ function Add-ContentADKWinPE {
     #===================================================================================================
     if (($ScriptName -ne 'New-OSBuild') -and ($ScriptName -ne 'New-PEBuild')) {Return}
     if ([string]::IsNullOrWhiteSpace($WinPEADKPE)) {Return}
+    $global:ReapplyLCU = $true
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -18,7 +19,11 @@ function Add-ContentADKWinPE {
             Write-Verbose "CurrentLog: $CurrentLog"
 
             Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 
@@ -29,7 +34,11 @@ function Add-ContentADKWinPE {
             Write-Verbose "CurrentLog: $CurrentLog"
 
             Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 
@@ -41,7 +50,11 @@ function Add-ContentADKWinPE {
         if ($OSMajorVersion -eq 6) {
             dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$SetOSDBuilderPathContent\$PackagePath" /LogPath:"$CurrentLog"
         } else {
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 }
@@ -51,8 +64,9 @@ function Add-ContentADKWinRE {
     #===================================================================================================
     #   Abort
     #===================================================================================================
-    if ($ScriptName -ne 'New-OSBuild') {Return}
+    if (($ScriptName -ne 'New-OSBuild') -and ($ScriptName -ne 'New-PEBuild')) {Return}
     if ([string]::IsNullOrWhiteSpace($WinPEADKRE)) {Return}
+    $global:ReapplyLCU = $true
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -65,7 +79,11 @@ function Add-ContentADKWinRE {
 
         if ($PackagePath -like "*WinPE-NetFx*") {
             Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 
@@ -76,7 +94,11 @@ function Add-ContentADKWinRE {
 
         if ($PackagePath -like "*WinPE-PowerShell*") {
             Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     $WinPEADKRE = $WinPEADKRE | Where-Object {$_.Name -notlike "*WinPE-PowerShell*"}
@@ -88,7 +110,11 @@ function Add-ContentADKWinRE {
         if ($OSMajorVersion -eq 6) {
             dism /Image:"$MountWinRE" /Add-Package /PackagePath:"$SetOSDBuilderPathContent\$PackagePath" /LogPath:"$CurrentLog"
         } else {
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 }
@@ -98,7 +124,9 @@ function Add-ContentADKWinSE {
     #===================================================================================================
     #   Abort
     #===================================================================================================
+    if (($ScriptName -ne 'New-OSBuild') -and ($ScriptName -ne 'New-PEBuild')) {Return}
     if ([string]::IsNullOrWhiteSpace($WinPEADKSE)) {Return}
+    $global:ReapplyLCU = $true
     #===================================================================================================
     #   Header
     #===================================================================================================
@@ -114,7 +142,11 @@ function Add-ContentADKWinSE {
 
         if ($PackagePath -like "*WinPE-NetFx*") {
             Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     $WinPEADKSE = $WinPEADKSE | Where-Object {$_.Name -notlike "*WinPE-NetFx*"}
@@ -124,7 +156,11 @@ function Add-ContentADKWinSE {
 
         if ($PackagePath -like "*WinPE-PowerShell*") {
             Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     $WinPEADKSE = $WinPEADKSE | Where-Object {$_.Name -notlike "*WinPE-PowerShell*"}
@@ -136,7 +172,11 @@ function Add-ContentADKWinSE {
         if ($OSMajorVersion -eq 6) {
             dism /Image:"$MountWinSE" /Add-Package /PackagePath:"$SetOSDBuilderPathContent\$PackagePath" /LogPath:"$CurrentLog.log"
         } else {
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null
+            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 }
@@ -161,7 +201,12 @@ function Add-ContentDriversOS {
             if ($OSMajorVersion -eq 6) {
                 dism /Image:"$MountDirectory" /Add-Driver /Driver:"$SetOSDBuilderPathContent\$Driver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
             } else {
-                Add-WindowsDriver -Driver "$SetOSDBuilderPathContent\$Driver" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+                Try {Add-WindowsDriver -Driver "$SetOSDBuilderPathContent\$Driver" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
+                Catch {
+                    if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+
+                    Write-Verbose "$CurrentLog" -Verbose
+                }
             }
         }
     }
@@ -179,7 +224,12 @@ function Add-ContentDriversOS {
             if ($OSMajorVersion -eq 6) {
                 dism /Image:"$MountDirectory" /Add-Driver /Driver:"$($Driver.FullName)" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
             } else {
-                Add-WindowsDriver -Driver "$($Driver.FullName)" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+                Try {Add-WindowsDriver -Driver "$($Driver.FullName)" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
+                Catch {
+                    if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+
+                    Write-Verbose "$CurrentLog" -Verbose
+                }
             }
         }
     }
@@ -292,14 +342,19 @@ function Add-ContentPack {
 
         [ValidateSet(
             'MEDIA',
+            'OSCapability',
             'OSDrivers',
             'OSExtraFiles',
+            'OSLanguageFeatures',
+            'OSLanguagePacks',
+            'OSLocalExperiencePacks',
             'OSPackages',
             'OSPoshMods',
             'OSRegistry',
             'OSScripts',
             'OSStartLayout',
             'PEADK',
+            'PEADKLang',
             'PEDaRT',
             'PEDrivers',
             'PEExtraFiles',
@@ -315,6 +370,8 @@ function Add-ContentPack {
     #   ABORT
     #===================================================================================================
     if (Get-IsTemplatesEnabled) {Return}
+    if ($SkipContentPacks -eq $true) {Return}
+    if (($ScriptName -ne 'New-OSBuild') -and ($ScriptName -ne 'New-PEBuild')) {Return}
     #===================================================================================================
     #   BUILD
     #===================================================================================================
@@ -339,6 +396,13 @@ function Add-ContentPack {
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEADK"
                 Add-ContentPackPEADK -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+            }
+        }
+        if ($PackType -eq 'PEADKLang') {
+            Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEADKLang"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEADKLang"
+                Add-ContentPackPEADK -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture" -Lang
             }
         }
         if ($PackType -eq 'PEDaRT') {
@@ -388,6 +452,7 @@ function Add-ContentPack {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PERegistry"
                 Add-ContentPackPERegistry -ContentPackContent "$ContentPackPath\ALL"
                 Add-ContentPackPERegistry -ContentPackContent "$ContentPackPath\$OSArchitecture"
+                Add-ContentPackPERegistry -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'PEScripts') {
@@ -396,6 +461,7 @@ function Add-ContentPack {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEScripts"
                 Add-ContentPackPEScripts -ContentPackContent "$ContentPackPath\ALL"
                 Add-ContentPackPEScripts -ContentPackContent "$ContentPackPath\$OSArchitecture"
+                Add-ContentPackPEScripts -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
         #===================================================================================================
@@ -407,6 +473,7 @@ function Add-ContentPack {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSDrivers"
                 Add-ContentPackOSDrivers -ContentPackContent "$ContentPackPath\ALL"
                 Add-ContentPackOSDrivers -ContentPackContent "$ContentPackPath\$OSArchitecture"
+                Add-ContentPackOSDrivers -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'OSExtraFiles') {
@@ -417,6 +484,42 @@ function Add-ContentPack {
                 Add-ContentPackOSExtraFiles -ContentPackContent "$ContentPackPath\$OSArchitecture"
                 Get-ChildItem "$ContentPackPath\All Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-ContentPackOSExtraFiles -ContentPackContent "$($_.FullName)"}
                 Get-ChildItem "$ContentPackPath\$OSArchitecture Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-ContentPackOSExtraFiles -ContentPackContent "$($_.FullName)"}
+            }
+        }
+        if ($PackType -eq 'OSCapability') {
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSCapability"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSCapability"
+                Add-ContentPackOSCapability -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+                Add-ContentPackOSCapability -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture RSAT" -RSAT
+            }
+        }
+        if ($PackType -eq 'OSLanguageFeatures') {
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSLanguageFeatures"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSLanguageFeatures"
+                Add-ContentPackOSLanguageFeatures -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+            }
+        }
+        if ($PackType -eq 'OSLanguagePacks') {
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSLanguagePacks"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSLanguagePacks"
+                Add-ContentPackOSLanguagePacks -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+            }
+        }
+        if ($PackType -eq 'OSLocalExperiencePacks') {
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSLocalExperiencePacks"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSLocalExperiencePacks"
+                Add-ContentPackOSLocalExperiencePacks -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+            }
+        }
+        if ($PackType -eq 'OSPackages') {
+            Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSPackages"
+            foreach ($ContentPack in $ContentPacks) {
+                $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSPackages"
+                Add-ContentPackOSPackages -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'OSPoshMods') {
@@ -436,6 +539,7 @@ function Add-ContentPack {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSRegistry"
                 Add-ContentPackOSRegistry -ContentPackContent "$ContentPackPath\ALL"
                 Add-ContentPackOSRegistry -ContentPackContent "$ContentPackPath\$OSArchitecture"
+                Add-ContentPackOSRegistry -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'OSScripts') {
@@ -444,6 +548,7 @@ function Add-ContentPack {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSScripts"
                 Add-ContentPackOSScripts -ContentPackContent "$ContentPackPath\ALL"
                 Add-ContentPackOSScripts -ContentPackContent "$ContentPackPath\$OSArchitecture"
+                Add-ContentPackOSScripts -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'OSStartLayout') {
@@ -452,6 +557,7 @@ function Add-ContentPack {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSStartLayout"
                 Add-ContentPackOSStartLayouts -ContentPackContent "$ContentPackPath\ALL"
                 Add-ContentPackOSStartLayouts -ContentPackContent "$ContentPackPath\$OSArchitecture"
+                Add-ContentPackOSStartLayouts -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
             }
         }
     }
@@ -535,6 +641,225 @@ function Add-ContentPackOSExtraFiles {
     Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
 
     robocopy "$ContentPackContent" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+}
+function Add-ContentPackOSCapability {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$ContentPackContent,
+        [switch]$RSAT
+    )
+    #======================================================================================
+    #   Test
+    #======================================================================================
+    if (!(Test-Path "$ContentPackContent\FoDMetadata_Client.cab")) {
+        Write-Verbose "Add-ContentPackOSCapability: Unable to locate content in $ContentPackContent"
+        Return
+    } else {
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
+    }
+    #======================================================================================
+    #   Import
+    #======================================================================================
+    if ($RSAT.IsPresent) {
+        Get-WindowsCapability -Path $MountDirectory -LimitAccess | Where-Object {$_.Name -match 'RSAT'} | Where-Object {$_.State -eq 'NotPresent'} | foreach {
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSCapability-$($_.Name).log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+    
+            Write-Host "$($_.Name)" -ForegroundColor DarkGray
+            Try {
+                Add-WindowsCapability -Path $MountDirectory -Name $_.Name -Source $ContentPackContent -LimitAccess -LogPath $CurrentLog | Out-Null
+            }
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {
+                    Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
+                } else {
+                    Write-Warning $_.Exception.ErrorCode
+                    Write-Warning $_.Exception.Message
+                }
+            }
+        }
+    } else {
+        Get-WindowsCapability -Path $MountDirectory -LimitAccess | Where-Object {$_.Name -notmatch 'Language'} | Where-Object {$_.Name -notmatch 'RSAT'} | Where-Object {$_.State -eq 'NotPresent'} | foreach {
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSCapability-$($_.Name).log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+    
+            Write-Host "$($_.Name)" -ForegroundColor DarkGray
+            Try {
+                Add-WindowsCapability -Path $MountDirectory -Name $_.Name -Source $ContentPackContent -LimitAccess -LogPath $CurrentLog | Out-Null
+            }
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {
+                    Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
+                } else {
+                    Write-Warning $_.Exception.ErrorCode
+                    Write-Warning $_.Exception.Message
+                }
+            }
+        }
+    }
+
+
+<#     $OSFeaturesFiles = Get-ChildItem "$ContentPackContent\*" -Include *.cab -File -Recurse | Sort-Object Name | Select-Object Name, FullName, Directory
+    Pause
+    Get-WindowsCapability -Offline -Path $MountDirectory
+    foreach ($item in $OSFeaturesFiles) {
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSCapability-$($item.Name).log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        Write-Host "$($item.FullName)" -ForegroundColor DarkGray
+
+        if ($MountDirectory) {
+            Try {Add-WindowsCapability -Name $item.FullName -Path $MountDirectory -Source $item.Directory -LimitAccess -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
+            Try {Add-WindowsPackage -PackagePath "$($item.FullName)" -Path "$MountDirectory" -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
+        }
+    } #>
+}
+function Add-ContentPackOSLanguageFeatures {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$ContentPackContent
+    )
+    #======================================================================================
+    #   Test
+    #======================================================================================
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-ContentPackOSLanguageFeatures: Unable to locate content in $ContentPackContent"
+        Return
+    } else {
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
+    }
+    #======================================================================================
+    #   Import
+    #======================================================================================
+    $OSLanguageFeaturesFiles = Get-ChildItem "$ContentPackContent\*" -Include *.cab -File -Recurse | Sort-Object Length -Descending | Select-Object Name, FullName
+
+    foreach ($OSLanguageFeaturesFile in $OSLanguageFeaturesFiles) {
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSLanguageFeatures-$($OSLanguageFeaturesFile.Name).log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        Write-Host "$($OSLanguageFeaturesFile.FullName)" -ForegroundColor DarkGray
+
+        if ($MountDirectory) {
+            Try {Add-WindowsPackage -PackagePath "$($OSLanguageFeaturesFile.FullName)" -Path "$MountDirectory" -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
+        }
+    }
+}
+function Add-ContentPackOSLanguagePacks {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$ContentPackContent
+    )
+    #======================================================================================
+    #   Test
+    #======================================================================================
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-ContentPackOSLanguagePacks: Unable to locate content in $ContentPackContent"
+        Return
+    } else {
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
+    }
+    #======================================================================================
+    #   Import
+    #======================================================================================
+    $OSLanguagePacksFiles = Get-ChildItem "$ContentPackContent\*" -Include *.cab -File | Sort-Object Length -Descending | Select-Object Name, FullName
+
+    foreach ($OSLanguagePacksFile in $OSLanguagePacksFiles) {
+        $global:UpdateLanguageContent = $true
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSLanguagePacks-$($OSLanguagePacksFile.Name).log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        Write-Host "$($OSLanguagePacksFile.FullName)" -ForegroundColor DarkGray
+
+        if ($MountDirectory) {
+            Try {Add-WindowsPackage -PackagePath "$($OSLanguagePacksFile.FullName)" -Path "$MountDirectory" -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
+        }
+    }
+}
+function Add-ContentPackOSLocalExperiencePacks {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$ContentPackContent
+    )
+    #======================================================================================
+    #   Test
+    #======================================================================================
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-ContentPackOSLocalExperiencePacks: Unable to locate content in $ContentPackContent"
+        Return
+    } else {
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
+    }
+    #======================================================================================
+    #   Import
+    #======================================================================================
+    $OSLocalExperiencePacksFiles = Get-ChildItem "$ContentPackContent" *.appx -File -Recurse | Sort-Object Length -Descending | Select-Object Name, FullName
+
+    foreach ($OSLocalExperiencePacksFile in $OSLocalExperiencePacksFiles) {
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSLocalExperiencePacks-$($OSLocalExperiencePacksFile.Name).log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        Write-Host "$($OSLocalExperiencePacksFile.FullName)" -ForegroundColor DarkGray
+
+        if ($MountDirectory) {
+            $LicensePath = "$((Get-Item $OSLocalExperiencePacksFile.FullName).Directory.FullName)\License.xml"
+            if (!(Test-Path $LicensePath)) {
+                Write-Warning "Unable to find Appx License at $LicensePath"
+            } else {
+                Try {Add-AppxProvisionedPackage -Path "$MountDirectory" -PackagePath $OSLocalExperiencePacksFile.FullName -LicensePath $LicensePath -LogPath $CurrentLog | Out-Null}
+                Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            }
+        }
+    }
+}
+function Add-ContentPackOSPackages {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory)]
+        [string]$ContentPackContent
+    )
+    #======================================================================================
+    #   Test
+    #======================================================================================
+    if (!(Test-Path "$ContentPackContent\*")) {
+        Write-Verbose "Add-ContentPackOSPackages: Unable to locate content in $ContentPackContent"
+        Return
+    } else {
+        Write-Host "$ContentPackContent" -ForegroundColor Cyan
+    }
+    #======================================================================================
+    #   Import
+    #======================================================================================
+    $OSPackagesFiles = Get-ChildItem "$ContentPackContent\*" -Include *.cab -File -Recurse | Sort-Object Name | Select-Object Name, FullName
+
+    foreach ($item in $OSPackagesFiles) {
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSPackages-$($item.Name).log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        Write-Host "$($item.FullName)" -ForegroundColor DarkGray
+
+        if ($MountDirectory) {
+            Try {Add-WindowsPackage -PackagePath "$($item.FullName)" -Path "$MountDirectory" -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
+        }
+    }
 }
 function Add-ContentPackOSPoshMods {
     [CmdletBinding()]
@@ -733,7 +1058,9 @@ function Add-ContentPackPEADK {
         [Parameter(Mandatory)]
         [string]$ContentPackContent,
 
-        [string]$MountPath
+        [string]$MountPath,
+
+        [string]$Lang
 
         #[ValidateSet('MDT','Recovery','WinPE')]
         #[string]$WinPEOutput,
@@ -750,6 +1077,7 @@ function Add-ContentPackPEADK {
     } else {
         Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
+    if ($Lang.IsPresent) {$global:ReapplyLCU = $true}
     #======================================================================================
     #   Import
     #======================================================================================
@@ -777,7 +1105,11 @@ function Add-ContentPackPEADK {
             Write-Host "$($ADKFile.FullName)" -ForegroundColor DarkGray
             if ($MountDirectory) {
                 Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null}
-                Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+                Catch {
+                    if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+
+                    Write-Verbose "$CurrentLog" -Verbose
+                }
             }
         }
 
@@ -787,7 +1119,11 @@ function Add-ContentPackPEADK {
             Write-Host "$($ADKFile.FullName)" -ForegroundColor DarkGray
             if ($MountDirectory) {
                 Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null}
-                Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+                Catch {
+                    if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+
+                    Write-Verbose "$CurrentLog" -Verbose
+                }
             }
         }
 
@@ -797,7 +1133,11 @@ function Add-ContentPackPEADK {
             Write-Host "$($ADKFile.FullName)" -ForegroundColor DarkGray
             if ($MountDirectory) {
                 Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null}
-                Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+                Catch {
+                    if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+
+                    Write-Verbose "$CurrentLog" -Verbose
+                }
             }
         }
 
@@ -807,7 +1147,11 @@ function Add-ContentPackPEADK {
             Write-Host "$($ADKFile.FullName)" -ForegroundColor DarkGray
             if ($MountDirectory) {
                 Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null}
-                Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+                Catch {
+                    if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+
+                    Write-Verbose "$CurrentLog" -Verbose
+                }
             }
         }
 
@@ -820,21 +1164,30 @@ function Add-ContentPackPEADK {
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinPE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
         if ($MountWinRE) {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackPEADK-$($ADKFile.Name).log"
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinRE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
         if ($MountWinSE) {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackPEADK-$($ADKFile.Name).log"
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinSE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 
@@ -848,7 +1201,10 @@ function Add-ContentPackPEADK {
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinPE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     foreach ($ADKFile in $ADKFilesWinRE | Where-Object {$_.Name -eq 'lp.cab'}) {
@@ -857,7 +1213,10 @@ function Add-ContentPackPEADK {
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinRE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     foreach ($ADKFile in $ADKFilesWinSE | Where-Object {$_.Name -eq 'lp.cab'}) {
@@ -866,7 +1225,10 @@ function Add-ContentPackPEADK {
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinSE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 
@@ -876,7 +1238,10 @@ function Add-ContentPackPEADK {
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinPE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     foreach ($ADKFile in $ADKFilesWinRE | Where-Object {$_.Name -ne 'lp.cab'}) {
@@ -885,7 +1250,10 @@ function Add-ContentPackPEADK {
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinRE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     foreach ($ADKFile in $ADKFilesWinSE | Where-Object {$_.Name -ne 'lp.cab'}) {
@@ -894,7 +1262,10 @@ function Add-ContentPackPEADK {
             Write-Verbose "CurrentLog: $CurrentLog"
             Write-Host "WinSE: $($ADKFile.FullName)" -ForegroundColor DarkGray
             Try {Add-WindowsPackage -PackagePath "$($ADKFile.FullName)" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
-            Catch {$ErrorMessage = $_.Exception.$ErrorMessage; Write-Warning "$CurrentLog"; Write-Host "$ErrorMessage"}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 }
@@ -1400,8 +1771,9 @@ function Add-FeaturesOnDemandOS {
             Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$FOD" -LogPath "$CurrentLog" | Out-Null
         }
         Catch {
-            $ErrorMessage = $_.Exception.Message
-            Write-Warning "$ErrorMessage"
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
     #===================================================================================================
@@ -1426,19 +1798,37 @@ function Add-LanguageFeaturesOnDemandOS {
     foreach ($Update in $LanguageFeatures | Where-Object {$_ -notlike "*Speech*"}) {
         if (Test-Path "$SetOSDBuilderPathContent\$Update") {
             Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
-            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log" | Out-Null
+
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log"
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     foreach ($Update in $LanguageFeatures | Where-Object {$_ -like "*TextToSpeech*"}) {
         if (Test-Path "$SetOSDBuilderPathContent\$Update") {
             Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
-            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log" | Out-Null
+
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log"
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
     foreach ($Update in $LanguageFeatures | Where-Object {$_ -like "*Speech*" -and $_ -notlike "*TextToSpeech*"}) {
         if (Test-Path "$SetOSDBuilderPathContent\$Update") {
             Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
-            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log" | Out-Null
+
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log"
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         }
     }
 }
@@ -1461,7 +1851,13 @@ function Add-LanguageInterfacePacksOS {
     foreach ($Update in $LanguageInterfacePacks) {
         if (Test-Path "$SetOSDBuilderPathContent\$Update") {
             Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
-            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageInterfacePacksOS.log" | Out-Null
+
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageInterfacePacksOS.log"
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null}
+            Catch {
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
+            }
         } else {
             Write-Warning "Not Found: $SetOSDBuilderPathContent\$Update"
         }
@@ -1487,7 +1883,14 @@ function Add-LanguagePacksOS {
         if (Test-Path "$SetOSDBuilderPathContent\$Update") {
             if ($Update -like "*.cab") {
                 Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
-                Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguagePacksOS.log" | Out-Null
+
+                $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguagePacksOS.log"
+                Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null}
+                Catch {
+                    if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+
+                    Write-Verbose "$CurrentLog" -Verbose
+                }
             } elseif ($Update -like "*.appx") {
                 Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
                 Add-AppxProvisionedPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LicensePath "$((Get-Item $SetOSDBuilderPathContent\$Update).Directory.FullName)\License.xml" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguagePacksOS.log" | Out-Null
@@ -1537,80 +1940,17 @@ function Add-WindowsPackageOS {
     Show-ActionTime; Write-Host -ForegroundColor Green "OS: Add Packages"
     foreach ($PackagePath in $Packages) {
         Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
+
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsPackageOS.log"
         Try {
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountDirectory" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsPackageOS.log" | Out-Null
+            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountDirectory" -LogPath $CurrentLog | Out-Null
         }
         Catch {
-            $ErrorMessage = $_.Exception.Message
-            Write-Warning "$ErrorMessage"
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
-}
-function Backup-AutoExtraFilesOS {
-    [CmdletBinding()]
-    Param (
-        [string]$OSMediaPath
-    )
-    #===================================================================================================
-    #   Header
-    #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Backup Auto Extra Files to $OSMediaPath\WinPE\AutoExtraFiles"
-    #===================================================================================================
-    #   Execute
-    #===================================================================================================
-    $AEFLog = "$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Backup-AutoExtraFilesOS.log"
-    Write-Verbose "$AEFLog"
-
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" cacls.exe* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" choice.exe* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    #robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" cleanmgr.exe* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" comp.exe*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" defrag*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" djoin*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" forfiles*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" getmac*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" makecab.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" msinfo32.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" nslookup.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" systeminfo.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" tskill.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" winver.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-   
-    #AeroLite Theme
-    robocopy "$MountDirectory\Windows\Resources" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\Resources" aerolite*.* /s /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\Resources" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\Resources" shellstyle*.* /s /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    
-    # BCP47
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" bcp47*.dll /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    
-    # Browse Dialog
-    robocopy "$MountDirectory\Windows\Resources\Themes\aero\shell\normalcolor" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" shellstyle*.* /s /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" explorerframe*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" StructuredQuery*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" edputil*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-
-    # Magnify
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" magnify*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" magnification*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    
-    # On Screen Keyboard
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" osk*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    
-    # RDP
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" mstsc*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" pdh.dll* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" srpapi.dll* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    
-    # Shutdown
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" shutdown.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" shutdownext.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" shutdownux.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-
-    # Wireless
-    # http://www.scconfigmgr.com/2018/03/06/build-a-winpe-with-wireless-support/
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" dmcmnutils*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
-    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" mdmregistration*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
 }
 function Copy-MediaLanguageSources {
     [CmdletBinding()]
@@ -2045,7 +2385,7 @@ function Get-FeatureUpdateDownloads {
     #   Get Downloadeds
     #===================================================================================================
     foreach ($Download in $FeatureUpdateDownloads) {
-        $FullUpdatePath = Join-Path $SetOSDBuilderPathOSDownload $Download.FileName
+        $FullUpdatePath = Join-Path $SetOSDBuilderPathFeatureUpdates $Download.FileName
         if (Test-Path $FullUpdatePath) {
             $Download.OSDStatus = "Downloaded"
         }
@@ -2574,6 +2914,21 @@ function Get-PEBuildTask {
     END {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host "$($MyInvocation.MyCommand.Name) END"
+    }
+}
+function Get-RegKeyCurrentVersion {
+    [CmdletBinding()]
+    Param (
+        [string]$MountPath
+    )
+    
+    Show-ActionTime; Write-Host "Image: Mount Registry for Windows Information" -ForegroundColor Green
+    if ($MountPath -and (Test-Path $MountPath)) {
+        reg LOAD 'HKLM\OSMedia' "$MountPath\Windows\System32\Config\SOFTWARE" | Out-Null
+        $GetRegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
+        reg UNLOAD 'HKLM\OSMedia' | Out-Null
+
+        Return $GetRegKeyCurrentVersion
     }
 }
 function Get-TaskContentAddFeatureOnDemand {
@@ -3480,6 +3835,34 @@ function Get-Value {
         }
         return $result
     }
+function Get-Value {
+        param( $value )
+
+        $result = $null
+        if ( $value -is [System.Management.Automation.PSCustomObject] )
+        {
+            Write-Verbose "Get-Value: value is PSCustomObject"
+            $result = @{}
+            $value.psobject.properties | ForEach-Object { 
+                $result[$_.Name] = Get-Value -value $_.Value 
+            }
+        }
+        elseif ($value -is [System.Object[]])
+        {
+            $list = New-Object System.Collections.ArrayList
+            Write-Verbose "Get-Value: value is Array"
+            $value | ForEach-Object {
+                $list.Add((Get-Value -value $_)) | Out-Null
+            }
+            $result = $list
+        }
+        else
+        {
+            Write-Verbose "Get-Value: value is type: $($value.GetType())"
+            $result = $value
+        }
+        return $result
+    }
 function Import-AutoExtraFilesPE {
     [CmdletBinding()]
     Param ()
@@ -3808,25 +4191,28 @@ function Invoke-DismCleanupImage {
     }
     #===================================================================================================
 }
-function Mount-InstallwimMEDIA {
+function Mount-ImportOSMediaWim {
     [CmdletBinding()]
     Param ()
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "Mount Install.wim: $MountDirectory"
+    Show-ActionTime; Write-Host -ForegroundColor Green "Mount Install.wim: $MountDirectory"
     #===================================================================================================
     #   Execute
     #===================================================================================================
     if (!(Test-Path "$MountDirectory")) {New-Item "$MountDirectory" -ItemType Directory -Force | Out-Null}
 
-    if ($InstallWimType -eq "esd") {
-        Write-Host -ForegroundColor Gray "                  Image: Mount $TempESD (Index 1) to $MountDirectory"
-        Mount-WindowsImage -ImagePath "$TempESD" -Index '1' -Path "$MountDirectory" -ReadOnly | Out-Null
+    if ($OSMediaGetItem.Extension -eq '.esd') {
+        Write-Host -ForegroundColor Gray "                  Image: $SourceTempWim"
+        Write-Host -ForegroundColor Gray "                  Index: 1"
+        Write-Host -ForegroundColor Gray "                  Mount Directory: $MountDirectory"
+        Mount-WindowsImage -ImagePath $SourceTempWim -Index '1' -Path "$MountDirectory" -ReadOnly | Out-Null
     } else {
-        Write-Host -ForegroundColor Gray "                  Image: Mount $OSImagePath (Index $OSImageIndex) to $MountDirectory"
-        Mount-WindowsImage -ImagePath "$OSImagePath" -Index $OSImageIndex -Path "$MountDirectory" -ReadOnly | Out-Null
+        Write-Host -ForegroundColor Gray "                  Image: $SourceImagePath"
+        Write-Host -ForegroundColor Gray "                  Index: $SourceImageIndex"
+        Write-Host -ForegroundColor Gray "                  Mount Directory: $MountDirectory"
+        Mount-WindowsImage -ImagePath $SourceImagePath -Index $SourceImageIndex -Path "$MountDirectory" -ReadOnly | Out-Null
     }
 }
 function Mount-InstallwimOS {
@@ -3960,7 +4346,7 @@ function New-ItemDirectoryGetOSDBuilderHome {
         $GetOSDBuilderHome
         $SetOSDBuilderPathContent
         $SetOSDBuilderPathContentPacks
-        $SetOSDBuilderPathOSDownload
+        $SetOSDBuilderPathFeatureUpdates
         $SetOSDBuilderPathOSBuilds
         $SetOSDBuilderPathOSImport
         $SetOSDBuilderPathOSMedia
@@ -4542,6 +4928,72 @@ function Repair-PEBuildTask {
         #Write-Host "$($MyInvocation.MyCommand.Name) END"
     }
 }
+function Save-AutoExtraFilesOS {
+    [CmdletBinding()]
+    Param (
+        [string]$OSMediaPath
+    )
+    #===================================================================================================
+    #   Header
+    #===================================================================================================
+    Show-ActionTime
+    Write-Host -ForegroundColor Green "OS: Backup Auto Extra Files to $OSMediaPath\WinPE\AutoExtraFiles"
+    #===================================================================================================
+    #   Execute
+    #===================================================================================================
+    $AEFLog = "$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Save-AutoExtraFilesOS.log"
+    Write-Verbose "$AEFLog"
+
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" cacls.exe* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" choice.exe* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    #robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" cleanmgr.exe* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" comp.exe*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" defrag*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" djoin*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" forfiles*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" getmac*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" makecab.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" msinfo32.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" nslookup.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" systeminfo.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" tskill.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" winver.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+   
+    #AeroLite Theme
+    robocopy "$MountDirectory\Windows\Resources" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\Resources" aerolite*.* /s /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\Resources" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\Resources" shellstyle*.* /s /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    
+    # BCP47
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" bcp47*.dll /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    
+    # Browse Dialog
+    robocopy "$MountDirectory\Windows\Resources\Themes\aero\shell\normalcolor" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" shellstyle*.* /s /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" explorerframe*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" StructuredQuery*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" edputil*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+
+    # Magnify
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" magnify*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" magnification*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    
+    # On Screen Keyboard
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" osk*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    
+    # RDP
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" mstsc*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" pdh.dll* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" srpapi.dll* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    
+    # Shutdown
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" shutdown.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" shutdownext.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" shutdownux.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+
+    # Wireless
+    # http://www.scconfigmgr.com/2018/03/06/build-a-winpe-with-wireless-support/
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" dmcmnutils*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" mdmregistration*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+}
 function Save-InventoryOS {
     [CmdletBinding()]
     Param (
@@ -4677,6 +5129,24 @@ function Save-InventoryPE {
     $GetWindowsImage | Export-Clixml -Path "$OSMediaPath\WinPE\info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage-WinSE.xml"
     $GetWindowsImage | ConvertTo-Json | Out-File "$OSMediaPath\WinPE\info\json\Get-WindowsImage-WinSE.json"
     $GetWindowsImage | ConvertTo-Json | Out-File "$OSMediaPath\WinPE\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage-WinSE.json"
+}
+function Save-OSMediaVariables {
+    [CmdletBinding()]
+    Param ()
+    Get-Variable | Select-Object -Property Name, Value | Export-Clixml "$OSMediaPathInfo\xml\Variables.xml"
+    Get-Variable | Where-Object { $_.Value -isnot [System.Collections.Hashtable] } | Select-Object -Property Name, Value | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\Variables.json"
+}
+function Save-OSMediaWindowsImageContent {
+    [CmdletBinding()]
+    Param ()
+    #===================================================================================================
+    #   Header
+    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "OS: Save Windows Image Content to $OSMediaPathInfo\Get-WindowsImageContent.txt"
+    #===================================================================================================
+    #   Execute
+    #===================================================================================================
+    Get-WindowsImageContent -ImagePath $OSMediaPathWindowsImage -Index 1 | Out-File "$OSMediaPathInfo\Get-WindowsImageContent.txt"
 }
 function Save-PackageInventoryPE {
     [CmdletBinding()]
@@ -4825,8 +5295,7 @@ function Save-WindowsImageContentOS {
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Export Image Content to $Info\Get-WindowsImageContent.txt"
+    Show-ActionTime; Write-Host -ForegroundColor Green "OS: Export Image Content to $Info\Get-WindowsImageContent.txt"
     #===================================================================================================
     #   Execute
     #===================================================================================================
@@ -4980,6 +5449,32 @@ function Show-ActionTime {
     #Write-Host -ForegroundColor DarkGray "[$(($Global:OSDStartTime).ToString('yyyy-MM-dd-HHmmss'))] " -NoNewline
     #===================================================================================================
 }
+function Show-GetWindowsImage {
+    [CmdletBinding()]
+    Param ()
+    Write-Host '========================================================================================' -ForegroundColor DarkGray
+    Write-Host -ForegroundColor Green "Windows Image Information"
+    $GetWindowsImage
+<#     Write-Host "Source Path:                $OSSourcePath"
+    Write-Host "-Image File:                $OSImagePath"
+    Write-Host "-Image Index:               $OSImageIndex"
+    Write-Host "-Name:                      $OSImageName"
+    Write-Host "-Description:               $OSImageDescription"
+    Write-Host "-Architecture:              $($GetWindowsImage.Architecture)"
+    Write-Host "-Edition:                   $($GetWindowsImage.EditionID)"
+    Write-Host "-Type:                      $OSInstallationType"
+    Write-Host "-Languages:                 $OSLanguages"
+    Write-Host "-Build:                     $OSBuild"
+    Write-Host "-Version:                   $OSVersion"
+    Write-Host "-SPBuild:                   $OSSPBuild"
+    Write-Host "-SPLevel:                   $OSSPLevel"
+    Write-Host "-Bootable:                  $OSImageBootable"
+    Write-Host "-WimBoot:                   $OSWIMBoot"
+    Write-Host "-Created Time:              $OSCreatedTime"
+    Write-Host "-Modified Time:             $OSModifiedTime" #>
+    #Write-Host "UBR                  : $UBR"
+    #Write-Host "OSMGuid              : $OSMGuid"
+}
 function Show-MediaImageInfoOS {
     [CmdletBinding()]
     Param ()
@@ -5071,6 +5566,18 @@ function Show-OSDBuilderHomeTips {
     Write-Host 'Import, Update, and Build (NetFX) an OS (Downloads Updates)'
     Write-Host 'Update-OSMedia -Download -Execute       '   -ForegroundColor Green -NoNewline
     Write-Host 'Update an OS (Downloads Updates)'
+}
+function Show-OSMediaInfo {
+    [CmdletBinding()]
+    Param ()
+
+    Write-Host '========================================================================================' -ForegroundColor DarkGray
+    Write-Host -ForegroundColor Green "OSMedia Information"
+    Write-Host "-OSMedia Name:          $OSMediaName" -ForegroundColor Yellow
+    Write-Host "-OSMedia Path:          $OSMediaPath" -ForegroundColor Yellow
+    Write-Host "-OSMedia Path OS:       $OSMediaPathOS"
+    Write-Host "-OSMedia Path WinPE:    $OSMediaPathWinPE"
+    Write-Host "-OSMedia Path Info:     $OSMediaPathInfo"
 }
 function Show-SkipUpdatesInfo {
     #Show-ActionTime
@@ -5286,31 +5793,6 @@ function Show-TaskInfo {
     }
     $CombinedTask | ConvertTo-Json | Out-File "$($CombinedOSMedia.FullName)\OSBuild.json"
 }
-function Show-WindowsImageInfo {
-    [CmdletBinding()]
-    Param ()
-    Write-Host '========================================================================================' -ForegroundColor DarkGray
-    Write-Host -ForegroundColor Green "Windows Image Information"
-    Write-Host "Source Path:                $OSSourcePath"
-    Write-Host "-Image File:                $OSImagePath"
-    Write-Host "-Image Index:               $OSImageIndex"
-    Write-Host "-Name:                      $OSImageName"
-    Write-Host "-Description:               $OSImageDescription"
-    Write-Host "-Architecture:              $OSArchitecture"
-    Write-Host "-Edition:                   $OSEditionID"
-    Write-Host "-Type:                      $OSInstallationType"
-    Write-Host "-Languages:                 $OSLanguages"
-    Write-Host "-Build:                     $OSBuild"
-    Write-Host "-Version:                   $OSVersion"
-    Write-Host "-SPBuild:                   $OSSPBuild"
-    Write-Host "-SPLevel:                   $OSSPLevel"
-    Write-Host "-Bootable:                  $OSImageBootable"
-    Write-Host "-WimBoot:                   $OSWIMBoot"
-    Write-Host "-Created Time:              $OSCreatedTime"
-    Write-Host "-Modified Time:             $OSModifiedTime"
-    Write-Host "-UBR:                       $UBR"
-    Write-Host "-OSMGuid:                   $OSMGuid"
-}
 function Show-WorkingInfoOS {
     [CmdletBinding()]
     Param ()
@@ -5376,12 +5858,11 @@ function Update-AdobeOS {
 
         $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-AdobeOS-KB$($Update.FileKBNumber).log"
         Write-Verbose "CurrentLog: $CurrentLog"
-        Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateASU" -LogPath "$CurrentLog" | Out-Null}
+        Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateASU" -LogPath $CurrentLog | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }
@@ -5428,10 +5909,9 @@ function Update-ComponentOS {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateComp" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }
@@ -5483,10 +5963,9 @@ function Update-CumulativeOS {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }
@@ -5522,7 +6001,7 @@ function Update-CumulativePE {
         if ($null -eq $UpdateLCU) {Continue}
         if (!(Test-Path "$UpdateLCU")) {Write-Warning "Not Found: $UpdateSSU"; Continue}
 
-        if (!($Force.IsPresent)) {
+        if ((! $Force.IsPresent) -or ($global:ReapplyLCU -eq $false)) {
             $SessionsXmlInstall = "$MountWinPE\Windows\Servicing\Sessions\Sessions.xml"
             if (Test-Path $SessionsXmlInstall) {
                 [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
@@ -5538,13 +6017,14 @@ function Update-CumulativePE {
 
         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-CumulativePE-KB$($Update.KBNumber)-WinPE.log"
         Write-Verbose "CurrentLog: $CurrentLog"
+
         Try {Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
+
         if (!($OSVersion -like "6.1.7601.*")) {
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
@@ -5584,10 +6064,9 @@ function Update-CumulativePE {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountWinRE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
         if (!($OSVersion -like "6.1.7601.*")) {
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinRE.log"
@@ -5632,10 +6111,9 @@ function Update-CumulativePE {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
         if (!($OSVersion -like "6.1.7601.*")) {
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-DismCleanupImage-WinSE.log"
@@ -5694,15 +6172,14 @@ function Update-DotNetOS {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateNetCU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
-            if ($ErrorMessage -like "*0x8007371b*") {
-                Write-Warning "ERROR_SXS_TRANSACTION_CLOSURE_INCOMPLETE"
-                Write-Warning "One or more required members of the transaction are not present"
-                Write-Warning "Since this is a DotNet Update, it is quite possible this won't install until you enable a DotNet Feature like NetFX 3.5"
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            if ($_.Exception.Message -match '0x8007371b') {
+                Write-Verbose "OSDBuilder: 0x8007371b ERROR_SXS_TRANSACTION_CLOSURE_INCOMPLETE" -Verbose
+                Write-Verbose "One or more required members of the transaction are not present" -Verbose
+                Write-Verbose "Since this is a DotNet Update, it is quite possible this won't install until you enable a DotNet Feature like NetFX 3.5" -Verbose
             }
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
     #===================================================================================================
@@ -5731,15 +6208,16 @@ function Update-DotNetOS {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateNetCU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
-            if ($ErrorMessage -like "*0x8007371b*") {
-                Write-Warning "ERROR_SXS_TRANSACTION_CLOSURE_INCOMPLETE"
-                Write-Warning "One or more required members of the transaction are not present"
-                Write-Warning "Since this is a DotNet Update, it is quite possible this won't install until you enable a DotNet Feature like NetFX 3.5"
+            if ($_.Exception.Message -match '0x800f081e') {
+                Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
             }
+            if ($_.Exception.Message -match '0x8007371b') {
+                Write-Verbose "OSDBuilder: 0x8007371b ERROR_SXS_TRANSACTION_CLOSURE_INCOMPLETE" -Verbose
+                Write-Verbose "One or more required members of the transaction are not present" -Verbose
+                Write-Verbose "Since this is a DotNet Update, it is quite possible this won't install until you enable a DotNet Feature like NetFX 3.5" -Verbose
+            }
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }
@@ -5749,16 +6227,11 @@ function Update-LangIniMEDIA {
         [string]$OSMediaPath
     )
     #===================================================================================================
-    #   Header
+    #   WinSE.wim
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Updating WinSE.wim with updated Lang.ini"
-    #===================================================================================================
-    #   Execute
-    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "WinSE: Updating WinSE.wim with updated Lang.ini"
     $MountWinSELangIni = Join-Path $SetOSDBuilderPathMount "winselangini$((Get-Date).ToString('hhmmss'))"
     if (!(Test-Path "$MountWinSELangIni")) {New-Item "$MountWinSELangIni" -ItemType Directory -Force | Out-Null}
-
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-WinSELangIni.log"
     Mount-WindowsImage -ImagePath "$OSMediaPath\WinPE\winse.wim" -Index 1 -Path "$MountWinSELangIni" -LogPath "$CurrentLog" | Out-Null
 
@@ -5766,30 +6239,25 @@ function Update-LangIniMEDIA {
 
     Start-Sleep -Seconds 10
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WinSELangIni.log"
-    try {
-        Dismount-WindowsImage -Path "$MountWinSELangIni" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
-    }
+    try {Dismount-WindowsImage -Path "$MountWinSELangIni" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null}
     catch {
         Write-Warning "Could not dismount WinSE.wim ... Waiting 30 seconds ..."
         Start-Sleep -Seconds 30
         Dismount-WindowsImage -Path "$MountWinSELangIni" -Save -LogPath "$CurrentLog" | Out-Null
     }
     if (Test-Path "$MountWinSELangIni") {Remove-Item -Path "$MountWinSELangIni" -Force -Recurse | Out-Null}
-
-    Write-Host "Install.wim: Updating Boot.wim Index 2 with updated Lang.ini"
+    #===================================================================================================
+    #   Boot.wim
+    #===================================================================================================
+    Show-ActionTime; Write-Host -ForegroundColor Green "Boot: Updating Boot.wim (Index 2 - Windows Setup Environment) with updated Lang.ini"
     $MountBootLangIni = Join-Path $SetOSDBuilderPathMount "bootlangini$((Get-Date).ToString('hhmmss'))"
     if (!(Test-Path "$MountBootLangIni")) {New-Item "$MountBootLangIni" -ItemType Directory -Force | Out-Null}
-
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Mount-BootLangIni.log"
     Mount-WindowsImage -ImagePath "$OS\Sources\boot.wim" -Index 2 -Path "$MountBootLangIni" -LogPath "$CurrentLog" | Out-Null
-
     Copy-Item -Path "$OS\Sources\lang.ini" -Destination "$MountBootLangIni\Sources" -Force | Out-Null
-
     Start-Sleep -Seconds 10
     $CurrentLog = "$OSMediaPath\WinPE\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-BootLangIni.log"
-    try {
-        Dismount-WindowsImage -Path "$MountBootLangIni" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null
-    }
+    try {Dismount-WindowsImage -Path "$MountBootLangIni" -Save -LogPath "$CurrentLog" -ErrorAction SilentlyContinue | Out-Null}
     catch {
         Write-Warning "Could not dismount Boot.wim ... Waiting 30 seconds ..."
         Start-Sleep -Seconds 30
@@ -5882,10 +6350,8 @@ function Update-OptionalOS {
             Write-Verbose "CurrentLog: $CurrentLog"
             Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateOptional" -LogPath "$CurrentLog" | Out-Null}
             Catch {
-                $ErrorMessage = $_.Exception.$ErrorMessage
-                Write-Warning "$CurrentLog"
-                #Write-Host "$ErrorMessage"
-                #if ($ErrorMessage -match '800f081e') {Write-Warning "Update not applicable to this Operating System"}
+                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+                Write-Verbose "$CurrentLog" -Verbose
             }
         }
     }
@@ -5934,10 +6400,9 @@ function Update-ServicingStackOS {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }
@@ -5987,10 +6452,9 @@ function Update-ServicingStackPE {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountWinPE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
     #===================================================================================================
@@ -6047,10 +6511,9 @@ function Update-ServicingStackPE {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountWinSE" -PackagePath "$UpdateSSU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }
@@ -6204,10 +6667,9 @@ function Update-WindowsServer2012R2OS {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateTwelveR2" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }
@@ -6224,8 +6686,7 @@ function Update-WindowsSevenOS {
     #===================================================================================================
     #   Header
     #===================================================================================================
-    Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: Windows 7 Updates"
+    Show-ActionTime; Write-Host -ForegroundColor Green "OS: Windows 7 Updates"
     $SessionsXmlInstall = "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
     if (Test-Path $SessionsXmlInstall) {
         [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
@@ -6293,10 +6754,9 @@ function Update-WindowsSevenOS {
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateSeven" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            $ErrorMessage = $_.Exception.$ErrorMessage
-            Write-Warning "$CurrentLog"
-            Write-Host "$ErrorMessage"
-            if ($ErrorMessage -like "*0x800f081e*") {Write-Warning "Update not applicable to this Operating System"}
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }

@@ -123,9 +123,9 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
             foreach ($Item in $FeatureUpdateDownloads) {
-                $DownloadFullPath = Join-Path $SetOSDBuilderPathOSDownload $Item.FileName
+                $DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $Item.FileName
 
-                if (!(Test-Path $SetOSDBuilderPathOSDownload)) {New-Item -Path $SetOSDBuilderPathOSDownload -ItemType Directory -Force | Out-Null}
+                if (!(Test-Path $SetOSDBuilderPathFeatureUpdates)) {New-Item -Path $SetOSDBuilderPathFeatureUpdates -ItemType Directory -Force | Out-Null}
                 Write-Host "$DownloadFullPath" -ForegroundColor Cyan
                 Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
                 if (!(Test-Path $DownloadFullPath)) {
@@ -137,7 +137,7 @@ function Get-DownOSDBuilder {
                 }
 
                 $esdbasename = (Get-Item "$DownloadFullPath").Basename
-                $esddirectory = Join-Path $SetOSDBuilderPathOSDownload $esdbasename
+                $esddirectory = Join-Path $SetOSDBuilderPathFeatureUpdates $esdbasename
 
                 if (Test-Path "$esddirectory") {
                     Remove-Item "$esddirectory" -Force | Out-Null

@@ -55,11 +55,12 @@ function Initialize-OSDBuilder {
     $global:SetOSDBuilder = [ordered]@{
         AllowContentPacks       = $false
         AllowGlobalOptions      = $true
+        #AllowLocalPriority      = $false
         PathContent             = Join-Path $global:GetOSDBuilderHome 'Content'
         PathContentPacks        = Join-Path $global:GetOSDBuilderHome 'ContentPacks'
+        PathFeatureUpdates		= Join-Path $global:GetOSDBuilderHome 'FeatureUpdates'
         PathMount               = Join-Path $global:GetOSDBuilderHome 'Mount'
         PathOSBuilds            = Join-Path $global:GetOSDBuilderHome 'OSBuilds'
-        PathOSDownload      	= Join-Path $global:GetOSDBuilderHome 'OSDownload'
         PathOSImport            = Join-Path $global:GetOSDBuilderHome 'OSImport'
         PathOSMedia             = Join-Path $global:GetOSDBuilderHome 'OSMedia'
         PathPEBuilds            = Join-Path $global:GetOSDBuilderHome 'PEBuilds'
@@ -73,12 +74,14 @@ function Initialize-OSDBuilder {
         #Get-OSMedia
         #Get-PEBuilds
         #Import-OSMedia
+        ImportOSMediaAllowUnsupporteOS = $false
         ImportOSMediaBuildNetFX = $false
         ImportOSMediaEditionId = $null
         ImportOSMediaImageIndex = $null
         ImportOSMediaImageName = $null
         ImportOSMediaShowInfo = $false
         ImportOSMediaSkipGrid = $false
+        ImportOSMediaSkipFeatureUpdates = $false
         ImportOSMediaUpdate = $false
         #Initialize-OSDBuilder
         #New-OSBuild
@@ -152,7 +155,7 @@ function Initialize-OSDBuilder {
     #   Import Local JSON
     #===================================================================================================
     if (Test-Path $global:GetOSDBuilder.JsonLocal) {
-        Write-Verbose "Importing $($global:GetOSDBuilder.JsonLocal)"
+        Write-Verbose "Importing OSDBuilder Local Settings $($global:GetOSDBuilder.JsonLocal)"
         Try {
             $global:GetOSDBuilder.LocalSettings = (Get-Content $global:GetOSDBuilder.JsonLocal -RAW | ConvertFrom-Json).PSObject.Properties | foreach {[ordered]@{Name = $_.Name; Value = $_.Value}} | ConvertTo-Json | ConvertFrom-Json
             $global:GetOSDBuilder.LocalSettings | foreach {
@@ -165,10 +168,10 @@ function Initialize-OSDBuilder {
 
     if ($global:SetOSDBuilder.AllowGlobalOptions -eq $true) {
         if (Test-Path $global:GetOSDBuilder.JsonGlobal) {
-            Write-Verbose "Importing $($global:GetOSDBuilder.JsonGlobal)"
+            Write-Verbose "Importing OSDBuilder Global Settings $($global:GetOSDBuilder.JsonGlobal)"
             Try {
-                $global:GetOSDBuilder.LocalSettings = (Get-Content $global:GetOSDBuilder.JsonGlobal -RAW | ConvertFrom-Json).PSObject.Properties | foreach {[ordered]@{Name = $_.Name; Value = $_.Value}} | ConvertTo-Json | ConvertFrom-Json
-                $global:GetOSDBuilder.LocalSettings | foreach {
+                $global:GetOSDBuilder.GlobalSettings = (Get-Content $global:GetOSDBuilder.JsonGlobal -RAW | ConvertFrom-Json).PSObject.Properties | foreach {[ordered]@{Name = $_.Name; Value = $_.Value}} | ConvertTo-Json | ConvertFrom-Json
+                $global:GetOSDBuilder.GlobalSettings | foreach {
                     Write-Verbose "$($_.Name) = $($_.Value)"
                     $global:SetOSDBuilder.$($_.Name) = $($_.Value)
                 }
@@ -176,6 +179,20 @@ function Initialize-OSDBuilder {
             Catch {Write-Warning "Unable to import $($global:GetOSDBuilder.JsonGlobal)"}
         }
     }
+
+<#     if ($global:SetOSDBuilder.AllowLocalPriority -eq $true) {
+        if (Test-Path $global:GetOSDBuilder.JsonLocal) {
+            Write-Verbose "Importing OSDBuilder Local Priority $($global:GetOSDBuilder.JsonLocal) as Priority"
+            Try {
+                $global:GetOSDBuilder.LocalSettings = (Get-Content $global:GetOSDBuilder.JsonLocal -RAW | ConvertFrom-Json).PSObject.Properties | foreach {[ordered]@{Name = $_.Name; Value = $_.Value}} | ConvertTo-Json | ConvertFrom-Json
+                $global:GetOSDBuilder.LocalSettings | foreach {
+                    Write-Verbose "$($_.Name) = $($_.Value)"
+                    $global:SetOSDBuilder.$($_.Name) = $($_.Value)
+                }
+            }
+            Catch {Write-Warning "Unable to import $($global:GetOSDBuilder.JsonLocal)"}
+        }
+    } #>
 
     #===================================================================================================
     #   Set Content Paths
@@ -211,7 +228,7 @@ function Initialize-OSDBuilder {
     $global:SetOSDBuilderPathContentPacks       = $global:SetOSDBuilder.PathContentPacks
     $global:SetOSDBuilderPathMount              = $global:SetOSDBuilder.PathMount
     $global:SetOSDBuilderPathOSBuilds           = $global:SetOSDBuilder.PathOSBuilds
-    $global:SetOSDBuilderPathOSDownload         = $global:SetOSDBuilder.PathOSDownload
+    $global:SetOSDBuilderPathFeatureUpdates		= $global:SetOSDBuilder.PathFeatureUpdates
     $global:SetOSDBuilderPathOSImport           = $global:SetOSDBuilder.PathOSImport
     $global:SetOSDBuilderPathOSMedia            = $global:SetOSDBuilder.PathOSMedia
     $global:SetOSDBuilderPathPEBuilds           = $global:SetOSDBuilder.PathPEBuilds
@@ -222,12 +239,12 @@ function Initialize-OSDBuilder {
     #   Corrections
     #===================================================================================================
     if (Test-Path "$GetOSDBuilderHome\Media") {
-        Write-Warning "Renaming $GetOSDBuilderHome\Media to $SetOSDBuilderPathOSDownload"
-        Rename-Item "$GetOSDBuilderHome\Media" "$SetOSDBuilderPathOSDownload" -Force | Out-Null
+        Write-Warning "Renaming $GetOSDBuilderHome\Media to $SetOSDBuilderPathFeatureUpdates"
+        Rename-Item "$GetOSDBuilderHome\Media" "$SetOSDBuilderPathFeatureUpdates" -Force | Out-Null
     }
-    if (Test-Path "$GetOSDBuilderHome\FeatureUpdates") {
-        Write-Warning "Renaming $GetOSDBuilderHome\FeatureUpdates to $SetOSDBuilderPathOSDownload"
-        Rename-Item "$GetOSDBuilderHome\FeatureUpdates" "$SetOSDBuilderPathOSDownload" -Force | Out-Null
+    if (Test-Path "$GetOSDBuilderHome\OSDownload") {
+        Write-Warning "Renaming $GetOSDBuilderHome\OSDownload to $SetOSDBuilderPathFeatureUpdates"
+        Rename-Item "$GetOSDBuilderHome\OSDownload" "$SetOSDBuilderPathFeatureUpdates" -Force | Out-Null
     }
     if (Test-Path "$SetOSDBuilderPathContent\OSDUpdate") {
         Write-Warning "Moving $SetOSDBuilderPathContent\OSDUpdate to $SetOSDBuilderPathUpdates"

@@ -11,6 +11,12 @@ https://osdbuilder.osdeploy.com/module/functions/import-osmedia
 function Import-OSMedia {
     [CmdletBinding()]
     Param (
+        #Unsupported
+        #Allows the import of an unsupported OS
+        #THIS PARAMETER IS NOT A GUARANTEE OF ANY FUNCTIONALITY
+        #THIS PARAMETER IS A GUARANTEE OF BEING GHOSTED IF YOU CONTACT THE DEV FOR SUPPORT
+        [switch]$AllowUnsupportedOS = $global:SetOSDBuilder.ImportOSMediaAllowUnsupportedOS,
+        
         #The Operating System EditionId to import
         #Import-OSMedia -EditionId Enterprise
         #Import-OSMedia -EditionId Enterprise -SkipGrid
@@ -124,6 +130,9 @@ function Import-OSMedia {
         [Alias('SkipGridView')]
         [switch]$SkipGrid = $global:SetOSDBuilder.ImportOSMediaSkipGrid,
 
+        #Skips the searh of the FeatureUpdates path for downloaded Feature Updates
+        [switch]$SkipFeatureUpdates = $global:SetOSDBuilder.ImportOSMediaSkipFeatureUpdates,
+
         #Creates an OSMedia with all Microsoft Updates applied
         #Import-OSMedia -Edition Enterprise -SkipGrid -QuickUpdate
         #Execute Command:
@@ -146,7 +155,15 @@ function Import-OSMedia {
         [Alias('OSDInfo')]
         [switch]$ShowInfo = $global:SetOSDBuilder.ImportOSMediaShowInfo
     )
-
+    #===================================================================================================
+    #   Variables
+    #===================================================================================================
+    #ImportOSMediaPSDrives
+    #ImportOSMediaOperatingSystems
+    #ImportOSMediaFeatureUpdates
+    #ImportOSMediaPSDrives
+    #ImportOSMediaPSDrives
+    
     Begin {
         #===================================================================================================
         #   Get-OSDBuilder
@@ -161,34 +178,49 @@ function Import-OSMedia {
             Break
         }
         #===================================================================================================
-        #   Import Drives
+        #   GetPSDrives
         #===================================================================================================
-        $ImportWims = @()
-        $ImportDrives = Get-PSDrive -PSProvider 'FileSystem'
-        foreach ($ImportDrive in $ImportDrives) {
-            if (Test-Path "$($ImportDrive.Root)Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.Root)Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
-            if (Test-Path "$($ImportDrive.Root)x64\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.Root)x64\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
-            if (Test-Path "$($ImportDrive.Root)x86\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.Root)x86\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
+        $global:ImportOSMediaPSDrives = @()
+        $global:ImportOSMediaPSDrives = Get-PSDrive -PSProvider 'FileSystem'
+        #===================================================================================================
+        #   ImportOSMediaOperatingSystems
+        #===================================================================================================
+        $global:ImportOSMediaOperatingSystems = @()
+        foreach ($ImportOSMediaOperatingSystem in $global:ImportOSMediaPSDrives) {
+            if (Test-Path "$($ImportOSMediaOperatingSystem.Root)Sources") {
+                $global:ImportOSMediaOperatingSystems += Get-ChildItem "$($ImportOSMediaOperatingSystem.Root)Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+            }
+            if (Test-Path "$($ImportOSMediaOperatingSystem.Root)x64\Sources") {
+                $global:ImportOSMediaOperatingSystems += Get-ChildItem "$($ImportOSMediaOperatingSystem.Root)x64\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+            }
+            if (Test-Path "$($ImportOSMediaOperatingSystem.Root)x86\Sources") {
+                $global:ImportOSMediaOperatingSystems += Get-ChildItem "$($ImportOSMediaOperatingSystem.Root)x86\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+            }
         }
         #===================================================================================================
-        #   Import Media Directory
+        #   ImportOSMediaFeatureUpdates
         #===================================================================================================
-        $ImportMedia = Get-ChildItem $SetOSDBuilderPathOSDownload -ErrorAction SilentlyContinue
-        foreach ($ImportDrive in $ImportMedia) {
-            if (Test-Path "$($ImportDrive.FullName)\Sources") {$ImportWims += Get-ChildItem "$($ImportDrive.FullName)\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}}
+        $global:ImportOSMediaFeatureUpdates = @()
+        if ($SkipFeatureUpdates -ne $true) {
+            $ImportOSMediaFeatureUpdates = Get-ChildItem $SetOSDBuilderPathFeatureUpdates -ErrorAction SilentlyContinue
+            foreach ($ImportOSMediaOperatingSystem in $ImportOSMediaFeatureUpdates) {
+                if (Test-Path "$($ImportOSMediaOperatingSystem.FullName)\Sources") {
+                    $global:ImportOSMediaOperatingSystems += Get-ChildItem "$($ImportOSMediaOperatingSystem.FullName)\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+                }
+            }
         }
         #===================================================================================================
-        #   Import WIMS
+        #   Validate ImportOSMediaOperatingSystems
         #===================================================================================================
-        if ($null -eq $ImportWims) {
+        if ($null -eq $global:ImportOSMediaOperatingSystems) {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Warning "Windows Image could not be found on any CD or DVD Drives . . . Exiting!"
             Break
         }
         #===================================================================================================
-        #   Scan Windows Images'
+        #   ImportOSMediaWindowsImages
         #===================================================================================================
-        $WindowsImages = $ImportWims | ForEach-Object {
+        $global:ImportOSMediaWindowsImages = $global:ImportOSMediaOperatingSystems | ForEach-Object {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Show-ActionTime; Write-Host "Media: Scan $($_.OSWim)" -ForegroundColor Green
             Get-WindowsImage -ImagePath "$($_.OSWim)"} | ForEach-Object {
@@ -196,50 +228,56 @@ function Import-OSMedia {
                 Write-Host "ImageIndex $($_.ImageIndex): $($_.ImageName)" -ForegroundColor DarkGray
             }
 
-        $WindowsImages = $WindowsImages | Select-Object -Property ImagePath, ImageIndex, ImageName, Architecture, EditionId, Languages, InstallationType, Version, MajorVersion, MinorVersion, Build, SPBuild, SPLevel, CreatedTime, ModifiedTime
-        foreach ($Image in $WindowsImages) {
+        $global:ImportOSMediaWindowsImages = $global:ImportOSMediaWindowsImages | Select-Object -Property ImagePath, ImageIndex, ImageName, Architecture, EditionId, Languages, InstallationType, Version, MajorVersion, MinorVersion, Build, SPBuild, SPLevel, CreatedTime, ModifiedTime
+        foreach ($Image in $global:ImportOSMediaWindowsImages) {
             if ($Image.Architecture -eq '0') {$Image.Architecture = 'x86'}
             if ($Image.Architecture -eq '6') {$Image.Architecture = 'ia64'}
             if ($Image.Architecture -eq '9') {$Image.Architecture = 'x64'}
             if ($Image.Architecture -eq '12') {$Image.Architecture = 'x64 ARM'}
         }
         #===================================================================================================
-        Write-Verbose '19.1.1 Filter OS Version 6.1.7601 and 10'
+        #   AllowUnsupportedOS
         #===================================================================================================
-        $WindowsImages = $WindowsImages | Where-Object {($_.MajorVersion -eq '10') -or ($_.Version -like "6.1.7601*" -and $_.InstallationType -like "*Client*") -or ($_.Version -like "6.3*" -and $_.ImageName -like "*Server*")}
-        #   Windows 7 SP1
-        #   Windows 8.1
-        #   Windows Server 2012 R2
-        #   Windows 10
-        #   Windows Server 2016
-        #   Windows Server 2019
-
+        if ($AllowUnsupportedOS -eq $true) {
+            Write-Warning "AllowUnsupportedOS: This parameter will allow you to import any OS into OSDBuilder"
+            Write-Warning "AllowUnsupportedOS: This in no way guarantees any functionality"
+            Write-Warning "AllowUnsupportedOS: Contacting the DEV for support on an unsupported OS will have consequences"
+        } else {
+            Write-Verbose "Filtering Windows (version 10 Client and Server), Windows 7 (version 6.1.7601 Client) and Server 2012 R2 (version 6.3 Server)"
+            $global:ImportOSMediaWindowsImages = $global:ImportOSMediaWindowsImages | Where-Object {($_.MajorVersion -eq '10') -or ($_.Version -like "6.1.7601*" -and $_.InstallationType -like "*Client*") -or ($_.Version -like "6.3*" -and $_.ImageName -like "*Server*")}
+            #   Windows 7 SP1
+            #   Windows 8.1
+            #   Windows Server 2012 R2
+            #   Windows 10
+            #   Windows Server 2016
+            #   Windows Server 2019
+        }
         #===================================================================================================
-        Write-Verbose '19.1.1 Filter Parameters'
+        #   ImportOSMediaWindowsImages Filter
         #===================================================================================================
-        if ($EditionId) {$WindowsImages = $WindowsImages | Where-Object {$_.EditionId -eq $EditionId}}
-        if ($ImageName) {$WindowsImages = $WindowsImages | Where-Object {$_.ImageName -eq $ImageName}}
-        if ($ImageIndex) {$WindowsImages = $WindowsImages | Where-Object {$_.ImageIndex -eq $ImageIndex}}
+        if ($EditionId) {$global:ImportOSMediaWindowsImages = $global:ImportOSMediaWindowsImages | Where-Object {$_.EditionId -eq $EditionId}}
+        if ($ImageName) {$global:ImportOSMediaWindowsImages = $global:ImportOSMediaWindowsImages | Where-Object {$_.ImageName -eq $ImageName}}
+        if ($ImageIndex) {$global:ImportOSMediaWindowsImages = $global:ImportOSMediaWindowsImages | Where-Object {$_.ImageIndex -eq $ImageIndex}}
         #===================================================================================================
-        Write-Verbose '19.1.1 Select Operating Systems'
+        #   ImportOSMediaWindowsImages GridView
         #===================================================================================================
-        if (@($WindowsImages).Count -gt 0) {
+        if (@($global:ImportOSMediaWindowsImages).Count -gt 0) {
             if (!($SkipGrid.IsPresent)) {
-                $WindowsImages = $WindowsImages | Out-GridView -Title "Import-OSMedia: Select OSMedia to Import and press OK (Cancel to Exit)" -PassThru        
-                if($null -eq $WindowsImages) {
+                $global:ImportOSMediaWindowsImages = $global:ImportOSMediaWindowsImages | Out-GridView -Title "Import-OSMedia: Select OSMedia to Import and press OK (Cancel to Exit)" -PassThru        
+                if($null -eq $global:ImportOSMediaWindowsImages) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Warning "Import-OSMedia: Compatible OSMedia was not selected . . . Exiting!"
-                    Return
+                    Break
                 }
             }
         } else {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Warning "OSMedia was not found . . . Exiting!"
-            Return
+            Write-Warning "Import-OSMedia: OSMedia was not found . . . Exiting!"
+            Break
         }
     }
 
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
@@ -247,195 +285,177 @@ function Import-OSMedia {
         #===================================================================================================
         Write-Verbose '19.1.1 Import Windows Images'
         #===================================================================================================
-        foreach ($WindowsImage in $WindowsImages) {
+        #foreach ($WindowsImage in $global:ImportOSMediaWindowsImages) {
+        foreach ($ImportOSMediaWindowsImage in $global:ImportOSMediaWindowsImages) {
+            #===================================================================================================
+            #   New PROCESS
+            #===================================================================================================
+            $global:OSMediaGetItem = Get-Item $ImportOSMediaWindowsImage.ImagePath
 
-            $OSImagePath = $($WindowsImage.ImagePath)
-            $OSImageIndex = $($WindowsImage.ImageIndex)
-            $OSSourcePath = (Get-Item $OSImagePath).Directory.Parent.FullName
-            $WindowsImage = Get-WindowsImage -ImagePath "$OSImagePath" -Index $OSImageIndex | Select-Object -Property *
+            $global:SourceImagePath = $OSMediaGetItem.FullName
+            $global:SourceImageIndex = $ImportOSMediaWindowsImage.ImageIndex
+            $global:SourceOSMedia =  ($OSMediaGetItem).Directory.Parent.FullName
 
-            $OSImageName = $($WindowsImage.ImageName)
-            $OSImageName = $OSImageName -replace '\(', ''
-            $OSImageName = $OSImageName -replace '\)', ''
-
-            $OSImageDescription = $($WindowsImage.ImageDescription)
-
-            $OSArchitecture = $($WindowsImage.Architecture)
-            if ($OSArchitecture -eq '0') {$OSArchitecture = 'x86'}
-            if ($OSArchitecture -eq '6') {$OSArchitecture = 'ia64'}
-            if ($OSArchitecture -eq '9') {$OSArchitecture = 'x64'}
-            if ($OSArchitecture -eq '12') {$OSArchitecture = 'x64 ARM'}
-
-            $OSEditionID =        $($WindowsImage.EditionId)
-            $OSInstallationType = $($WindowsImage.InstallationType)
-            $OSLanguages =        $($WindowsImage.Languages)
-            $OSMajorVersion =     $($WindowsImage.MajorVersion)
-            $OSBuild =            $($WindowsImage.Build)
-            $OSVersion =          $($WindowsImage.Version)
-            $OSSPBuild =          $($WindowsImage.SPBuild)
-            $OSSPLevel =            $($WindowsImage.SPLevel)
-            $OSImageBootable =      $($WindowsImage.ImageBootable)
-            $OSWIMBoot =            $($WindowsImage.WIMBoot)
-            $OSCreatedTime =        $($WindowsImage.CreatedTime)
-            $OSModifiedTime =       $($WindowsImage.ModifiedTime)
-
-            $OSMGuid = $(New-Guid)
-
+            $global:GetWindowsImage = Get-WindowsImage -ImagePath $SourceImagePath -Index $SourceImageIndex | Select-Object -Property *
+            $GetWindowsImage.ImageName = $GetWindowsImage.ImageName -replace '\(', ''
+            $GetWindowsImage.ImageName = $GetWindowsImage.ImageName -replace '\)', ''
+            if ($GetWindowsImage.Architecture -eq '0')  {$GetWindowsImage.Architecture = 'x86'}
+            if ($GetWindowsImage.Architecture -eq '6')  {$GetWindowsImage.Architecture = 'ia64'}
+            if ($GetWindowsImage.Architecture -eq '9')  {$GetWindowsImage.Architecture = 'x64'}
+            if ($GetWindowsImage.Architecture -eq '12') {$GetWindowsImage.Architecture = 'x64 ARM'}
             #===================================================================================================
             #   ESD: Export-WindowsImage
             #===================================================================================================
-            if ($OSImagePath -like "*.esd") {
-                $InstallWimType = "esd"
-                $TempESD = "$env:Temp\$((Get-Date).ToString('HHmmss')).wim"
+            if ($OSMediaGetItem.Extension -eq '.esd') {
+                $SourceTempWim = "$env:Temp\$((Get-Date).ToString('HHmmss')).wim"
 
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "Image: Export Install.esd Index $OSImageIndex to $TempESD" -ForegroundColor Green
+                Write-Host "Image: Export Install.esd Index $SourceImageIndex to $SourceTempWim" -ForegroundColor Green
                 
                 $CurrentLog = "$env:Temp\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
                 Write-Verbose "CurrentLog: $CurrentLog"
-                Export-WindowsImage -SourceImagePath "$OSImagePath" -SourceIndex $OSImageIndex -DestinationImagePath "$TempESD" -CheckIntegrity -CompressionType max -LogPath "$CurrentLog" | Out-Null
-            } else {
-                $InstallWimType = "wim"
+                Export-WindowsImage -SourceImagePath $SourceImagePath -SourceIndex $SourceImageIndex -DestinationImagePath $SourceTempWim -CheckIntegrity -CompressionType max -LogPath "$CurrentLog" | Out-Null
             }
 
-            $MountDirectory = Join-Path $SetOSDBuilderPathMount "os$((Get-Date).ToString('HHmmss'))"
-            Mount-InstallwimMEDIA
+            $global:MountDirectory = Join-Path $SetOSDBuilderPathMount "os$((Get-Date).ToString('HHmmss'))"
+            Mount-ImportOSMediaWim
             #===================================================================================================
-            #   REGISTRY
+            #   Get-RegKeyCurrentVersion
             #===================================================================================================
-            Show-ActionTime; Write-Host "Image: Mount Registry for UBR Information" -ForegroundColor Green
+            $GetRegKeyCurrentVersion = Get-RegKeyCurrentVersion -MountPath $MountDirectory
+            #===================================================================================================
+            #   Set Additional Properties
+            #===================================================================================================
+            $RegValueUbr = $null
+            $RegValueReleaseId = $null
+            $RegValueCurrentBuild = $null
+            $OSMGuid = $(New-Guid)
 
-                reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
-                $RegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
-                reg UNLOAD 'HKLM\OSMedia' | Out-Null
-            #===================================================================================================
-            #===================================================================================================
-            Write-Verbose 'Set OS Main Information'
-            if ($OSMajorVersion -eq '10') {
-                #19.10.17 resolve issues with Windows 10 1909
-                $RegValueCurrentBuild = $null
-                $RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)
+            if ($GetWindowsImage.MajorVersion -eq '10') {
+                $RegValueUbr = $($GetRegKeyCurrentVersion.UBR)
+                $RegValueReleaseId = $($GetRegKeyCurrentVersion.ReleaseId)
+                $RegValueCurrentBuild = $($GetRegKeyCurrentVersion.CurrentBuild)
 
-                $ReleaseId = $null
-                $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-                if ($ReleaseId -gt 1909) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
-                if ($null -eq $ReleaseId) {
-                    #if ($OSBuild -eq 7600) {$ReleaseId = 7600}
-                    #if ($OSBuild -eq 7601) {$ReleaseId = 7601}
-                    #if ($OSBuild -eq 9600) {$ReleaseId = 9600}
-                    if ($OSBuild -eq 10240) {$ReleaseId = 1507}
-                    if ($OSBuild -eq 14393) {$ReleaseId = 1607}
-                    if ($OSBuild -eq 15063) {$ReleaseId = 1703}
-                    if ($OSBuild -eq 16299) {$ReleaseId = 1709}
-                    #if ($OSBuild -eq 17134) {$ReleaseId = 1803}
-                    #if ($OSBuild -eq 17763) {$ReleaseId = 1809}
-                    #if ($OSBuild -eq 18362) {$ReleaseId = 1903}
+                if ($RegValueReleaseId -gt 1909) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
+                if ($null -eq $RegValueReleaseId) {
+                    #if ($GetWindowsImage.Build -eq 7600) {$RegValueReleaseId = 7600}
+                    #if ($GetWindowsImage.Build -eq 7601) {$RegValueReleaseId = 7601}
+                    #if ($GetWindowsImage.Build -eq 9600) {$RegValueReleaseId = 9600}
+                    if ($GetWindowsImage.Build -eq 10240) {$RegValueReleaseId = 1507}
+                    if ($GetWindowsImage.Build -eq 14393) {$RegValueReleaseId = 1607}
+                    if ($GetWindowsImage.Build -eq 15063) {$RegValueReleaseId = 1703}
+                    if ($GetWindowsImage.Build -eq 16299) {$RegValueReleaseId = 1709}
+                    #if ($GetWindowsImage.Build -eq 17134) {$RegValueReleaseId = 1803}
+                    #if ($GetWindowsImage.Build -eq 17763) {$RegValueReleaseId = 1809}
+                    #if ($GetWindowsImage.Build -eq 18362) {$RegValueReleaseId = 1903}
                 }
-
-                $RegValueUbr = $null
-                $RegValueUbr = $($RegKeyCurrentVersion.UBR)
-                $UBR = "$RegValueCurrentBuild.$RegValueUbr"
-                $OSMediaName = "$OSImageName $OSArchitecture $ReleaseId $UBR $OSLanguages"
+                $global:UBR = "$RegValueCurrentBuild.$RegValueUbr"
+                $global:OSMediaName = "$($GetWindowsImage.ImageName) $($GetWindowsImage.Architecture) $RegValueReleaseId $UBR $($GetWindowsImage.Languages)"
             } else {
-                $UBR = "$OSBuild.$OSSPBuild"
-                $OSMediaName = "$OSImageName $OSArchitecture $UBR $OSLanguages"
+                $UBR = "$($GetWindowsImage.Build).$($GetWindowsImage.SPBuild)"
+                $global:OSMediaName = "$($GetWindowsImage.ImageName) $($GetWindowsImage.Architecture) $UBR $($GetWindowsImage.Languages)"
             }
+
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "CurrentBuild" -Value $RegValueCurrentBuild
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "ReleaseId" -Value $RegValueReleaseId
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid
             #===================================================================================================
+            #   Edit OSMediaName
             #===================================================================================================
-            Write-Verbose 'Trim en-US Language'
-            if ($($OSLanguages.count) -eq 1) {$OSMediaName = $OSMediaName.replace(' en-US','')}
+            if (($GetWindowsImage.Languages).count -eq 1) {$global:OSMediaName = $global:OSMediaName.replace(' en-US','')}
             #===================================================================================================
+            #   Set OSMediaPath
             #===================================================================================================
-            Write-Verbose 'Set OSMediaPath'
-            $OSMediaPath = Join-Path $SetOSDBuilderPathOSImport $OSMediaName
+            $global:OSMediaPath = Join-Path $SetOSDBuilderPathOSImport $global:OSMediaName
             #===================================================================================================
+            #   Remove Existing OSMedia
             #===================================================================================================
-            Write-Verbose 'Remove Existing OSMedia'
             if (Test-Path $OSMediaPath) {
                 Write-Warning "$OSMediaPath exists.  Contents will be replaced!"
                 Remove-Item -Path "$OSMediaPath" -Force -Recurse
-                Write-Host ""
             }
             #===================================================================================================
+            #   Set Working Directories
             #===================================================================================================
-            Write-Verbose 'Set Working Directories'
-            $Info = Join-Path $OSMediaPath 'info'
-            if (!(Test-Path "$Info"))           {New-Item "$Info" -ItemType Directory -Force | Out-Null}
-            if (!(Test-Path "$Info\json"))      {New-Item "$Info\json" -ItemType Directory -Force | Out-Null}
-            if (!(Test-Path "$Info\logs"))      {New-Item "$Info\logs" -ItemType Directory -Force | Out-Null}
-            if (!(Test-Path "$Info\xml"))       {New-Item "$Info\xml" -ItemType Directory -Force | Out-Null}
+            $global:OSMediaPathInfo = Join-Path $OSMediaPath 'info'
+            if (!(Test-Path "$OSMediaPathInfo"))           {New-Item "$OSMediaPathInfo" -ItemType Directory -Force | Out-Null}
+            if (!(Test-Path "$OSMediaPathInfo\json"))      {New-Item "$OSMediaPathInfo\json" -ItemType Directory -Force | Out-Null}
+            if (!(Test-Path "$OSMediaPathInfo\logs"))      {New-Item "$OSMediaPathInfo\logs" -ItemType Directory -Force | Out-Null}
+            if (!(Test-Path "$OSMediaPathInfo\xml"))       {New-Item "$OSMediaPathInfo\xml" -ItemType Directory -Force | Out-Null}
             
-            $OS = Join-Path $OSMediaPath 'OS'
-            if (!(Test-Path "$OS"))             {New-Item "$OS" -ItemType Directory -Force | Out-Null}
+            $global:OSMediaPathOS = Join-Path $OSMediaPath 'OS'
+            if (!(Test-Path "$OSMediaPathOS"))             {New-Item "$OSMediaPathOS" -ItemType Directory -Force | Out-Null}
+            $global:OSMediaPathWindowsImage = $OSMediaPathOS + "\Sources\install.wim"
 
-            $WinPE = Join-Path $OSMediaPath 'WinPE'
-            if (!(Test-Path "$WinPE"))          {New-Item "$WinPE" -ItemType Directory -Force | Out-Null}
+            $global:OSMediaPathWinPE = Join-Path $OSMediaPath 'WinPE'
+            if (!(Test-Path "$OSMediaPathWinPE"))          {New-Item "$OSMediaPathWinPE" -ItemType Directory -Force | Out-Null}
 
-            $PEInfo = Join-Path $WinPE 'info'
-            if (!(Test-Path "$PEInfo"))         {New-Item "$PEInfo" -ItemType Directory -Force | Out-Null}
-            if (!(Test-Path "$PEInfo\json"))    {New-Item "$PEInfo\json" -ItemType Directory -Force | Out-Null}
-            if (!(Test-Path "$PEInfo\logs"))    {New-Item "$PEInfo\logs" -ItemType Directory -Force | Out-Null}
-            if (!(Test-Path "$PEInfo\xml"))     {New-Item "$PEInfo\xml" -ItemType Directory -Force | Out-Null}
-
+            $global:OSMediaPathPEInfo = Join-Path $OSMediaPathWinPE 'info'
+            if (!(Test-Path "$OSMediaPathPEInfo"))         {New-Item "$OSMediaPathPEInfo" -ItemType Directory -Force | Out-Null}
+            if (!(Test-Path "$OSMediaPathPEInfo\json"))    {New-Item "$OSMediaPathPEInfo\json" -ItemType Directory -Force | Out-Null}
+            if (!(Test-Path "$OSMediaPathPEInfo\logs"))    {New-Item "$OSMediaPathPEInfo\logs" -ItemType Directory -Force | Out-Null}
+            if (!(Test-Path "$OSMediaPathPEInfo\xml"))     {New-Item "$OSMediaPathPEInfo\xml" -ItemType Directory -Force | Out-Null}
             #===================================================================================================
-            Write-Verbose 'Export RegistryCurrentVersionKey'
+            #   Export RegistryCurrentVersionKey
             #===================================================================================================
-            $RegKeyCurrentVersion | Out-File "$Info\CurrentVersion.txt"
-            $RegKeyCurrentVersion | Out-File "$OSMediaPath\CurrentVersion.txt"
-            $RegKeyCurrentVersion | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
-            $RegKeyCurrentVersion | Export-Clixml -Path "$Info\xml\CurrentVersion.xml"
-            $RegKeyCurrentVersion | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
-            $RegKeyCurrentVersion | ConvertTo-Json | Out-File "$Info\json\CurrentVersion.json"
-            $RegKeyCurrentVersion | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
+            $GetRegKeyCurrentVersion | Out-File "$OSMediaPathInfo\CurrentVersion.txt"
+            $GetRegKeyCurrentVersion | Out-File "$OSMediaPath\CurrentVersion.txt"
+            $GetRegKeyCurrentVersion | Out-File "$OSMediaPathInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
+            $GetRegKeyCurrentVersion | Export-Clixml -Path "$OSMediaPathInfo\xml\CurrentVersion.xml"
+            $GetRegKeyCurrentVersion | Export-Clixml -Path "$OSMediaPathInfo\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
+            $GetRegKeyCurrentVersion | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\CurrentVersion.json"
+            $GetRegKeyCurrentVersion | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
             #===================================================================================================
             #   Start-Transcript
             #===================================================================================================
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             $ScriptName = $MyInvocation.MyCommand.Name
             $LogName = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-$ScriptName.log"
-            Start-Transcript -Path (Join-Path "$Info\logs" $LogName)
+            Start-Transcript -Path (Join-Path "$OSMediaPathInfo\logs" $LogName)
+            $GetWindowsImage
             #===================================================================================================
             #   Image Information
             #===================================================================================================
-            Show-WindowsImageInfo
-            Show-MediaInfoOS
+            #Show-GetWindowsImage
+            Show-OSMediaInfo
             #===================================================================================================
             #   Media: Copy Operating System
             #===================================================================================================
             Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Show-ActionTime; Write-Host "Media: Copy Operating System to $OS" -ForegroundColor Green
+            Show-ActionTime; Write-Host "Media: Copy Operating System to $OSMediaPathOS" -ForegroundColor Green
 
-            Copy-Item -Path "$OSSourcePath\*" -Destination "$OS" -Exclude "install.$InstallWimType" -Recurse -Force | Out-Null
-            Get-ChildItem -Recurse -Path "$OS\*" | Set-ItemProperty -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue | Out-Null
+            #Copy-Item -Path "$SourceOSMedia\*" -Destination "$OSMediaPathOS" -Exclude "install.$($OSMediaGetItem.Extension)" -Recurse -Force | Out-Null
+            robocopy "$SourceOSMedia" "$OSMediaPathOS" *.* /e /xf install.wim install.esd | Out-Null
+            Get-ChildItem -Recurse -Path "$OSMediaPathOS\*" | Set-ItemProperty -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue | Out-Null
 
-            if ($InstallWimType -eq "esd") {            
-                $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
+            if ($OSMediaGetItem.Extension -eq '.esd') {        
+                $CurrentLog = "$OSMediaPathInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
                 Write-Verbose "CurrentLog: $CurrentLog"
-                Export-WindowsImage -SourceImagePath "$TempESD" -SourceIndex 1 -DestinationImagePath "$OS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
+                Export-WindowsImage -SourceImagePath $SourceTempWim -SourceIndex 1 -DestinationImagePath "$OSMediaPathOS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
             } else {            
-                $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
+                $CurrentLog = "$OSMediaPathInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log"
                 Write-Verbose "CurrentLog: $CurrentLog"
-                Export-WindowsImage -SourceImagePath "$OSImagePath" -SourceIndex $OSImageIndex -DestinationImagePath "$OS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
+                Export-WindowsImage -SourceImagePath $SourceImagePath -SourceIndex $SourceImageIndex -DestinationImagePath "$OSMediaPathOS\sources\install.wim" -LogPath "$CurrentLog" | Out-Null
             }
             #===================================================================================================
             #   Export-Inventory
             #===================================================================================================
-            Write-Verbose 'Install.wim: Export Inventory'
-            Backup-AutoExtraFilesOS -OSMediaPath "$OSMediaPath"
-            Save-SessionsXmlOS -OSMediaPath "$OSMediaPath"
-            Save-InventoryOS -OSMediaPath "$OSMediaPath"
-            Save-WimsPE -OSMediaPath "$OSMediaPath"
-            Save-InventoryPE -OSMediaPath "$OSMediaPath"
+            Save-AutoExtraFilesOS -OSMediaPath $OSMediaPath
+            Save-SessionsXmlOS -OSMediaPath $OSMediaPath
+            Save-InventoryOS -OSMediaPath $OSMediaPath
+            Save-WimsPE -OSMediaPath $OSMediaPath
+            Save-InventoryPE -OSMediaPath $OSMediaPath
             #===================================================================================================
             #   Dismount-WindowsImage
             #===================================================================================================
             Show-ActionTime; Write-Host "Install.wim: Dismount from $MountDirectory" -ForegroundColor Green
-            if ($OSImagePath -like "*.esd") {
-                try {Remove-Item "$TempESD" -Force | Out-Null}
-                catch {Write-Warning "Could not remove $TempESD"}
+            if ($OSMediaGetItem.Extension -eq '.esd') {
+                try {Remove-Item $SourceTempWim -Force | Out-Null}
+                catch {Write-Warning "Could not remove $SourceTempWim"}
             }
 
-            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage.log"
+            $CurrentLog = "$OSMediaPathInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage.log"
             Write-Verbose "CurrentLog: $CurrentLog"
             Dismount-WindowsImage -Discard -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null
             #===================================================================================================
@@ -443,54 +463,57 @@ function Import-OSMedia {
             #===================================================================================================
             Show-ActionTime; Write-Host "Install.wim: Export Configuration to $OSMediaPath\WindowsImage.txt" -ForegroundColor Green
             $GetWindowsImage = @()
-            $GetWindowsImage = Get-WindowsImage -ImagePath "$OS\sources\install.wim" -Index 1 | Select-Object -Property *
+            $GetWindowsImage = Get-WindowsImage -ImagePath "$OSMediaPathOS\sources\install.wim" -Index 1 | Select-Object -Property *
+
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "CurrentBuild" -Value $RegValueCurrentBuild
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "ReleaseId" -Value $RegValueReleaseId
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid
+
+
 
             Write-Verbose "========== SPBuild: $($GetWindowsImage.Build).$($GetWindowsImage.SPBuild)"
-            if ($OSVersion -like "6.1*") {
+            if ($GetWindowsImage.Version -like "6.1*") {
                 Write-Verbose '========== Windows 6.1'
                 $UBR = "$($GetWindowsImage.Build).$($GetWindowsImage.SPBuild)"
             }
             Write-Verbose "========== UBR: $UBR"
 
             #19.10.17 to address issues with Windows 10 1909
-            $GetWindowsImage | Add-Member -Type NoteProperty -Name "CurrentBuild" -Value $RegValueCurrentBuild
-            $GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR
-            $GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid
+            #$GetWindowsImage | Add-Member -Type NoteProperty -Name "CurrentBuild" -Value $RegValueCurrentBuild
+            #$GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR
+            #$GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid
             
             $GetWindowsImage | Out-File "$OSMediaPath\WindowsImage.txt"
-            $GetWindowsImage | Out-File "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.txt"
-            $GetWindowsImage | Export-Clixml -Path "$Info\xml\Get-WindowsImage.xml"
-            $GetWindowsImage | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.xml"
-            $GetWindowsImage | ConvertTo-Json | Out-File "$Info\json\Get-WindowsImage.json"
-            $GetWindowsImage | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.json"
+            $GetWindowsImage | Out-File "$OSMediaPathInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.txt"
+            $GetWindowsImage | Export-Clixml -Path "$OSMediaPathInfo\xml\Get-WindowsImage.xml"
+            $GetWindowsImage | Export-Clixml -Path "$OSMediaPathInfo\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.xml"
+            $GetWindowsImage | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\Get-WindowsImage.json"
+            $GetWindowsImage | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.json"
             (Get-Content "$OSMediaPath\WindowsImage.txt") | Where-Object {$_.Trim(" `t")} | Set-Content "$OSMediaPath\WindowsImage.txt"
             #===================================================================================================
             #    OSD-Export
             #===================================================================================================
-            Save-WindowsImageContentOS
-            Save-VariablesOSD
+            Save-OSMediaWindowsImageContent
+            Save-OSMediaVariables
             if ($ShowInfo.IsPresent) {Show-OSDBuilderInfo -FullName $OSMediaPath}
-            #===================================================================================================
-            #   Stop-Transcript
-            #===================================================================================================
-            Write-Host '========================================================================================' -ForegroundColor DarkGray
             Stop-Transcript
             #===================================================================================================
             #   Update-OSMedia
             #===================================================================================================
             if ($Update.IsPresent) {
-                if ($OSMajorVersion -eq '10') {
-                    Update-OSMedia -Name "$OSMediaName" -Download -Execute -HideCleanupProgress
+                if ($GetWindowsImage.MajorVersion -eq '10') {
+                    Update-OSMedia -Name "$global:OSMediaName" -Download -Execute -HideCleanupProgress
                 } else  {
                     Write-Verbose "Import-OSMedia: Update-OSMedia requires a Operating System Major Version of 10"
                 }
             }
             #===================================================================================================
-            #   New-QuickOSBuild
+            #   New-OSBuild
             #===================================================================================================
             if ($BuildNetFX.IsPresent) {
-                if ($OSMajorVersion -eq '10') {
-                    New-OSBuild -Name "$OSMediaName" -Download -Execute -HideCleanupProgress -SkipTask -EnableNetFX
+                if ($GetWindowsImage.MajorVersion -eq '10') {
+                    New-OSBuild -Name "$global:OSMediaName" -Download -Execute -HideCleanupProgress -SkipTask -EnableNetFX
                 } else  {
                     Write-Verbose "Import-OSMedia: New-OSBuild requires a Operating System Major Version of 10"
                 }

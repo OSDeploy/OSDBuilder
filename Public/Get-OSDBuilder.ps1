@@ -149,7 +149,7 @@ function Get-OSDBuilder {
         Write-Host "Home            $global:GetOSDBuilderHome"
         Write-Host "-Content        $global:SetOSDBuilderPathContent" -ForegroundColor Gray
         Write-Host "-ContentPacks   $global:SetOSDBuilderPathContentPacks" -ForegroundColor Gray
-        Write-Host "-OSDownload     $global:SetOSDBuilderPathOSDownload" -ForegroundColor Gray
+        Write-Host "-FeatureUpdates $global:SetOSDBuilderPathFeatureUpdates" -ForegroundColor Gray
         Write-Host "-OSImport       $global:SetOSDBuilderPathOSImport" -ForegroundColor Gray
         Write-Host "-OSMedia        $global:SetOSDBuilderPathOSMedia" -ForegroundColor Gray
         Write-Host "-OSBuilds       $global:SetOSDBuilderPathOSBuilds" -ForegroundColor Gray

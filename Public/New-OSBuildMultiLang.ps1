@@ -28,6 +28,11 @@ function New-OSBuildMultiLang {
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
+        #   Get-OSDUpdates
+        #===================================================================================================
+        $AllOSDUpdates = @()
+        $AllOSDUpdates = Get-OSDUpdates
+        #===================================================================================================
         #   Get-OSDGather -Property IsAdmin
         #===================================================================================================
         if ((Get-OSDGather -Property IsAdmin) -eq $false) {
@@ -43,8 +48,7 @@ function New-OSBuildMultiLang {
         Write-Warning "OSBuild MultiLang will take an OSBuild with Language Packs"
         Write-Warning "and create a new OSBuild with multiple Indexes"
         Write-Warning "Each Index will have a Language set as the System UI"
-        Write-Host ""
-        Write-Warning "This script is under Development at this time"
+        Write-Warning "This process will take some time as the LCU will be reapplied"
         
         #===================================================================================================
         #   Get OSBuilds with Multi Lang
@@ -63,6 +67,7 @@ function New-OSBuildMultiLang {
             $SourceFullName = "$($Media.FullName)"
             $BuildName = "$CustomName MultiLang"
             $DestinationFullName = "$SetOSDBuilderPathOSBuilds\$BuildName"
+            $Info = "$DestinationFullName\info"
             #===================================================================================================
             #   Copy Media
             #===================================================================================================
@@ -78,6 +83,83 @@ function New-OSBuildMultiLang {
 
             $LangMultiDefaultName = $LangMultiLanguages[$LangMultiDefaultIndex]
             #===================================================================================================
+            #
+            #===================================================================================================
+            $RegValueCurrentBuild = $null
+            if (Test-Path "$DestinationFullName\info\xml\CurrentVersion.xml") {
+                $RegKeyCurrentVersion = Import-Clixml -Path "$DestinationFullName\info\xml\CurrentVersion.xml"
+                $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
+                $RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)
+                if ($ReleaseId -gt 1909) {
+                    Write-Host '========================================================================================' -ForegroundColor DarkGray
+                    Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
+                }
+            }
+            #===================================================================================================
+            #   Operating System
+            #===================================================================================================
+            $OSArchitecture         = $($LangMultiWindowsImage.Architecture)
+            $OSBuild                = $($LangMultiWindowsImage.Build)
+            $OSInstallationType     = $($LangMultiWindowsImage.InstallationType)
+            $OSMajorVersion         = $($LangMultiWindowsImage.MajorVersion)
+            $OSVersion              = $($LangMultiWindowsImage.Version)
+
+            if ($OSArchitecture -eq '0') {$OSArchitecture = 'x86'}
+            if ($OSArchitecture -eq '6') {$OSArchitecture = 'ia64'}
+            if ($OSArchitecture -eq '9') {$OSArchitecture = 'x64'}
+            if ($OSArchitecture -eq '12') {$OSArchitecture = 'x64 ARM'}
+
+            $UpdateOS = ''
+            if ($OSMajorVersion -eq 10) {
+                if ($OSInstallationType -notlike "*Server*") {$UpdateOS = 'Windows 10'}
+                elseif ($OSBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
+                else {$UpdateOS = 'Windows Server 2016'}
+            } elseif ($OSMajorVersion -eq 6) {
+                if ($OSInstallationType -like "*Server*") {
+                    if ($OSVersion -like "6.3*") {
+                        $UpdateOS = 'Windows Server 2012 R2'
+                    }
+                    elseif ($OSVersion -like "6.2*") {
+                        $UpdateOS = 'Windows Server 2012'
+                        Write-Warning "This Operating System is not supported"
+                        Return
+                    }
+                    elseif ($OSVersion -like "6.1*") {
+                        $UpdateOS = 'Windows Server 2008 R2'
+                        Write-Warning "This Operating System is not supported"
+                        Return
+                    }
+                    else {
+                        Write-Warning "This Operating System is not supported"
+                    }
+                } else {
+                    if ($OSVersion -like "6.3*") {
+                        $UpdateOS = 'Windows 8.1'
+                        Write-Warning "This Operating System is not supported"
+                        Return
+                    }
+                    elseif ($OSVersion -like "6.2*") {
+                        $UpdateOS = 'Windows 8'
+                        Write-Warning "This Operating System is not supported"
+                        Return
+                    }
+                    elseif ($OSVersion -like "6.1*") {
+                        $UpdateOS = 'Windows 7'
+                    }
+                    else {
+                        Write-Warning "This Operating System is not supported"
+                    }
+                }
+            }
+            #===================================================================================================
+            #   OSDUpdateLCU
+            #===================================================================================================
+            $OSDUpdateLCU = $AllOSDUpdates
+            $OSDUpdateLCU = $OSDUpdateLCU | Where-Object {$_.UpdateArch -eq $OSArchitecture}
+            $OSDUpdateLCU = $OSDUpdateLCU | Where-Object {$_.UpdateOS -eq $UpdateOS}
+            $OSDUpdateLCU = $OSDUpdateLCU | Where-Object {($_.UpdateBuild -eq $ReleaseId) -or ($_.UpdateBuild -eq '')}
+            $OSDUpdateLCU = $OSDUpdateLCU | Where-Object {$_.UpdateGroup -eq 'LCU'}
+            #===================================================================================================
             #   Export Install.wim
             #===================================================================================================
             if (Test-Path "$DestinationFullName\OS\Sources\install.wim") {Remove-Item -Path "$DestinationFullName\OS\Sources\install.wim" -Force | Out-Null}
@@ -89,9 +171,9 @@ function New-OSBuildMultiLang {
             Write-Host "Exporting temporary install.wim to $TempInstallWim" -ForegroundColor Cyan
             Export-WindowsImage -SourceImagePath "$SourceFullName\OS\Sources\Install.wim" -SourceIndex 1 -DestinationImagePath "$TempInstallWim" -DestinationName "$($Media.ImageName)" | Out-Null
             
-            $TempMount = Join-Path "$env:Temp" "mount$((Get-Date).ToString('mmss'))"
-            New-Item "$TempMount" -ItemType Directory | Out-Null
-            Mount-WindowsImage -Path "$TempMount" -ImagePath "$TempInstallWim" -Index 1 | Out-Null
+            $MountDirectory = Join-Path "$env:Temp" "mount$((Get-Date).ToString('mmss'))"
+            New-Item "$MountDirectory" -ItemType Directory | Out-Null
+            Mount-WindowsImage -Path "$MountDirectory" -ImagePath "$TempInstallWim" -Index 1 | Out-Null
             #===================================================================================================
             #   Process Indexes
             #===================================================================================================
@@ -106,15 +188,19 @@ function New-OSBuildMultiLang {
                     Show-ActionTime
 					Write-Host -ForegroundColor Green "Processing $($Media.ImageName) $LangMultiLanguage"
 
-                    Write-Host "Dism /Image:"$TempMount" /Set-AllIntl:$LangMultiLanguage" -ForegroundColor Cyan
-                    Dism /Image:"$TempMount" /Set-AllIntl:$LangMultiLanguage
+                    Write-Host "Dism /Image:"$MountDirectory" /Set-AllIntl:$LangMultiLanguage" -ForegroundColor Cyan
+                    Dism /Image:"$MountDirectory" /Set-AllIntl:$LangMultiLanguage
 
-                    Write-Host "Dism /Image:"$TempMount" /Get-Intl" -ForegroundColor Cyan
-                    Dism /Image:"$TempMount" /Get-Intl
+                    Write-Host "Dism /Image:"$MountDirectory" /Get-Intl" -ForegroundColor Cyan
+                    Dism /Image:"$MountDirectory" /Get-Intl
                     
+                    Write-Warning "Waiting 10 seconds for processes to complete before applying LCU ..."
+                    Start-Sleep -Seconds 10
+                    Update-CumulativeOS -Force
+
                     Write-Warning "Waiting 10 seconds for processes to complete before Save-WindowsImage ..."
                     Start-Sleep -Seconds 10
-                    Save-WindowsImage -Path "$TempMount" | Out-Null
+                    Save-WindowsImage -Path "$MountDirectory" | Out-Null
 
                     Write-Warning "Waiting 10 seconds for processes to complete before Export-WindowsImage ..."
                     Start-Sleep -Seconds 10
@@ -127,16 +213,16 @@ function New-OSBuildMultiLang {
             try {
                 Write-Warning "Waiting 10 seconds for processes to complete before Dismount-WindowsImage ..."
                 Start-Sleep -Seconds 10
-                Dismount-WindowsImage -Path "$TempMount" -Discard -ErrorAction SilentlyContinue | Out-Null
+                Dismount-WindowsImage -Path "$MountDirectory" -Discard -ErrorAction SilentlyContinue | Out-Null
             }
             catch {
-                Write-Warning "Could not dismount $TempMount ... Waiting 30 seconds ..."
+                Write-Warning "Could not dismount $MountDirectory ... Waiting 30 seconds ..."
                 Start-Sleep -Seconds 30
-                Dismount-WindowsImage -Path "$TempMount" -Discard | Out-Null
+                Dismount-WindowsImage -Path "$MountDirectory" -Discard | Out-Null
             }
             Write-Warning "Waiting 10 seconds for processes to finish before removing Temporary Files ..."
             Start-Sleep -Seconds 10
-            Remove-Item -Path "$TempMount" -Force | Out-Null
+            Remove-Item -Path "$MountDirectory" -Force | Out-Null
             if (Test-Path "$TempInstallWim") {Remove-Item -Path "$TempInstallWim" -Force | Out-Null}
         }
     }
