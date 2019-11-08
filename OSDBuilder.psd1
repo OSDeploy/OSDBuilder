@@ -131,7 +131,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/OSDeploy/OSDBuilder'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/OSD.png'
+        IconUri = 'https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/OSDBuilder.png'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://osdbuilder.osdeploy.com/release'
