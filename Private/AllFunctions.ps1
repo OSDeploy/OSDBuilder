@@ -1060,7 +1060,7 @@ function Add-ContentPackPEADK {
 
         [string]$MountPath,
 
-        [string]$Lang
+        [switch]$Lang
 
         #[ValidateSet('MDT','Recovery','WinPE')]
         #[string]$WinPEOutput,
@@ -1077,7 +1077,10 @@ function Add-ContentPackPEADK {
     } else {
         Write-Host "$ContentPackContent" -ForegroundColor Cyan
     }
-    if ($Lang.IsPresent) {$global:ReapplyLCU = $true}
+    if ($Lang.IsPresent) {
+        $global:ReapplyLCU = $true
+        $global:UpdateLanguageContent = $true
+    }
     #======================================================================================
     #   Import
     #======================================================================================

@@ -912,6 +912,7 @@ function New-OSBuild {
                 #   WinPE ADK
                 #===================================================================================================
                 $global:ReapplyLCU = $false
+                $global:UpdateLanguageContent = $false
                 Add-ContentADKWinPE
                 Add-ContentADKWinRE
                 Add-ContentADKWinSE
@@ -973,7 +974,6 @@ function New-OSBuild {
                 #===================================================================================================
                 #   Language Content
                 #===================================================================================================
-                $global:UpdateLanguageContent = $false
                 Add-LanguagePacksOS
                 Add-ContentPack -PackType OSLanguagePacks
                 Add-LanguageInterfacePacksOS
@@ -983,11 +983,11 @@ function New-OSBuild {
                 Add-ContentPack -PackType OSLocalExperiencePacks
                 Copy-MediaLanguageSources
                 Add-ContentPack -PackType MEDIA
-                #if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks -or ($global:UpdateLanguageContent -eq $true)) {
+                if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks -or ($global:UpdateLanguageContent -eq $true)) {
                     Set-LanguageSettingsOS
                     #Update-CumulativeOS -Force
                     #if ($HideCleanupProgress.IsPresent) {Invoke-DismCleanupImage -HideCleanupProgress} else {Invoke-DismCleanupImage}
-                #}
+                }
                 #===================================================================================================
                 #   Optional Content
                 #===================================================================================================
