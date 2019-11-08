@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Applies Adobe, Component, Cumulative, Servicing Stack, and Setup Updates to Windows 7, Windows 10, Windows Server 2016, and Windows Server 2019 using Offline Servicing
+Applies Adobe, Component, Cumulative, Servicing Stack, and Setup Updates to Windows 10, Windows Server 2016, and Windows Server 2019 using Offline Servicing
 
 .DESCRIPTION
 Updates are gathered from the OSDBuilder Update Catalogs
@@ -895,6 +895,7 @@ function Update-OSMedia {
                 #   WinPE ADK
                 #===================================================================================================
                 $global:ReapplyLCU = $false
+                $global:UpdateLanguageContent = $false
                 Add-ContentADKWinPE
                 Add-ContentADKWinRE
                 Add-ContentADKWinSE
@@ -956,7 +957,6 @@ function Update-OSMedia {
                 #===================================================================================================
                 #   Language Content
                 #===================================================================================================
-                $global:UpdateLanguageContent = $false
                 Add-LanguagePacksOS
                 Add-ContentPack -PackType OSLanguagePacks
                 Add-LanguageInterfacePacksOS
@@ -966,11 +966,11 @@ function Update-OSMedia {
                 Add-ContentPack -PackType OSLocalExperiencePacks
                 Copy-MediaLanguageSources
                 Add-ContentPack -PackType MEDIA
-                #if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks -or ($global:UpdateLanguageContent -eq $true)) {
+                if ($LanguagePacks -or $LanguageInterfacePacks -or $LanguageFeatures -or $LocalExperiencePacks -or ($global:UpdateLanguageContent -eq $true)) {
                     Set-LanguageSettingsOS
                     #Update-CumulativeOS -Force
                     #if ($HideCleanupProgress.IsPresent) {Invoke-DismCleanupImage -HideCleanupProgress} else {Invoke-DismCleanupImage}
-                #}
+                }
                 #===================================================================================================
                 #   Optional Content
                 #===================================================================================================
