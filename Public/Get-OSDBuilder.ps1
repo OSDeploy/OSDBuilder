@@ -182,12 +182,12 @@ function Get-OSDBuilder {
     $OSDBuilderOldDirectories = @(
         "$SetOSDBuilderPathContent\UpdateStacks"
         "$SetOSDBuilderPathContent\UpdateWindows"
-        "$GetOSDBuilderPathUpdates\Windows 10 1903"
+        "$SetOSDBuilderPathUpdates\Windows 10 1903"
     )
 
-    foreach ($OSDBuilderDir in $OSDBuilderOldDirectories) {
-        if (Test-Path "$OSDBuilderDir") {
-            Write-Warning "'$OSDBuilderDir' is no longer required and should be removed"
+    foreach ($item in $OSDBuilderOldDirectories) {
+        if (Test-Path "$item") {
+            Write-Warning "'$item' is no longer required and should be removed"
         }
     }
     #===================================================================================================
