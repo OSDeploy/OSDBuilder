@@ -53,7 +53,7 @@ function Initialize-OSDBuilder {
     }
 
     $global:SetOSDBuilder = [ordered]@{
-        AllowContentPacks       = $false
+        AllowContentPacks       = $true
         AllowGlobalOptions      = $true
         #AllowLocalPriority      = $false
         PathContent             = Join-Path $global:GetOSDBuilderHome 'Content'
