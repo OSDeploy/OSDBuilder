@@ -28,7 +28,7 @@ function Initialize-OSDBuilder {
     }
 
     $global:GetOSDBuilderHome = $(Get-ItemProperty "HKCU:\Software\OSDeploy").GetOSDBuilderHome
-    if (-not $global:GetOSDBuilderHome) {$global:GetOSDBuilderHome = "$env:SystemDrive\OSDBuilder"}
+    if (! ($global:GetOSDBuilderHome)) {$global:GetOSDBuilderHome = "$env:SystemDrive\OSDBuilder"}
     #===================================================================================================
     #   Initialize OSDBuilder Variables
     #===================================================================================================
