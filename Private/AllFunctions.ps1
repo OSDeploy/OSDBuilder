@@ -1990,11 +1990,14 @@ function Copy-MediaOperatingSystem {
     #===================================================================================================
     #   Execute
     #===================================================================================================
-    Copy-Item -Path "$OSMediaPath\*" -Destination "$WorkingPath" -Exclude ('*.wim','*.iso','*.vhd','*.vhx') -Recurse -Force | Out-Null
+    #Copy-Item -Path "$OSMediaPath\*" -Destination "$WorkingPath" -Exclude ('*.wim','*.iso','*.vhd','*.vhx') -Recurse -Force | Out-Null
+    robocopy "$OSMediaPath" "$WorkingPath" *.* /s /r:0 /w:0 /nfl /ndl /xf *.wim *.iso *.vhd *.vhx *.vhdx | Out-Null
     if (Test-Path "$WorkingPath\ISO") {Remove-Item -Path "$WorkingPath\ISO" -Force -Recurse | Out-Null}
     if (Test-Path "$WorkingPath\VHD") {Remove-Item -Path "$WorkingPath\VHD" -Force -Recurse | Out-Null}
-    Copy-Item -Path "$OSMediaPath\OS\sources\install.wim" -Destination "$WimTemp\install.wim" -Force | Out-Null
-    Copy-Item -Path "$OSMediaPath\WinPE\*.wim" -Destination "$WimTemp" -Exclude boot.wim -Force | Out-Null
+    #Copy-Item -Path "$OSMediaPath\OS\sources\install.wim" -Destination "$WimTemp\install.wim" -Force | Out-Null
+    robocopy "$OSMediaPath\OS\sources" "$WimTemp" install.wim /r:0 /w:0 /nfl /ndl | Out-Null
+    #Copy-Item -Path "$OSMediaPath\WinPE\*.wim" -Destination "$WimTemp" -Exclude boot.wim -Force | Out-Null
+    robocopy "$OSMediaPath\WinPE" "$WimTemp" *.wim /r:0 /w:0 /nfl /ndl /xf boot.wim | Out-Null
 }
 function Disable-WindowsOptionalFeatureOS {
     [CmdletBinding()]

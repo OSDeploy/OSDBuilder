@@ -30,7 +30,6 @@ function New-OSBuild {
         [switch]$CreateISO = $global:SetOSDBuilder.NewOSBuildCreateISO,
         
         #Use the OSMedia specified in the Task
-        [Parameter(ParameterSetName='Basic')]
         [switch]$DontUseNewestMedia = $global:SetOSDBuilder.NewOSBuildDontUseNewestMedia,
 
         #Automatically download the required updates if they are not present in the Content\OSDUpdate directory
