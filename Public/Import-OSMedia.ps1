@@ -356,10 +356,10 @@ function Import-OSMedia {
                 $global:OSMediaName = "$($GetWindowsImage.ImageName) $($GetWindowsImage.Architecture) $UBR $($GetWindowsImage.Languages)"
             }
 
-            $GetWindowsImage | Add-Member -Type NoteProperty -Name "CurrentBuild" -Value $RegValueCurrentBuild
-            $GetWindowsImage | Add-Member -Type NoteProperty -Name "ReleaseId" -Value $RegValueReleaseId
-            $GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR
-            $GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "CurrentBuild" -Value $RegValueCurrentBuild -Force
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "ReleaseId" -Value $RegValueReleaseId -Force
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR -Force
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid -Force
             #===================================================================================================
             #   Edit OSMediaName
             #===================================================================================================
