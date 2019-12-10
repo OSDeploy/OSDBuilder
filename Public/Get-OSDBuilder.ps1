@@ -63,7 +63,8 @@ function Get-OSDBuilder {
     #   OSDBuilder.Public*
     #===================================================================================================
     $global:GetOSDBuilder.PublicJson                = $null
-    $global:GetOSDBuilder.PublicJsonURL             = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
+    #$global:GetOSDBuilder.PublicJsonURL             = "https://raw.githubusercontent.com/OSDeploy/OSDBuilder.Public/master/OSDBuilder.json"
+    $global:GetOSDBuilder.PublicJsonURL             = "https://raw.githubusercontent.com/OSDeploy/OSD.Public/master/OSD.json"
     #===================================================================================================
     #   OSDBuilder.Version*
     #===================================================================================================
@@ -120,7 +121,7 @@ function Get-OSDBuilder {
     #===================================================================================================
     if (!($HideDetails.IsPresent)) {
         if ($null -eq $global:GetOSDBuilder.PublicJson) {
-            Write-Verbose "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) | OSDSUS $($global:GetOSDBuilder.VersionOSDSUS) | OFFLINE" -Verbose
+            Write-Verbose "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) | OSDSUS $($global:GetOSDBuilder.VersionOSDSUS) | OSD $($global:GetOSDBuilder.VersionOSD) | OFFLINE" -Verbose
         } else {
             if ($global:GetOSDBuilder.VersionOSDBuilder -ge $global:GetOSDBuilder.VersionOSDBuilderPublic) {
                 Write-Host "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) " -ForegroundColor Green -NoNewline
@@ -128,17 +129,16 @@ function Get-OSDBuilder {
                 Write-Host "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) " -ForegroundColor Yellow -NoNewline
             }
             Write-Host "| " -ForegroundColor White -NoNewline
-        
             if ($global:GetOSDBuilder.VersionOSDSUS -ge $global:GetOSDBuilder.VersionOSDSUSPublic) {
                 Write-Host "OSDSUS $($global:GetOSDBuilder.VersionOSDSUS) " -ForegroundColor Green -NoNewline
             } else {
                 Write-Host "OSDSUS $($global:GetOSDBuilder.VersionOSDSUS) " -ForegroundColor Yellow -NoNewline
             }
-            if (Get-IsContentPacksEnabled) {
-                Write-Host "| " -ForegroundColor White -NoNewline
-                Write-Host "#MMSJazz Ready" -ForegroundColor Magenta
+            Write-Host "| " -ForegroundColor White -NoNewline
+            if ($global:GetOSDBuilder.VersionOSD -ge $global:GetOSDBuilder.VersionOSDPublic) {
+                Write-Host "OSD $($global:GetOSDBuilder.VersionOSD) " -ForegroundColor Green
             } else {
-                Write-Host
+                Write-Host "OSD $($global:GetOSDBuilder.VersionOSD) " -ForegroundColor Yellow
             }
         }
     }
@@ -251,15 +251,27 @@ function Get-OSDBuilder {
                 Write-Host "Update-OSDSUS" -ForegroundColor Cyan
             }
 
+            if ($global:GetOSDBuilder.VersionOSD -gt $global:GetOSDBuilder.VersionOSDPublic) {
+                Write-Host
+                Write-Host "OSD Release Preview" -ForegroundColor Green
+                Write-Host "The current Public version is $($global:GetOSDBuilder.VersionOSDPublic)" -ForegroundColor DarkGray
+            } elseif ($global:GetOSDBuilder.VersionOSD -eq $global:GetOSDBuilder.VersionOSDPublic) {
+                #Write-Host "OSD is up to date" -ForegroundColor Green
+            } else {
+                Write-Host
+                Write-Warning "OSD can be updated to $($global:GetOSDBuilder.VersionOSDPublic)"
+                Write-Host "Update-Module OSD -Force" -ForegroundColor Cyan
+            }
+
             Write-Host ""
             Write-Host "Latest Updates:" -ForegroundColor Gray
-            foreach ($line in $global:GetOSDBuilder.PublicJson.LatestUpdates) {Write-Host $line -ForegroundColor DarkGray}
+            foreach ($line in $global:GetOSDBuilder.PublicJson.OSDBuilderUpdates) {Write-Host $line -ForegroundColor DarkGray}
             Write-Host ""
             Write-Host "Helpful Links:" -ForegroundColor Gray
-            foreach ($line in $global:GetOSDBuilder.PublicJson.HelpfulLinks) {Write-Host $line -ForegroundColor DarkGray}
+            foreach ($line in $global:GetOSDBuilder.PublicJson.OSDBuilderHelp) {Write-Host $line -ForegroundColor DarkGray}
             Write-Host ""
             Write-Host "New Links:" -ForegroundColor Gray
-            foreach ($line in $global:GetOSDBuilder.PublicJson.NewLinks) {Write-Host $line -ForegroundColor DarkGray}
+            foreach ($line in $global:GetOSDBuilder.PublicJson.OSDBuilderNew) {Write-Host $line -ForegroundColor DarkGray}
 
         }
         Show-OSDBuilderHomeTips
