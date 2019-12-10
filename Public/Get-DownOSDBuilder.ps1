@@ -24,27 +24,60 @@ function Get-DownOSDBuilder {
         [Parameter(ParameterSetName='OSDUpdate')]
         [switch]$Download,
 
-        #Downloads Feature Updates
+        #Skip Feature Updates GridView
+        #Be careful as this will automatically download
         [Parameter(ParameterSetName='FeatureUpdates')]
+        [switch]$SkipGridView,
+
+        #Downloads Feature Updates
+        [Parameter(ParameterSetName='FeatureUpdates',Mandatory = $True)]
         [switch]$FeatureUpdates,
+
+        #Feature Update Architecture
+        [Parameter(ParameterSetName = 'FeatureUpdates')]
+        [ValidateSet ('x64','x86')]
+        [string]$FeatureArch,
+
+        #Feature Update Build
+        [Parameter(ParameterSetName = 'FeatureUpdates')]
+        [ValidateSet (1809,1903,1909)]
+        [string]$FeatureBuild,
+
+        #Feature Update Edition
+        [Parameter(ParameterSetName = 'FeatureUpdates')]
+        [ValidateSet ('Business','Consumer')]
+        [string]$FeatureEdition,
+
+        #Feature Update Language
+        [Parameter(ParameterSetName = 'FeatureUpdates')]
+        [ValidateSet (
+            'ar-sa','bg-bg','cs-cz','da-dk','de-de','el-gr',
+            'en-gb','en-us','es-es','es-mx','et-ee','fi-fi',
+            'fr-ca','fr-fr','he-il','hr-hr','hu-hu','it-it',
+            'ja-jp','ko-kr','lt-lt','lv-lv','nb-no','nl-nl',
+            'pl-pl','pt-br','pt-pt','ro-ro','ru-ru','sk-sk',
+            'sl-si','sr-latn-rs','sv-se','th-th','tr-tr',
+            'uk-ua','zh-cn','zh-tw'
+        )]
+        [string[]]$FeatureLang,
 
         #Display the results in a GridView with PassThru enabled
         [Parameter(ParameterSetName='OSDUpdate')]
         [switch]$GridView,
         
         #Remove Superseded Updates that are no longer needed
-        [Parameter(ParameterSetName='OSDUpdateSuperseded', Mandatory=$True)]
+        [Parameter(ParameterSetName = 'OSDUpdateSuperseded', Mandatory = $True)]
         [ValidateSet ('List','Remove')]
         [string]$Superseded,
 
         #Filter Microsoft Updates for a specific OS Architecture
-        [Parameter(ParameterSetName='OSDUpdate')]
+        [Parameter(ParameterSetName = 'OSDUpdate')]
         [ValidateSet ('x64','x86')]
         [string]$UpdateArch,
 
         #Filter Microsoft Updates for a specific ReleaseId
         [Parameter(ParameterSetName='OSDUpdate')]
-        [ValidateSet (1909, 1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [ValidateSet (1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [Alias('ReleaseId')]
         [string]$UpdateBuild,
 
@@ -106,6 +139,16 @@ function Get-DownOSDBuilder {
             $FeatureUpdateDownloads = @()
             $FeatureUpdateDownloads = Get-FeatureUpdateDownloads
             #===================================================================================================
+            #   Filters
+            #===================================================================================================
+            if ($FeatureArch) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.UpdateArch -eq $FeatureArch}}
+            if ($FeatureBuild) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.UpdateBuild -eq $FeatureBuild}}
+            if ($FeatureEdition) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.Title -match $FeatureEdition}}
+            if ($FeatureLang) {
+                $regex = $FeatureLang.ForEach({ [RegEx]::Escape($_) }) -join '|'
+                $FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.Title -match $regex}
+            }
+            #===================================================================================================
             #   Select-Object
             #===================================================================================================
             $FeatureUpdateDownloads = $FeatureUpdateDownloads | Select-Object -Property OSDStatus, Title, UpdateOS,`
@@ -117,7 +160,9 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             #   Select Updates with GridView
             #===================================================================================================
-            $FeatureUpdateDownloads = $FeatureUpdateDownloads | Out-GridView -PassThru -Title 'Select ESD Files to Download and Build and press OK'
+            if (! ($SkipGridView.IsPresent)) {
+                $FeatureUpdateDownloads = $FeatureUpdateDownloads | Out-GridView -PassThru -Title 'Select ESD Files to Download and Build and press OK'
+            }
             #===================================================================================================
             #   Download Updates
             #===================================================================================================
@@ -132,41 +177,43 @@ function Get-DownOSDBuilder {
                     if ($WebClient.IsPresent) {							
                         $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
                     } else {
-                        Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath
+                        Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath -ErrorAction Stop
                     }
+                }
+
+                if (!(Test-Path $DownloadFullPath)) {
+                    Write-Warning "Could not complete download of $DownloadFullPath"
+                    Break
                 }
 
                 $esdbasename = (Get-Item "$DownloadFullPath").Basename
                 $esddirectory = Join-Path $SetOSDBuilderPathFeatureUpdates $esdbasename
 
-                if (Test-Path "$esddirectory") {
-                    Remove-Item "$esddirectory" -Force | Out-Null
-                }
-                
-                Try {
-                    $esdinfo = Get-WindowsImage -ImagePath "$DownloadFullPath"
-                }
-                Catch {
-                    Write-Warning "Could not get ESD information"
-                    Break
-                }
-                
-                Write-Host "Creating $esddirectory" -ForegroundColor Cyan
-                New-Item -Path "$esddirectory" -Force -ItemType Directory | Out-Null
-                
-                foreach ($image in $esdinfo) {
-                    if ($image.ImageName -eq 'Windows Setup Media') {
-                        Write-Host "Expanding Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
-                        Expand-WindowsImage -ImagePath "$($image.ImagePath)" -ApplyPath "$esddirectory" -Index "$($image.ImageIndex)" -ErrorAction SilentlyContinue | Out-Null
-                    } elseif ($image.ImageName -like "*Windows PE*") {
-                        Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
-                        Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
-                    } elseif ($image.ImageName -like "*Windows Setup*") {
-                        Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
-                        Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -Setbootable -ErrorAction SilentlyContinue | Out-Null
-                    } else {
-                        Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
-                        Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\install.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
+                if (Test-Path "$esddirectory\Sources\Install.wim") {
+                    Write-Verbose "Image already exists at $esddirectory\Sources\Install.wim" -Verbose
+                } else {
+                    Try {$esdinfo = Get-WindowsImage -ImagePath "$DownloadFullPath"}
+                    Catch {
+                        Write-Warning "Could not get ESD information"
+                        Break
+                    }
+                    Write-Host "Creating $esddirectory" -ForegroundColor Cyan
+                    New-Item -Path "$esddirectory" -Force -ItemType Directory | Out-Null
+                    
+                    foreach ($image in $esdinfo) {
+                        if ($image.ImageName -eq 'Windows Setup Media') {
+                            Write-Host "Expanding Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                            Expand-WindowsImage -ImagePath "$($image.ImagePath)" -ApplyPath "$esddirectory" -Index "$($image.ImageIndex)" -ErrorAction SilentlyContinue | Out-Null
+                        } elseif ($image.ImageName -like "*Windows PE*") {
+                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
+                        } elseif ($image.ImageName -like "*Windows Setup*") {
+                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\boot.wim" -CompressionType Max -Setbootable -ErrorAction SilentlyContinue | Out-Null
+                        } else {
+                            Write-Host "Exporting Index $($image.ImageIndex) $($image.ImageName) ..." -ForegroundColor Cyan
+                            Export-WindowsImage -SourceImagePath "$($image.ImagePath)" -SourceIndex $($image.ImageIndex) -DestinationImagePath "$esddirectory\sources\install.wim" -CompressionType Max -ErrorAction SilentlyContinue | Out-Null
+                        }
                     }
                 }
             }
@@ -250,16 +297,10 @@ function Get-DownOSDBuilder {
                 Break
             }
             #===================================================================================================
-            #   UpdateOS
+            #   Filters
             #===================================================================================================
             if ($UpdateOS) {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateOS -eq $UpdateOS}}
-            #===================================================================================================
-            #   UpdateArch
-            #===================================================================================================
             if ($UpdateArch) {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateArch -eq $UpdateArch}}
-            #===================================================================================================
-            #   UpdateBuild
-            #===================================================================================================
             if ($UpdateBuild) {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateBuild -eq $UpdateBuild}}
             #===================================================================================================
             #   UpdateGroup
