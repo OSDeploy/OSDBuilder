@@ -333,7 +333,7 @@ function New-OSBuildTask {
             }
         }
         $RemoveAppxProvisionedPackage = $null
-        if ($RemoveAppx.IsPresent) {
+        if ($RemoveAppx) {
             $RemoveAppxProvisionedPackage = (Get-TaskRemoveAppxProvisionedPackage).PackageName
             $RemoveAppxProvisionedPackage = [array]$RemoveAppxProvisionedPackage + [array]$ExistingTask.RemoveAppxProvisionedPackage
             $RemoveAppxProvisionedPackage = $RemoveAppxProvisionedPackage | Sort-Object -Unique
