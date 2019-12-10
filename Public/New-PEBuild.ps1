@@ -444,12 +444,12 @@ $MDTUnattendPEx86 = @'
                 #===================================================================================================
                 if ($PauseMount.IsPresent){[void](Read-Host 'Press Enter to Continue')}
                 #===================================================================================================
+                #   Get-RegCurrentVersion
+                #===================================================================================================
+                $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
+                #===================================================================================================
                 #   Get Registry and UBR
                 #===================================================================================================
-                reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
-                $RegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
-                reg UNLOAD 'HKLM\OSMedia' | Out-Null
-
                 $ReleaseId = $null
                 $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
                 $RegKeyCurrentVersionUBR = $($RegKeyCurrentVersion.UBR)
