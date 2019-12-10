@@ -320,9 +320,9 @@ function Import-OSMedia {
             $MountDirectory = Join-Path $global:SetOSDBuilderPathMount "os$((Get-Date).ToString('HHmmss'))"
             Mount-ImportOSMediaWim
             #===================================================================================================
-            #   Get-RegKeyCurrentVersion
+            #   Get-RegCurrentVersion
             #===================================================================================================
-            $GetRegKeyCurrentVersion = Get-RegKeyCurrentVersion -MountPath $MountDirectory
+            $GetRegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
             #===================================================================================================
             #   Set Additional Properties
             #===================================================================================================
