@@ -269,7 +269,7 @@ function Get-OSMedia {
         #===================================================================================================
         #   Revision
         #===================================================================================================
-        $OSMedia | Sort-Object OSMFamily, UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1} | foreach {$_.Revision = 'OK'}
+        $OSMedia | Sort-Object OSMFamily, MediaType, ModifiedTime, UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1} | foreach {$_.Revision = 'OK'}
         #===================================================================================================
         #   Filters
         #===================================================================================================
