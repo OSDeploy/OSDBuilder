@@ -58,7 +58,7 @@ function New-OSBuild {
         [Alias('PausePE')]
         [switch]$PauseDismountPE = $global:SetOSDBuilder.NewOSBuildPauseDismountPE,
 
-        #Add a ContentPack without creating a Task
+        #Add a ContentPack to Taskless OSBuild
         [Parameter(ParameterSetName='Taskless')]
         [switch]$SelectContentPacks = $global:SetOSDBuilder.NewOSBuildSelectContentPacks,
 
@@ -68,6 +68,7 @@ function New-OSBuild {
 
         #By default only the OSMedia that needs to be updated is displayed
         #This parameter includes the hidden OSMedia
+        [Parameter(ParameterSetName='Taskless')]
         [Alias('ShowAllOSMedia','Superseded')]
         [switch]$ShowHiddenOSMedia = $global:SetOSDBuilder.NewOSBuildShowHiddenOSMedia,
 
@@ -952,6 +953,7 @@ function New-OSBuild {
                 #===================================================================================================
                 #   Install.wim
                 #===================================================================================================
+                $global:ReapplyLCU = $false
                 Mount-InstallwimOS
                 Set-WinREWimOS
                 #===================================================================================================
@@ -959,9 +961,7 @@ function New-OSBuild {
                 #===================================================================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Mount Registry for UBR Information"
-                reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
-                $RegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
-                reg UNLOAD 'HKLM\OSMedia' | Out-Null
+                $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
                 if ($($RegKeyCurrentVersion.ReleaseId)) {$ReleaseId = $($RegKeyCurrentVersion.ReleaseId)}
                 if ($($RegKeyCurrentVersion.CurrentBuild)) {$RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)}
                 else {$RegValueCurrentBuild = $OSSPBuild}
@@ -1003,7 +1003,7 @@ function New-OSBuild {
                 #   Install.wim UBR Post-Update
                 #===================================================================================================
                 Show-ActionTime; Write-Host -ForegroundColor Green "OS: Update Build Revision $UBRPre (Pre-LCU)"
-                Update-CumulativeOS -Force
+                if ($global:ReapplyLCU -eq $true) {Update-CumulativeOS -Force} else {Update-CumulativeOS}
                 #===================================================================================================
                 #   Update-OSMedia
                 #===================================================================================================
@@ -1012,9 +1012,7 @@ function New-OSBuild {
                 #===================================================================================================
                 #   Install.wim UBR Post-Update
                 #===================================================================================================
-                reg LOAD 'HKLM\OSMedia' "$MountDirectory\Windows\System32\Config\SOFTWARE" | Out-Null
-                $RegKeyCurrentVersion = Get-ItemProperty -Path 'HKLM:\OSMedia\Microsoft\Windows NT\CurrentVersion'
-                reg UNLOAD 'HKLM\OSMedia' | Out-Null
+                $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
                 if ($($RegKeyCurrentVersion.ReleaseId)) {$ReleaseId = $($RegKeyCurrentVersion.ReleaseId)}
                 if ($($RegKeyCurrentVersion.CurrentBuild)) {$RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)}
                 else {$RegValueCurrentBuild = $OSSPBuild}
@@ -1075,6 +1073,7 @@ function New-OSBuild {
                 #===================================================================================================
                 #	DismCleanupImage
                 #===================================================================================================
+                if ($global:ReapplyLCU -eq $true) {Update-CumulativeOS -Force}
                 if ($HideCleanupProgress.IsPresent) {Invoke-DismCleanupImage -HideCleanupProgress} else {Invoke-DismCleanupImage}
                 #===================================================================================================
                 #   Content
