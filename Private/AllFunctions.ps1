@@ -5820,22 +5820,16 @@ function Update-AdobeOS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $OSDUpdateAdobeSU) {
-        $UpdateASU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateASU) {Continue}
-        if (!(Test-Path "$UpdateASU")) {Write-Warning "Not Found: $UpdateASU"; Continue}
-
-        if (!($Force.IsPresent)) {
-            $SessionsXmlInstall = "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
-            if (Test-Path $SessionsXmlInstall) {
-                [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
-                if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
-                }
+        $UpdateASU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateASU) {Write-Warning "Update-AdobeOS is Null"; Continue}
+        if (!(Test-Path "$UpdateASU")) {Write-Warning "Update-AdobeOS was not found"; Continue}
+        
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountDirectory -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
-            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -5877,14 +5871,16 @@ function Update-ComponentOS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $OSDUpdateComponentDU) {
-        $UpdateComp = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateComp) {Continue}
-        if (!(Test-Path "$UpdateComp")) {Write-Warning "Not Found: $UpdateComp"; Continue}
+        $UpdateComp = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateComp) {Write-Warning "Update-ComponentOS is Null"; Continue}
+        if (!(Test-Path "$UpdateComp")) {Write-Warning "Update-ComponentOS was not found"; Continue}
 
-        if (!($Force.IsPresent)) {
-            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountDirectory -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -5927,26 +5923,19 @@ function Update-CumulativeOS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $OSDUpdateLCU) {
-        $UpdateLCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateLCU) {Continue}
-        if (!(Test-Path "$UpdateLCU")) {Write-Warning "Not Found: $UpdateLCU"; Continue}
-
-        if ($Force.IsPresent) {
-            Write-Verbose "Forcing installation of CumulativeOS"
-        } else {
-            $SessionsXmlInstall = "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
-            if (Test-Path $SessionsXmlInstall) {
-                [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
-                if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
-                }
+        $UpdateLCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateLCU) {Write-Warning "Update-CumulativeOS is Null"; Continue}
+        if (!(Test-Path "$UpdateLCU")) {Write-Warning "Update-CumulativeOS was not found"; Continue}
+        
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountDirectory -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
         Write-Host -ForegroundColor Cyan "INSTALLING        " -NoNewline
         Write-Host -ForegroundColor Gray "$($Update.Title) - $($Update.FileName)"
-
+        
         $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-CumulativeOS-KB$($Update.FileKBNumber).log"
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
@@ -5984,19 +5973,16 @@ function Update-CumulativePE {
     }
 
     foreach ($Update in $OSDUpdateLCU) {
-        $UpdateLCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
+        $UpdateLCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateLCU) {Write-Warning "Update-CumulativePE is Null"; Continue}
+        if (!(Test-Path "$UpdateLCU")) {Write-Warning "Update-CumulativePE was not found"; Continue}
 
-        if ($null -eq $UpdateLCU) {Continue}
-        if (!(Test-Path "$UpdateLCU")) {Write-Warning "Not Found: $UpdateSSU"; Continue}
-
-        if ((! $Force.IsPresent) -or ($global:ReapplyLCU -eq $false)) {
-            $SessionsXmlInstall = "$MountWinPE\Windows\Servicing\Sessions\Sessions.xml"
-            if (Test-Path $SessionsXmlInstall) {
-                [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
-                if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
-                }
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountWinPE -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -6029,19 +6015,16 @@ function Update-CumulativePE {
     Show-ActionTime
     Write-Host -ForegroundColor Green "WinRE: (LCU) Latest Cumulative Update"
     foreach ($Update in $OSDUpdateLCU) {
-        $UpdateLCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
+        $UpdateLCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateLCU) {Write-Warning "Update-CumulativePE is Null"; Continue}
+        if (!(Test-Path "$UpdateLCU")) {Write-Warning "Update-CumulativePE was not found"; Continue}
 
-        if ($null -eq $UpdateLCU) {Continue}
-        if (!(Test-Path "$UpdateLCU")) {Write-Warning "Not Found: $UpdateSSU"; Continue}
-
-        if (!($Force.IsPresent)) {
-            $SessionsXmlInstall = "$MountWinRE\Windows\Servicing\Sessions\Sessions.xml"
-            if (Test-Path $SessionsXmlInstall) {
-                [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
-                if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
-                }
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountWinRE -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountWinRE" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -6076,19 +6059,16 @@ function Update-CumulativePE {
     
     if (($OSMajorVersion -eq 10) -and ($ReleaseId -ge 1903)) {Write-Warning 'Not adding LCU to WinSE to resolve Setup issues'; Return}
     foreach ($Update in $OSDUpdateLCU) {
-        $UpdateLCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
+        $UpdateLCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateLCU) {Write-Warning "Update-CumulativePE is Null"; Continue}
+        if (!(Test-Path "$UpdateLCU")) {Write-Warning "Update-CumulativePE was not found"; Continue}
 
-        if ($null -eq $UpdateLCU) {Continue}
-        if (!(Test-Path "$UpdateLCU")) {Write-Warning "Not Found: $UpdateSSU"; Continue}
-
-        if (!($Force.IsPresent)) {
-            $SessionsXmlInstall = "$MountWinSE\Windows\Servicing\Sessions\Sessions.xml"
-            if (Test-Path $SessionsXmlInstall) {
-                [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
-                if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
-                }
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountWinSE -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -6140,16 +6120,16 @@ function Update-DotNetOS {
     #===================================================================================================
     $OSDUpdateDotNet = $OSDUpdateDotNet | Sort-Object FileKBNumber
     foreach ($Update in $OSDUpdateDotNet | Where-Object {$_.UpdateGroup -eq 'DotNet'}) {
-        $UpdateNetCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateNetCU) {Continue}
-        if (!(Test-Path "$UpdateNetCU")) {Write-Warning "Not Found: $UpdateNetCU"; Continue}
+        $UpdateNetCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateNetCU) {Write-Warning "Update-DotNetOS is Null"; Continue}
+        if (!(Test-Path "$UpdateNetCU")) {Write-Warning "Update-DotNetOS was not found"; Continue}
         
-        $SessionsXmlInstall = "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
-        if (Test-Path $SessionsXmlInstall) {
-            [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
-            if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountDirectory -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
         
@@ -6174,18 +6154,16 @@ function Update-DotNetOS {
     #   Execute DotNetCU
     #===================================================================================================
     foreach ($Update in $OSDUpdateDotNet | Where-Object {$_.UpdateGroup -eq 'DotNetCU'}) {
-        $UpdateNetCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateNetCU) {Continue}
-        if (!(Test-Path "$UpdateNetCU")) {Write-Warning "Not Found: $UpdateNetCU"; Continue}
+        $UpdateNetCU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateNetCU) {Write-Warning "Update-DotNetOS is Null"; Continue}
+        if (!(Test-Path "$UpdateNetCU")) {Write-Warning "Update-DotNetOS was not found"; Continue}
         
-        if (!($Force.IsPresent)) {
-            $SessionsXmlInstall = "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
-            if (Test-Path $SessionsXmlInstall) {
-                [xml]$XmlDocument = Get-Content -Path $SessionsXmlInstall
-                if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
-                }
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountDirectory -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
         
@@ -6325,22 +6303,28 @@ function Update-OptionalOS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $OSDUpdateOptional) {
-        $UpdateOptional = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateOptional) {Continue}
-        if (!(Test-Path "$UpdateOptional")) {Write-Warning "Not Found: $UpdateOptional"; Continue}
+        $UpdateOptional = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateOptional) {Write-Warning "Update-OptionalOS is Null"; Continue}
+        if (!(Test-Path "$UpdateOptional")) {Write-Warning "Update-OptionalOS was not found"; Continue}
 
-        if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-            Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-        } else {
-            Write-Host -ForegroundColor Cyan "INSTALLING        " -NoNewline
-            Write-Host -ForegroundColor Gray "$($Update.Title) - $($Update.FileName)"
-            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OptionalOS-KB$($Update.FileKBNumber).log"
-            Write-Verbose "CurrentLog: $CurrentLog"
-            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateOptional" -LogPath "$CurrentLog" | Out-Null}
-            Catch {
-                if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
-                Write-Verbose "$CurrentLog" -Verbose
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountDirectory -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
+            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+        }
+
+        Write-Host -ForegroundColor Cyan "INSTALLING        " -NoNewline
+        Write-Host -ForegroundColor Gray "$($Update.Title) - $($Update.FileName)"
+
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OptionalOS-KB$($Update.FileKBNumber).log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateOptional" -LogPath "$CurrentLog" | Out-Null}
+        Catch {
+            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
+            Write-Verbose "$CurrentLog" -Verbose
         }
     }
 }
@@ -6370,14 +6354,16 @@ function Update-ServicingStackOS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $OSDUpdateSSU) {
-        $UpdateSSU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateSSU) {Continue}
-        if (!(Test-Path "$UpdateSSU")) {Write-Warning "Not Found: $UpdateSSU"; Continue}
+        $UpdateSSU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateSSU) {Write-Warning "Update-ServicingStackOS is Null"; Continue}
+        if (!(Test-Path "$UpdateSSU")) {Write-Warning "Update-ServicingStackOS was not found"; Continue}
 
-        if (!($Force.IsPresent)) {
-            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountDirectory -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -6422,14 +6408,16 @@ function Update-ServicingStackPE {
     }
 
     foreach ($Update in $OSDUpdateSSU) {
-        $UpdateSSU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateSSU) {Continue}
-        if (!(Test-Path "$UpdateSSU")) {Write-Warning "Not Found: $UpdateSSU"; Continue}
+        $UpdateSSU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateSSU) {Write-Warning "Update-ServicingStackPE is Null"; Continue}
+        if (!(Test-Path "$UpdateSSU")) {Write-Warning "Update-ServicingStackPE was not found"; Continue}
 
-        if (!($Force.IsPresent)) {
-            if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountWinPE -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountWinPE" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -6451,14 +6439,16 @@ function Update-ServicingStackPE {
     Show-ActionTime
     Write-Host -ForegroundColor Green "WinRE: (SSU) Servicing Stack Update"
     foreach ($Update in $OSDUpdateSSU) {
-        $UpdateSSU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateSSU) {Continue}
-        if (!(Test-Path "$UpdateSSU")) {Write-Warning "Not Found: $UpdateSSU"; Continue}
+        $UpdateSSU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateSSU) {Write-Warning "Update-ServicingStackPE is Null"; Continue}
+        if (!(Test-Path "$UpdateSSU")) {Write-Warning "Update-ServicingStackPE was not found"; Continue}
 
-        if (!($Force.IsPresent)) {
-            if (Get-WindowsPackage -Path "$MountWinRE" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountWinRE -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountWinRE" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -6481,14 +6471,16 @@ function Update-ServicingStackPE {
     Show-ActionTime
     Write-Host -ForegroundColor Green "WinSE: (SSU) Servicing Stack Update"
     foreach ($Update in $OSDUpdateSSU) {
-        $UpdateSSU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
-        if ($null -eq $UpdateSSU) {Continue}
-        if (!(Test-Path "$UpdateSSU")) {Write-Warning "Not Found: $UpdateSSU"; Continue}
+        $UpdateSSU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
+        if ($null -eq $UpdateSSU) {Write-Warning "Update-ServicingStackPE is Null"; Continue}
+        if (!(Test-Path "$UpdateSSU")) {Write-Warning "Update-ServicingStackPE was not found"; Continue}
 
-        if (!($Force.IsPresent)) {
-            if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+        if (! ($Force.IsPresent)) {
+            if (Get-SessionsXml -Path $MountWinSE -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
+            }
+            if (Get-WindowsPackage -Path "$MountWinSE" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -6527,7 +6519,7 @@ function Update-SetupDUMEDIA {
     #   Execute
     #===================================================================================================
     foreach ($Update in $OSDUpdateSetupDU) {
-        $UpdateSetupDU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
+        $UpdateSetupDU = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
         if ($null -eq $UpdateSetupDU) {Continue}
         if (!(Test-Path "$UpdateSetupDU")) {Write-Warning "Not Found: $UpdateSetupDU"; Continue}
 
@@ -6595,7 +6587,7 @@ function Update-WindowsServer2012R2OS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $OSDUpdateWinTwelveR2) {
-        $UpdateTwelveR2 = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName
+        $UpdateTwelveR2 = $(Get-ChildItem -Path "$SetOSDBuilderPathUpdates" -File -Recurse | Where-Object {($_.FullName -like "*$($Update.Title)*") -and ($_.Name -match "$($Update.FileName)")}).FullName | Select-Object -First 1
         $UpdateTwelveR2 = $UpdateTwelveR2 | Select-Object -First 1
         
         if ($null -eq $UpdateTwelveR2) {Continue}
@@ -6605,13 +6597,11 @@ function Update-WindowsServer2012R2OS {
         if (Test-Path $SessionsXmlInstall) {
             if ($null -eq $Update.FileKBNumber) {
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.KBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
+                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
                 }
             } else {
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
+                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
                 }
             }
         }
@@ -6624,13 +6614,11 @@ function Update-WindowsServer2012R2OS {
         if (Test-Path $SessionsXmlInstall) {
             if ($null -eq $Update.FileKBNumber) {
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.KBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
+                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
                 }
             } else {
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
+                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
                 }
             }
         }
@@ -6638,14 +6626,12 @@ function Update-WindowsServer2012R2OS {
         if ($null -eq $Update.FileKBNumber) {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-WindowsServer2012R2OS-KB$($Update.KBNumber).log"
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         } else {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-WindowsServer2012R2OS-KB$($Update.FileKBNumber).log"
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 
@@ -6692,13 +6678,11 @@ function Update-WindowsSevenOS {
         if (Test-Path $SessionsXmlInstall) {
             if ($null -eq $Update.FileKBNumber) {
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.KBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
+                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
                 }
             } else {
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
+                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
                 }
             }
         }
@@ -6711,13 +6695,11 @@ function Update-WindowsSevenOS {
         if (Test-Path $SessionsXmlInstall) {
             if ($null -eq $Update.FileKBNumber) {
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.KBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
+                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
                 }
             } else {
                 if ($XmlDocument.Sessions.Session.Tasks.Phase.package | Where-Object {$_.Name -like "*$($Update.FileKBNumber)*" -and $_.targetState -eq 'Installed'}) {
-                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                    Continue
+                    Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
                 }
             }
         }
@@ -6725,14 +6707,12 @@ function Update-WindowsSevenOS {
         if ($null -eq $Update.FileKBNumber) {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-WindowsSevenOS-KB$($Update.KBNumber).log"
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.KBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         } else {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-WindowsSevenOS-KB$($Update.FileKBNumber).log"
             if (Get-WindowsPackage -Path "$MountDirectory" | Where-Object {$_.PackageName -match "$($Update.FileKBNumber)"}) {
-                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"
-                Continue
+                Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $($Update.FileName)"; Continue
             }
         }
 

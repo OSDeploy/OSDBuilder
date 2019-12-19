@@ -835,7 +835,7 @@ function New-OSBuild {
             #===================================================================================================
             $OSDUpdateOptional = @()
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $OSMajorVersion -eq 10) {
-                $OSDUpdateOptional = $OSDUpdates | Where-Object {$_.UpdateGroup -eq ''}
+                $OSDUpdateOptional = $OSDUpdates | Where-Object {($_.UpdateGroup -eq '') -or ($_.UpdateGroup -eq 'Optional')}
                 $OSDUpdateOptional = $OSDUpdateOptional | Sort-Object -Property CreationDate
                 foreach ($Update in $OSDUpdateOptional) {
                     if ($Update.OSDStatus -eq 'Downloaded') {
