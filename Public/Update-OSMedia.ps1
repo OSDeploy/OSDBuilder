@@ -40,6 +40,22 @@ function Update-OSMedia {
         [Alias('GetDown')]
         [switch]$Download = $global:SetOSDBuilder.UpdateOSMediaDownload,
 
+        #Excludes the specified Update Group
+        #Separate multiple items with a comma -Exclude LCU,SSU
+        #Enclose Groups with spaces with a single quote -Exclude 'ComponentDU Critical',LCU
+        [ValidateSet(`
+            'AdobeSU',`
+            'ComponentDU',`
+            'ComponentDU Critical',`
+            'ComponentDU SafeOS',`
+            'DotNet',`
+            'DotNetCU',`
+            'LCU',
+            'SetupDU',`
+            'SSU'
+        )]
+        [string[]]$Exclude = $global:SetOSDBuilder.UpdateOSMediaExclude,
+
         #Executes Update-OSMedia
         #Without this parameter, Update-OSMedia is in Sandbox Mode where changes will not be made
         [Alias('Force')]
@@ -47,6 +63,22 @@ function Update-OSMedia {
 
         #Hides the Dism Cleanup-Image Progress
         [switch]$HideCleanupProgress = $global:SetOSDBuilder.UpdateOSMediaHideCleanupProgress,
+
+        #Includes the specified Update Group and excludes everything else
+        #Separate multiple items with a comma -Include LCU,SSU
+        #Enclose Groups with spaces with a single quote -Include 'ComponentDU Critical',LCU
+        [ValidateSet(`
+            'AdobeSU',`
+            'ComponentDU',`
+            'ComponentDU Critical',`
+            'ComponentDU SafeOS',`
+            'DotNet',`
+            'DotNetCU',`
+            'LCU',
+            'SetupDU',`
+            'SSU'
+        )]
+        [string[]]$Include = $global:SetOSDBuilder.UpdateOSMediaInclude,
 
         #Pauses the function the Install.wim is dismounted
         #Useful for Testing
@@ -71,37 +103,9 @@ function Update-OSMedia {
         #Useful for Testing
         [switch]$SkipUpdates = $global:SetOSDBuilder.UpdateOSMediaSkipUpdates,
 
-        #Excludes the specified Update Group
-        #Separate multiple items with a comma -Exclude LCU,SSU
-        #Enclose Groups with spaces with a single quote -Exclude 'ComponentDU Critical',LCU
-        [ValidateSet(`
-            'AdobeSU',`
-            'ComponentDU',`
-            'ComponentDU Critical',`
-            'ComponentDU SafeOS',`
-            'DotNet',`
-            'DotNetCU',`
-            'LCU',
-            'SetupDU',`
-            'SSU'
-        )]
-        [string[]]$Exclude = $global:SetOSDBuilder.UpdateOSMediaExclude,
-
-        #Includes the specified Update Group and excludes everything else
-        #Separate multiple items with a comma -Include LCU,SSU
-        #Enclose Groups with spaces with a single quote -Include 'ComponentDU Critical',LCU
-        [ValidateSet(`
-            'AdobeSU',`
-            'ComponentDU',`
-            'ComponentDU Critical',`
-            'ComponentDU SafeOS',`
-            'DotNet',`
-            'DotNetCU',`
-            'LCU',
-            'SetupDU',`
-            'SSU'
-        )]
-        [string[]]$Include = $global:SetOSDBuilder.UpdateOSMediaInclude,
+        #Skip applying updates in WinPE
+        #Useful for Testing
+        [switch]$SkipUpdatesPE = $global:SetOSDBuilder.UpdateOSMediaSkipUpdatesPE,
 
         #Skips DISM /Cleanup-Image /StartComponentCleanup /ResetBase
         #Images created for Citrix PVS require this parameter
@@ -558,10 +562,10 @@ function Update-OSMedia {
             Write-Verbose '19.1.1 WorkingName and WorkingPath'
             #===================================================================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
-                $WorkingName = "build$((Get-Date).ToString('mmss'))"
+                $WorkingName = "build$((Get-Date).ToString('yyMMddhhmm'))"
                 $WorkingPath = "$SetOSDBuilderPathOSBuilds\$WorkingName"
             } else {
-                $WorkingName = "build$((Get-Date).ToString('mmss'))"
+                $WorkingName = "build$((Get-Date).ToString('yyMMddhhmm'))"
                 $WorkingPath = "$SetOSDBuilderPathOSMedia\$WorkingName"
             }
             #===================================================================================================
@@ -827,10 +831,10 @@ function Update-OSMedia {
                 #===================================================================================================
                 Write-Verbose '19.2.25 Set Variables'
                 #===================================================================================================
-                $MountDirectory = Join-Path $SetOSDBuilderPathMount "os$((Get-Date).ToString('mmss'))"
-                $MountWinPE = Join-Path $SetOSDBuilderPathMount "winpe$((Get-Date).ToString('mmss'))"
-                $MountWinRE = Join-Path $SetOSDBuilderPathMount "winre$((Get-Date).ToString('mmss'))"
-                $MountWinSE = Join-Path $SetOSDBuilderPathMount "setup$((Get-Date).ToString('mmss'))"
+                $MountDirectory = Join-Path $SetOSDBuilderPathMount "os$((Get-Date).ToString('yyMMddhhmm'))"
+                $MountWinPE = Join-Path $SetOSDBuilderPathMount "winpe$((Get-Date).ToString('yyMMddhhmm'))"
+                $MountWinRE = Join-Path $SetOSDBuilderPathMount "winre$((Get-Date).ToString('yyMMddhhmm'))"
+                $MountWinSE = Join-Path $SetOSDBuilderPathMount "setup$((Get-Date).ToString('yyMMddhhmm'))"
                 $Info = Join-Path $WorkingPath 'info'
                     $Logs = Join-Path $Info 'logs'
                 $OS = Join-Path $WorkingPath 'OS'
@@ -1104,7 +1108,7 @@ function Update-OSMedia {
                 }
                 if (!($UBR)) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    $UBR = $((Get-Date).ToString('mmss'))
+                    $UBR = $((Get-Date).ToString('yyMMddhhmm'))
                     Write-Warning 'Could not determine a UBR'
                 }
 
@@ -1170,12 +1174,12 @@ function Update-OSMedia {
                 Write-Verbose '19.1.1 Rename Build Directory'
                 #===================================================================================================
                 if (Test-Path $NewOSMediaPath) {
-                    $mmss = $((Get-Date).ToString('mmss'))
+                    $yyMMddhhmm = $((Get-Date).ToString('yyMMddhhmm'))
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Warning 'Trying to rename the Build directory, but it already exists'
-                    Write-Warning "Appending $mmss to the directory Name"
+                    Write-Warning "Appending $yyMMddhhmm to the directory Name"
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    $NewOSMediaName = "$NewOSMediaName $mmss"
+                    $NewOSMediaName = "$NewOSMediaName $yyMMddhhmm"
                     $NewOSMediaPath = "$SetOSDBuilderPathOSMedia\$NewOSMediaName"
                 }
                 #===================================================================================================

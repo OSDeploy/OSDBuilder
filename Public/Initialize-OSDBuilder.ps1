@@ -93,8 +93,10 @@ function Initialize-OSDBuilder {
         NewOSBuildCreateISO = $false
         NewOSBuildDontUseNewestMedia = $false
         NewOSBuildDownload = $false
+        NewOSBuildExclude = $null
         NewOSBuildExecute = $false
         NewOSBuildEnableNetFX = $false
+        NewOSBuildInclude = $null
         NewOSBuildHideCleanupProgress = $false
         NewOSBuildPauseDismountOS = $false
         NewOSBuildPauseDismountPE = $false
@@ -145,8 +147,8 @@ function Initialize-OSDBuilder {
         #Update-OSMedia
         UpdateOSMediaCreateISO = $false
         UpdateOSMediaDownload = $false
-        UpdateOSMediaExecute = $false
         UpdateOSMediaExclude = $null
+        UpdateOSMediaExecute = $false
         UpdateOSMediaHideCleanupProgress = $false
         UpdateOSMediaInclude = $null
         UpdateOSMediaName = $null
@@ -156,6 +158,7 @@ function Initialize-OSDBuilder {
         UpdateOSMediaShowHiddenOSMedia = $false
         UpdateOSMediaSkipComponentCleanup = $false
         UpdateOSMediaSkipUpdates = $false
+        UpdateOSMediaSkipUpdatesPE = $false
     }
     #===================================================================================================
     #   Import Local JSON
