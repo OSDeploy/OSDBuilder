@@ -293,7 +293,7 @@ function Get-OSMedia {
             Languages,EditionId,InstallationType,`
             ImageName,OSMFamily,`
             FullName,CreatedTime,OSMGuid | `
-            Sort-Object Name | Out-GridView -PassThru -Title 'OSMedia'
+            Sort-Object -Property Name | Out-GridView -PassThru -Title 'OSMedia'
         } else {
             $OSMedia = $OSMedia | Select-Object MediaType,ModifiedTime,`
             Revision,Updates,`

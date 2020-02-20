@@ -861,7 +861,7 @@ function New-OSBuild {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 $ScriptName = $($MyInvocation.MyCommand.Name)
                 $LogName = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-$ScriptName.log"
-                Start-Transcript -Path (Join-Path "$Info\logs" $LogName)
+                Start-Transcript -Path (Join-Path "$Info\logs" $LogName) | Out-Null
                 #===================================================================================================
                 #   Update-OSMedia and New-OSBuild
                 #===================================================================================================
@@ -1182,9 +1182,8 @@ function New-OSBuild {
                 
                 if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {$NewOSMediaPath = "$SetOSDBuilderPathOSMedia\$NewOSMediaName"}
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {$NewOSMediaPath = "$SetOSDBuilderPathOSBuilds\$NewOSMediaName"}
-
                 #===================================================================================================
-                Write-Verbose '19.1.1 Rename Build Directory'
+                #   19.1.1 Rename Build Directory
                 #===================================================================================================
                 if (Test-Path $NewOSMediaPath) {
                     $yyMMddhhmm = $((Get-Date).ToString('yyMMddhhmm'))
@@ -1193,7 +1192,9 @@ function New-OSBuild {
                     Write-Warning "Appending $yyMMddhhmm to the directory Name"
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     $NewOSMediaName = "$NewOSMediaName $yyMMddhhmm"
-                    $NewOSMediaPath = "$SetOSDBuilderPathOSMedia\$NewOSMediaName"
+
+                    if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {$NewOSMediaPath = "$SetOSDBuilderPathOSMedia\$NewOSMediaName"}
+                    if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {$NewOSMediaPath = "$SetOSDBuilderPathOSBuilds\$NewOSMediaName"}
                 }
                 #===================================================================================================
                 #   OSD-Export
@@ -1209,13 +1210,10 @@ function New-OSBuild {
                 #===================================================================================================
                 #   Complete Update
                 #===================================================================================================
-				#===================================================================================================
-				#   Header
-				#===================================================================================================
 				Show-ActionTime
 				Write-Host -ForegroundColor Green "Media: Renaming ""$WorkingPath"" to ""$NewOSMediaName"""
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Stop-Transcript
+                Stop-Transcript | Out-Null
                 try {
                     Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName"
                 }
@@ -1228,10 +1226,14 @@ function New-OSBuild {
                         Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName"
                     }
                     catch {
-                        Write-Warning "Could not rename the the Build directory ... Existing"
-                        Exit
+                        Write-Warning "Could not rename the the Build directory ..."
                     }
                 }
+<#                 if (Test-Path "$NewOSMediaPath") {
+                    Return (Get-OSMedia | Where-Object {$_.FullName -eq $NewOSMediaPath})
+                } else {
+                    Return (Get-OSMedia | Where-Object {$_.FullName -eq $WorkingPath})
+                } #>
             }
         }
     }

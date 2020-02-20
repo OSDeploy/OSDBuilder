@@ -12,7 +12,34 @@ function Get-OSBuilds {
     [CmdletBinding()]
     Param (
         #Displays results in GridView with PassThru
-        [switch]$GridView
+        [switch]$GridView,
+        
+        #Filter the OSBuild by OS Architecture
+        [ValidateSet('x64','x86')]
+        [string]$OSArch,
+        
+        #Returns the latest OSBuild
+        [switch]$Newest,
+
+        #Filter the OSBuild by OS Installation Type
+        [ValidateSet('Client','Server')]
+        [string]$OSInstallationType,
+
+        #Filter the OSBuild by OS Major Version
+        [ValidateSet(6,10)]
+        [string]$OSMajorVersion,
+
+        #Filter the OSBuild by OS Release Id
+        [ValidateSet (1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [string]$OSReleaseId,
+        
+        #Filter the OSBuild by Image Revision
+        [ValidateSet('OK','Superseded')]
+        [string]$Revision,
+
+        #Filter the OSBuild by Update status
+        [ValidateSet('OK','Update')]
+        [string]$Updates
     )
 
     Begin {
@@ -180,7 +207,7 @@ function Get-OSBuilds {
                 MediaType           = 'OSBuild'
                 ModifiedTime        = [datetime]$XmlWindowsImage.ModifiedTime
                 Name                = $Item.Name
-
+                Revision            = 'Superseded'
                 Updates             = $OSMUpdateStatus
                 OSMFamily           = $OSMFamily
                 ImageName           = $OSMImageName
@@ -213,11 +240,26 @@ function Get-OSBuilds {
             Repair-GetOSBuildsWinSE						
         }
         #===================================================================================================
+        #   Revision
+        #===================================================================================================
+        $OSBuilds | Sort-Object OSMFamily, MediaType, ModifiedTime, UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1} | foreach {$_.Revision = 'OK'}
+        #===================================================================================================
+        #   Filters
+        #===================================================================================================
+        if ($OSArch) {$OSBuilds = $OSBuilds | Where-Object {$_.Arch -eq $OSArch}}
+        if ($OSReleaseId) {$OSBuilds = $OSBuilds | Where-Object {$_.ReleaseId-eq $OSReleaseId}}
+        if ($OSInstallationType -eq 'Client') {$OSBuilds = $OSBuilds | Where-Object {$_.InstallationType -notlike "*Server*"}}
+        if ($OSInstallationType -eq 'Server') {$OSBuilds = $OSBuilds | Where-Object {$_.InstallationType -like "*Server*"}}
+        if ($OSMajorVersion) {$OSBuilds = $OSBuilds | Where-Object {$_.MajorVersion -eq $OSMajorVersion}}
+        if ($Revision) {$OSBuilds = $OSBuilds | Where-Object {$_.Revision -eq $Revision}}
+        if ($Updates) {$OSBuilds = $OSBuilds | Where-Object {$_.Updates -eq $Updates}}
+        if ($Newest.IsPresent) {$OSBuilds = $OSBuilds | Sort-Object ModifiedTime -Descending | Select-Object -First 1}
+        #===================================================================================================
         #   Results
         #===================================================================================================
         if ($GridView.IsPresent) {
             $OSBuilds = $OSBuilds | Select-Object MediaType,ModifiedTime,`
-            Updates,`
+            Revision,Updates,`
             Name,OperatingSystem,Arch,`
             ReleaseId,RegBuild,UBR,`
             Version,MajorVersion,MinorVersion,Build,`
@@ -227,7 +269,7 @@ function Get-OSBuilds {
             Sort-Object -Property Name | Out-GridView -PassThru -Title 'OSBuilds'
         } else {
             $OSBuilds = $OSBuilds | Select-Object MediaType,ModifiedTime,`
-            Updates,`
+            Revision,Updates,`
             Name,OperatingSystem,Arch,`
             ReleaseId,RegBuild,UBR,`
             Version,MajorVersion,MinorVersion,Build,`
