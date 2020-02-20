@@ -146,7 +146,9 @@ function Initialize-OSDBuilder {
         UpdateOSMediaCreateISO = $false
         UpdateOSMediaDownload = $false
         UpdateOSMediaExecute = $false
+        UpdateOSMediaExclude = $null
         UpdateOSMediaHideCleanupProgress = $false
+        UpdateOSMediaInclude = $null
         UpdateOSMediaName = $null
         UpdateOSMediaPauseDismountOS = $false
         UpdateOSMediaPauseDismountPE = $false

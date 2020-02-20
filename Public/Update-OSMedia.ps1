@@ -71,6 +71,38 @@ function Update-OSMedia {
         #Useful for Testing
         [switch]$SkipUpdates = $global:SetOSDBuilder.UpdateOSMediaSkipUpdates,
 
+        #Excludes the specified Update Group
+        #Separate multiple items with a comma -Exclude LCU,SSU
+        #Enclose Groups with spaces with a single quote -Exclude 'ComponentDU Critical',LCU
+        [ValidateSet(`
+            'AdobeSU',`
+            'ComponentDU',`
+            'ComponentDU Critical',`
+            'ComponentDU SafeOS',`
+            'DotNet',`
+            'DotNetCU',`
+            'LCU',
+            'SetupDU',`
+            'SSU'
+        )]
+        [string[]]$Exclude = $global:SetOSDBuilder.UpdateOSMediaExclude,
+
+        #Includes the specified Update Group and excludes everything else
+        #Separate multiple items with a comma -Include LCU,SSU
+        #Enclose Groups with spaces with a single quote -Include 'ComponentDU Critical',LCU
+        [ValidateSet(`
+            'AdobeSU',`
+            'ComponentDU',`
+            'ComponentDU Critical',`
+            'ComponentDU SafeOS',`
+            'DotNet',`
+            'DotNetCU',`
+            'LCU',
+            'SetupDU',`
+            'SSU'
+        )]
+        [string[]]$Include = $global:SetOSDBuilder.UpdateOSMediaInclude,
+
         #Skips DISM /Cleanup-Image /StartComponentCleanup /ResetBase
         #Images created for Citrix PVS require this parameter
         #Useful for testing to reduce the time
@@ -609,10 +641,7 @@ function Update-OSMedia {
                 }
             }
             #===================================================================================================
-            #   Operating System Updates
-            #===================================================================================================
-            Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Host "Operating System Updates" -ForegroundColor Green
+            #   OSDSUS (Microsoft Updates)
             #===================================================================================================
             #   OSDUpdates
             #===================================================================================================
@@ -621,130 +650,115 @@ function Update-OSMedia {
             $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateArch -eq $OSArchitecture}
             $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateOS -eq $UpdateOS}
             $OSDUpdates = $OSDUpdates | Where-Object {($_.UpdateBuild -eq $ReleaseId) -or ($_.UpdateBuild -eq '')}
+            $OSDUpdates = $OSDUpdates | Sort-Object -Property CreationDate
+            #===================================================================================================
+            #   Update Filters
+            #===================================================================================================
             if ($OSInstallationType -match 'Core'){$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'AdobeSU'}}
+            if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia' -and $OSMajorVersion -eq 10) {
+                $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne ''}
+                $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'Optional'}
+            }
+            #===================================================================================================
+            #   Include Exclude
+            #===================================================================================================
+            if ($Include) {
+                $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -in $Include}
+            }
+            if ($Exclude) {
+                $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -notin $Exclude}
+            }
+            #===================================================================================================
+            #   SelectUpdates
+            #===================================================================================================
             if ($SelectUpdates.IsPresent) {$OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Apply and press OK'}
             $MissingUpdate = $false
             #===================================================================================================
-            #   OSDBuilder 10 Setup Updates
+            #   Updates Downloaded and Not Downloaded
+            #===================================================================================================
+            $UpdatesDownloaded = @()
+            $UpdatesDownloaded = $OSDUpdates | Where-Object {$_.OSDStatus -eq 'Downloaded'} | Sort-Object CreationDate
+            if ($UpdatesDownloaded) {
+                Write-Host '========================================================================================' -ForegroundColor DarkGray
+                Write-Host "OSDSUS (Microsoft Updates) Downloaded" -ForegroundColor Green
+                foreach ($Update in $UpdatesDownloaded) {
+                    Write-Host "$($Update.CreationDate) - " -NoNewline
+                    Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
+                    Write-Host "$($Update.Title)"
+                }
+            }
+            $UpdatesNotDownloaded = @()
+            $UpdatesNotDownloaded = $OSDUpdates | Where-Object {$_.OSDStatus -ne 'Downloaded'}
+
+            #OSBuild does not automatically download Optional Updates for Windows 10
+            if ($OSMajorVersion -eq 10) {$UpdatesNotDownloaded = $UpdatesNotDownloaded | Where-Object {$_.UpdateGroup -ne ''} | Where-Object {$_.UpdateGroup -ne 'Optional'}}
+
+            $UpdatesNotDownloadedOptional = @()
+            $UpdatesNotDownloadedOptional = $OSDUpdates | Where-Object {$_.OSDStatus -ne 'Downloaded'} | Where-Object {$_.UpdateGroup -eq 'Optional'}
+
+            if ($UpdatesNotDownloaded -or $UpdatesNotDownloadedOptional) {
+                Write-Host '========================================================================================' -ForegroundColor DarkGray
+                Write-Host "OSDSUS (Microsoft Updates) Not Downloaded" -ForegroundColor Yellow
+                foreach ($Update in $UpdatesNotDownloaded) {
+                    Write-Host "$($Update.CreationDate) - " -NoNewline
+                    Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
+                    Write-Host "$($Update.Title)"
+                }
+                foreach ($Update in $UpdatesNotDownloadedOptional) {
+                    Write-Host "$($Update.CreationDate) - " -NoNewline
+                    Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
+                    Write-Host "$($Update.Title)"
+                }
+                if ($Download.IsPresent) {
+                    Write-Host '========================================================================================' -ForegroundColor DarkGray
+                    Write-Host "OSDSUS (Microsoft Updates) Download" -ForegroundColor Green
+                    if ($UpdatesNotDownloadedOptional){
+                        Write-Host "Optional Updates are not automatically downloaded.  Use the following command:" -ForegroundColor Yellow
+                        Write-Host "Get-DownOSDBuilder -UpdateOS $UpdateOS -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
+                    }
+                    foreach ($Update in $UpdatesNotDownloaded) {
+                        Write-Host "$($Update.CreationDate) - $($Update.UpdateGroup) - $($Update.Title)" -ForegroundColor Cyan
+                        Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
+                    }
+                } else {
+                    $Execute = $false
+                    $MissingUpdate = $true
+                }
+
+            }
+            #===================================================================================================
+            #   SetupDU
             #===================================================================================================
             $OSDUpdateSetupDU = @()
             $OSDUpdateSetupDU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'SetupDU'}
-            $OSDUpdateSetupDU = $OSDUpdateSetupDU | Sort-Object -Property CreationDate
-            foreach ($Update in $OSDUpdateSetupDU) {
-                if ($Update.OSDStatus -eq 'Downloaded') {
-                    Write-Host "Ready       SetupDU         $($Update.Title)"
-                } else {
-                    if ($Download.IsPresent) {
-                        Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                    } else {
-                        Write-Host "Missing     SetupDU         $($Update.Title)" -ForegroundColor Yellow
-                        $Execute = $false
-                        $MissingUpdate = $true
-                    }
-                }
-            }
             #===================================================================================================
-            #   OSDBuilder 10 Component Updates
+            #   ComponentDU
             #===================================================================================================
             $OSDUpdateComponentDU = @()
             $OSDUpdateComponentDU = $OSDUpdates | Where-Object {$_.UpdateGroup -like "ComponentDU*"}
-            $OSDUpdateComponentDU = $OSDUpdateComponentDU | Sort-Object -Property CreationDate
-            foreach ($Update in $OSDUpdateComponentDU) {
-                if ($Update.OSDStatus -eq 'Downloaded') {
-                    Write-Host "Ready       ComponentDU     $($Update.Title)"
-                } else {
-                    if ($Download.IsPresent) {
-                        Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                    } else {
-                        Write-Host "Missing     ComponentDU     $($Update.Title)" -ForegroundColor Yellow
-                        $Execute = $false
-                        $MissingUpdate = $true
-                    }
-                }
-            }
             #===================================================================================================
-            #   OSDBuilder Servicing Stack Update
+            #   SSU
             #===================================================================================================
             $OSDUpdateSSU = @()
             $OSDUpdateSSU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'SSU'}
-            $OSDUpdateSSU = $OSDUpdateSSU | Sort-Object -Property CreationDate
-            #if ($OSMajorVersion -eq 10) {
-                foreach ($Update in $OSDUpdateSSU) {
-                    if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       Servicing       $($Update.Title)"
-                    } else {
-                        if ($Download.IsPresent) {
-                            Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                        } else {
-                            Write-Host "Missing     Servicing       $($Update.Title)" -ForegroundColor Yellow
-                            $Execute = $false
-                            $MissingUpdate = $true
-                        }
-                    }
-                }
-            #}
             #===================================================================================================
-            #   OSDBuilder Latest Cumulative Update
+            #   LCU
             #===================================================================================================
             $OSDUpdateLCU = @()
-            #if ($OSMajorVersion -eq 10) {
-                $OSDUpdateLCU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'LCU'}
-                $OSDUpdateLCU = $OSDUpdateLCU | Sort-Object -Property CreationDate
-                foreach ($Update in $OSDUpdateLCU) {
-                    if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       Cumulative      $($Update.Title)"
-                    } else {
-                        if ($Download.IsPresent) {
-                            Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                        } else {
-                            Write-Host "Missing     Cumulative      $($Update.Title)" -ForegroundColor Yellow
-                            $Execute = $false
-                            $MissingUpdate = $true
-                        }
-                    }
-                }
-            #}
+            $OSDUpdateLCU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'LCU'}
             #===================================================================================================
-            #   OSDBuilder 10 Adobe
+            #   AdobeSU
             #===================================================================================================
             $OSDUpdateAdobeSU = @()
             if ($OSMajorVersion -eq 10) {
                 $OSDUpdateAdobeSU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'AdobeSU'}
-                $OSDUpdateAdobeSU = $OSDUpdateAdobeSU | Sort-Object -Property CreationDate
-                foreach ($Update in $OSDUpdateAdobeSU) {
-                    if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       AdobeSU         $($Update.Title)"
-                    } else {
-                        if ($Download.IsPresent) {
-                            Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                        } else {
-                            Write-Host "Missing     AdobeSU         $($Update.Title)" -ForegroundColor Yellow
-                            $Execute = $false
-                            $MissingUpdate = $true
-                        }
-                    }
-                }
             }
             #===================================================================================================
-            #   OSDBuilder 10 DotNet
+            #   DotNet
             #===================================================================================================
             $OSDUpdateDotNet = @()
             if ($OSMajorVersion -eq 10) {
                 $OSDUpdateDotNet = $OSDUpdates | Where-Object {$_.UpdateGroup -like "DotNet*"}
-                $OSDUpdateDotNet = $OSDUpdateDotNet | Sort-Object -Property CreationDate
-                foreach ($Update in $OSDUpdateDotNet) {
-                    if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       DotNet          $($Update.Title)"
-                    } else {
-                        if ($Download.IsPresent) {
-                            Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                        } else {
-                            Write-Host "Missing     DotNet          $($Update.Title)" -ForegroundColor Yellow
-                            $Execute = $false
-                            $MissingUpdate = $true
-                        }
-                    }
-                }
             }
             #===================================================================================================
             #   OSDBuilder Seven
@@ -752,22 +766,6 @@ function Update-OSMedia {
             $OSDUpdateWinSeven = @()
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia' -and $UpdateOS -eq 'Windows 7') {
                 $OSDUpdateWinSeven = $OSDUpdates
-                $OSDUpdateWinSeven = $OSDUpdateWinSeven | Sort-Object -Property CreationDate
-                foreach ($Update in $OSDUpdateWinSeven) {
-                    if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       Seven           $($Update.Title)"
-                    } else {
-                        if ($Download.IsPresent -and $_.UpdateGroup -ne 'Optional') {
-                            Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                        } else {
-                            Write-Host "Missing     Seven       $($Update.Title)" -ForegroundColor Yellow
-                            if ($_.UpdateGroup -ne 'Optional') {
-                                $Execute = $false
-                                $MissingUpdate = $true
-                            }
-                        }
-                    }
-                }
             }
             #===================================================================================================
             #   OSDBuilder EightOne
@@ -777,19 +775,6 @@ function Update-OSMedia {
                 $OSDUpdateWinEightOne = $OSDUpdates
                 $OSDUpdateWinEightOne = $OSDUpdateWinEightOne | Where-Object {$_.UpdateGroup -ne 'SetupDU'}
                 $OSDUpdateWinEightOne = $OSDUpdateWinEightOne | Where-Object {$_.UpdateGroup -notlike "ComponentDU*"}
-                $OSDUpdateWinEightOne = $OSDUpdateWinEightOne | Sort-Object -Property CreationDate
-                foreach ($Update in $OSDUpdateWinEightOne) {
-                    if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       EightOne        $($Update.Title)"
-                    } else {
-                        if ($Download.IsPresent -and $_.UpdateGroup -ne 'Optional') {
-                            Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                        } else {
-                            Write-Host "Missing     EightOne        $($Update.Title)" -ForegroundColor Yellow
-                            if ($_.UpdateGroup -ne 'Optional') {$Execute = $false}
-                        }
-                    }
-                }
             }
             #===================================================================================================
             #   OSDBuilder Twelve
@@ -799,34 +784,13 @@ function Update-OSMedia {
                 $OSDUpdateWinTwelveR2 = $OSDUpdates
                 $OSDUpdateWinTwelveR2 = $OSDUpdateWinTwelveR2 | Where-Object {$_.UpdateGroup -ne 'SetupDU'}
                 $OSDUpdateWinTwelveR2 = $OSDUpdateWinTwelveR2 | Where-Object {$_.UpdateGroup -notlike "ComponentDU*"}
-                $OSDUpdateWinTwelveR2 = $OSDUpdateWinTwelveR2 | Sort-Object -Property CreationDate
-                foreach ($Update in $OSDUpdateWinTwelveR2) {
-                    if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       TwelveR2        $($Update.Title)"
-                    } else {
-                        if ($Download.IsPresent -and $_.UpdateGroup -ne 'Optional') {
-                            Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
-                        } else {
-                            Write-Host "Missing     TwelveR2        $($Update.Title)" -ForegroundColor Yellow
-                            if ($_.UpdateGroup -ne 'Optional') {$Execute = $false}
-                        }
-                    }
-                }
             }
             #===================================================================================================
-            #   OSDBuilder Optional
+            #   Optional
             #===================================================================================================
             $OSDUpdateOptional = @()
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $OSMajorVersion -eq 10) {
                 $OSDUpdateOptional = $OSDUpdates | Where-Object {($_.UpdateGroup -eq '') -or ($_.UpdateGroup -eq 'Optional')}
-                $OSDUpdateOptional = $OSDUpdateOptional | Sort-Object -Property CreationDate
-                foreach ($Update in $OSDUpdateOptional) {
-                    if ($Update.OSDStatus -eq 'Downloaded') {
-                        Write-Host "Ready       Optional        $($Update.Title)"
-                    } else {
-                        Write-Host "Missing     Optional        $($Update.Title)" -ForegroundColor Yellow
-                    }
-                }
             }
             #===================================================================================================
             #   Update Check
@@ -834,7 +798,7 @@ function Update-OSMedia {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $LatestOSMedia) {
                 if ($LatestOSMedia.Updates -ne 'OK') {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Warning "This OSMedia does not have the latest Microsoft Updates"
+                    Write-Warning "This OSMedia does not have the latest OSDSUS (Microsoft Updates)"
                     Write-Warning "Use the following command before running New-OSBuild"
                     Write-Warning "Update-OSMedia -Name `'$OSMediaName`' -Download -Execute"
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -844,9 +808,12 @@ function Update-OSMedia {
             #   Execution Check
             #===================================================================================================
             if ($MissingUpdate -eq $true) {
-                Write-Warning "Execution is currently disabled because one or more updates are missing"
+                Write-Host '========================================================================================' -ForegroundColor DarkGray
+                Write-Warning "Execute is currently disabled as all Updates have not been downloaded"
+                Write-Warning "You can automatically download required Updates by adding the -Download parameter"
             } elseif ($Execute -eq $false) {
-                Write-Warning "Execution is disabled without the -Execute parameter"
+                Write-Host '========================================================================================' -ForegroundColor DarkGray
+                Write-Warning "Use the -Execute parameter to complete this task"
             }
             #===================================================================================================
             if ($Execute.IsPresent) {

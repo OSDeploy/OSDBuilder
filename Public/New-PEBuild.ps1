@@ -474,19 +474,15 @@ $MDTUnattendPEx86 = @'
                     Add-ContentPack -PackType PEDaRT
                     Add-ContentPack -PackType PEADK
                     #Add-ContentPack -PackType PEADK -WinPEOutput $WinPEOutput -SourceWim $SourceWim
-                    Add-ContentPack -PackType PEDrivers
-                    Add-ContentPack -PackType PEExtraFiles
-                    Add-ContentPack -PackType PEPoshMods
-                    Add-ContentPack -PackType PERegistry
-                    Add-ContentPack -PackType PEScripts
+                    #Add-ContentPack -PackType PEDrivers
+                    #Add-ContentPack -PackType PEExtraFiles
+                    #Add-ContentPack -PackType PEPoshMods
+                    #Add-ContentPack -PackType PERegistry
+                    #Add-ContentPack -PackType PEScripts
                 }
                 $WinPEADKPE = $WinPEADK
                 Add-ContentADKWinPE
                 Expand-DaRTPE
-
-
-
-
                 #===================================================================================================
                 Write-Verbose '19.1.1 WinPE: ADK Optional Components'
                 #===================================================================================================
@@ -572,6 +568,8 @@ $MDTUnattendPEx86 = @'
                 Write-Verbose '19.1.1 Copy MDT'
                 #===================================================================================================
                 if ($MDTDeploymentShare) {
+                    Write-Host '========================================================================================' -ForegroundColor DarkGray
+                    Write-Host "WinPE: Copy MDT Deployment Share from $MDTDeploymentShare" -ForegroundColor Green
                     $MDTwinpeshl | Out-File "$MountDirectory\Windows\System32\winpeshl.ini" -Force
 
                     if ($OSArchitecture -eq 'x86') {$MDTUnattendPEx86 | Out-File "$MountDirectory\Unattend.xml" -Encoding utf8 -Force}
@@ -658,46 +656,65 @@ $MDTUnattendPEx86 = @'
                 }
                 
                 #===================================================================================================
-                Write-Verbose '19.1.1 WinPE: Auto Extra Files'
+                #   Auto ExtraFiles
                 #===================================================================================================
                 if ($WinPEAutoExtraFiles -eq $true) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "WinPE: Auto ExtraFiles" -ForegroundColor Green
+                    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Copy Auto ExtraFiles from $OSSourcePath\WinPE\AutoExtraFiles"
                     robocopy "$OSSourcePath\WinPE\AutoExtraFiles" "$MountDirectory" *.* /e /ndl /xf bcp47*.dll /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-AutoExtraFiles.log" | Out-Null
                 }
-                
                 #===================================================================================================
-                Write-Verbose '19.1.1 WinPE: Extra Files'
+                #   PEExtraFiles
                 #===================================================================================================
-                Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "WinPE: Extra Files" -ForegroundColor Green
-                foreach ($ExtraFile in $WinPEExtraFiles) {
-                    Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
-                    robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null
-                }
-                
-                #===================================================================================================
-                Write-Verbose '19.1.1 WinPE: Drivers'
-                #===================================================================================================
-                Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "WinPE: Drivers" -ForegroundColor Green
-                foreach ($WinPEDriver in $WinPEDrivers) {
-                    Write-Host "$SetOSDBuilderPathContent\$WinPEDriver" -ForegroundColor Green
-                    Add-WindowsDriver -Path "$MountDirectory" -Driver "$SetOSDBuilderPathContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsDriver.log" | Out-Null
-                }
-
-                #===================================================================================================
-                Write-Verbose '19.1.1 WinPE: PowerShell Scripts'
-                #===================================================================================================
-                Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "WinPE: PowerShell Scripts" -ForegroundColor Green
-                foreach ($PSWimScript in $WinPEScripts) {
-                    if (Test-Path "$SetOSDBuilderPathContent\$PSWimScript") {
-                        Write-Host "$SetOSDBuilderPathContent\$PSWimScript" -ForegroundColor Green
-                        Invoke-Expression "& '$SetOSDBuilderPathContent\$PSWimScript'"
+                if ($WinPEExtraFiles) {
+                    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Task PEExtraFiles"
+                    foreach ($ExtraFile in $WinPEExtraFiles) {
+                        Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
+                        robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null
                     }
                 }
-
+                if (Get-IsContentPacksEnabled) {
+                    Add-ContentPack -PackType PEExtraFiles
+                }
+                #===================================================================================================
+                #   PEDrivers
+                #===================================================================================================
+                if ($WinPEDrivers) {
+                    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Task Drivers"
+                    foreach ($WinPEDriver in $WinPEDrivers) {
+                        Write-Host "$SetOSDBuilderPathContent\$WinPEDriver" -ForegroundColor Green
+                        Add-WindowsDriver -Path "$MountDirectory" -Driver "$SetOSDBuilderPathContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsDriver.log" | Out-Null
+                    }
+                }
+                if (Get-IsContentPacksEnabled) {
+                    Add-ContentPack -PackType PEDrivers
+                }
+                #===================================================================================================
+                #   Scripts
+                #===================================================================================================
+                if ($WinPEScripts) {
+                    Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Task PowerShell Scripts"
+                    foreach ($PSWimScript in $WinPEScripts) {
+                        if (Test-Path "$SetOSDBuilderPathContent\$PSWimScript") {
+                            Write-Host "$SetOSDBuilderPathContent\$PSWimScript" -ForegroundColor Green
+                            Invoke-Expression "& '$SetOSDBuilderPathContent\$PSWimScript'"
+                        }
+                    }
+                }
+                if (Get-IsContentPacksEnabled) {
+                    Add-ContentPack -PackType PEScripts
+                }
+                #===================================================================================================
+                #   PEPoshMods
+                #===================================================================================================
+                if (Get-IsContentPacksEnabled) {
+                    Add-ContentPack -PackType PEPoshMods
+                }
+                #===================================================================================================
+                #   Registry
+                #===================================================================================================
+                if (Get-IsContentPacksEnabled) {
+                    Add-ContentPack -PackType PERegistry
+                }
                 #===================================================================================================
                 Write-Verbose '19.1.1 WinPE Mounted Package Inventory'
                 #===================================================================================================
@@ -711,7 +728,6 @@ $MDTUnattendPEx86 = @'
                 $GetWindowsPackage | Export-Clixml -Path "$Info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsPackage.xml"
                 $GetWindowsPackage | ConvertTo-Json | Out-File "$Info\json\Get-WindowsPackage.json"
                 $GetWindowsPackage | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsPackage.json"
-                
                 #===================================================================================================
                 Write-Verbose '19.1.1 WinPE Dismount and Save'
                 #===================================================================================================
@@ -719,7 +735,6 @@ $MDTUnattendPEx86 = @'
                 Write-Host "WinPE: Dismount and Save" -ForegroundColor Green
                 if ($PauseDismount.IsPresent){[void](Read-Host 'Press Enter to Continue')}
                 Dismount-WindowsImage -Path "$MountDirectory" -Save -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Dismount-WindowsImage.log" | Out-Null
-                
                 #===================================================================================================
                 Write-Verbose '19.1.1 Export WinPE'
                 #===================================================================================================
@@ -736,7 +751,6 @@ $MDTUnattendPEx86 = @'
                 if ($WinPEOutput -eq 'WinPE') {
                     Export-WindowsImage -SourceImagePath "$WimTemp\boot.wim" -SourceIndex 1 -DestinationImagePath "$WorkingPath\WinPE.wim" -Setbootable -DestinationName "$TaskName" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Export-WindowsImage.log" | Out-Null
                 }
-                
                 #===================================================================================================
                 Write-Verbose '19.1.1 Export Boot.wim Configuration'
                 #===================================================================================================
