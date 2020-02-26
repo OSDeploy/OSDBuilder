@@ -17,6 +17,14 @@ function Import-OSMedia {
         #THIS PARAMETER IS A GUARANTEE OF BEING GHOSTED IF YOU CONTACT THE DEV FOR SUPPORT
         [switch]$AllowUnsupportedOS = $global:SetOSDBuilder.ImportOSMediaAllowUnsupportedOS,
         
+        #Creates an OSBuild with NetFX enabled
+        #Import-OSMedia -Edition Enterprise -SkipGrid -QuickBuild
+        #Execute Command:
+        #New-OSBuild -Name $OSMediaName -Download -Execute -HideCleanupProgress -SkipTask -QuickEnableNetFX
+        #Alias: Build,BuildNetFX
+        [Alias('Build')]
+        [switch]$BuildNetFX = $global:SetOSDBuilder.ImportOSMediaBuildNetFX,
+        
         #The Operating System EditionId to import
         #Import-OSMedia -EditionId Enterprise
         #Import-OSMedia -EditionId Enterprise -SkipGrid
@@ -123,6 +131,17 @@ function Import-OSMedia {
             'Windows Server 2019 Datacenter (Desktop Experience)'
         )]
         [string]$ImageName = $global:SetOSDBuilder.ImportOSMediaImageName,
+
+        [String]$Path = $global:SetOSDBuilder.ImportOSMediaPath,
+
+        #Displays Media Information after Import
+        #Show-OSDBuilderInfo -FullName $OSMediaPath
+        #Alias: OSDInfo
+        [Alias('OSDInfo')]
+        [switch]$ShowInfo = $global:SetOSDBuilder.ImportOSMediaShowInfo,
+
+        #Skips the searh of the FeatureUpdates path for downloaded Feature Updates
+        [switch]$SkipFeatureUpdates = $global:SetOSDBuilder.ImportOSMediaSkipFeatureUpdates,
         
         #Used to bypass the ISE GridView Operating System Selection
         #Must use EditionId or ImageName Parameter for best results
@@ -130,30 +149,13 @@ function Import-OSMedia {
         [Alias('SkipGridView')]
         [switch]$SkipGrid = $global:SetOSDBuilder.ImportOSMediaSkipGrid,
 
-        #Skips the searh of the FeatureUpdates path for downloaded Feature Updates
-        [switch]$SkipFeatureUpdates = $global:SetOSDBuilder.ImportOSMediaSkipFeatureUpdates,
-
         #Creates an OSMedia with all Microsoft Updates applied
         #Import-OSMedia -Edition Enterprise -SkipGrid -QuickUpdate
         #Execute Command:
         #Update-OSMedia -Name $OSMediaName -Download -Execute -HideCleanupProgress
         #Alias: UpdateOSMedia
         [Alias('UpdateOSMedia')]
-        [switch]$Update = $global:SetOSDBuilder.ImportOSMediaUpdate,
-        
-        #Creates an OSBuild with NetFX enabled
-        #Import-OSMedia -Edition Enterprise -SkipGrid -QuickBuild
-        #Execute Command:
-        #New-OSBuild -Name $OSMediaName -Download -Execute -HideCleanupProgress -SkipTask -QuickEnableNetFX
-        #Alias: Build,BuildNetFX
-        [Alias('Build')]
-        [switch]$BuildNetFX = $global:SetOSDBuilder.ImportOSMediaBuildNetFX,
-
-        #Displays Media Information after Import
-        #Show-OSDBuilderInfo -FullName $OSMediaPath
-        #Alias: OSDInfo
-        [Alias('OSDInfo')]
-        [switch]$ShowInfo = $global:SetOSDBuilder.ImportOSMediaShowInfo
+        [switch]$Update = $global:SetOSDBuilder.ImportOSMediaUpdate
     )
     #===================================================================================================
     #   Variables
@@ -168,44 +170,68 @@ function Import-OSMedia {
         #===================================================================================================
         #   Get-OSDBuilder
         #===================================================================================================
+        Show-ActionTime; Write-Host "Validating OSDBuilder Content"
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
         #   Get-OSDGather -Property IsAdmin
         #===================================================================================================
+        Show-ActionTime; Write-Host "Validating Administrator Rights and Elevation"
         if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Show-ActionTime; Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
             Pause
             Break
         }
         #===================================================================================================
-        #   GetPSDrives
-        #===================================================================================================
-        $ImportOSMediaPSDrives = @()
-        $ImportOSMediaPSDrives = Get-PSDrive -PSProvider 'FileSystem'
-        #===================================================================================================
         #   ImportOSMediaOperatingSystems
         #===================================================================================================
         $ImportOSMediaOperatingSystems = @()
-        foreach ($ImportOSMediaOperatingSystem in $ImportOSMediaPSDrives) {
-            if (Test-Path "$($ImportOSMediaOperatingSystem.Root)Sources") {
-                $ImportOSMediaOperatingSystems += Get-ChildItem "$($ImportOSMediaOperatingSystem.Root)Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
-            }
-            if (Test-Path "$($ImportOSMediaOperatingSystem.Root)x64\Sources") {
-                $ImportOSMediaOperatingSystems += Get-ChildItem "$($ImportOSMediaOperatingSystem.Root)x64\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
-            }
-            if (Test-Path "$($ImportOSMediaOperatingSystem.Root)x86\Sources") {
-                $ImportOSMediaOperatingSystems += Get-ChildItem "$($ImportOSMediaOperatingSystem.Root)x86\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
-            }
-        }
         #===================================================================================================
-        #   ImportOSMediaFeatureUpdates
+        #   Path
         #===================================================================================================
-        $ImportOSMediaFeatureUpdates = @()
-        if ($SkipFeatureUpdates -ne $true) {
-            $ImportOSMediaFeatureUpdates = Get-ChildItem $global:SetOSDBuilderPathFeatureUpdates -ErrorAction SilentlyContinue
-            foreach ($ImportOSMediaOperatingSystem in $ImportOSMediaFeatureUpdates) {
-                if (Test-Path "$($ImportOSMediaOperatingSystem.FullName)\Sources") {
-                    $ImportOSMediaOperatingSystems += Get-ChildItem "$($ImportOSMediaOperatingSystem.FullName)\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+        if ($Path) {
+            Show-ActionTime; Write-Host "Validating Path $Path"
+            if (Test-Path "$Path") {
+                Show-ActionTime; Write-Host "Scanning Path $Path"
+                $PathSources = Get-ChildItem "$Path" -Recurse | Where-Object {$_.PSIsContainer -and $_.Name -eq 'Sources'}
+
+                foreach ($item in $PathSources) {
+                    $ImportOSMediaOperatingSystems += Get-ChildItem "$($item.FullName)\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+                }
+            } else {
+                Show-ActionTime; Write-Warning "Could not find specified Path '$Path'"
+                Pause
+                Break
+            }
+        } else {
+            #===================================================================================================
+            #   GetPSDrives
+            #===================================================================================================
+            $ImportOSMediaPSDrives = @()
+            $ImportOSMediaPSDrives = Get-PSDrive -PSProvider 'FileSystem'
+            #===================================================================================================
+            #   ImportOSMediaOperatingSystems ImportOSMediaPSDrives
+            #===================================================================================================
+            foreach ($item in $ImportOSMediaPSDrives) {
+                if (Test-Path "$($item.Root)Sources") {
+                    $ImportOSMediaOperatingSystems += Get-ChildItem "$($item.Root)Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+                }
+                if (Test-Path "$($item.Root)x64\Sources") {
+                    $ImportOSMediaOperatingSystems += Get-ChildItem "$($item.Root)x64\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+                }
+                if (Test-Path "$($item.Root)x86\Sources") {
+                    $ImportOSMediaOperatingSystems += Get-ChildItem "$($item.Root)x86\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+                }
+            }
+            #===================================================================================================
+            #   ImportOSMediaFeatureUpdates
+            #===================================================================================================
+            $ImportOSMediaFeatureUpdates = @()
+            if ($SkipFeatureUpdates -ne $true) {
+                $ImportOSMediaFeatureUpdates = Get-ChildItem $global:SetOSDBuilderPathFeatureUpdates -ErrorAction SilentlyContinue
+                foreach ($item in $ImportOSMediaFeatureUpdates) {
+                    if (Test-Path "$($item.FullName)\Sources") {
+                        $ImportOSMediaOperatingSystems += Get-ChildItem "$($item.FullName)\Sources\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
+                    }
                 }
             }
         }
@@ -214,7 +240,7 @@ function Import-OSMedia {
         #===================================================================================================
         if ($null -eq $ImportOSMediaOperatingSystems) {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Warning "Windows Image could not be found on any CD or DVD Drives . . . Exiting!"
+            Show-ActionTime; Write-Warning "Windows Image could not be found on any CD or DVD Drives . . . Exiting!"
             Break
         }
         #===================================================================================================
@@ -239,9 +265,9 @@ function Import-OSMedia {
         #   AllowUnsupportedOS
         #===================================================================================================
         if ($AllowUnsupportedOS -eq $true) {
-            Write-Warning "AllowUnsupportedOS: This parameter will allow you to import any OS into OSDBuilder"
-            Write-Warning "AllowUnsupportedOS: This in no way guarantees any functionality"
-            Write-Warning "AllowUnsupportedOS: Contacting the DEV for support on an unsupported OS will have consequences"
+            Show-ActionTime; Write-Warning "AllowUnsupportedOS: This parameter will allow you to import any OS into OSDBuilder"
+            Show-ActionTime; Write-Warning "AllowUnsupportedOS: This in no way guarantees any functionality"
+            Show-ActionTime; Write-Warning "AllowUnsupportedOS: Contacting the DEV for support on an unsupported OS will have consequences"
         } else {
             Write-Verbose "Filtering Windows (version 10 Client and Server), Windows 7 (version 6.1.7601 Client) and Server 2012 R2 (version 6.3 Server)"
             $ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {($_.MajorVersion -eq '10') -or ($_.Version -like "6.1.7601*" -and $_.InstallationType -like "*Client*") -or ($_.Version -like "6.3*" -and $_.ImageName -like "*Server*")}
@@ -266,13 +292,13 @@ function Import-OSMedia {
                 $ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Out-GridView -Title "Import-OSMedia: Select OSMedia to Import and press OK (Cancel to Exit)" -PassThru        
                 if($null -eq $ImportOSMediaWindowsImages) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Warning "Import-OSMedia: Compatible OSMedia was not selected . . . Exiting!"
+                    Show-ActionTime; Write-Warning "Import-OSMedia: Compatible OSMedia was not selected . . . Exiting!"
                     Break
                 }
             }
         } else {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Warning "Import-OSMedia: OSMedia was not found . . . Exiting!"
+            Show-ActionTime; Write-Warning "Import-OSMedia: OSMedia was not found . . . Exiting!"
             Break
         }
     }
@@ -336,7 +362,7 @@ function Import-OSMedia {
                 $RegValueReleaseId = $($GetRegKeyCurrentVersion.ReleaseId)
                 $RegValueCurrentBuild = $($GetRegKeyCurrentVersion.CurrentBuild)
 
-                if ($RegValueReleaseId -gt 1909) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
+                if ($RegValueReleaseId -gt 2004) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
                 if ($null -eq $RegValueReleaseId) {
                     #if ($GetWindowsImage.Build -eq 7600) {$RegValueReleaseId = 7600}
                     #if ($GetWindowsImage.Build -eq 7601) {$RegValueReleaseId = 7601}

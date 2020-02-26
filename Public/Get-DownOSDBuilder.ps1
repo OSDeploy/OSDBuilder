@@ -40,7 +40,7 @@ function Get-DownOSDBuilder {
 
         #Feature Update Build
         [Parameter(ParameterSetName = 'FeatureUpdates')]
-        [ValidateSet (1809,1903,1909)]
+        [ValidateSet (1809,1903,1909,2004)]
         [string]$FeatureBuild,
 
         #Feature Update Edition
@@ -77,7 +77,7 @@ function Get-DownOSDBuilder {
 
         #Filter Microsoft Updates for a specific ReleaseId
         [Parameter(ParameterSetName='OSDUpdate')]
-        [ValidateSet (1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [ValidateSet (2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [Alias('ReleaseId')]
         [string]$UpdateBuild,
 

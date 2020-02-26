@@ -30,7 +30,7 @@ function Get-OSMedia {
         [string]$OSMajorVersion,
 
         #Filter the OSMedia by OS Release Id
-        [ValidateSet (1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [ValidateSet (2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [string]$OSReleaseId,
         
         #Filter the OSMedia by Image Revision

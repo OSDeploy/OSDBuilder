@@ -127,6 +127,7 @@ function New-PEBuildTask {
         if ($TaskName -like "*1809*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1809'}}
         if ($TaskName -like "*1903*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1903'}}
         if ($TaskName -like "*1909*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1909'}}
+        if ($TaskName -like "*2004*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '2004'}}
 
         Try {
             $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title "Select a Source OSMedia to use for this Task (Cancel to Exit)"
@@ -179,7 +180,7 @@ function New-PEBuildTask {
             if (Test-Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
                 $OSMedia.ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-                if ($($OSMedia.ReleaseId) -gt 1909) {
+                if ($($OSMedia.ReleaseId) -gt 2004) {
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
                 }
             }

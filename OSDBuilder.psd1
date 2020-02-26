@@ -1,5 +1,4 @@
 # Module Manifest
-#
 
 @{
 
@@ -7,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '20.2.20.1'
+ModuleVersion = '20.2.21.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
