@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '20.2.21.1'
+ModuleVersion = '20.2.26.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -55,7 +55,7 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName = 'OSD'; ModuleVersion = '19.12.19.0'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+    @{ModuleName = 'OSD'; ModuleVersion = '20.2.26.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
     @{ModuleName = 'OSDSUS'; ModuleVersion = '19.10.13.0'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
 )
 
