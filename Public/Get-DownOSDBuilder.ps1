@@ -105,7 +105,11 @@ function Get-DownOSDBuilder {
 
         #Download updates using Webclient instead of BITS
         [Parameter(ParameterSetName='OSDUpdate')]
-        [switch]$WebClient
+        [switch]$WebClient,
+
+        [Parameter(ParameterSetName='OSDUpdate')]
+        [switch]$CheckFileHash
+
     )
 
     Begin {
@@ -337,6 +341,18 @@ function Get-DownOSDBuilder {
                             $WebClientObj.DownloadFile("$($Update.OriginUri)","$DownloadFullPath")
                         } else {
                             Start-BitsTransfer -Source $Update.OriginUri -Destination $DownloadFullPath
+                        }
+                        if ($CheckFileHash.IsPresent -and ($Update.Hash -ne "")) {
+                            $ActualHash = $null
+                            $ActualHash = (Get-FileHash -Path $DownloadFullPath -Algorithm SHA1).Hash.ToLower()
+                            $DeriredHash = Convert-ByteArrayToHex -Bytes $($update.Hash -split " ")
+                            Write-Verbose "Desired SHA1 Hash: [$DeriredHash], Actual Hash [$ActualHash]"
+                            if ($ActualHash -ne $DeriredHash) {
+                                Write-Error -Exception "Hashes don't match - please investigate!" 
+                            }
+                            else {
+                                Write-Verbose -Message "Hashes match."
+                            }
                         }
                     } else {
                         #Write-Warning "Exists: $($Update.Title)"

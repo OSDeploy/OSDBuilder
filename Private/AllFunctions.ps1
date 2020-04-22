@@ -6728,3 +6728,22 @@ function Update-WindowsSevenOS {
         }
     }
 }
+
+Function Convert-ByteArrayToHex {
+#borrowed from https://www.reddit.com/r/PowerShell/comments/5rhjsy/hex_to_byte_array_and_back/
+    [cmdletbinding()]
+
+    param(
+        [parameter(Mandatory=$true)]
+        [Byte[]]
+        $Bytes
+    )
+
+    $HexString = [System.Text.StringBuilder]::new($Bytes.Length * 2)
+
+    ForEach($byte in $Bytes){
+        $HexString.AppendFormat("{0:x2}", $byte) | Out-Null
+    }
+
+    $HexString.ToString()
+} 
