@@ -232,6 +232,8 @@ function Get-OSMedia {
                 MediaType           = $MediaType
                 ModifiedTime        = [datetime]$XmlWindowsImage.ModifiedTime
                 Name                = $Item.Name
+                Superseded          = $true
+                NeedsUpdate         = $false
                 Revision            = 'Superseded'
                 Updates             = $OSMUpdateStatus
                 OSMFamily           = $OSMFamily
@@ -270,6 +272,8 @@ function Get-OSMedia {
         #   Revision
         #===================================================================================================
         $OSMedia | Sort-Object OSMFamily, MediaType, ModifiedTime, UBR -Descending | Group-Object OSMFamily | ForEach-Object {$_.Group | Select-Object -First 1} | foreach {$_.Revision = 'OK'}
+        $OSMedia | Where-Object {$_.Revision -eq 'OK'} | foreach {$_.Superseded = $false}
+        $OSMedia | Where-Object {$_.Updates -eq 'Update'} | foreach {$_.NeedsUpdate = $true}
         #===================================================================================================
         #   Filters
         #===================================================================================================
@@ -286,6 +290,7 @@ function Get-OSMedia {
         #===================================================================================================
         if ($GridView.IsPresent) {
             $OSMedia = $OSMedia | Select-Object MediaType,ModifiedTime,`
+            Superseded,NeedsUpdate,`
             Revision,Updates,`
             Name,OperatingSystem,Arch,`
             ReleaseId,RegBuild,UBR,`
@@ -296,6 +301,7 @@ function Get-OSMedia {
             Sort-Object -Property Name | Out-GridView -PassThru -Title 'OSMedia'
         } else {
             $OSMedia = $OSMedia | Select-Object MediaType,ModifiedTime,`
+            Superseded,NeedsUpdate,`
             Revision,Updates,`
             Name,OperatingSystem,Arch,`
             ReleaseId,RegBuild,UBR,`

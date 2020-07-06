@@ -29,6 +29,8 @@ function New-OSDBuilderContentPack {
         'OSCapability\1903 x64 RSAT'
         'OSCapability\1909 x64'
         'OSCapability\1909 x64 RSAT'
+        'OSCapability\2004 x64'
+        'OSCapability\2004 x64 RSAT'
         'OSDrivers\ALL'
         'OSDrivers\x64'
         #'OSDrivers\x86'
@@ -40,6 +42,7 @@ function New-OSDBuilderContentPack {
         #'OSExtraFiles\x86 Subdirs'
         'OSPackages\1903 x64'
         'OSPackages\1909 x64'
+        'OSPackages\2004 x64'
         'OSPoshMods\ProgramFiles'
         'OSPoshMods\System'
         'OSRegistry\ALL'
@@ -70,6 +73,7 @@ function New-OSDBuilderContentPack {
         #'PEADK\1909 x86 WinPE'
         #'PEADK\1909 x86 WinRE'
         #'PEADK\1909 x86 WinSE'
+        'PEADK\2004 x64'
         'PEDaRT'
         'PEDrivers\ALL'
         'PEDrivers\x64'
@@ -92,13 +96,17 @@ function New-OSDBuilderContentPack {
 
     $MultiLangContentPack = @(
         'OSLanguageFeatures\1903 x64'
-        'OSLanguageFeatures\1909 x64'
         'OSLanguagePacks\1903 x64'
-        'OSLanguagePacks\1909 x64'
         'OSLocalExperiencePacks\1903 x64'
-        'OSLocalExperiencePacks\1909 x64'
         'PEADKLang\1903 x64'
+        'OSLanguageFeatures\1909 x64'
+        'OSLanguagePacks\1909 x64'
+        'OSLocalExperiencePacks\1909 x64'
         'PEADKLang\1909 x64'
+        'OSLanguageFeatures\2004 x64'
+        'OSLanguagePacks\2004 x64'
+        'OSLocalExperiencePacks\2004 x64'
+        'PEADKLang\2004 x64'
     )
     #===================================================================================================
     #   Get-OSDBuilder

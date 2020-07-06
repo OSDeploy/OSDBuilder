@@ -724,11 +724,11 @@ function Update-OSMedia {
                         Write-Host "$($Update.CreationDate) - $($Update.UpdateGroup) - $($Update.Title)" -ForegroundColor Cyan
                         Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
                     }
-                } else {
-                    $Execute = $false
-                    $MissingUpdate = $true
                 }
-
+            }
+            if ($UpdatesNotDownloaded -and (!($Download.IsPresent))) {
+                $Execute = $false
+                $MissingUpdate = $true
             }
             #===================================================================================================
             #   SetupDU

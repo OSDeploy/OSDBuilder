@@ -503,7 +503,7 @@ function New-OSBuild {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$OSMediaPath\info\xml\CurrentVersion.xml"
                 $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
                 $RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)
-                if ($ReleaseId -gt 1909) {
+                if ($ReleaseId -gt 2004) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
                 }
@@ -737,11 +737,11 @@ function New-OSBuild {
                         Write-Host "$($Update.CreationDate) - $($Update.UpdateGroup) - $($Update.Title)" -ForegroundColor Cyan
                         Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
                     }
-                } else {
-                    $Execute = $false
-                    $MissingUpdate = $true
                 }
-
+            }
+            if ($UpdatesNotDownloaded -and (!($Download.IsPresent))) {
+                $Execute = $false
+                $MissingUpdate = $true
             }
             #===================================================================================================
             #   SetupDU

@@ -67,7 +67,7 @@ function Import-OSMedia {
         )]
         #Alias: Edition
         [Alias('Edition')]
-        [string]$EditionId = $global:SetOSDBuilder.ImportOSMediaEditionId,
+        [string[]]$EditionId = $global:SetOSDBuilder.ImportOSMediaEditionId,
 
         #The Operating System Index to Import
         #Import-OSMedia -ImageIndex 3
@@ -130,7 +130,17 @@ function Import-OSMedia {
             'Windows Server 2019 Datacenter',`
             'Windows Server 2019 Datacenter (Desktop Experience)'
         )]
-        [string]$ImageName = $global:SetOSDBuilder.ImportOSMediaImageName,
+        [string[]]$ImageName = $global:SetOSDBuilder.ImportOSMediaImageName,
+
+        #The Operating System InstallationType to Import
+        #Import-OSMedia -InstallationType 'Client'
+        #Import-OSMedia -InstallationType 'Server Core' -SkipGrid
+        [ValidateSet(`
+            'Client',`
+            'Server',`
+            'Server Core'
+        )]
+        [string[]]$InstallationType = $global:SetOSDBuilder.ImportOSMediaInstallationType,
 
         [String]$Path = $global:SetOSDBuilder.ImportOSMediaPath,
 
@@ -281,8 +291,15 @@ function Import-OSMedia {
         #===================================================================================================
         #   ImportOSMediaWindowsImages Filter
         #===================================================================================================
-        if ($EditionId) {$ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {$_.EditionId -eq $EditionId}}
-        if ($ImageName) {$ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {$_.ImageName -eq $ImageName}}
+        if ($EditionId) {
+            $ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {$_.EditionId -in $EditionId}
+        }
+        if ($ImageName) {
+            $ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {$_.ImageName -in $ImageName}
+        }
+        if ($InstallationType) {
+            $ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {$_.InstallationType -in $InstallationType}
+        }
         if ($ImageIndex) {$ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {$_.ImageIndex -eq $ImageIndex}}
         #===================================================================================================
         #   ImportOSMediaWindowsImages GridView

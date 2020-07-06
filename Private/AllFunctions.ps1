@@ -662,7 +662,86 @@ function Add-ContentPackOSCapability {
     #======================================================================================
     #   Import
     #======================================================================================
-    if ($RSAT.IsPresent) {
+    if (Get-Command Get-WindowsCapability) {
+        if ($RSAT.IsPresent) {
+            if ((Get-Command Get-WindowsCapability).Parameters.ContainsKey('LimitAccess')) {
+                Get-WindowsCapability -Path $MountDirectory -LimitAccess | Where-Object {$_.Name -match 'RSAT'} | Where-Object {$_.State -eq 'NotPresent'} | foreach {
+                    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSCapability-$($_.Name).log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+            
+                    Write-Host "$($_.Name)" -ForegroundColor DarkGray
+                    Try {
+                        Add-WindowsCapability -Path $MountDirectory -Name $_.Name -Source $ContentPackContent -LimitAccess -LogPath $CurrentLog | Out-Null
+                    }
+                    Catch {
+                        if ($_.Exception.Message -match '0x800f081e') {
+                            Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
+                        } else {
+                            Write-Warning $_.Exception.ErrorCode
+                            Write-Warning $_.Exception.Message
+                        }
+                    }
+                }
+            } else {
+                Get-WindowsCapability -Path $MountDirectory | Where-Object {$_.Name -match 'RSAT'} | Where-Object {$_.State -eq 'NotPresent'} | foreach {
+                    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSCapability-$($_.Name).log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+            
+                    Write-Host "$($_.Name)" -ForegroundColor DarkGray
+                    Try {
+                        Add-WindowsCapability -Path $MountDirectory -Name $_.Name -Source $ContentPackContent -LogPath $CurrentLog | Out-Null
+                    }
+                    Catch {
+                        if ($_.Exception.Message -match '0x800f081e') {
+                            Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
+                        } else {
+                            Write-Warning $_.Exception.ErrorCode
+                            Write-Warning $_.Exception.Message
+                        }
+                    }
+                }
+            }
+        } else {
+            if ((Get-Command Get-WindowsCapability).Parameters.ContainsKey('LimitAccess')) {
+                Get-WindowsCapability -Path $MountDirectory -LimitAccess | Where-Object {$_.Name -notmatch 'Language'} | Where-Object {$_.Name -notmatch 'RSAT'} | Where-Object {$_.State -eq 'NotPresent'} | foreach {
+                    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSCapability-$($_.Name).log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+            
+                    Write-Host "$($_.Name)" -ForegroundColor DarkGray
+                    Try {
+                        Add-WindowsCapability -Path $MountDirectory -Name $_.Name -Source $ContentPackContent -LimitAccess -LogPath $CurrentLog | Out-Null
+                    }
+                    Catch {
+                        if ($_.Exception.Message -match '0x800f081e') {
+                            Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
+                        } else {
+                            Write-Warning $_.Exception.ErrorCode
+                            Write-Warning $_.Exception.Message
+                        }
+                    }
+                }
+            } else {
+                Get-WindowsCapability -Path $MountDirectory | Where-Object {$_.Name -notmatch 'Language'} | Where-Object {$_.Name -notmatch 'RSAT'} | Where-Object {$_.State -eq 'NotPresent'} | foreach {
+                    $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSCapability-$($_.Name).log"
+                    Write-Verbose "CurrentLog: $CurrentLog"
+            
+                    Write-Host "$($_.Name)" -ForegroundColor DarkGray
+                    Try {
+                        Add-WindowsCapability -Path $MountDirectory -Name $_.Name -Source $ContentPackContent -LogPath $CurrentLog | Out-Null
+                    }
+                    Catch {
+                        if ($_.Exception.Message -match '0x800f081e') {
+                            Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
+                        } else {
+                            Write-Warning $_.Exception.ErrorCode
+                            Write-Warning $_.Exception.Message
+                        }
+                    }
+                }
+            }
+        }
+    }
+<#     if ($RSAT.IsPresent) {
         Get-WindowsCapability -Path $MountDirectory -LimitAccess | Where-Object {$_.Name -match 'RSAT'} | Where-Object {$_.State -eq 'NotPresent'} | foreach {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ContentPackOSCapability-$($_.Name).log"
             Write-Verbose "CurrentLog: $CurrentLog"
@@ -698,9 +777,7 @@ function Add-ContentPackOSCapability {
                 }
             }
         }
-    }
-
-
+    } #>
 <#     $OSFeaturesFiles = Get-ChildItem "$ContentPackContent\*" -Include *.cab -File -Recurse | Sort-Object Name | Select-Object Name, FullName, Directory
     Pause
     Get-WindowsCapability -Offline -Path $MountDirectory
@@ -4354,14 +4431,16 @@ function New-ItemDirectorySetOSDBuilderPathContent {
         $SetOSDBuilderPathContent
         $GetOSDBuilderPathContentADK
         "$GetOSDBuilderPathContentADK\Windows 10 1903\Windows Preinstallation Environment"
+        "$GetOSDBuilderPathContentADK\Windows 10 2004\Windows Preinstallation Environment"
         $GetOSDBuilderPathContentDaRT
         "$GetOSDBuilderPathContentDaRT\DaRT 10"
         $GetOSDBuilderPathContentDrivers
         "$SetOSDBuilderPathContent\ExtraFiles"
         #"$GetOSDBuilderPathContentIsoExtract"
         "$GetOSDBuilderPathContentIsoExtract\Windows 10 1903 FOD x64"
-        "$GetOSDBuilderPathContentIsoExtract\Windows 10 1903 FOD x64"
         "$GetOSDBuilderPathContentIsoExtract\Windows 10 1903 Language"
+        "$GetOSDBuilderPathContentIsoExtract\Windows 10 2004 FOD x64"
+        "$GetOSDBuilderPathContentIsoExtract\Windows 10 2004 Language"
         #"$GetOSDBuilderPathContentIsoExtract\Windows 10 1909 Language"
         "$GetOSDBuilderPathContentIsoExtract\Windows Server 2019 1809 FOD x64"
         "$GetOSDBuilderPathContentIsoExtract\Windows Server 2019 1809 Language"

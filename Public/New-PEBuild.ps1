@@ -316,7 +316,7 @@ $MDTUnattendPEx86 = @'
             if (Test-Path "$OSSourcePath\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$OSSourcePath\info\xml\CurrentVersion.xml"
                 $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-                if ($ReleaseId -gt 1909) {
+                if ($ReleaseId -gt 2004) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
                 }
