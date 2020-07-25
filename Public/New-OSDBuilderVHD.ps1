@@ -31,7 +31,7 @@ function New-OSDBuilderVHD {
         [string]$FullName,
         [string]$OSDriveLabel = 'OSDisk',
         [int32]$VHDSizeGB = 50,
-        [switch]$Physical
+        [switch]$IncludeRecoveryPartition
     )
 
     Begin {
@@ -186,7 +186,7 @@ function New-OSDBuilderVHD {
             Add-PartitionAccessPath -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber -AssignDriveLetter
             $PartitionOS = Get-Partition -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber
             $PartitionOSVolume = [string]$PartitionOS.DriveLetter+":"
-            If($Physical){
+            If($IncludeRecoveryPartition){
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Host "Creating Recovery Partition 984MB NTFS" -ForegroundColor Green
                 $PartitionRecovery = New-Partition -DiskNumber $DiskNumber -GptType '{de94bba4-06d1-4d40-a16a-bfd50179d6ac}' -UseMaximumSize
