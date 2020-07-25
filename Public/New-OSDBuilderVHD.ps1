@@ -30,7 +30,8 @@ function New-OSDBuilderVHD {
         [Parameter(ValueFromPipelineByPropertyName)]
         [string]$FullName,
         [string]$OSDriveLabel = 'OSDisk',
-        [int32]$VHDSizeGB = 50
+        [int32]$VHDSizeGB = 50,
+        [switch]$Physical
     )
 
     Begin {
@@ -185,12 +186,12 @@ function New-OSDBuilderVHD {
             Add-PartitionAccessPath -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber -AssignDriveLetter
             $PartitionOS = Get-Partition -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber
             $PartitionOSVolume = [string]$PartitionOS.DriveLetter+":"
-
-            Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Write-Host "Creating Recovery Partition 984MB NTFS" -ForegroundColor Green
-            $PartitionRecovery = New-Partition -DiskNumber $DiskNumber -GptType '{de94bba4-06d1-4d40-a16a-bfd50179d6ac}' -UseMaximumSize
-            $PartitionRecovery | Format-Volume -FileSystem NTFS -NewFileSystemLabel Recovery -Confirm:$false | Out-Null
-
+            If($Physical){
+                Write-Host '========================================================================================' -ForegroundColor DarkGray
+                Write-Host "Creating Recovery Partition 984MB NTFS" -ForegroundColor Green
+                $PartitionRecovery = New-Partition -DiskNumber $DiskNumber -GptType '{de94bba4-06d1-4d40-a16a-bfd50179d6ac}' -UseMaximumSize
+                $PartitionRecovery | Format-Volume -FileSystem NTFS -NewFileSystemLabel Recovery -Confirm:$false | Out-Null
+            }
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Host "Expand-WindowsImage -ImagePath $VhdInstallWim -Index 1 -ApplyPath $PartitionOSVolume\" -ForegroundColor Green
             Try { Expand-WindowsImage -ImagePath $VhdInstallWim -Index 1 -ApplyPath $PartitionOSVolume\ -ErrorAction Stop | Out-Null }
