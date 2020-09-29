@@ -379,7 +379,7 @@ function Import-OSMedia {
                 $RegValueReleaseId = $($GetRegKeyCurrentVersion.ReleaseId)
                 $RegValueCurrentBuild = $($GetRegKeyCurrentVersion.CurrentBuild)
 
-                if ($RegValueReleaseId -gt 2004) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
+                if ($RegValueReleaseId -gt 2009) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
                 if ($null -eq $RegValueReleaseId) {
                     #if ($GetWindowsImage.Build -eq 7600) {$RegValueReleaseId = 7600}
                     #if ($GetWindowsImage.Build -eq 7601) {$RegValueReleaseId = 7601}

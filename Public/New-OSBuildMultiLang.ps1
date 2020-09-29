@@ -90,7 +90,7 @@ function New-OSBuildMultiLang {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$DestinationFullName\info\xml\CurrentVersion.xml"
                 $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
                 $RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)
-                if ($ReleaseId -gt 2004) {
+                if ($ReleaseId -gt 2009) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
                 }
