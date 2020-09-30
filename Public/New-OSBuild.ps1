@@ -52,6 +52,10 @@ function New-OSBuild {
         )]
         [string[]]$Exclude = $global:SetOSDBuilder.NewOSBuildExclude,
 
+        #Excludeds specific KBs based on the KB number.
+        # -ExcludeKB '4577010','4577015'
+        [string[]]$ExcludeKB,
+
         #Executes Update-OSMedia
         #Without this parameter, Update-OSMedia is in Sandbox Mode where changes will not be made
         [Alias('Force')]
@@ -79,6 +83,10 @@ function New-OSBuild {
             'SSU'
         )]
         [string[]]$Include = $global:SetOSDBuilder.NewOSBuildInclude,
+
+        #Includes only specific KBs based on the KB number.
+        # -IncludeKB '4577010','4577015'
+        [string[]]$IncludeKB,
 
         #Pauses the function the Install.wim is dismounted
         #Useful for Testing
@@ -679,11 +687,17 @@ function New-OSBuild {
             #===================================================================================================
             #   Include Exclude
             #===================================================================================================
+            if ($IncludeKB) {
+                $OSDUpdates = $OSDUpdates | Where-Object {$_.KBNumber -in $IncludeKB}
+            }
             if ($Include) {
                 $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -in $Include}
             }
             if ($Exclude) {
                 $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -notin $Exclude}
+            }
+            if ($ExcludeKB){
+                $OSDUpdates = $OSDUpdates | Where-Object {$_.KBNumber -notin $ExcludeKB}
             }
             #===================================================================================================
             #   SelectUpdates
