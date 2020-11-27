@@ -187,7 +187,6 @@ function New-OSDBuilderVHD {
             Write-Host "Creating $OSDriveLabel Partition NTFS" -ForegroundColor Green
             $PartitionOS = New-Partition -DiskNumber $DiskNumber -GptType '{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}' -UseMaximumSize
             $PartitionOSSize = (Get-PartitionSupportedSize -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber)
-            Resize-Partition -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber -Size ($PartitionOSSize.SizeMax)
             $PartitionOS | Format-Volume -FileSystem NTFS -NewFileSystemLabel $OSDriveLabel -Confirm:$false | Out-Null
             Add-PartitionAccessPath -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber -AssignDriveLetter
             $PartitionOS = Get-Partition -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber
