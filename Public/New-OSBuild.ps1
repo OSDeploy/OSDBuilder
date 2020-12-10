@@ -540,8 +540,10 @@ function New-OSBuild {
             $UpdateOS = ''
             if ($OSMajorVersion -eq 10) {
                 if ($OSInstallationType -notlike "*Server*") {$UpdateOS = 'Windows 10'}
-                elseif ($OSBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
-                else {$UpdateOS = 'Windows Server 2016'}
+                #elseif ($OSMBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
+                elseif ($OSMImageName -match '2016') {$UpdateOS = 'Windows Server 2016'}
+                elseif ($OSMImageName -match '2019') {$UpdateOS = 'Windows Server 2019'}
+                else {$UpdateOS = 'Windows Server'}
             } elseif ($OSMajorVersion -eq 6) {
                 if ($OSInstallationType -like "*Server*") {
                     if ($OSVersion -like "6.3*") {
@@ -745,7 +747,7 @@ function New-OSBuild {
                     Write-Host "OSDSUS (Microsoft Updates) Download" -ForegroundColor Green
                     if ($UpdatesNotDownloadedOptional){
                         Write-Host "Optional Updates are not automatically downloaded.  Use the following command:" -ForegroundColor Yellow
-                        Write-Host "Get-DownOSDBuilder -UpdateOS $UpdateOS -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
+                        Write-Host "Get-DownOSDBuilder -UpdateOS '$UpdateOS' -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
                     }
                     foreach ($Update in $UpdatesNotDownloaded) {
                         Write-Host "$($Update.CreationDate) - $($Update.UpdateGroup) - $($Update.Title)" -ForegroundColor Cyan

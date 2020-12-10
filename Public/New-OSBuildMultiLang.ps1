@@ -112,8 +112,10 @@ function New-OSBuildMultiLang {
             $UpdateOS = ''
             if ($OSMajorVersion -eq 10) {
                 if ($OSInstallationType -notlike "*Server*") {$UpdateOS = 'Windows 10'}
-                elseif ($OSBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
-                else {$UpdateOS = 'Windows Server 2016'}
+                #elseif ($OSMBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
+                elseif ($OSMImageName -match '2016') {$UpdateOS = 'Windows Server 2016'}
+                elseif ($OSMImageName -match '2019') {$UpdateOS = 'Windows Server 2019'}
+                else {$UpdateOS = 'Windows Server'}
             } elseif ($OSMajorVersion -eq 6) {
                 if ($OSInstallationType -like "*Server*") {
                     if ($OSVersion -like "6.3*") {

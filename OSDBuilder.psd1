@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '20.9.29.1'
+ModuleVersion = '20.12.10.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -25,11 +25,13 @@ Copyright = '(c) 2020 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
+Includes fixes for Windows Server SAC
+
 https://osdbuilder.osdeploy.com
 
 Requirements:
-PowerShell Module OSD 19.12.19 or newer
-PowerShell Module OSDSUS 19.10.13 or newer
+PowerShell Module OSD 20.2.26.1 or newer
+PowerShell Module OSDSUS 20.12.10.1 or newer
 
 Latest Microsoft Updates (WSUS):
 https://raw.githubusercontent.com/OSDeploy/OSDSUS/master/UPDATES.md
@@ -56,7 +58,7 @@ PowerShellVersion = '5.0'
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
     @{ModuleName = 'OSD'; ModuleVersion = '20.2.26.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
-    @{ModuleName = 'OSDSUS'; ModuleVersion = '19.10.13.0'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
+    @{ModuleName = 'OSDSUS'; ModuleVersion = '20.12.10.1'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
 )
 
 # Assemblies that must be loaded prior to importing this module
@@ -130,7 +132,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/OSDeploy/OSDBuilder'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/OSDBuilder.png'
+        IconUri = 'https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/OSD.png'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://osdbuilder.osdeploy.com/release'

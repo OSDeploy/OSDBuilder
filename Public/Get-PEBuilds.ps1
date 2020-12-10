@@ -89,8 +89,10 @@ function Get-PEBuilds {
             $UpdateOS = ''
             if ($OSMMajorVersion -eq 10) {
                 if ($OSMInstallationType -notlike "*Server*") {$UpdateOS = 'Windows 10'}
-                elseif ($OSMBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
-                else {$UpdateOS = 'Windows Server 2016'}
+                #elseif ($OSMBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
+                elseif ($OSMImageName -match '2016') {$UpdateOS = 'Windows Server 2016'}
+                elseif ($OSMImageName -match '2019') {$UpdateOS = 'Windows Server 2019'}
+                else {$UpdateOS = 'Windows Server'}
             } elseif ($OSMMajorVersion -eq 6) {
                 if ($OSMInstallationType -like "*Server*") {
                     if ($OSMVersion -like "6.3*") {$UpdateOS = 'Windows Server 2012 R2'}

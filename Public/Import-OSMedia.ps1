@@ -177,17 +177,19 @@ function Import-OSMedia {
     #ImportOSMediaPSDrives
     
     Begin {
+        Write-Host '========================================================================================' -ForegroundColor DarkGray
+        Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
         #===================================================================================================
         #   Get-OSDBuilder
         #===================================================================================================
-        Show-ActionTime; Write-Host "Validating OSDBuilder Content"
+        Show-ActionTime; Write-Host "Get-OSDBuilder: Validating OSDBuilder Content"
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
         #   Get-OSDGather -Property IsAdmin
         #===================================================================================================
-        Show-ActionTime; Write-Host "Validating Administrator Rights and Elevation"
+        Show-ActionTime; Write-Host "Get-OSDGather: Validating Administrator Rights and Elevation"
         if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Show-ActionTime; Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
+            Show-ActionTime; Write-Warning 'Get-OSDGather: Import-OSMedia needs to be run as Elevated Administrator. Throw BREAK'
             Pause
             Break
         }
@@ -199,16 +201,16 @@ function Import-OSMedia {
         #   Path
         #===================================================================================================
         if ($Path) {
-            Show-ActionTime; Write-Host "Validating Path $Path"
+            Show-ActionTime; Write-Host "Test-Path: $Path"
             if (Test-Path "$Path") {
-                Show-ActionTime; Write-Host "Scanning Path $Path"
+                Show-ActionTime; Write-Host "Get-ChildItem: Finding OS Media in $Path"
                 $PathSources = Get-ChildItem "$Path" -Recurse | Where-Object {$_.PSIsContainer -and $_.Name -eq 'Sources'}
 
                 foreach ($item in $PathSources) {
                     $ImportOSMediaOperatingSystems += Get-ChildItem "$($item.FullName)\*" -Include install.wim,install.esd | Select-Object -Property @{Name="OSRoot";Expression={(Get-Item $_.Directory).Parent.FullName}}, @{Name="OSWim";Expression={$_.FullName}}
                 }
             } else {
-                Show-ActionTime; Write-Warning "Could not find specified Path '$Path'"
+                Show-ActionTime; Write-Warning "Test-Path: Could not find specified Path '$Path'. Throw BREAK"
                 Pause
                 Break
             }
@@ -250,7 +252,7 @@ function Import-OSMedia {
         #===================================================================================================
         if ($null -eq $ImportOSMediaOperatingSystems) {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
-            Show-ActionTime; Write-Warning "Windows Image could not be found on any CD or DVD Drives . . . Exiting!"
+            Show-ActionTime; Write-Warning "Windows Image could not be found on any CD or DVD Drives.  Throw BREAK"
             Break
         }
         #===================================================================================================
