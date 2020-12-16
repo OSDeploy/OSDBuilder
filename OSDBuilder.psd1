@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '20.12.10.1'
+ModuleVersion = '20.12.16.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -25,7 +25,7 @@ Copyright = '(c) 2020 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-Includes fixes for Windows Server SAC
+Includes fixes for Windows Server 2016 2019
 
 https://osdbuilder.osdeploy.com
 
