@@ -100,16 +100,20 @@ function New-OSDBuilderUSB {
 
             #Test install.wim size and exculde install.wim from copy and split if more then 4GB in size
             $installWIM = Get-Item -Path "$($SelectedOSMedia.FullName)\OS\sources\install.wim"
+            $split = $false
             if ($installWIM.Length/1GB -gt 4) {
                 $copyArgs.Add("Exclude", "install.wim")
                 Split-WindowsImage -ImagePath $installWIM.FullName -SplitImagePath $($installWIM.FullName -replace ".wim",".swm") -FileSize 4096 -CheckIntegrity
+                $split = $true
             }
 
             #Copy Files from ISO to USB
             Copy-Item @copyArgs
 
             #Cleanup Split Wim files
-            Get-ChildItem -Path "$($SelectedOSMedia.FullName)\OS\sources\*" -Include *.swm | Remove-Item -Force -Confirm:$false -Verbose
+            if ($split) {
+                Get-ChildItem -Path "$($SelectedOSMedia.FullName)\OS\sources\*" -Include install*.swm | Remove-Item -Force -Confirm:$false -Verbose
+            }
         }
     }
 
