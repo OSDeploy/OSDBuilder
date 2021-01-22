@@ -58,7 +58,7 @@ function New-OSDBuilderUSB {
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
         Write-Warning "USB will be formatted FAT32"
-        Write-Warning "Install.wim larger than 4GB will FAIL"
+        Write-Warning "Install.wim larger than 4GB will be split into 4GB split wim files"
 
         #===================================================================================================
         Write-Verbose '19.1.14 Select Source OSMedia'
@@ -90,8 +90,26 @@ function New-OSDBuilderUSB {
             Set-Location -Path "$($SelectedOSMedia.FullName)\OS\boot"
             bootsect.exe /nt60 "$($Results.DriveLetter):"
 
+            #Hashtable of copy arguments for splatting
+            $copyArgs = @{
+                Path = "$($SelectedOSMedia.FullName)\OS\*"
+                Destination = "$($Results.DriveLetter):"
+                Recurse = $true
+                Verbose = $true
+            }
+
+            #Test install.wim size and exculde install.wim from copy and split if more then 4GB in size
+            $installWIM = Get-Item -Path "$($SelectedOSMedia.FullName)\OS\sources\install.wim"
+            if ($installWIM.Length/1GB -gt 4) {
+                $copyArgs.Add("Exclude", "install.wim")
+                Split-WindowsImage -ImagePath $installWIM.FullName -SplitImagePath $($installWIM.FullName -replace ".wim",".swm") -FileSize 4096 -CheckIntegrity
+            }
+
             #Copy Files from ISO to USB
-            Copy-Item -Path "$($SelectedOSMedia.FullName)\OS\*" -Destination "$($Results.DriveLetter):" -Recurse -Verbose
+            Copy-Item @copyArgs
+
+            #Cleanup Split Wim files
+            Get-ChildItem -Path "$($SelectedOSMedia.FullName)\OS\sources\*" -Include *.swm | Remove-Item -Force -Confirm:$false -Verbose
         }
     }
 
