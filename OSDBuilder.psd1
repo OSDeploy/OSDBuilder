@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '20.3.8.1'
+ModuleVersion = '20.3.9.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -21,16 +21,14 @@ Author = 'David Segura @SeguraOSD'
 CompanyName = 'osdeploy.com'
 
 # Copyright statement for this module
-Copyright = '(c) 2020 David Segura osdeploy.com. All rights reserved.'
+Copyright = '(c) 2021 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-Includes fixes for Windows Server 2016 2019
-
 https://osdbuilder.osdeploy.com
 
 Requirements:
-PowerShell Module OSD 20.2.26.1 or newer
+PowerShell Module OSD 21.3.9.1 or newer
 PowerShell Module OSDSUS 20.12.10.1 or newer
 
 Latest Microsoft Updates (WSUS):
@@ -57,7 +55,7 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName = 'OSD'; ModuleVersion = '21.3.8.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+    @{ModuleName = 'OSD'; ModuleVersion = '21.3.9.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
     @{ModuleName = 'OSDSUS'; ModuleVersion = '20.12.10.1'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
 )
 
