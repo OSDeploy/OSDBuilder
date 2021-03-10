@@ -5037,6 +5037,7 @@ function Save-AutoExtraFilesOS {
     robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" choice.exe* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
     #robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" cleanmgr.exe* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
     robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" comp.exe*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" curl.exe /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
     robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" defrag*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
     robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" djoin*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
     robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" forfiles*.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
@@ -5047,6 +5048,7 @@ function Save-AutoExtraFilesOS {
     robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" systeminfo.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
     robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" tskill.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
     robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" winver.* /s /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
+    robocopy "$MountDirectory\Windows\System32" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\System32" tar.exe /xd rescache servicing /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
    
     #AeroLite Theme
     robocopy "$MountDirectory\Windows\Resources" "$OSMediaPath\WinPE\AutoExtraFiles\Windows\Resources" aerolite*.* /s /ndl /b /np /ts /tee /r:0 /w:0 /log+:"$AEFLog" | Out-Null
@@ -6607,6 +6609,7 @@ function Update-SetupDUMEDIA {
     #   Changelog
     #===================================================================================================
     #19.10.14 Resolved issue with color for Update FileName
+    #21.3.8 Apply update to WinSE
     #===================================================================================================
     #   Abort
     #===================================================================================================
@@ -6629,7 +6632,23 @@ function Update-SetupDUMEDIA {
         Write-Host -ForegroundColor Cyan "INSTALLING        " -NoNewline
         Write-Host -ForegroundColor Gray "$($Update.Title) - $($Update.FileName)"
 
-        expand.exe "$UpdateSetupDU" -F:*.* "$OS\Sources" | Out-Null
+        $TempRandom = "$env:TEMP\$(Get-Random)"
+        if (-NOT (Test-Path $TempRandom)) {
+            New-Item -Path $TempRandom -ItemType Directory -Force | Out-Null
+        }
+
+        Write-Host -ForegroundColor Cyan "Expanding to temporary path $TempRandom"
+        expand.exe "$UpdateSetupDU" -F:*.* "$TempRandom"
+
+        Write-Host -ForegroundColor Cyan "Applying update to WinSE at $OS\Sources"
+        robocopy "$TempRandom" "$OS\Sources" *.* /e /ndl /xo /xx /xl /b /np /ts /tee /r:0 /w:0 /Log+:"$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Robocopy-Media-SetupDU.log" | Out-Null
+
+        Write-Host -ForegroundColor Cyan "Applying update to WinSE at $MountWinSE\Sources"
+        robocopy "$TempRandom" "$MountWinSE\Sources" *.* /e /ndl /xo /xx /xl /b /np /ts /tee /r:0 /w:0 /Log+:"$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Robocopy-WinSE-SetupDU.log" | Out-Null
+
+        #expand.exe "$UpdateSetupDU" -F:*.* "$OS\Sources"
+        #expand.exe "$UpdateSetupDU" -F:*.* "$MountWinSE\Sources"
+        #pause
     }
 }
 function Update-SourcesPE {
