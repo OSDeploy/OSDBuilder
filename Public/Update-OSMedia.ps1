@@ -668,11 +668,17 @@ function Update-OSMedia {
             #===================================================================================================
             #   Include Exclude
             #===================================================================================================
+            if ($IncludeKB) {
+                $OSDUpdates = $OSDUpdates | Where-Object {$_.KBNumber -in $IncludeKB}
+            }
             if ($Include) {
                 $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -in $Include}
             }
             if ($Exclude) {
                 $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -notin $Exclude}
+            }
+            if ($ExcludeKB){
+                $OSDUpdates = $OSDUpdates | Where-Object {$_.KBNumber -notin $ExcludeKB}
             }
             #===================================================================================================
             #   SelectUpdates
@@ -720,7 +726,7 @@ function Update-OSMedia {
                     Write-Host "OSDSUS (Microsoft Updates) Download" -ForegroundColor Green
                     if ($UpdatesNotDownloadedOptional){
                         Write-Host "Optional Updates are not automatically downloaded.  Use the following command:" -ForegroundColor Yellow
-                        Write-Host "Get-DownOSDBuilder -UpdateOS $UpdateOS -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
+                        Write-Host "Get-DownOSDBuilder -UpdateOS '$UpdateOS' -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
                     }
                     foreach ($Update in $UpdatesNotDownloaded) {
                         Write-Host "$($Update.CreationDate) - $($Update.UpdateGroup) - $($Update.Title)" -ForegroundColor Cyan

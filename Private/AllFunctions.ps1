@@ -6640,11 +6640,13 @@ function Update-SetupDUMEDIA {
         Write-Host -ForegroundColor Cyan "Expanding to temporary path $TempRandom"
         expand.exe "$UpdateSetupDU" -F:*.* "$TempRandom"
 
+        Write-Host "Logging to $Logs"
+
         Write-Host -ForegroundColor Cyan "Applying update to WinSE at $OS\Sources"
-        robocopy "$TempRandom" "$OS\Sources" *.* /e /ndl /xo /xx /xl /b /np /ts /tee /r:0 /w:0 /Log+:"$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Robocopy-Media-SetupDU.log" | Out-Null
+        robocopy "$TempRandom" "$OS\Sources" *.* /e /ndl /xo /xx /xl /b /np /ts /tee /r:0 /w:0 /Log+:"$Logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Robocopy-Media-SetupDU.log" | Out-Null
 
         Write-Host -ForegroundColor Cyan "Applying update to WinSE at $MountWinSE\Sources"
-        robocopy "$TempRandom" "$MountWinSE\Sources" *.* /e /ndl /xo /xx /xl /b /np /ts /tee /r:0 /w:0 /Log+:"$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Robocopy-WinSE-SetupDU.log" | Out-Null
+        robocopy "$TempRandom" "$MountWinSE\Sources" *.* /e /ndl /xo /xx /xl /b /np /ts /tee /r:0 /w:0 /Log+:"$Logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Robocopy-WinSE-SetupDU.log" | Out-Null
 
         #expand.exe "$UpdateSetupDU" -F:*.* "$OS\Sources"
         #expand.exe "$UpdateSetupDU" -F:*.* "$MountWinSE\Sources"
