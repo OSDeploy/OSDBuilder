@@ -18,8 +18,8 @@ function Add-ContentADKWinPE {
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
 
-            Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
+            Write-Host "$PackagePath" -ForegroundColor DarkGray
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -33,8 +33,8 @@ function Add-ContentADKWinPE {
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
 
-            Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
+            Write-Host "$PackagePath" -ForegroundColor DarkGray
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -44,13 +44,13 @@ function Add-ContentADKWinPE {
 
     $WinPEADKPE = $WinPEADKPE | Where-Object {$_.Name -notlike "*WinPE-PowerShell*"}
     foreach ($PackagePath in $WinPEADKPE) {
-        Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
+        Write-Host "$PackagePath" -ForegroundColor DarkGray
         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinPE.log"
         Write-Verbose "CurrentLog: $CurrentLog"
         if ($OSMajorVersion -eq 6) {
-            dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$SetOSDBuilderPathContent\$PackagePath" /LogPath:"$CurrentLog"
+            dism /Image:"$MountWinPE" /Add-Package /PackagePath:"$PackagePath" /LogPath:"$CurrentLog"
         } else {
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinPE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -78,8 +78,8 @@ function Add-ContentADKWinRE {
         Write-Verbose "CurrentLog: $CurrentLog"
 
         if ($PackagePath -like "*WinPE-NetFx*") {
-            Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
+            Write-Host "$PackagePath" -ForegroundColor DarkGray
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -93,8 +93,8 @@ function Add-ContentADKWinRE {
         Write-Verbose "CurrentLog: $CurrentLog"
 
         if ($PackagePath -like "*WinPE-PowerShell*") {
-            Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
+            Write-Host "$PackagePath" -ForegroundColor DarkGray
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -106,11 +106,11 @@ function Add-ContentADKWinRE {
         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinRE.log"
         Write-Verbose "CurrentLog: $CurrentLog"
 
-        Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
+        Write-Host "$PackagePath" -ForegroundColor DarkGray
         if ($OSMajorVersion -eq 6) {
-            dism /Image:"$MountWinRE" /Add-Package /PackagePath:"$SetOSDBuilderPathContent\$PackagePath" /LogPath:"$CurrentLog"
+            dism /Image:"$MountWinRE" /Add-Package /PackagePath:"$PackagePath" /LogPath:"$CurrentLog"
         } else {
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinRE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -141,8 +141,8 @@ function Add-ContentADKWinSE {
         Write-Verbose "CurrentLog: $CurrentLog"
 
         if ($PackagePath -like "*WinPE-NetFx*") {
-            Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
+            Write-Host "$PackagePath" -ForegroundColor DarkGray
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -155,8 +155,8 @@ function Add-ContentADKWinSE {
         Write-Verbose "CurrentLog: $CurrentLog"
 
         if ($PackagePath -like "*WinPE-PowerShell*") {
-            Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
+            Write-Host "$PackagePath" -ForegroundColor DarkGray
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -168,11 +168,11 @@ function Add-ContentADKWinSE {
         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentADKWinSE.log"
         Write-Verbose "CurrentLog: $CurrentLog"
 
-        Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
+        Write-Host "$PackagePath" -ForegroundColor DarkGray
         if ($OSMajorVersion -eq 6) {
-            dism /Image:"$MountWinSE" /Add-Package /PackagePath:"$SetOSDBuilderPathContent\$PackagePath" /LogPath:"$CurrentLog.log"
+            dism /Image:"$MountWinSE" /Add-Package /PackagePath:"$PackagePath" /LogPath:"$CurrentLog.log"
         } else {
-            Try {Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
+            Try {Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountWinSE" -LogPath "$CurrentLog" | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -193,15 +193,15 @@ function Add-ContentDriversOS {
     if ($Drivers) {
         Show-ActionTime; Write-Host -ForegroundColor Green "OS: Drivers TASK"
         foreach ($Driver in $Drivers) {
-            Write-Host "$SetOSDBuilderPathContent\$Driver" -ForegroundColor DarkGray
+            Write-Host "$Driver" -ForegroundColor DarkGray
 
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversOS-Task.log"
             Write-Verbose "CurrentLog: $CurrentLog"
 
             if ($OSMajorVersion -eq 6) {
-                dism /Image:"$MountDirectory" /Add-Driver /Driver:"$SetOSDBuilderPathContent\$Driver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
+                dism /Image:"$MountDirectory" /Add-Driver /Driver:"$Driver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
             } else {
-                Try {Add-WindowsDriver -Driver "$SetOSDBuilderPathContent\$Driver" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
+                Try {Add-WindowsDriver -Driver "$Driver" -Recurse -Path "$MountDirectory" -ForceUnsigned -LogPath "$CurrentLog" | Out-Null}
                 Catch {
                     if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
 
@@ -247,19 +247,19 @@ function Add-ContentDriversPE {
     if ([string]::IsNullOrWhiteSpace($WinPEDrivers)) {Return}
     Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Add-ContentDriversPE"
     foreach ($WinPEDriver in $WinPEDrivers) {
-        Write-Host "$SetOSDBuilderPathContent\$WinPEDriver" -ForegroundColor DarkGray
+        Write-Host "$WinPEDriver" -ForegroundColor DarkGray
         
         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentDriversPE-Task.log"
         Write-Verbose "CurrentLog: $CurrentLog"
 
         if ($OSMajorVersion -eq 6) {
-            dism /Image:"$MountWinPE" /Add-Driver /Driver:"$SetOSDBuilderPathContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
-            dism /Image:"$MountWinRE" /Add-Driver /Driver:"$SetOSDBuilderPathContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
-            dism /Image:"$MountWinSE" /Add-Driver /Driver:"$SetOSDBuilderPathContent\$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
+            dism /Image:"$MountWinPE" /Add-Driver /Driver:"$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
+            dism /Image:"$MountWinRE" /Add-Driver /Driver:"$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
+            dism /Image:"$MountWinSE" /Add-Driver /Driver:"$WinPEDriver" /Recurse /ForceUnsigned /LogPath:"$CurrentLog"
         } else {
-            Add-WindowsDriver -Path "$MountWinPE" -Driver "$SetOSDBuilderPathContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
-            Add-WindowsDriver -Path "$MountWinRE" -Driver "$SetOSDBuilderPathContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
-            Add-WindowsDriver -Path "$MountWinSE" -Driver "$SetOSDBuilderPathContent\$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+            Add-WindowsDriver -Path "$MountWinPE" -Driver "$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+            Add-WindowsDriver -Path "$MountWinRE" -Driver "$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
+            Add-WindowsDriver -Path "$MountWinSE" -Driver "$WinPEDriver" -Recurse -ForceUnsigned -LogPath "$CurrentLog" | Out-Null
         }
     }
 }
@@ -280,8 +280,8 @@ function Add-ContentExtraFilesOS {
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesOS-Task.log"
             Write-Verbose "CurrentLog: $CurrentLog"
 
-            Write-Host "$SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            Write-Host "$ExtraFile" -ForegroundColor DarkGray
+            robocopy "$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
         }
     }
     #===================================================================================================
@@ -295,7 +295,10 @@ function Add-ContentExtraFilesOS {
             Write-Verbose "CurrentLog: $CurrentLog"
 
             Write-Host "$($ExtraFile.FullName)" -ForegroundColor DarkGray
-            robocopy "$($ExtraFile.FullName)" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            #Copy-Item -Path $ExtraFile.FullName -Destination $MountDirectory -Recurse -Force -Verbose | Tee-Object -FilePath $CurrentLog -Append
+            
+            robocopy "$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            Write-Host "Finished copying ExtraFiles OS."
         }
     }
 }
@@ -312,22 +315,22 @@ function Add-ContentExtraFilesPE {
     if ($WinPEExtraFilesPE -or $WinPEExtraFilesRE -or $WinPEExtraFilesSE) {
         Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Extra Files TASK"
         foreach ($ExtraFile in $WinPEExtraFilesPE) {
-            Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
+            Write-Host "Source: ExtraFile" -ForegroundColor DarkGray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinPE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            robocopy "$ExtraFile" "$MountWinPE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
         }
         foreach ($ExtraFile in $WinPEExtraFilesRE) {
-            Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
+            Write-Host "Source: $ExtraFile" -ForegroundColor DarkGray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinRE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            robocopy "$ExtraFile" "$MountWinRE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
         }
         foreach ($ExtraFile in $WinPEExtraFilesSE) {
-            Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
+            Write-Host "Source: $ExtraFile" -ForegroundColor DarkGray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinSE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            robocopy "$ExtraFile" "$MountWinSE" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
         }
     } else {
         Return
@@ -1804,9 +1807,9 @@ function Add-ContentStartLayout {
     #   TASK
     #===================================================================================================
     Show-ActionTime; Write-Host -ForegroundColor Green "OS: Use Content StartLayout"
-    Write-Host "$SetOSDBuilderPathContent\$StartLayoutXML" -ForegroundColor DarkGray
+    Write-Host "$StartLayoutXML" -ForegroundColor DarkGray
     Try {
-        Copy-Item -Path "$SetOSDBuilderPathContent\$StartLayoutXML" -Destination "$MountDirectory\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml" -Recurse -Force | Out-Null
+        Copy-Item -Path "$StartLayoutXML" -Destination "$MountDirectory\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml" -Recurse -Force | Out-Null
     }
     Catch {
         $ErrorMessage = $_.Exception.Message
@@ -1829,14 +1832,14 @@ function Add-ContentUnattend {
     #===================================================================================================
     #   Execute
     #===================================================================================================
-    Write-Host "$SetOSDBuilderPathContent\$UnattendXML" -ForegroundColor DarkGray
+    Write-Host "$UnattendXML" -ForegroundColor DarkGray
     if (!(Test-Path "$MountDirectory\Windows\Panther")) {New-Item -Path "$MountDirectory\Windows\Panther" -ItemType Directory -Force | Out-Null}
-    Copy-Item -Path "$SetOSDBuilderPathContent\$UnattendXML" -Destination "$MountDirectory\Windows\Panther\Unattend.xml" -Force
+    Copy-Item -Path "$UnattendXML" -Destination "$MountDirectory\Windows\Panther\Unattend.xml" -Force
     
     $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentUnattend.log"
     Write-Verbose "CurrentLog: $CurrentLog"
 
-    Try {Use-WindowsUnattend -UnattendPath "$SetOSDBuilderPathContent\$UnattendXML" -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null}
+    Try {Use-WindowsUnattend -UnattendPath "$UnattendXML" -Path "$MountDirectory" -LogPath "$CurrentLog" | Out-Null}
     Catch {
         $ErrorMessage = $_.Exception.Message
         Write-Warning "$ErrorMessage"
@@ -1856,11 +1859,11 @@ function Add-FeaturesOnDemandOS {
     Show-ActionTime; Write-Host -ForegroundColor Green "OS: Features On Demand"
     foreach ($FOD in $FeaturesOnDemand) {
         $global:ReapplyLCU = $true
-        Write-Host "$SetOSDBuilderPathContent\$FOD" -ForegroundColor DarkGray
+        Write-Host "$FOD" -ForegroundColor DarkGray
         $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-FeaturesOnDemandOS.log"
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {
-            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$FOD" -LogPath "$CurrentLog" | Out-Null
+            Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$FOD" -LogPath "$CurrentLog" | Out-Null
         }
         Catch {
             if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
@@ -1889,11 +1892,11 @@ function Add-LanguageFeaturesOnDemandOS {
     Show-ActionTime; Write-Host -ForegroundColor Green "OS: Language Features On Demand"
     foreach ($Update in $LanguageFeatures | Where-Object {$_ -notlike "*Speech*"}) {
         $global:ReapplyLCU = $true
-        if (Test-Path "$SetOSDBuilderPathContent\$Update") {
-            Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
+        if (Test-Path "$Update") {
+            Write-Host "$Update" -ForegroundColor DarkGray
 
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log"
-            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null}
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$Update" -LogPath $CurrentLog | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -1902,11 +1905,11 @@ function Add-LanguageFeaturesOnDemandOS {
     }
     foreach ($Update in $LanguageFeatures | Where-Object {$_ -like "*TextToSpeech*"}) {
         $global:ReapplyLCU = $true
-        if (Test-Path "$SetOSDBuilderPathContent\$Update") {
-            Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
+        if (Test-Path "$Update") {
+            Write-Host "$Update" -ForegroundColor DarkGray
 
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log"
-            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null}
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$Update" -LogPath $CurrentLog | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -1915,11 +1918,11 @@ function Add-LanguageFeaturesOnDemandOS {
     }
     foreach ($Update in $LanguageFeatures | Where-Object {$_ -like "*Speech*" -and $_ -notlike "*TextToSpeech*"}) {
         $global:ReapplyLCU = $true
-        if (Test-Path "$SetOSDBuilderPathContent\$Update") {
-            Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
+        if (Test-Path "$Update") {
+            Write-Host "$Update" -ForegroundColor DarkGray
 
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageFeaturesOnDemandOS.log"
-            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null}
+            Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$Update" -LogPath $CurrentLog | Out-Null}
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
@@ -1944,20 +1947,20 @@ function Add-LanguageInterfacePacksOS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $LanguageInterfacePacks) {
-        if (Test-Path "$SetOSDBuilderPathContent\$Update") {
-            Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
+        if (Test-Path "$Update") {
+            Write-Host "$Update" -ForegroundColor DarkGray
 
             $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguageInterfacePacksOS.log"
             Try {
                 $global:ReapplyLCU = $true
-                Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null
+                Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$Update" -LogPath $CurrentLog | Out-Null
             }
             Catch {
                 if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
                 Write-Verbose "$CurrentLog" -Verbose
             }
         } else {
-            Write-Warning "Not Found: $SetOSDBuilderPathContent\$Update"
+            Write-Warning "Not Found: $Update"
         }
     }
 }
@@ -1978,14 +1981,14 @@ function Add-LanguagePacksOS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $LanguagePacks) {
-        if (Test-Path "$SetOSDBuilderPathContent\$Update") {
+        if (Test-Path "$Update") {
             if ($Update -like "*.cab") {
                 Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
 
                 $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguagePacksOS.log"
                 Try {
                     $global:ReapplyLCU = $true
-                    Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LogPath $CurrentLog | Out-Null
+                    Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$Update" -LogPath $CurrentLog | Out-Null
                 }
                 Catch {
                     if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
@@ -1993,11 +1996,11 @@ function Add-LanguagePacksOS {
                     Write-Verbose "$CurrentLog" -Verbose
                 }
             } elseif ($Update -like "*.appx") {
-                Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
-                Add-AppxProvisionedPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LicensePath "$((Get-Item $SetOSDBuilderPathContent\$Update).Directory.FullName)\License.xml" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguagePacksOS.log" | Out-Null
+                Write-Host "$Update" -ForegroundColor DarkGray
+                Add-AppxProvisionedPackage -Path "$MountDirectory" -PackagePath "$Update" -LicensePath "$((Get-Item $Update).Directory.FullName)\License.xml" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LanguagePacksOS.log" | Out-Null
             }
         } else {
-            Write-Warning "Not Found: $SetOSDBuilderPathContent\$Update"
+            Write-Warning "Not Found: $Update"
         }
     }
 }
@@ -2019,12 +2022,12 @@ function Add-LocalExperiencePacksOS {
     #   Execute
     #===================================================================================================
     foreach ($Update in $LocalExperiencePacks) {
-        if (Test-Path "$SetOSDBuilderPathContent\$Update") {
-            Write-Host "$SetOSDBuilderPathContent\$Update" -ForegroundColor DarkGray
+        if (Test-Path "$Update") {
+            Write-Host "$Update" -ForegroundColor DarkGray
             $global:ReapplyLCU = $true
-            Add-AppxProvisionedPackage -Path "$MountDirectory" -PackagePath "$SetOSDBuilderPathContent\$Update" -LicensePath "$((Get-Item $SetOSDBuilderPathContent\$Update).Directory.FullName)\License.xml" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LocalExperiencePacksOS.log" | Out-Null
+            Add-AppxProvisionedPackage -Path "$MountDirectory" -PackagePath "$Update" -LicensePath "$((Get-Item $Update).Directory.FullName)\License.xml" -LogPath "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-LocalExperiencePacksOS.log" | Out-Null
         } else {
-            Write-Warning "Not Found: $SetOSDBuilderPathContent\$Update"
+            Write-Warning "Not Found: $Update"
         }
     }
 }
@@ -2041,12 +2044,12 @@ function Add-WindowsPackageOS {
     if ([string]::IsNullOrWhiteSpace($Packages)) {Return}
     Show-ActionTime; Write-Host -ForegroundColor Green "OS: Add Packages"
     foreach ($PackagePath in $Packages) {
-        Write-Host "$SetOSDBuilderPathContent\$PackagePath" -ForegroundColor DarkGray
+        Write-Host "$PackagePath" -ForegroundColor DarkGray
 
         $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsPackageOS.log"
         Try {
             $global:ReapplyLCU = $true
-            Add-WindowsPackage -PackagePath "$SetOSDBuilderPathContent\$PackagePath" -Path "$MountDirectory" -LogPath $CurrentLog | Out-Null
+            Add-WindowsPackage -PackagePath "$PackagePath" -Path "$MountDirectory" -LogPath $CurrentLog | Out-Null
         }
         Catch {
             if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
@@ -2345,7 +2348,7 @@ function Expand-DaRTPE {
     #===================================================================================================
     #   Header
     #===================================================================================================
-    $MicrosoftDartCab = "$SetOSDBuilderPathContent\$WinPEDaRT"
+    $MicrosoftDartCab = "$WinPEDaRT"
     Show-ActionTime; Write-Host -ForegroundColor Green "Microsoft DaRT: $MicrosoftDartCab"
     #===================================================================================================
     #   Execute
@@ -5721,71 +5724,71 @@ function Show-TaskInfo {
 
 
     if ($StartLayoutXML)    {
-    Write-Host "-Start Layout:              $SetOSDBuilderPathContent\$StartLayoutXML"}
+    Write-Host "-Start Layout:              $StartLayoutXML"}
     if ($UnattendXML)       {
-    Write-Host "-Unattend:                  $SetOSDBuilderPathContent\$UnattendXML"}
+    Write-Host "-Unattend:                  $UnattendXML"}
     if ($WinPEDaRT)         {
-    Write-Host "-WinPE DaRT:                $SetOSDBuilderPathContent\$WinPEDaRT"}
+    Write-Host "-WinPE DaRT:                $WinPEDaRT"}
 
     if ($Drivers) {
         Write-Host "-Drivers:"
-        foreach ($item in $Drivers)             {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $Drivers)             {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($ExtraFiles) {
         Write-Host "-Extra Files:"
-        foreach ($item in $ExtraFiles)          {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $ExtraFiles)          {Write-Host "   $item" -ForegroundColor DarkGray}}
 
     if ($FeaturesOnDemand) {
         Write-Host "-Features On Demand:"
-        foreach ($item in $FeaturesOnDemand)    {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $FeaturesOnDemand)    {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($Packages) {
         Write-Host "-Packages:"
-        foreach ($item in $Packages)            {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $Packages)            {Write-Host "   $item" -ForegroundColor DarkGray}}
 
     if ($Scripts) {
         Write-Host "-Scripts:"
-        foreach ($item in $Scripts)             {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $Scripts)             {Write-Host "   $item" -ForegroundColor DarkGray}}
 
     if ($WinPEDrivers) {
         Write-Host "-WinPE Drivers:"
-        foreach ($item in $WinPEDrivers)        {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEDrivers)        {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEADKPE) {
         Write-Host "-WinPE ADK Packages:"
-        foreach ($item in $WinPEADKPE)          {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEADKPE)          {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEADKRE) {
         Write-Host "-WinRE ADK Packages:"
-        foreach ($item in $WinPEADKRE)          {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEADKRE)          {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEADKSE) {
         Write-Host "-WinSE ADK Packages:"
-        foreach ($item in $WinPEADKSE)          {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEADKSE)          {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEExtraFilesPE) {
         Write-Host "-WinPE Extra Files:"
-        foreach ($item in $WinPEExtraFilesPE)   {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEExtraFilesPE)   {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEExtraFilesRE) {
         Write-Host "-WinRE Extra Files:"
-        foreach ($item in $WinPEExtraFilesRE)   {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEExtraFilesRE)   {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEExtraFilesSE) {
         Write-Host "-WinSE Extra Files:"
-        foreach ($item in $WinPEExtraFilesSE)   {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEExtraFilesSE)   {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEScriptsPE) {
         Write-Host "-WinPE Scripts:"
-        foreach ($item in $WinPEScriptsPE)      {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEScriptsPE)      {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEScriptsRE) {
         Write-Host "-WinRE Scripts:"
-        foreach ($item in $WinPEScriptsRE)      {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEScriptsRE)      {Write-Host "   $item" -ForegroundColor DarkGray}}
     
     if ($WinPEScriptsSE) {
         Write-Host "-WinSE Scripts:"
-        foreach ($item in $WinPEScriptsSE)      {Write-Host "   $SetOSDBuilderPathContent\$item" -ForegroundColor DarkGray}}
+        foreach ($item in $WinPEScriptsSE)      {Write-Host "   $item" -ForegroundColor DarkGray}}
 
     if ($SetAllIntl)            {Write-Host "-SetAllIntl (Language):         $SetAllIntl"}
     if ($SetInputLocale)        {Write-Host "-SetInputLocale (Language):     $SetInputLocale"}
