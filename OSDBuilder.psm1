@@ -11,26 +11,11 @@ foreach ($Import in @($OSDPublicFunctions + $OSDPrivateFunctions)) {
 }
 
 Export-ModuleMember -Function $OSDPublicFunctions.BaseName
-#===================================================================================================
-#   Get-OSBuilder
-#===================================================================================================
-try {New-Alias -Name Get-OSBuilder -Value Get-OSDBuilder -Force -ErrorAction SilentlyContinue}
-catch {}
-#===================================================================================================
-#   New-OSBMediaISO
-#===================================================================================================
-try {New-Alias -Name New-OSBMediaISO -Value New-OSDBuilderISO -Force -ErrorAction SilentlyContinue}
-catch {}
-#===================================================================================================
-#   New-OSBMediaUSB
-#===================================================================================================
-try {New-Alias -Name New-OSBMediaUSB -Value New-OSDBuilderUSB -Force -ErrorAction SilentlyContinue}
-catch {}
-#===================================================================================================
-#   Show-OSBMediaInfo
-#===================================================================================================
-try {New-Alias -Name Show-OSBMediaInfo -Value Show-OSDBuilderInfo -Force -ErrorAction SilentlyContinue}
-catch {}
+New-Alias -Name Get-OSBuilder -Value Get-OSDBuilder -Force -ErrorAction SilentlyContinue
+New-Alias -Name New-OSBMediaISO -Value New-OSDBuilderISO -Force -ErrorAction SilentlyContinue
+New-Alias -Name New-OSBMediaUSB -Value New-OSDBuilderUSB -Force -ErrorAction SilentlyContinue
+New-Alias -Name Show-OSBMediaInfo -Value Show-OSDBuilderInfo -Force -ErrorAction SilentlyContinue
+New-Alias -Name Get-DownOSDBuilder -Value Save-OSDBuilderDownload -Force -ErrorAction SilentlyContinue
 
 <# #===================================================================================================
 #   ImportOSD

@@ -1,6 +1,6 @@
 function Initialize-OSDBuilder {
     [CmdletBinding()]
-    Param (
+    param (
         #Sets the OSDBuilder Path in the Registry
         [string]$SetHome
     )
@@ -72,7 +72,7 @@ function Initialize-OSDBuilder {
         PathTemplates           = Join-Path $global:GetOSDBuilderHome 'Templates'
         PathUpdates             = Join-Path $global:GetOSDBuilderHome 'Updates'
 
-        #Get-DownOSDBuilder
+        #Save-OSDBuilderDownload
         #Get-OSBuilds
         #Get-OSDBuilder
         #Get-OSMedia

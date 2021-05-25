@@ -10,7 +10,7 @@ https://osdbuilder.osdeploy.com/module/functions/import-osmedia
 #>
 function Import-OSMedia {
     [CmdletBinding()]
-    Param (
+    param (
         #Unsupported
         #Allows the import of an unsupported OS
         #THIS PARAMETER IS NOT A GUARANTEE OF ANY FUNCTIONALITY
@@ -185,14 +185,9 @@ function Import-OSMedia {
         Show-ActionTime; Write-Host "Get-OSDBuilder: Validating OSDBuilder Content"
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        Show-ActionTime; Write-Host "Get-OSDGather: Validating Administrator Rights and Elevation"
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Show-ActionTime; Write-Warning 'Get-OSDGather: Import-OSMedia needs to be run as Elevated Administrator. Throw BREAK'
-            Pause
-            Break
-        }
+        Block-StandardUser
         #===================================================================================================
         #   ImportOSMediaOperatingSystems
         #===================================================================================================
@@ -367,7 +362,7 @@ function Import-OSMedia {
             #===================================================================================================
             #   Get-RegCurrentVersion
             #===================================================================================================
-            $GetRegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
+            $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
             #===================================================================================================
             #   Set Additional Properties
             #===================================================================================================
@@ -377,24 +372,30 @@ function Import-OSMedia {
             $OSMGuid = $(New-Guid)
 
             if ($GetWindowsImage.MajorVersion -eq '10') {
-                $RegValueUbr = $($GetRegKeyCurrentVersion.UBR)
-                $RegValueReleaseId = $($GetRegKeyCurrentVersion.ReleaseId)
-                $RegValueCurrentBuild = $($GetRegKeyCurrentVersion.CurrentBuild)
+                $RegValueUbr = ($RegKeyCurrentVersion).UBR
+                $RegValueReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                $RegValueCurrentBuild = ($RegKeyCurrentVersion).CurrentBuild
+                $RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
 
-                if ($RegValueReleaseId -gt 2009) {Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"}
+                if ($RegValueDisplayVersion) {$RegValueReleaseId = $RegValueDisplayVersion}
+
                 if ($null -eq $RegValueReleaseId) {
-                    #if ($GetWindowsImage.Build -eq 7600) {$RegValueReleaseId = 7600}
-                    #if ($GetWindowsImage.Build -eq 7601) {$RegValueReleaseId = 7601}
-                    #if ($GetWindowsImage.Build -eq 9600) {$RegValueReleaseId = 9600}
+                    if ($GetWindowsImage.Build -eq 7600) {$RegValueReleaseId = 7600}
+                    if ($GetWindowsImage.Build -eq 7601) {$RegValueReleaseId = 7601}
+                    if ($GetWindowsImage.Build -eq 9600) {$RegValueReleaseId = 9600}
                     if ($GetWindowsImage.Build -eq 10240) {$RegValueReleaseId = 1507}
                     if ($GetWindowsImage.Build -eq 14393) {$RegValueReleaseId = 1607}
                     if ($GetWindowsImage.Build -eq 15063) {$RegValueReleaseId = 1703}
                     if ($GetWindowsImage.Build -eq 16299) {$RegValueReleaseId = 1709}
-                    #if ($GetWindowsImage.Build -eq 17134) {$RegValueReleaseId = 1803}
-                    #if ($GetWindowsImage.Build -eq 17763) {$RegValueReleaseId = 1809}
+                    if ($GetWindowsImage.Build -eq 17134) {$RegValueReleaseId = 1803}
+                    if ($GetWindowsImage.Build -eq 17763) {$RegValueReleaseId = 1809}
                     #if ($GetWindowsImage.Build -eq 18362) {$RegValueReleaseId = 1903}
+                    #if ($GetWindowsImage.Build -eq 18363) {$RegValueReleaseId = 1909}
+                    #if ($GetWindowsImage.Build -eq 19041) {$RegValueReleaseId = 2004}
+                    #if ($GetWindowsImage.Build -eq 19042) {$RegValueReleaseId = '20H2'}
+                    #if ($GetWindowsImage.Build -eq 19043) {$RegValueReleaseId = '21H1'}
                 }
-                $UBR = "$RegValueCurrentBuild.$RegValueUbr"
+                $UBR = "$($RegValueCurrentBuild).$($RegValueUbr)"
                 $OSMediaName = "$($GetWindowsImage.ImageName) $($GetWindowsImage.Architecture) $RegValueReleaseId $UBR $($GetWindowsImage.Languages)"
             } else {
                 $UBR = "$($GetWindowsImage.Build).$($GetWindowsImage.SPBuild)"
@@ -402,6 +403,7 @@ function Import-OSMedia {
             }
 
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "CurrentBuild" -Value $RegValueCurrentBuild -Force
+            $GetWindowsImage | Add-Member -Type NoteProperty -Name "DisplayVersion" -Value $RegValueDisplayVersion -Force
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "ReleaseId" -Value $RegValueReleaseId -Force
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR -Force
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid -Force
@@ -444,13 +446,13 @@ function Import-OSMedia {
             #===================================================================================================
             #   Export RegistryCurrentVersionKey
             #===================================================================================================
-            $GetRegKeyCurrentVersion | Out-File "$OSMediaPathInfo\CurrentVersion.txt"
-            $GetRegKeyCurrentVersion | Out-File "$OSMediaPath\CurrentVersion.txt"
-            $GetRegKeyCurrentVersion | Out-File "$OSMediaPathInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
-            $GetRegKeyCurrentVersion | Export-Clixml -Path "$OSMediaPathInfo\xml\CurrentVersion.xml"
-            $GetRegKeyCurrentVersion | Export-Clixml -Path "$OSMediaPathInfo\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
-            $GetRegKeyCurrentVersion | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\CurrentVersion.json"
-            $GetRegKeyCurrentVersion | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
+            $RegKeyCurrentVersion | Out-File "$OSMediaPathInfo\CurrentVersion.txt"
+            $RegKeyCurrentVersion | Out-File "$OSMediaPath\CurrentVersion.txt"
+            $RegKeyCurrentVersion | Out-File "$OSMediaPathInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.txt"
+            $RegKeyCurrentVersion | Export-Clixml -Path "$OSMediaPathInfo\xml\CurrentVersion.xml"
+            $RegKeyCurrentVersion | Export-Clixml -Path "$OSMediaPathInfo\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.xml"
+            $RegKeyCurrentVersion | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\CurrentVersion.json"
+            $RegKeyCurrentVersion | ConvertTo-Json | Out-File "$OSMediaPathInfo\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-CurrentVersion.json"
             #===================================================================================================
             #   Start-Transcript
             #===================================================================================================
@@ -514,8 +516,6 @@ function Import-OSMedia {
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "ReleaseId" -Value $RegValueReleaseId
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "UBR" -Value $UBR
             $GetWindowsImage | Add-Member -Type NoteProperty -Name "OSMGuid" -Value $OSMGuid
-
-
 
             Write-Verbose "========== SPBuild: $($GetWindowsImage.Build).$($GetWindowsImage.SPBuild)"
             if ($GetWindowsImage.Version -like "6.1*") {

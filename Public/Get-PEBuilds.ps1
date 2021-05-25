@@ -10,7 +10,7 @@ https://osdbuilder.osdeploy.com/module/functions/get-pebuilds
 #>
 function Get-PEBuilds {
     [CmdletBinding()]
-    Param (
+    param (
         #Displays results in GridView with PassThru
         [switch]$GridView
     )
@@ -43,8 +43,8 @@ function Get-PEBuilds {
             $XmlWindowsImage = @()
             $XmlWindowsImage = Import-Clixml -Path "$PEBuildPath\info\xml\Get-WindowsImage.xml"
 
-            $XmlRegistry = @()
-            $XmlRegistry = Import-Clixml -Path "$PEBuildPath\info\xml\CurrentVersion.xml"
+            $RegKeyCurrentVersion = @()
+            $RegKeyCurrentVersion = Import-Clixml -Path "$PEBuildPath\info\xml\CurrentVersion.xml"
 
             $OSMPackage = @()
             $OSMPackage = Import-Clixml -Path "$PEBuildPath\info\xml\Get-WindowsPackage.xml"
@@ -115,33 +115,37 @@ function Get-PEBuilds {
             #===================================================================================================
             #   Registry
             #===================================================================================================
-            $RegReleaseId = $null
-            [string]$RegReleaseId = $($XmlRegistry.ReleaseId)
-            [string]$RegCurrentBuild = $($XmlRegistry.CurrentBuild)
+            $RegValueReleaseId = $null
+            [string]$RegValueCurrentBuild = ($RegKeyCurrentVersion).CurrentBuild
+            [string]$RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
+            [string]$RegValueReleaseId = ($RegKeyCurrentVersion).ReleaseId
+            if ($RegValueDisplayVersion) {$RegValueReleaseId = $RegValueDisplayVersion}
 
-            if ($OSMBuild -eq 7600) {$RegReleaseId = 7600}
-            if ($OSMBuild -eq 7601) {$RegReleaseId = 7601}
-            if ($OSMBuild -eq 9600) {$RegReleaseId = 9600}
-            if ($OSMBuild -eq 10240) {$RegReleaseId = 1507}
-            if ($OSMBuild -eq 14393) {$RegReleaseId = 1607}
-            if ($OSMBuild -eq 15063) {$RegReleaseId = 1703}
-            if ($OSMBuild -eq 16299) {$RegReleaseId = 1709}
-            if ($OSMBuild -eq 17134) {$RegReleaseId = 1803}
-            if ($OSMBuild -eq 17763) {$RegReleaseId = 1809}
-            #if ($OSMBuild -eq 18362) {$RegReleaseId = 1903}
-            #if ($OSMBuild -eq 18363) {$RegReleaseId = 1909}
-            #if ($OSMBuild -eq 18990) {$RegReleaseId = 2001}
+            if ($OSMBuild -eq 7600) {$RegValueReleaseId = 7600}
+            if ($OSMBuild -eq 7601) {$RegValueReleaseId = 7601}
+            if ($OSMBuild -eq 9600) {$RegValueReleaseId = 9600}
+            if ($OSMBuild -eq 10240) {$RegValueReleaseId = 1507}
+            if ($OSMBuild -eq 14393) {$RegValueReleaseId = 1607}
+            if ($OSMBuild -eq 15063) {$RegValueReleaseId = 1703}
+            if ($OSMBuild -eq 16299) {$RegValueReleaseId = 1709}
+            if ($OSMBuild -eq 17134) {$RegValueReleaseId = 1803}
+            if ($OSMBuild -eq 17763) {$RegValueReleaseId = 1809}
+            #if ($OSMBuild -eq 18362) {$RegValueReleaseId = 1903}
+            #if ($OSMBuild -eq 18363) {$RegValueReleaseId = 1909}
+            #if ($OSMBuild -eq 19041) {$RegValueReleaseId = 2004}
+            #if ($OSMBuild -eq 19042) {$RegValueReleaseId = '20H2'}
+            #if ($OSMBuild -eq 19043) {$RegValueReleaseId = '21H1'}
 
-            Write-Verbose "ReleaseId: $RegReleaseId"
-            Write-Verbose "CurrentBuild: $RegCurrentBuild"
+            Write-Verbose "ReleaseId: $RegValueReleaseId"
+            Write-Verbose "CurrentBuild: $RegValueCurrentBuild"
             #===================================================================================================
             #   OSMFamily
             #===================================================================================================
             $OSMFamilyV1 = $(Get-Date -Date $($XmlWindowsImage.CreatedTime)).ToString("yyyyMMddHHmmss") + $OSMEditionID
-            if ($null -eq $RegCurrentBuild) {
+            if ($null -eq $RegValueCurrentBuild) {
                 $OSMFamily = $OSMInstallationType + " " + $OSMEditionId + " " + $OSMArch + " " + [string]$OSMBuild + " " + $OSMLanguages
             } else {
-                $OSMFamily = $OSMInstallationType + " " + $OSMEditionId + " " + $OSMArch + " " + [string]$RegCurrentBuild + " " + $OSMLanguages
+                $OSMFamily = $OSMInstallationType + " " + $OSMEditionId + " " + $OSMArch + " " + [string]$RegValueCurrentBuild + " " + $OSMLanguages
             }
             Write-Verbose "OSMFamily: $OSMFamily"
             #===================================================================================================
@@ -158,8 +162,8 @@ function Get-PEBuilds {
                 OperatingSystem     = $UpdateOS
                 Arch                = $OSMArch
 
-                ReleaseId           = $RegReleaseId
-                RegBuild            = $($XmlRegistry.CurrentBuild)
+                ReleaseId           = $RegValueReleaseId
+                RegBuild            = $($RegKeyCurrentVersion.CurrentBuild)
                 UBR                 = [version]$OSMUBR
 
                 Version             = [version]$OSMVersion

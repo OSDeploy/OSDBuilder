@@ -15,7 +15,7 @@ https://osdbuilder.osdeploy.com/module/functions/new-osbuild
 #>
 function New-OSBuild {
     [CmdletBinding(DefaultParameterSetName='Basic')]
-    Param (
+    param (
         #Specify the Name of the OSMedia to use with New-OSBuild
         [Parameter(ParameterSetName='Taskless', ValueFromPipelineByPropertyName=$True)]
         [string[]]$Name,
@@ -148,13 +148,10 @@ function New-OSBuild {
         $AllOSDUpdates = @()
         $AllOSDUpdates = Get-OSDUpdates
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Break
-        }
+        Block-StandardUser
+        #===================================================================================================
     }
 
     Process {
@@ -272,6 +269,8 @@ function New-OSBuild {
                 $StartLayoutXML = $Task.StartLayoutXML
                 $UnattendXML = $Task.UnattendXML
                 $WinPEAutoExtraFiles = $Task.WinPEAutoExtraFiles
+                $WinPEOSDCloud = $Task.WinPEOSDCloud
+                $WinREWiFi = $Task.WinREWiFi
                 $WinPEDaRT = $Task.WinPEDart
                 $ExtraFiles = $Task.ExtraFiles
                 $Scripts = $Task.Scripts
@@ -398,6 +397,8 @@ function New-OSBuild {
                     if ($Task.StartLayoutXML) {$StartLayoutXML = $Task.StartLayoutXML}
                     if ($Task.UnattendXML) {$UnattendXML = $Task.UnattendXML}
                     if (!($Task.WinPEAutoExtraFiles -eq $False)) {$WinPEAutoExtraFiles = $Task.WinPEAutoExtraFiles}
+                    if (!($Task.WinPEOSDCloud -eq $False)) {$WinPEOSDCloud = $Task.WinPEOSDCloud}
+                    if (!($Task.WinREWiFi -eq $False)) {$WinREWiFi = $Task.WinREWiFi}
                     if ($Task.WinPEDaRT) {$WinPEDaRT = $Task.WinPEDaRT}
                     
                     $ExtraFiles += @($Task.ExtraFiles | Where-Object {$_})
@@ -504,17 +505,16 @@ function New-OSBuild {
 
             Show-MediaImageInfoOS
             #===================================================================================================
-            Write-Verbose '19.1.1 Validate Registry CurrentVersion.xml'
+            Write-Verbose '21.5.21 Validate Registry CurrentVersion.xml'
             #===================================================================================================
             $RegValueCurrentBuild = $null
             if (Test-Path "$OSMediaPath\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$OSMediaPath\info\xml\CurrentVersion.xml"
-                $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-                $RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)
-                if ($ReleaseId -gt 2009) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
-                }
+                
+                [string]$RegValueCurrentBuild = ($RegKeyCurrentVersion).CurrentBuild
+                [string]$RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
+                [string]$ReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
             }
             #===================================================================================================
             Write-Verbose '19.1.1 Set ReleaseId'
@@ -532,8 +532,13 @@ function New-OSBuild {
                 if ($OSBuild -eq 17763) {$ReleaseId = 1809}
                 #if ($OSBuild -eq 18362) {$ReleaseId = 1903}
                 #if ($OSBuild -eq 18363) {$ReleaseId = 1909}
-                #if ($OSBuild -eq 18990) {$ReleaseId = 2001}
+                #if ($OSBuild -eq 19041) {$ReleaseId = 2004}
+                #if ($OSBuild -eq 19042) {$ReleaseId = '20H2'}
+                #if ($OSBuild -eq 19043) {$ReleaseId = '21H1'}
             }
+
+            Write-Verbose "ReleaseId: $ReleaseId"
+            Write-Verbose "CurrentBuild: $RegValueCurrentBuild"
             #===================================================================================================
             #   Operating System
             #===================================================================================================
@@ -747,7 +752,7 @@ function New-OSBuild {
                     Write-Host "OSDSUS (Microsoft Updates) Download" -ForegroundColor Green
                     if ($UpdatesNotDownloadedOptional){
                         Write-Host "Optional Updates are not automatically downloaded.  Use the following command:" -ForegroundColor Yellow
-                        Write-Host "Get-DownOSDBuilder -UpdateOS '$UpdateOS' -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
+                        Write-Host "Save-OSDBuilderDownload -UpdateOS '$UpdateOS' -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
                     }
                     foreach ($Update in $UpdatesNotDownloaded) {
                         Write-Host "$($Update.CreationDate) - $($Update.UpdateGroup) - $($Update.Title)" -ForegroundColor Cyan
@@ -915,6 +920,8 @@ function New-OSBuild {
                 #   WinPE Content
                 #===================================================================================================
                 Import-AutoExtraFilesPE
+                Enable-WinPEOSDCloud
+                Enable-WinREWiFi
                 Add-ContentExtraFilesPE
                 Add-ContentDriversPE
                 Add-ContentScriptsPE
@@ -945,7 +952,11 @@ function New-OSBuild {
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Mount Registry for UBR Information"
                 $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
-                if ($($RegKeyCurrentVersion.ReleaseId)) {$ReleaseId = $($RegKeyCurrentVersion.ReleaseId)}
+
+                $RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
+                $ReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
+
                 if ($($RegKeyCurrentVersion.CurrentBuild)) {$RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)}
                 else {$RegValueCurrentBuild = $OSSPBuild}
                 if ($($RegKeyCurrentVersion.UBR)) {$RegValueUbr = $($RegKeyCurrentVersion.UBR)}
@@ -996,7 +1007,11 @@ function New-OSBuild {
                 #   Install.wim UBR Post-Update
                 #===================================================================================================
                 $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
-                if ($($RegKeyCurrentVersion.ReleaseId)) {$ReleaseId = $($RegKeyCurrentVersion.ReleaseId)}
+
+                $RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
+                $ReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
+
                 if ($($RegKeyCurrentVersion.CurrentBuild)) {$RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)}
                 else {$RegValueCurrentBuild = $OSSPBuild}
                 if ($($RegKeyCurrentVersion.UBR)) {$RegValueUbr = $($RegKeyCurrentVersion.UBR)}
@@ -1050,8 +1065,8 @@ function New-OSBuild {
                         }
                     }
                     Write-Host -ForegroundColor Cyan "                  To update OneDriveSetup.exe use one of the following commands:"
-                    Write-Host -ForegroundColor Cyan "                  Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Enterprise'"
-                    Write-Host -ForegroundColor Cyan "                  Get-DownOSDBuilder -ContentDownload 'OneDriveSetup Production'"
+                    Write-Host -ForegroundColor Cyan "                  Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Enterprise'"
+                    Write-Host -ForegroundColor Cyan "                  Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Production'"
                 }
                 #===================================================================================================
                 #	DismCleanupImage
@@ -1167,7 +1182,9 @@ function New-OSBuild {
                 $ReleaseId = $null
                 if (Test-Path "$Info\xml\CurrentVersion.xml") {
                     $RegKeyCurrentVersion = Import-Clixml -Path "$Info\xml\CurrentVersion.xml"
-                    $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
+                    [string]$RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
+                    [string]$ReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                    if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
                 }
                 if ($OSBuild -eq 7600) {$ReleaseId = 7600}
                 if ($OSBuild -eq 7601) {$ReleaseId = 7601}
@@ -1178,8 +1195,11 @@ function New-OSBuild {
                 if ($OSBuild -eq 16299) {$ReleaseId = 1709}
                 if ($OSBuild -eq 17134) {$ReleaseId = 1803}
                 if ($OSBuild -eq 17763) {$ReleaseId = 1809}
-				#if ($OSBuild -eq 18362) {$ReleaseId = 1903}
-
+                #if ($OSBuild -eq 18362) {$ReleaseId = 1903}
+                #if ($OSBuild -eq 18363) {$ReleaseId = 1909}
+                #if ($OSBuild -eq 19041) {$ReleaseId = 2004}
+                #if ($OSBuild -eq 19042) {$ReleaseId = '20H2'}
+                #if ($OSBuild -eq 19043) {$ReleaseId = '21H1'}
 
                 if ($OSMajorVersion -eq 10) {
                     if ($WorkingName -like "build*") {$NewOSMediaName = "$OSImageName $OSArchitecture $ReleaseId $UBR"}

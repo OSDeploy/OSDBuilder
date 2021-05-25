@@ -16,7 +16,7 @@ Label for the USB Drive
 #>
 function New-OSDBuilderUSB {
     [CmdletBinding()]
-    Param (
+    param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string]$FullName,
         
@@ -30,13 +30,9 @@ function New-OSDBuilderUSB {
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Break
-        }
+        Block-StandardUser
         #===================================================================================================
         #   Gather all OSMedia OSBuilds PEBuilds
         #===================================================================================================

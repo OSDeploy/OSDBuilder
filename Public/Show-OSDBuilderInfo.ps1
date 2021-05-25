@@ -13,7 +13,7 @@ Full Path of the OSDBuilder Media
 #>
 function Show-OSDBuilderInfo {
     [CmdletBinding()]
-    Param (
+    param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string[]]$FullName
     )

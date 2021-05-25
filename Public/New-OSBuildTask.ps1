@@ -10,10 +10,12 @@ https://osdbuilder.osdeploy.com/module/functions/new-osbuildtask
 #>
 function New-OSBuildTask {
     [CmdletBinding(DefaultParameterSetName='Basic')]
-    Param (
+    param (
+        [switch]$WinPEOSDCloud = $global:SetOSDBuilder.NewOSBuildTaskWinPEOSDCloud,
+        [switch]$WinREWiFi = $global:SetOSDBuilder.NewOSBuildTaskWinREWiFi,
+
         #Allows selection of a Template Pack to this Build
         [switch]$AddContentPacks = $global:SetOSDBuilder.NewOSBuildTaskAddContentPacks,
-
 
         #Select Drivers in GridView from the Content\Drivers directory
         [Parameter(ParameterSetName='All')]
@@ -160,13 +162,10 @@ function New-OSBuildTask {
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Break
-        }
+        Block-StandardUser
+        #===================================================================================================
     }
     
     Process {
@@ -211,6 +210,8 @@ function New-OSBuildTask {
         Write-Host "-SetUILangFallback:             $SetUILangFallback"
         Write-Host "-SetUserLocale:                 $SetUserLocale"
         Write-Host "-WinPEAutoExtraFiles:           $WinPEAutoExtraFiles"
+        Write-Host "-WinPEOSDCloud:                 $WinPEOSDCloud"
+        Write-Host "-WinREWiFi:                     $WinREWiFi"
         #===================================================================================================
         #   Get-OSMedia
         #===================================================================================================
@@ -229,7 +230,9 @@ function New-OSBuildTask {
             if ($TaskName -match '1903') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1903'}}
             if ($TaskName -match '1909') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1909'}}
             if ($TaskName -match '2004') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '2004'}}
-            if ($TaskName -match '2009') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '2009'}}
+            if ($TaskName -match '2009') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '20H2'}}
+            if ($TaskName -match '20H2') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '20H2'}}
+            if ($TaskName -match '21H1') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '21H1'}}
     
             Try {
                 $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title 'Select a Source OSMedia to use for this Task (Cancel to Exit)'
@@ -282,17 +285,19 @@ function New-OSBuildTask {
         if ($null -eq $($OSMedia.ReleaseId)) {
             if (Test-Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
-                $OSMedia.ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-                if ($($OSMedia.ReleaseId) -gt 2009) {
-                    Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
-                }
+
+                $RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
+                $OSMedia.ReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                if ($RegValueDisplayVersion) {$OSMedia.ReleaseId = $RegValueDisplayVersion}
             }
         }
         #===================================================================================================
         Write-Verbose '19.10.29 Set-OSMedia.ReleaseId'
         #===================================================================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
+            if ($($OSMedia.Build) -eq 7600) {$OSMedia.ReleaseId = 7600}
             if ($($OSMedia.Build) -eq 7601) {$OSMedia.ReleaseId = 7601}
+            if ($($OSMedia.Build) -eq 9600) {$OSMedia.ReleaseId = 9600}
             if ($($OSMedia.Build) -eq 10240) {$OSMedia.ReleaseId = 1507}
             if ($($OSMedia.Build) -eq 14393) {$OSMedia.ReleaseId = 1607}
             if ($($OSMedia.Build) -eq 15063) {$OSMedia.ReleaseId = 1703}
@@ -300,6 +305,10 @@ function New-OSBuildTask {
             if ($($OSMedia.Build) -eq 17134) {$OSMedia.ReleaseId = 1803}
             if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
             #if ($($OSMedia.Build) -eq 18362) {$OSMedia.ReleaseId = 1903}
+            #if ($($OSMedia.Build) -eq 18363) {$OSMedia.ReleaseId = 1909}
+            #if ($($OSMedia.Build) -eq 19041) {$OSMedia.ReleaseId = 2004}
+            #if ($($OSMedia.Build) -eq 19042) {$OSMedia.ReleaseId = '20H2'}
+            #if ($($OSMedia.Build) -eq 19043) {$OSMedia.ReleaseId = '21H1'}
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -856,6 +865,8 @@ function New-OSBuildTask {
         if (!($CustomName) -and $ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
         if ($ExistingTask.EnableNetFX3 -eq $true) {$EnableNetFX3 = $true}
         if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
+        if ($ExistingTask.WinPEOSDCloud -eq $true) {$WinPEOSDCloud = $true}
+        if ($ExistingTask.WinREWiFi -eq $true) {$WinREWiFi = $true}
         #===================================================================================================
         #   Corrections
         #===================================================================================================
@@ -904,6 +915,8 @@ function New-OSBuildTask {
             #===================================================================================================
             "EnableNetFX3" = [string]$EnableNetFX3;
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
+            "WinPEOSDCloud" = [string]$WinPEOSDCloud;
+            "WinREWiFi" = [string]$WinREWiFi;
             #===================================================================================================
             #   Internal
             #===================================================================================================

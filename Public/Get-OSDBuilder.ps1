@@ -10,7 +10,7 @@ https://osdbuilder.osdeploy.com/module/functions/get-osdbuilder
 #>
 function Get-OSDBuilder {
     [CmdletBinding()]
-    Param (
+    param (
         #Creates OSDBuilder directory structure
         #Directories are automatically created with first Import
         #Alias: Create
@@ -200,22 +200,22 @@ function Get-OSDBuilder {
     }
     if ($Quick -eq 'Cleanup') {
         $HideDetails = $true
-        Get-DownOSDBuilder -Superseded Remove
+        Save-OSDBuilderDownload -Superseded Remove
         Return
     }
     if ($Download -eq 'FeatureUpdates') {
         $HideDetails = $true
-        Get-DownOSDBuilder -FeatureUpdates
+        Save-OSDBuilderDownload -FeatureUpdates
         Return
     }
     if ($Download -eq 'OneDrive' -or $Quick -eq 'OneDrive') {
         $HideDetails = $true
-        Get-DownOSDBuilder -ContentDownload "OneDriveSetup Production"
+        Save-OSDBuilderDownload -ContentDownload "OneDriveSetup Production"
         Return
     }
     if ($Download -eq 'OneDriveEnterprise') {
         $HideDetails = $true
-        Get-DownOSDBuilder -ContentDownload "OneDriveSetup Enterprise"
+        Save-OSDBuilderDownload -ContentDownload "OneDriveSetup Enterprise"
         Return
     }
     #===================================================================================================

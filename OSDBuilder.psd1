@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '21.3.9.2'
+ModuleVersion = '21.5.21.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -28,8 +28,8 @@ Description = @'
 https://osdbuilder.osdeploy.com
 
 Requirements:
-PowerShell Module OSD 21.3.9.5 or newer
-PowerShell Module OSDSUS 20.12.10.1 or newer
+PowerShell Module OSD 21.5.21.1 or newer
+PowerShell Module OSDSUS 21.5.21.1 or newer
 
 Latest Microsoft Updates (WSUS):
 https://raw.githubusercontent.com/OSDeploy/OSDSUS/master/UPDATES.md
@@ -55,8 +55,8 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName = 'OSD'; ModuleVersion = '21.3.9.5'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
-    @{ModuleName = 'OSDSUS'; ModuleVersion = '20.12.10.1'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
+    @{ModuleName = 'OSD'; ModuleVersion = '21.5.21.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+    @{ModuleName = 'OSDSUS'; ModuleVersion = '21.5.21.1'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
 )
 
 # Assemblies that must be loaded prior to importing this module
@@ -75,7 +75,7 @@ RequiredModules = @(
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Get-DownOSDBuilder',
+FunctionsToExport = 'Save-OSDBuilderDownload',
                     'Get-OSBuilds',
                     'Get-OSDBuilder',
                     'Get-OSMedia',
@@ -89,6 +89,7 @@ FunctionsToExport = 'Get-DownOSDBuilder',
                     'New-OSDBuilderISO',
                     'New-OSDBuilderUSB',
                     'New-OSDBuilderVHD',
+                    'New-OSDCloudOSMedia',
                     'New-PEBuild',
                     'New-PEBuildTask',
                     'Show-OSDBuilderInfo',
@@ -104,7 +105,8 @@ VariablesToExport = @()
 AliasesToExport =   'Get-OSBuilder',
                     'New-OSBMediaISO',
                     'New-OSBMediaUSB',
-                    'Show-OSBMediaInfo'
+                    'Show-OSBMediaInfo',
+                    'Get-DownOSDBuilder'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()

@@ -15,7 +15,7 @@ Return created ISO information
 #>
 function New-OSDBuilderISO {
     [CmdletBinding()]
-    Param (
+    param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string[]]$FullName,
         [Parameter(Mandatory=$false)][Switch]$PassThru

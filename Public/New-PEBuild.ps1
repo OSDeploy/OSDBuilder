@@ -10,7 +10,7 @@ https://osdbuilder.osdeploy.com/module/functions/new-pebuild
 #>
 function New-PEBuild {
     [CmdletBinding(DefaultParameterSetName='Basic')]
-    Param (
+    param (
         #Creates an ISO of the Updated Media
         #oscdimg.exe from Windows ADK is required
         [Alias('ISO','OSDISO')]
@@ -34,13 +34,10 @@ function New-PEBuild {
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Break
-        }
+        Block-StandardUser
+        #===================================================================================================
 
 #===================================================================================================
 Write-Verbose 'MDT Files'
@@ -149,6 +146,8 @@ $MDTUnattendPEx86 = @'
             $OSMediaPath = "$SetOSDBuilderPathOSMedia\$OSMediaName"
 
             $WinPEAutoExtraFiles = $($Task.WinPEAutoExtraFiles)
+            $WinPEOSDCloud = $Task.WinPEOSDCloud
+            $WinREWiFi = $Task.WinREWiFi
 
             $MDTDeploymentShare = $($Task.MDTDeploymentShare)
             $ScratchSpace = $($Task.ScratchSpace)
@@ -178,6 +177,8 @@ $MDTUnattendPEx86 = @'
     
             Write-Host "-MDT Deployment Share:          $MDTDeploymentShare"
             Write-Host "-WinPE Auto ExtraFiles:         $WinPEAutoExtraFiles"
+            Write-Host "-WinPE OSDCloud:                $WinPEOSDCloud"
+            Write-Host "-WinRE WiFi                     $WinREWiFi"
             Write-Host "-WinPE DaRT:                    $WinPEDaRT"
             Write-Host "-WinPE Scratch Space:           $ScratchSpace"
             Write-Host "-WinPE Source Wim:              $SourceWim"
@@ -326,6 +327,7 @@ $MDTUnattendPEx86 = @'
             Write-Verbose '19.1.1 Set ReleaseId'
             #===================================================================================================
             if ($null -eq $ReleaseId) {
+                if ($OSBuild -eq 7600) {$ReleaseId = 7600}
                 if ($OSBuild -eq 7601) {$ReleaseId = 7601}
                 if ($OSBuild -eq 10240) {$ReleaseId = 1507}
                 if ($OSBuild -eq 14393) {$ReleaseId = 1607}
@@ -333,7 +335,11 @@ $MDTUnattendPEx86 = @'
                 if ($OSBuild -eq 16299) {$ReleaseId = 1709}
                 if ($OSBuild -eq 17134) {$ReleaseId = 1803}
                 if ($OSBuild -eq 17763) {$ReleaseId = 1809}
-                if ($OSBuild -eq 18362) {$ReleaseId = 1903}
+                #if ($OSBuild -eq 18362) {$ReleaseId = 1903}
+                #if ($OSBuild -eq 18363) {$ReleaseId = 1909}
+                #if ($OSBuild -eq 19041) {$ReleaseId = 2004}
+                #if ($OSBuild -eq 19042) {$ReleaseId = '20H2'}
+                #if ($OSBuild -eq 19043) {$ReleaseId = '21H1'}
             }
 
             #===================================================================================================
@@ -447,11 +453,13 @@ $MDTUnattendPEx86 = @'
                 #   Get-RegCurrentVersion
                 #===================================================================================================
                 $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
+
+                $RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
+                $ReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
                 #===================================================================================================
                 #   Get Registry and UBR
                 #===================================================================================================
-                $ReleaseId = $null
-                $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
                 $RegKeyCurrentVersionUBR = $($RegKeyCurrentVersion.UBR)
                 $UBR = "$OSBuild.$RegKeyCurrentVersionUBR"
 
@@ -654,14 +662,21 @@ $MDTUnattendPEx86 = @'
                     Copy-Item -Path "$MDTDeploymentShare\Tools\$OSArchitecture\msvcr120.dll" -Destination "$MountDirectory\Deploy\Tools\$OSArchitecture\msvcr120.dll" -Force -ErrorAction SilentlyContinue | Out-Null
                     #[void](Read-Host 'Press Enter to Continue')
                 }
-                
                 #===================================================================================================
                 #   Auto ExtraFiles
                 #===================================================================================================
                 if ($WinPEAutoExtraFiles -eq $true) {
                     Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Copy Auto ExtraFiles from $OSSourcePath\WinPE\AutoExtraFiles"
-                    robocopy "$OSSourcePath\WinPE\AutoExtraFiles" "$MountDirectory" *.* /e /ndl /xf bcp47*.dll /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-AutoExtraFiles.log" | Out-Null
+                    robocopy "$OSSourcePath\WinPE\AutoExtraFiles" "$MountDirectory" *.* /s /ndl /xf bcp47*.dll /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-AutoExtraFiles.log" | Out-Null
                 }
+                #===================================================================================================
+                #   Enable-WinPEOSDCloud
+                #===================================================================================================
+                if ($WinPEOSDCloud -eq $true) {Enable-WinPEOSDCloud}
+                #===================================================================================================
+                #   Enable-WinREWiFi
+                #===================================================================================================
+                if ($WinREWiFi -eq $true) {Enable-WinREWiFi}
                 #===================================================================================================
                 #   PEExtraFiles
                 #===================================================================================================
@@ -669,7 +684,7 @@ $MDTUnattendPEx86 = @'
                     Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Task PEExtraFiles"
                     foreach ($ExtraFile in $WinPEExtraFiles) {
                         Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
-                        robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountDirectory" *.* /e /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null
+                        robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountDirectory" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null
                     }
                 }
                 if (Get-IsContentPacksEnabled) {

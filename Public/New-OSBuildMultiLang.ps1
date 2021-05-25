@@ -10,7 +10,7 @@ https://osdbuilder.osdeploy.com/module/functions/new-osbuildmultilang
 #>
 function New-OSBuildMultiLang {
     [CmdletBinding()]
-    Param (
+    param (
         #Name of the new OSBuild MultiLang to create.  MultiLang will be appended to the end of CustomName
         [Parameter(Position = 0, Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -33,13 +33,10 @@ function New-OSBuildMultiLang {
         $AllOSDUpdates = @()
         $AllOSDUpdates = Get-OSDUpdates
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Break
-        }
+        Block-StandardUser
+        #===================================================================================================
     }
     
     PROCESS {
@@ -88,12 +85,11 @@ function New-OSBuildMultiLang {
             $RegValueCurrentBuild = $null
             if (Test-Path "$DestinationFullName\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$DestinationFullName\info\xml\CurrentVersion.xml"
-                $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-                $RegValueCurrentBuild = $($RegKeyCurrentVersion.CurrentBuild)
-                if ($ReleaseId -gt 2009) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
-                }
+
+                [string]$RegValueCurrentBuild = ($RegKeyCurrentVersion).CurrentBuild
+                [string]$RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
+                [string]$ReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
             }
             #===================================================================================================
             #   Operating System

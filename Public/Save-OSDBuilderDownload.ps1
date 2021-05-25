@@ -6,11 +6,11 @@ Downloads Microsoft Updates for use in OSDBuilder
 Downloads Microsoft Updates for use in OSDBuilder
 
 .LINK
-https://osdbuilder.osdeploy.com/module/functions/get-downosdbuilder
+https://osdbuilder.osdeploy.com/module/functions/Save-OSDBuilderDownload
 #>
-function Get-DownOSDBuilder {
+function Save-OSDBuilderDownload {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]
-    Param (
+    param (
 
         #Download OneDrive Sync Client
         [Parameter(ParameterSetName='Content')]
@@ -40,7 +40,7 @@ function Get-DownOSDBuilder {
 
         #Feature Update Build
         [Parameter(ParameterSetName = 'FeatureUpdates')]
-        [ValidateSet (1809,1903,1909,2004,2009)]
+        [ValidateSet ('21H1','20H2',2004,1909,1903,1809)]
         [string]$FeatureBuild,
 
         #Feature Update Edition
@@ -77,7 +77,7 @@ function Get-DownOSDBuilder {
 
         #Filter Microsoft Updates for a specific ReleaseId
         [Parameter(ParameterSetName='OSDUpdate')]
-        [ValidateSet (2009,2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [ValidateSet ('21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [Alias('ReleaseId')]
         [string]$UpdateBuild,
 
@@ -119,13 +119,10 @@ function Get-DownOSDBuilder {
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Break
-        }
+        Block-StandardUser
+        #===================================================================================================
     }
 
     PROCESS {
@@ -173,7 +170,8 @@ function Get-DownOSDBuilder {
             #===================================================================================================
             if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
             foreach ($Item in $FeatureUpdateDownloads) {
-                $DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $Item.FileName
+                #$DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $Item.FileName
+                $DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $(Split-Path $Update.OriginUri -Leaf)
 
                 if (!(Test-Path $SetOSDBuilderPathFeatureUpdates)) {New-Item -Path $SetOSDBuilderPathFeatureUpdates -ItemType Directory -Force | Out-Null}
                 Write-Host "$DownloadFullPath" -ForegroundColor Cyan
@@ -257,7 +255,6 @@ function Get-DownOSDBuilder {
             }
         }
 
-        
         if (($PSCmdlet.ParameterSetName -eq 'OSDUpdate') -or ($PSCmdlet.ParameterSetName -eq 'OSDUpdateSuperseded')) {
             #===================================================================================================
             #   Information
@@ -327,12 +324,16 @@ function Get-DownOSDBuilder {
             if ($GridView.IsPresent) {$OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Download and press OK'}
             #===================================================================================================
             #   Download Updates
+            #   21.5.21 Downloads are now stored in the Updates root
             #===================================================================================================
             if ($Download.IsPresent) {
 				if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
                 foreach ($Update in $OSDUpdates) {
-                    $DownloadPath = "$SetOSDBuilderPathUpdates\$($Update.Catalog)\$($Update.Title)"
-                    $DownloadFullPath = "$DownloadPath\$($Update.FileName)"
+                    #$DownloadPath = "$SetOSDBuilderPathUpdates\$($Update.Catalog)\$($Update.Title)"
+                    $DownloadPath = "$SetOSDBuilderPathUpdates"
+                    
+                    #$DownloadFullPath = "$DownloadPath\$($Update.FileName)"
+                    $DownloadFullPath = Join-Path $DownloadPath $(Split-Path $Update.OriginUri -Leaf)
 
                     if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
                     if (!(Test-Path $DownloadFullPath)) {

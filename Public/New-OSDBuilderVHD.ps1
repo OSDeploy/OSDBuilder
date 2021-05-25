@@ -26,7 +26,7 @@ https://deploymentbunny.com/2013/12/19/powershell-is-king-convert-wim-to-vhdvhdx
 #>
 function New-OSDBuilderVHD {
     [CmdletBinding()]
-    Param (
+    param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string]$FullName,
         [string]$OSDriveLabel = 'OSDisk',
@@ -45,14 +45,9 @@ function New-OSDBuilderVHD {
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Break
-        }
-
+        Block-StandardUser
         #===================================================================================================
         #   Require HyperV Module for VHD Cmdlets
         #===================================================================================================

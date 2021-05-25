@@ -46,7 +46,7 @@ Apply the Update to WinPE (Windows 7 only)
 #>
 function Use-OSDUpdateBuilder {
     [CmdletBinding()]
-    Param (
+    param (
         [Parameter(Mandatory)]
         [ValidateSet(
             'Windows 7',

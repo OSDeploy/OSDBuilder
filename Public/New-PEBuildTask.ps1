@@ -11,7 +11,7 @@ https://osdbuilder.osdeploy.com/module/functions/new-pebuildtask
 
 function New-PEBuildTask {
     [CmdletBinding(DefaultParameterSetName='Recovery')]
-    Param (
+    param (
         #===================================================================================================
         #   Basic Parameters
         #===================================================================================================
@@ -67,13 +67,10 @@ function New-PEBuildTask {
         #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
         #===================================================================================================
-        #   Get-OSDGather -Property IsAdmin
+        #   Block
         #===================================================================================================
-        if ((Get-OSDGather -Property IsAdmin) -eq $false) {
-            Write-Warning 'OSDBuilder: This function needs to be run as Administrator'
-            Pause
-            Break
-        }
+        Block-StandardUser
+        #===================================================================================================
     }
 
     Process {
@@ -117,18 +114,20 @@ function New-PEBuildTask {
         $OSMedia = @()
         $OSMedia = Get-OSMedia -Revision OK -OSMajorVersion 10 | Sort-Object Name
 
-        if ($TaskName -like "*x64*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x64'}}
-        if ($TaskName -like "*x86*") {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x86'}}
-        if ($TaskName -like "*1511*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1511'}}
-        if ($TaskName -like "*1607*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1607'}}
-        if ($TaskName -like "*1703*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1703'}}
-        if ($TaskName -like "*1709*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1709'}}
-        if ($TaskName -like "*1803*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1803'}}
-        if ($TaskName -like "*1809*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1809'}}
-        if ($TaskName -like "*1903*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1903'}}
-        if ($TaskName -like "*1909*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1909'}}
-        if ($TaskName -like "*2004*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '2004'}}
-        if ($TaskName -like "*2009*") {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '2009'}}
+        if ($TaskName -match 'x64') {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x64'}}
+        if ($TaskName -match 'x86') {$OSMedia = $OSMedia | Where-Object {$_.Arch -eq 'x86'}}
+        if ($TaskName -match '1511') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1511'}}
+        if ($TaskName -match '1607') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1607'}}
+        if ($TaskName -match '1703') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1703'}}
+        if ($TaskName -match '1709') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1709'}}
+        if ($TaskName -match '1803') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1803'}}
+        if ($TaskName -match '1809') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1809'}}
+        if ($TaskName -match '1903') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1903'}}
+        if ($TaskName -match '1909') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '1909'}}
+        if ($TaskName -match '2004') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '2004'}}
+        if ($TaskName -match '2009') {$OSMedia = $OSMedia | Where-Object {($_.ReleaseId -eq '2009') -or ($_.ReleaseId -eq '20H2')}}
+        if ($TaskName -match '20H2') {$OSMedia = $OSMedia | Where-Object {($_.ReleaseId -eq '2009') -or ($_.ReleaseId -eq '20H2')}}
+        if ($TaskName -match '21H1') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '21H1'}}
 
         Try {
             $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title "Select a Source OSMedia to use for this Task (Cancel to Exit)"
@@ -198,6 +197,10 @@ function New-PEBuildTask {
             if ($($OSMedia.Build) -eq 17134) {$OSMedia.ReleaseId = 1803}
             if ($($OSMedia.Build) -eq 17763) {$OSMedia.ReleaseId = 1809}
             #if ($($OSMedia.Build) -eq 18362) {$OSMedia.ReleaseId = 1903}
+            #if ($($OSMedia.Build) -eq 18363) {$OSMedia.ReleaseId = 1909}
+            #if ($($OSMedia.Build) -eq 19041) {$OSMedia.ReleaseId = 2004}
+            #if ($($OSMedia.Build) -eq 19042) {$OSMedia.ReleaseId = '20H2'}
+            #if ($($OSMedia.Build) -eq 19043) {$OSMedia.ReleaseId = '21H1'}
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
