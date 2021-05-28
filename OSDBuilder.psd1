@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '21.5.25.1'
+ModuleVersion = '21.5.27.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,8 +30,8 @@ This is the final release for Windows 7 and Windows Server 2012 Support
 https://osdbuilder.osdeploy.com
 
 Requirements:
-PowerShell Module OSD 21.5.21.1 or newer
-PowerShell Module OSDSUS 21.5.21.1 or newer
+PowerShell Module OSD 21.5.27.1 or newer
+PowerShell Module OSDSUS 21.5.27.1 or newer
 
 Latest Microsoft Updates (WSUS):
 https://raw.githubusercontent.com/OSDeploy/OSDSUS/master/UPDATES.md
