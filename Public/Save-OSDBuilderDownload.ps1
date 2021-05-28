@@ -170,8 +170,7 @@ function Save-OSDBuilderDownload {
             #===================================================================================================
             if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
             foreach ($Item in $FeatureUpdateDownloads) {
-                #$DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $Item.FileName
-                $DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $(Split-Path $Update.OriginUri -Leaf)
+                $DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $Item.FileName
 
                 if (!(Test-Path $SetOSDBuilderPathFeatureUpdates)) {New-Item -Path $SetOSDBuilderPathFeatureUpdates -ItemType Directory -Force | Out-Null}
                 Write-Host "$DownloadFullPath" -ForegroundColor Cyan

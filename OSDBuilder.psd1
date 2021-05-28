@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '21.5.21.1'
+ModuleVersion = '21.5.25.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -25,6 +25,8 @@ Copyright = '(c) 2021 David Segura osdeploy.com. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
+This is the final release for Windows 7 and Windows Server 2012 Support
+
 https://osdbuilder.osdeploy.com
 
 Requirements:
@@ -89,7 +91,6 @@ FunctionsToExport = 'Save-OSDBuilderDownload',
                     'New-OSDBuilderISO',
                     'New-OSDBuilderUSB',
                     'New-OSDBuilderVHD',
-                    'New-OSDCloudOSMedia',
                     'New-PEBuild',
                     'New-PEBuildTask',
                     'Show-OSDBuilderInfo',

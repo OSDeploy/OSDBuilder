@@ -298,6 +298,9 @@ function Get-OSMedia {
         #===================================================================================================
         #   Results
         #===================================================================================================
+        Write-Warning "There is an issue with 2004, 20H2, and 21H1 Media reporting as requiring an update, when it does not"
+        Write-Warning "This is because Sessions.xml is not being read properly"
+
         if ($GridView.IsPresent) {
             $OSMedia = $OSMedia | Select-Object MediaType,ModifiedTime,`
             Superseded,NeedsUpdate,`
