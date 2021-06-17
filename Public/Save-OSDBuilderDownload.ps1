@@ -224,34 +224,94 @@ function Save-OSDBuilderDownload {
 
 
         if ($PSCmdlet.ParameterSetName -eq 'Content') {
-            #===================================================================================================
-            #   Database
-            #===================================================================================================
-            if ($ContentDownload -eq 'OneDriveSetup Production') {
-                $DownloadUrl = 'https://go.microsoft.com/fwlink/p/?LinkId=248256'
-                $DownloadPath = $GetOSDBuilderPathContentOneDrive
-                $DownloadFile = 'OneDriveSetup.exe'
-            }
-            if ($ContentDownload -eq 'OneDriveSetup Enterprise') {
-                $DownloadUrl = 'https://go.microsoft.com/fwlink/p/?linkid=860987'
-                $DownloadPath = $GetOSDBuilderPathContentOneDrive
-                $DownloadFile = 'OneDriveSetup.exe'
+            function Save-OneDriveSetup {
+                [CmdletBinding()]
+                param (
+                    # THE NAME OF THE FILE (ONEDRIVESETUP.EXE)    
+                    [Parameter(Mandatory = $true)]
+                    [String]
+                    $Name,
+
+                    # THE PATH WHERE THE FILE IS SAVED (C:\OSDBuilder\Content\OneDrive)
+                    [Parameter(Mandatory = $true)]
+                    [System.IO.FileInfo]
+                    $Path
+                )
+
+                $filePath = "$Path\$Name"
+            
+                $iwrParams = @{
+                    OutFile = "$filePath"
+                    Uri = ''
+                }
+            
+                switch ($ContentDownload) {
+                    'OneDriveSetup Production' {
+                        # LINK FOR THE PRODUCTION RING, LATEST RELEASE BUILD
+                        $iwrParams.Uri = 'https://go.microsoft.com/fwlink/?linkid=844652'
+                    }
+            
+                    'OneDriveSetup Enterprise' {
+                        # LINK FOR THE DEFERRED RING, LATEST RELEASE BUILD
+                        $iwrParams.Uri = 'https://go.microsoft.com/fwlink/?linkid=860987'
+                    }
+            
+                    Default {}
+                }
+            
+                # CHECK IF THE ONEDRIVESETUP.EXE FILE ALREADY EXISTS
+                if ((Test-Path -Path "$filePath") -eq $false) {
+                    Write-Verbose -Message "$Name not found at $Path..." -Verbose
+                    $exeExists = $false
+                }
+            
+                # IF ONEDRIVESETUP.EXE ALREADY EXISTS, CHECK IF IT IS UP-TO-DATE
+                if ($exeExists -eq $true) {
+                    $exeOutdated = $false
+            
+                    # GET THE VERSION NUMBER OF ONEDRIVESETUP.EXE
+                    $exeVersion = (Get-ItemProperty -Path "$filePath" -Name VersionInfo | Select-Object -ExpandProperty VersionInfo).ProductVersion
+                    
+                    # CHECK THE RELEASE NOTES PAGE FOR ONEDRIVE AND PARSE OUT THE LATEST VERSION NUMBER
+                    $releaseNotes = 'https://go.microsoft.com/fwlink/?linkid=2159953'
+                    $latestVersion = Invoke-WebRequest -Uri $releaseNotes -UseBasicParsing | 
+                        Select-Object -ExpandProperty Links | 
+                        Where-Object -Property 'href' -like -Value $iwrParams.url | 
+                        Select-Object -Last 1 -ExpandProperty 'outerHTML'
+                    $latestVersion = $latestVersion.Split('<>')[2]
+            
+                    # COMPARE THE VERSION OF ONEDRIVESETUP.EXE WITH WHAT'S LISTED ONLINE
+                    if ($exeVersion -lt $latestVersion) {
+                        Write-Verbose -Message "$Name $exeVersion is out of date. The latest version is $latestVersion..." -Verbose
+                        $exeOutdated = $true
+                    }
+                }
+                
+                # DOWNLOAD ONEDRIVESETUP.EXE IF IT DOESN'T EXIST OR IS OUTDATED
+                if (($exeExists -eq $false) -or ($exeOutdated -eq $true)) {
+                    Write-Host -Object "Downloading the $UpdateRing ring release of $fileName ($latestVersion)..."
+                    Write-Verbose -Message "DownloadUrl: $($iwrParams.Uri)" -Verbose
+                    Write-Verbose -Message "DownloadPath: $Path" -Verbose
+                    Write-Verbose -Message "DownloadFile: $Name" -Verbose
+                    
+                    try {
+                        Invoke-WebRequest @iwrParams -ErrorAction Stop
+                    } catch {
+                        Write-Warning -Message 'Content could not be downloaded'
+                    }
+                } else {
+                    Write-Verbose -Message "OneDriveSetup.exe does not need to be updated. Skipping download"
+                }
             }
             #===================================================================================================
             #   Download
             #===================================================================================================
+            $DownloadPath = $GetOSDBuilderPathContentOneDrive
+            $DownloadFile = 'OneDriveSetup.exe'
+            
             if (!(Test-Path "$DownloadPath")) {New-Item -Path $DownloadPath -ItemType Directory -Force | Out-Null}
-            Write-Verbose "DownloadUrl: $DownloadUrl" -Verbose
-            Write-Verbose "DownloadPath: $DownloadPath" -Verbose
-            Write-Verbose "DownloadFile: $DownloadFile" -Verbose
-            Invoke-WebRequest -Uri $DownloadUrl -OutFile "$DownloadPath\$DownloadFile"
-            if (Test-Path "$DownloadPath\$DownloadFile") {
-                $OneDriveSetupInfo = Get-Item -Path "$DownloadPath\$DownloadFile" | Select-Object -Property *
-                Write-Verbose "DownloadVersion: $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -Verbose
-                Write-Verbose 'Complete' -Verbose
-            } else {
-                Write-Warning 'Content could not be downloaded'
-            }
+            
+            Save-OneDriveSetup -Path $DownloadPath -Name $DownloadFile
         }
 
         if (($PSCmdlet.ParameterSetName -eq 'OSDUpdate') -or ($PSCmdlet.ParameterSetName -eq 'OSDUpdateSuperseded')) {
