@@ -1043,8 +1043,8 @@ function New-OSBuild {
                     }
 
                     # CREATE THE DIRECTORY PATHS FOR THE IMAGE AND OSDBUILDER CONTENT
-                    $OneDriveSetupImagePath = Join-Path -Path $SystemDirectory $OneDriveFileName
-                    $OneDriveSetupContentPath = Join-Path -Path $GetOSDBuilderPathContentOneDrive $OneDriveFileName
+                    $OneDriveSetupImagePath = Join-Path -Path $SystemDirectory -ChildPath $OneDriveFileName
+                    $OneDriveSetupContentPath = Join-Path -Path $GetOSDBuilderPathContentOneDrive -ChildPath $OneDriveFileName
 
                     # GET THE VERSION OF ONEDRIVE FROM THE IMAGE
                     $OneDriveSetupImageVersion = (Get-ItemProperty -Path $OneDriveSetupImagePath).VersionInfo.ProductVersion
