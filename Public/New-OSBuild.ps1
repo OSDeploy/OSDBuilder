@@ -1033,6 +1033,7 @@ function New-OSBuild {
                     Show-ActionTime
                     $OneDriveFileName = 'OneDriveSetup.exe'
                     Write-Host -ForegroundColor Green -Object "OS: Update $OneDriveFileName"
+                    $indent = '                  ' # 18 spaces
 
                     # SET THE SYSTEM DIRECTORY BASED ON THE ARCHITECTURE OF THE OS
                     if ($OSArchitecture -eq 'x86') {
@@ -1043,27 +1044,30 @@ function New-OSBuild {
 
                     # CREATE THE DIRECTORY PATHS FOR THE IMAGE AND OSDBUILDER CONTENT
                     $OneDriveSetupImagePath = Join-Path -Path $SystemDirectory $OneDriveFileName
-                    $OneDriveSetupPath = Join-Path -Path $GetOSDBuilderPathContentOneDrive $OneDriveFileName
+                    $OneDriveSetupContentPath = Join-Path -Path $GetOSDBuilderPathContentOneDrive $OneDriveFileName
 
                     # GET THE VERSION OF ONEDRIVE FROM THE IMAGE
                     $OneDriveSetupImageVersion = (Get-ItemProperty -Path $OneDriveSetupImagePath).VersionInfo.ProductVersion
-                    Write-Host -ForegroundColor Gray "                  Existing Image $OneDriveFileName Version $OneDriveSetupImageVersion"
+                    Write-Host -ForegroundColor Gray -Object ($indent + "Existing Image $OneDriveFileName Version: $OneDriveSetupImageVersion")
 
                     # CHECK IF ONEDRIVE IS IN THE CONTENT DIRECTORY
-                    if (Test-Path -Path $OneDriveSetupPath) {
+                    if (Test-Path -Path $OneDriveSetupContentPath) {
                         # GET THE VERSION OF ONEDRIVE IN THE CONTENT DIRECTORY
-                        $OneDriveSetupVersion = (Get-ItemProperty -Path $OneDriveSetupPath).VersionInfo.ProductVersion
+                        $OneDriveSetupVersion = (Get-ItemProperty -Path $OneDriveSetupContentPath).VersionInfo.ProductVersion
+                        Write-Host -ForegroundColor Gray -Object ($indent + "Existing Content $OneDriveFileName Version: $OneDriveSetupVersion")
 
                         # COPY ONEDRIVE FROM THE CONTENT DIRECTORY TO THE IMAGE DIRECTORY ONLY IF THE IMAGE HAS AN OLDER VERSION
                         if ([Version]$OneDriveSetupImageVersion -lt [Version]$OneDriveSetupVersion) {
-                            Write-Host -ForegroundColor Gray "                  Updating Image with $OneDriveFileName Version $OneDriveSetupVersion"
+                            Write-Host -ForegroundColor Gray -Object ($indent + "Updating image with $OneDriveFileName version $OneDriveSetupVersion")
                             $null = robocopy "$GetOSDBuilderPathContentOneDrive" "$SystemDirectory" $OneDriveFileName /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log"
+                        } else {
+                            Write-Host -ForegroundColor Gray -Object ($indent + "Content directory has an older version of $OneDriveFileName than the image. No changes to $OneDriveFileName will be made to the image")
                         }
                     }
 
-                    Write-Host -ForegroundColor Cyan "                  To update $OneDriveFileName use one of the following commands:"
-                    Write-Host -ForegroundColor Cyan "                  Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Enterprise'"
-                    Write-Host -ForegroundColor Cyan "                  Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Production'"
+                    Write-Host -ForegroundColor Cyan -Object ($indent + "To update the OneDrive content directory, use one of the following commands:")
+                    Write-Host -ForegroundColor Cyan -Object ($indent + "Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Enterprise'")
+                    Write-Host -ForegroundColor Cyan -Object ($indent + "Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Production'")
                 }
                 #===================================================================================================
                 #	DismCleanupImage
