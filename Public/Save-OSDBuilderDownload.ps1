@@ -270,7 +270,7 @@ function Save-OSDBuilderDownload {
             
                 # CHECK IF THE ONEDRIVESETUP.EXE FILE ALREADY EXISTS
                 if ((Test-Path -Path "$filePath") -eq $false) {
-                    Write-Verbose -Message "$Name not found at $Path..." -Verbose
+                    Write-Verbose -Message "$Name not found at $Path" -Verbose
                     $exeExists = $false
                 } else {
                     $exeExists = $true
@@ -299,9 +299,9 @@ function Save-OSDBuilderDownload {
                         Write-Warning -Message 'Content could not be downloaded'
                     }
                 } else {
+                    Write-Verbose -Message "$Name does not need to be updated. Skipping download" -Verbose
                     Write-Verbose -Message "OneDriveSetup.exe Version: $exeVersion" -Verbose
                     Write-Verbose -Message "Latest Version: $latestVersion" -Verbose
-                    Write-Verbose -Message "$Name does not need to be updated. Skipping download" -Verbose
                 }
             }
             #===================================================================================================
