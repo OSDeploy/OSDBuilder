@@ -1061,11 +1061,11 @@ function New-OSBuild {
                             Write-Host -ForegroundColor Gray -Object ($indent + "Updating image with $OneDriveFileName version $OneDriveSetupVersion")
                             $null = robocopy "$GetOSDBuilderPathContentOneDrive" "$SystemDirectory" $OneDriveFileName /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log"
                         } else {
-                            Write-Host -ForegroundColor Gray -Object ($indent + "Content directory has an older version of $OneDriveFileName than the image. No changes to $OneDriveFileName will be made to the image")
+                            Write-Host -ForegroundColor Gray -Object ($indent + "Content directory has an older version or the same version of $OneDriveFileName as the image. No changes to $OneDriveFileName will be made to the image")
                         }
                     }
 
-                    Write-Host -ForegroundColor Cyan -Object ($indent + "To update the OneDrive content directory, use one of the following commands:")
+                    Write-Host -ForegroundColor Cyan -Object ($indent + 'To update the OneDrive content directory, use one of the following commands:')
                     Write-Host -ForegroundColor Cyan -Object ($indent + "Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Enterprise'")
                     Write-Host -ForegroundColor Cyan -Object ($indent + "Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Production'")
                 }
