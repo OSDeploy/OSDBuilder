@@ -244,7 +244,8 @@ function Save-OSDBuilderDownload {
                     OutFile = "$filePath"
                     Uri = ''
                 }
-            
+                
+                # SET THE DOWNLOAD URL BASED ON ONEDRIVE SETUP TYPE
                 switch ($ContentDownload) {
                     'OneDriveSetup Production' {
                         # LINK FOR THE PRODUCTION RING, LATEST RELEASE BUILD
@@ -258,27 +259,25 @@ function Save-OSDBuilderDownload {
             
                     Default {}
                 }
+
+                # CHECK THE RELEASE NOTES PAGE FOR ONEDRIVE AND PARSE OUT THE LATEST VERSION NUMBER
+                $releaseNotes = 'https://go.microsoft.com/fwlink/?linkid=2159953'
+                $latestVersion = Invoke-WebRequest -Uri $releaseNotes -UseBasicParsing | 
+                    Select-Object -ExpandProperty Links | 
+                    Where-Object -Property 'href' -like -Value $iwrParams.uri | 
+                    Select-Object -Last 1 -ExpandProperty 'outerHTML'
+                $latestVersion = $latestVersion.Split('<>')[2]
             
                 # CHECK IF THE ONEDRIVESETUP.EXE FILE ALREADY EXISTS
                 if ((Test-Path -Path "$filePath") -eq $false) {
                     Write-Verbose -Message "$Name not found at $Path..." -Verbose
                     $exeExists = $false
-                }
-            
-                # IF ONEDRIVESETUP.EXE ALREADY EXISTS, CHECK IF IT IS UP-TO-DATE
-                if ($exeExists -eq $true) {
+                } else {
+                    $exeExists = $true
                     $exeOutdated = $false
             
                     # GET THE VERSION NUMBER OF ONEDRIVESETUP.EXE
                     $exeVersion = (Get-ItemProperty -Path "$filePath" -Name VersionInfo | Select-Object -ExpandProperty VersionInfo).ProductVersion
-                    
-                    # CHECK THE RELEASE NOTES PAGE FOR ONEDRIVE AND PARSE OUT THE LATEST VERSION NUMBER
-                    $releaseNotes = 'https://go.microsoft.com/fwlink/?linkid=2159953'
-                    $latestVersion = Invoke-WebRequest -Uri $releaseNotes -UseBasicParsing | 
-                        Select-Object -ExpandProperty Links | 
-                        Where-Object -Property 'href' -like -Value $iwrParams.url | 
-                        Select-Object -Last 1 -ExpandProperty 'outerHTML'
-                    $latestVersion = $latestVersion.Split('<>')[2]
             
                     # COMPARE THE VERSION OF ONEDRIVESETUP.EXE WITH WHAT'S LISTED ONLINE
                     if ($exeVersion -lt $latestVersion) {
@@ -289,18 +288,20 @@ function Save-OSDBuilderDownload {
                 
                 # DOWNLOAD ONEDRIVESETUP.EXE IF IT DOESN'T EXIST OR IS OUTDATED
                 if (($exeExists -eq $false) -or ($exeOutdated -eq $true)) {
-                    Write-Host -Object "Downloading the $UpdateRing ring release of $fileName ($latestVersion)..."
                     Write-Verbose -Message "DownloadUrl: $($iwrParams.Uri)" -Verbose
                     Write-Verbose -Message "DownloadPath: $Path" -Verbose
                     Write-Verbose -Message "DownloadFile: $Name" -Verbose
                     
                     try {
+                        Write-Verbose -Message "Downloading $Name $latestVersion" -Verbose
                         Invoke-WebRequest @iwrParams -ErrorAction Stop
                     } catch {
                         Write-Warning -Message 'Content could not be downloaded'
                     }
                 } else {
-                    Write-Verbose -Message "OneDriveSetup.exe does not need to be updated. Skipping download"
+                    Write-Verbose -Message "OneDriveSetup.exe Version: $exeVersion" -Verbose
+                    Write-Verbose -Message "Latest Version: $latestVersion" -Verbose
+                    Write-Verbose -Message "$Name does not need to be updated. Skipping download" -Verbose
                 }
             }
             #===================================================================================================
