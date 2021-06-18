@@ -1048,20 +1048,20 @@ function New-OSBuild {
 
                     # GET THE VERSION OF ONEDRIVE FROM THE IMAGE
                     $OneDriveSetupImageVersion = (Get-ItemProperty -Path $OneDriveSetupImagePath).VersionInfo.ProductVersion
-                    Write-Host -ForegroundColor Gray -Object ($indent + "Existing Image $OneDriveFileName Version: $OneDriveSetupImageVersion")
+                    Write-Host -ForegroundColor Gray -Object ($indent + "Image $OneDriveFileName Version: $OneDriveSetupImageVersion")
 
                     # CHECK IF ONEDRIVE IS IN THE CONTENT DIRECTORY
                     if (Test-Path -Path $OneDriveSetupContentPath) {
                         # GET THE VERSION OF ONEDRIVE IN THE CONTENT DIRECTORY
                         $OneDriveSetupVersion = (Get-ItemProperty -Path $OneDriveSetupContentPath).VersionInfo.ProductVersion
-                        Write-Host -ForegroundColor Gray -Object ($indent + "Existing Content $OneDriveFileName Version: $OneDriveSetupVersion")
+                        Write-Host -ForegroundColor Gray -Object ($indent + "Content $OneDriveFileName Version: $OneDriveSetupVersion")
 
                         # COPY ONEDRIVE FROM THE CONTENT DIRECTORY TO THE IMAGE DIRECTORY ONLY IF THE IMAGE HAS AN OLDER VERSION
                         if ([Version]$OneDriveSetupImageVersion -lt [Version]$OneDriveSetupVersion) {
-                            Write-Host -ForegroundColor Gray -Object ($indent + "Updating image with $OneDriveFileName version $OneDriveSetupVersion")
+                            Write-Host -ForegroundColor Gray -Object ($indent + "Updating the image with $OneDriveFileName version $OneDriveSetupVersion")
                             $null = robocopy "$GetOSDBuilderPathContentOneDrive" "$SystemDirectory" $OneDriveFileName /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log"
                         } else {
-                            Write-Host -ForegroundColor Gray -Object ($indent + "The version of $OneDriveFileName in the image is newer than the version in the OSDBuilder OneDrive content directory")
+                            Write-Host -ForegroundColor Gray -Object ($indent + "The version of $OneDriveFileName in the content directory is not newer than the image")
                             Write-Host -ForegroundColor Gray -Object ($indent + "No changes to $OneDriveFileName will be made to the image")
                         }
                     }
