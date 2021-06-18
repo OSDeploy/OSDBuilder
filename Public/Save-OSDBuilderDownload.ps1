@@ -277,10 +277,10 @@ function Save-OSDBuilderDownload {
                     $exeOutdated = $false
             
                     # GET THE VERSION NUMBER OF ONEDRIVESETUP.EXE
-                    $exeVersion = (Get-ItemProperty -Path "$filePath" -Name VersionInfo | Select-Object -ExpandProperty VersionInfo).ProductVersion
+                    $exeVersion = (Get-ItemProperty -Path "$filePath").VersionInfo.ProductVersion
             
                     # COMPARE THE VERSION OF ONEDRIVESETUP.EXE WITH WHAT'S LISTED ONLINE
-                    if ($exeVersion -lt $latestVersion) {
+                    if ([Version]$exeVersion -lt [Version]$latestVersion) {
                         Write-Verbose -Message "$Name $exeVersion is out of date. The latest version is $latestVersion..." -Verbose
                         $exeOutdated = $true
                     }
