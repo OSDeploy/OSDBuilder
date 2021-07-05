@@ -697,6 +697,7 @@ function Add-ContentPackMEDIA {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -723,6 +724,7 @@ function Add-ContentPackOSDrivers {
         [string]$ContentPackContent
         #[string]$MountDirectory
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -752,6 +754,7 @@ function Add-ContentPackOSExtraFiles {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -778,6 +781,7 @@ function Add-ContentPackOSCapability {
         [string]$ContentPackContent,
         [switch]$RSAT
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -935,6 +939,7 @@ function Add-ContentPackOSLanguageFeatures {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -972,6 +977,7 @@ function Add-ContentPackOSLanguagePacks {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1008,6 +1014,7 @@ function Add-ContentPackOSLocalExperiencePacks {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1047,6 +1054,7 @@ function Add-ContentPackOSPackages {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1084,6 +1092,7 @@ function Add-ContentPackOSPoshMods {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Warning "OSPoshMods is being deprecated in the near future"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1109,6 +1118,7 @@ function Add-ContentPackOSPoshModsSystem {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Warning "OSPoshModsSystem is being deprecated in the near future"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1136,7 +1146,7 @@ function Add-ContentPackOSRegistry {
 
         [switch]$ShowRegContent
     )
-
+    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
     #======================================================================================
     #   Test-OSDContentPackOSRegistry
     #======================================================================================
@@ -1223,6 +1233,7 @@ function Add-ContentPackOSScripts {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "Automatically running PowerShell scripts in $ContentPackContent"
     #======================================================================================
     #   TEST
     #======================================================================================
@@ -1246,6 +1257,7 @@ function Add-ContentPackOSStartLayouts {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "Automatically applying StartLayout in $ContentPackContent"
     #======================================================================================
     #   TEST
     #======================================================================================
@@ -6321,7 +6333,7 @@ function Update-CumulativeOS {
         if ($null -eq $UpdateLCU) {Write-Warning "Update-CumulativeOS is Null"; Continue}
         if (!(Test-Path "$UpdateLCU")) {Write-Warning "Update-CumulativeOS was not found"; Continue}
         
-        if (! ($Force.IsPresent)) {
+        if (!($Force.IsPresent)) {
             if (Get-SessionsXml -Path $MountDirectory -KBNumber $Update.FileKBNumber | Where-Object {$_.TargetState -eq 'Installed'}) {
                 Write-Host -ForegroundColor Gray "INSTALLED         $($Update.Title) - $(Split-Path $Update.OriginUri -Leaf)"; Continue
             }
@@ -6329,13 +6341,26 @@ function Update-CumulativeOS {
 
         Write-Host -ForegroundColor Cyan "INSTALLING        " -NoNewline
         Write-Host -ForegroundColor Gray "$($Update.Title) - $(Split-Path $Update.OriginUri -Leaf)"
-        
+
+        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsPackageSSU-KB$($Update.FileKBNumber).log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+
+        Add-WindowsPackageSSU -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
+
         $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-CumulativeOS-KB$($Update.FileKBNumber).log"
         Write-Verbose "CurrentLog: $CurrentLog"
         Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
         Catch {
-            if ($_.Exception.Message -match '0x800f081e') {Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose}
-            Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            if ($_.Exception.Message -match '0x800f081e') {
+                Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
+            }
+<#             elseif ($_.Exception.Message -match '0x800f0823') {
+                Write-Verbose "OSDBuilder: 0x800f0823 Retrying the installation of the LCU.  This is necessary to ensure the SSU is installed properly" -Verbose
+                Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
+            } #>
+            else {
+                Write-Verbose "OSDBuilder: Review the log for more information" -Verbose
+            }
             Write-Verbose "$CurrentLog" -Verbose
         }
     }
@@ -6382,6 +6407,11 @@ function Update-CumulativePE {
 
         Write-Host -ForegroundColor Cyan "INSTALLING        " -NoNewline
         Write-Host -ForegroundColor Gray "$($Update.Title) - $(Split-Path $Update.OriginUri -Leaf)"
+
+        $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsPackageSSU-KB$($Update.KBNumber)-WinPE.log"
+        Write-Verbose "CurrentLog: $CurrentLog"
+        
+        Add-WindowsPackageSSU -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
 
         $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-CumulativePE-KB$($Update.KBNumber)-WinPE.log"
         Write-Verbose "CurrentLog: $CurrentLog"
