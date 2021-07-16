@@ -5608,8 +5608,8 @@ function Save-SessionsXmlOS {
     #   Header
     #===================================================================================================
     Show-ActionTime
-    Write-Host -ForegroundColor Green "OS: OSDBuilder Function Save-SessionsXmlOS"
-    Write-Host -ForegroundColor Yellow "21.5.21 - For some reason the latest Windows Updates are not reporting properly in Sessions.xml"
+    #Write-Host -ForegroundColor Green "OS: OSDBuilder Function Save-SessionsXmlOS"
+    #Write-Host -ForegroundColor Yellow "21.5.21 - For some reason the latest Windows Updates are not reporting properly in Sessions.xml"
 
     if (Test-Path "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml") {
         [xml]$SessionsXML = Get-Content -Path "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
