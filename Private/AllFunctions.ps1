@@ -321,19 +321,20 @@ function Add-ContentExtraFilesPE {
             Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinPE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            #robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinPE" *.* /s /ndl /xx /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinPE" *.* /S /ZB /COPY:DX /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
         }
         foreach ($ExtraFile in $WinPEExtraFilesRE) {
             Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinRE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinRE" *.* /S /ZB /COPY:DX /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
         }
         foreach ($ExtraFile in $WinPEExtraFilesSE) {
             Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinSE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinSE" *.* /S /ZB /COPY:DX /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
         }
     } else {
         Return
@@ -1606,10 +1607,22 @@ function Add-ContentPackPEExtraFiles {
     Write-Verbose "CurrentLog: $CurrentLog"
 
     Get-ChildItem "$ContentPackContent" *.* -File -Recurse | Select-Object -Property FullName | foreach {Write-Host "$($_.FullName)" -ForegroundColor DarkGray}
-
-    if ($MountWinPE) {robocopy "$ContentPackContent" "$MountWinPE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
-    if ($MountWinRE) {robocopy "$ContentPackContent" "$MountWinRE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
-    if ($MountWinSE) {robocopy "$ContentPackContent" "$MountWinSE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null}
+    #Save-WindowsImage -Path $MountWinPE | Out-Null
+    if ($MountWinPE) {
+        #robocopy "$ContentPackContent" "$MountWinPE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinPE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+        #xcopy "$ContentPackContent" "$MountWinPE" /F /C /H /E /R /Y /J
+        #Copy-Item "$ContentPackContent\*" -Destination "$MountWinPE\" -Recurse -Force
+    }
+    if ($MountWinRE) {
+        #robocopy "$ContentPackContent" "$MountWinRE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinRE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+    }
+    if ($MountWinSE) {
+        #robocopy "$ContentPackContent" "$MountWinSE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinSE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+    }
+    #Start-Sleep -Seconds 1
 }
 function Add-ContentPackPEPoshMods {
     [CmdletBinding()]
@@ -2371,8 +2384,15 @@ function Enable-WinREWiFi {
     #===================================================================================================
     #   Execute
     #===================================================================================================
-    if (Test-WebConnection -Uri 'https://downloadmirror.intel.com/30280/a08/WiFi_22.40.0_Driver64_Win10.zip') {
-        $SaveWebFile = Save-WebFile -SourceUrl 'https://downloadmirror.intel.com/30280/a08/WiFi_22.40.0_Driver64_Win10.zip'
+    if ($OSArchitecture -eq 'x64') {
+        $IntelWirelessDriverUrl = 'https://downloadmirror.intel.com/30435/a08/WiFi_22.50.1_Driver64_Win10.zip'
+    }
+    else {
+        $IntelWirelessDriverUrl = 'https://downloadmirror.intel.com/30435/a08/WiFi_22.50.1_Driver32_Win10.zip'
+    }
+
+    if (Test-WebConnection -Uri $IntelWirelessDriverUrl) {
+        $SaveWebFile = Save-WebFile -SourceUrl $IntelWirelessDriverUrl
         if (Test-Path $SaveWebFile.FullName) {
             $DriverCab = Get-Item -Path $SaveWebFile.FullName
             $ExpandPath = Join-Path $DriverCab.Directory $DriverCab.BaseName
@@ -2383,7 +2403,7 @@ function Enable-WinREWiFi {
         }
     }
     else {
-        Write-Warning "Unable to connect to https://downloadmirror.intel.com/30280/a08/WiFi_22.40.0_Driver64_Win10.zip"
+        Write-Warning "Unable to connect to $IntelWirelessDriverUrl"
     }
 }
 function Enable-WinPEOSDCloud {
@@ -2403,8 +2423,8 @@ function Enable-WinPEOSDCloud {
     #===================================================================================================
     $MountPaths = @(
         $MountWinPE
-        $MountWinPE
-        $MountWinPE
+        $MountWinRE
+        $MountWinSE
     )
     #=======================================================================
     #	PowerShell Execution Policy
@@ -2540,9 +2560,6 @@ Windows Registry Editor Version 5.00
     #   OSD Module
     #=======================================================================
     Write-Host -ForegroundColor Yellow "Saving OSD PowerShell Module to mounted WinPE at Program Files\WindowsPowerShell\Modules"
-
-
-    
     if ($ScriptName -ne 'New-PEBuild') {
         Save-Module -Name OSD -Path "$MountWinPE\Program Files\WindowsPowerShell\Modules" -Force
         Save-Module -Name OSD -Path "$MountWinRE\Program Files\WindowsPowerShell\Modules" -Force

@@ -376,6 +376,8 @@ function Update-OSMedia {
                     if ($Task.StartLayoutXML) {$StartLayoutXML = $Task.StartLayoutXML}
                     if ($Task.UnattendXML) {$UnattendXML = $Task.UnattendXML}
                     if (!($Task.WinPEAutoExtraFiles -eq $False)) {$WinPEAutoExtraFiles = $Task.WinPEAutoExtraFiles}
+                    if (!($Task.WinPEOSDCloud -eq $False)) {$WinPEOSDCloud = $Task.WinPEOSDCloud}
+                    if (!($Task.WinREWiFi -eq $False)) {$WinREWiFi = $Task.WinREWiFi} 
                     if ($Task.WinPEDaRT) {$WinPEDaRT = $Task.WinPEDaRT}
                     
                     $ExtraFiles += @($Task.ExtraFiles | Where-Object {$_})
@@ -897,6 +899,8 @@ function Update-OSMedia {
                 #   WinPE Content
                 #===================================================================================================
                 Import-AutoExtraFilesPE
+                Enable-WinPEOSDCloud
+                Enable-WinREWiFi
                 Add-ContentExtraFilesPE
                 Add-ContentDriversPE
                 Add-ContentScriptsPE

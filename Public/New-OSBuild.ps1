@@ -1251,7 +1251,7 @@ function New-OSBuild {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Stop-Transcript | Out-Null
                 try {
-                    Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName"
+                    Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName" -Force
                 }
                 catch {
                     Write-Warning "Could not rename the the Build directory ... Waiting 30 seconds ..."
@@ -1259,7 +1259,7 @@ function New-OSBuild {
                 }
                 if (Test-Path "$WorkingPath") {
                     try {
-                        Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName"
+                        Rename-Item -Path "$WorkingPath" -NewName "$NewOSMediaName" -Force
                     }
                     catch {
                         Write-Warning "Could not rename the the Build directory ..."

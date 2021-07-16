@@ -667,7 +667,7 @@ $MDTUnattendPEx86 = @'
                 #===================================================================================================
                 if ($WinPEAutoExtraFiles -eq $true) {
                     Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Copy Auto ExtraFiles from $OSSourcePath\WinPE\AutoExtraFiles"
-                    robocopy "$OSSourcePath\WinPE\AutoExtraFiles" "$MountDirectory" *.* /s /ndl /xf bcp47*.dll /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-AutoExtraFiles.log" | Out-Null
+                    #robocopy "$OSSourcePath\WinPE\AutoExtraFiles" "$MountDirectory" *.* /s /ndl /xf bcp47*.dll /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-AutoExtraFiles.log" | Out-Null
                 }
                 #===================================================================================================
                 #   Enable-WinPEOSDCloud
@@ -684,7 +684,8 @@ $MDTUnattendPEx86 = @'
                     Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: Task PEExtraFiles"
                     foreach ($ExtraFile in $WinPEExtraFiles) {
                         Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
-                        robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountDirectory" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null
+                        #robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountDirectory" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null
+                        #robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountDirectory" *.* /XD "WindowsPowerShell" /S /ZB /COPY:DX /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-ExtraFiles.log" | Out-Null
                     }
                 }
                 if (Get-IsContentPacksEnabled) {
