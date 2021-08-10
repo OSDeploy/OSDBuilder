@@ -3776,7 +3776,7 @@ function Get-TaskRemoveAppxProvisionedPackage {
             $RemoveAppxProvisionedPackage = $RemoveAppxProvisionedPackage | Select-Object -Property DisplayName, PackageName
             if ($ExistingTask.RemoveAppxProvisionedPackage) {
                 foreach ($Item in $ExistingTask.RemoveAppxProvisionedPackage) {
-                    $RemoveAppxProvisionedPackage = $RemoveAppxProvisionedPackage | Where-Object {$_.PackageName -ne $Item}
+                    $RemoveAppxProvisionedPackage = $RemoveAppxProvisionedPackage | Where-Object {($_.PackageName -ne $Item) -or ($_.DisplayName -ne $Item)}
                 }
             }
             $RemoveAppxProvisionedPackage = $RemoveAppxProvisionedPackage | Out-GridView -Title "Remove-AppxProvisionedPackage: Select Packages to REMOVE and press OK (Esc or Cancel to Skip)" -PassThru
