@@ -30,7 +30,7 @@ function Get-OSMedia {
         [string]$OSMajorVersion,
 
         #Filter the OSMedia by OS Release Id
-        [ValidateSet ('21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [ValidateSet ('21H2','21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [string]$OSReleaseId,
         
         #Filter the OSMedia by Image Revision
@@ -178,6 +178,7 @@ function Get-OSMedia {
             if ($RegValueCurrentBuild -eq 19041) {$ReleaseId = 2004}
             if ($RegValueCurrentBuild -eq 19042) {$ReleaseId = '20H2'}
             if ($RegValueCurrentBuild -eq 19043) {$ReleaseId = '21H1'}
+            if ($RegValueCurrentBuild -eq 19044) {$ReleaseId = '21H2'}
 
             Write-Verbose "ReleaseId: $ReleaseId"
             Write-Verbose "CurrentBuild: $RegValueCurrentBuild"
@@ -298,7 +299,7 @@ function Get-OSMedia {
         #===================================================================================================
         #   Results
         #===================================================================================================
-        #Write-Warning "There is an issue with 2004, 20H2, and 21H1 Media reporting as requiring an update, when it does not"
+        #Write-Warning "There is an issue with 2004, 20H2, 21H1, 21H2 Media reporting as requiring an update, when it does not"
         #Write-Warning "This is because Sessions.xml is not being read properly"
 
         if ($GridView.IsPresent) {

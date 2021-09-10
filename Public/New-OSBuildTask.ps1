@@ -233,6 +233,7 @@ function New-OSBuildTask {
             if ($TaskName -match '2009') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '20H2'}}
             if ($TaskName -match '20H2') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '20H2'}}
             if ($TaskName -match '21H1') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '21H1'}}
+            if ($TaskName -match '21H2') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '21H2'}}
     
             Try {
                 $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title 'Select a Source OSMedia to use for this Task (Cancel to Exit)'
@@ -309,6 +310,7 @@ function New-OSBuildTask {
             #if ($($OSMedia.Build) -eq 19041) {$OSMedia.ReleaseId = 2004}
             #if ($($OSMedia.Build) -eq 19042) {$OSMedia.ReleaseId = '20H2'}
             #if ($($OSMedia.Build) -eq 19043) {$OSMedia.ReleaseId = '21H1'}
+            #if ($($OSMedia.Build) -eq 19044) {$OSMedia.ReleaseId = '21H2'}
         }
         #===================================================================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray

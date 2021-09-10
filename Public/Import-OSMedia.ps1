@@ -394,6 +394,7 @@ function Import-OSMedia {
                     #if ($GetWindowsImage.Build -eq 19041) {$RegValueReleaseId = 2004}
                     #if ($GetWindowsImage.Build -eq 19042) {$RegValueReleaseId = '20H2'}
                     #if ($GetWindowsImage.Build -eq 19043) {$RegValueReleaseId = '21H1'}
+                    #if ($GetWindowsImage.Build -eq 19044) {$RegValueReleaseId = '21H2'}
                 }
                 $UBR = "$($RegValueCurrentBuild).$($RegValueUbr)"
                 $OSMediaName = "$($GetWindowsImage.ImageName) $($GetWindowsImage.Architecture) $RegValueReleaseId $UBR $($GetWindowsImage.Languages)"

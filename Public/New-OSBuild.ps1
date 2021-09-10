@@ -535,6 +535,7 @@ function New-OSBuild {
                 #if ($OSBuild -eq 19041) {$ReleaseId = 2004}
                 #if ($OSBuild -eq 19042) {$ReleaseId = '20H2'}
                 #if ($OSBuild -eq 19043) {$ReleaseId = '21H1'}
+                #if ($OSBuild -eq 19044) {$ReleaseId = '21H2'}
             }
 
             Write-Verbose "ReleaseId: $ReleaseId"
@@ -1200,6 +1201,7 @@ function New-OSBuild {
                 #if ($OSBuild -eq 19041) {$ReleaseId = 2004}
                 #if ($OSBuild -eq 19042) {$ReleaseId = '20H2'}
                 #if ($OSBuild -eq 19043) {$ReleaseId = '21H1'}
+                #if ($OSBuild -eq 19044) {$ReleaseId = '21H2'}
 
                 if ($OSMajorVersion -eq 10) {
                     if ($WorkingName -like "build*") {$NewOSMediaName = "$OSImageName $OSArchitecture $ReleaseId $UBR"}

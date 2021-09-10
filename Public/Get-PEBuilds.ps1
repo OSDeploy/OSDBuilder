@@ -135,6 +135,7 @@ function Get-PEBuilds {
             #if ($OSMBuild -eq 19041) {$RegValueReleaseId = 2004}
             #if ($OSMBuild -eq 19042) {$RegValueReleaseId = '20H2'}
             #if ($OSMBuild -eq 19043) {$RegValueReleaseId = '21H1'}
+            #if ($OSMBuild -eq 19044) {$RegValueReleaseId = '21H2'}
 
             Write-Verbose "ReleaseId: $RegValueReleaseId"
             Write-Verbose "CurrentBuild: $RegValueCurrentBuild"

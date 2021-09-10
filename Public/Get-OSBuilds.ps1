@@ -30,7 +30,7 @@ function Get-OSBuilds {
         [string]$OSMajorVersion,
 
         #Filter the OSBuild by OS Release Id
-        [ValidateSet ('21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [ValidateSet ('21H2','21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [string]$OSReleaseId,
         
         #Filter the OSBuild by Image Revision
@@ -172,6 +172,7 @@ function Get-OSBuilds {
             #if ($OSMBuild -eq 19041) {$RegValueReleaseId = 2004}
             #if ($OSMBuild -eq 19042) {$RegValueReleaseId = '20H2'}
             #if ($OSMBuild -eq 19043) {$RegValueReleaseId = '21H1'}
+            #if ($OSMBuild -eq 19044) {$RegValueReleaseId = '21H2'}
 
             Write-Verbose "ReleaseId: $RegValueReleaseId"
             Write-Verbose "CurrentBuild: $RegValueCurrentBuild"
