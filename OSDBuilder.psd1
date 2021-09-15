@@ -57,8 +57,8 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName = 'OSD'; ModuleVersion = '21.9.10.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
-    @{ModuleName = 'OSDSUS'; ModuleVersion = '21.9.10.1'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
+    @{ModuleName = 'OSD'; ModuleVersion = '21.9.14.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+    @{ModuleName = 'OSDSUS'; ModuleVersion = '21.9.15.1'; Guid = '065cf035-da73-4d17-8745-f55116b82fb5'}
 )
 
 # Assemblies that must be loaded prior to importing this module
