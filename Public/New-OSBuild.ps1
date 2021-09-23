@@ -1032,42 +1032,44 @@ function New-OSBuild {
                 #===================================================================================================
                 if ($OSMajorVersion -eq 10 -and $OSInstallationType -eq 'Client') {
                     Show-ActionTime
-                    Write-Host -ForegroundColor Green "OS: Update OneDriveSetup.exe"
-                    $OneDriveSetupDownload = $false
-                    $OneDriveSetup = Join-Path $GetOSDBuilderPathContentOneDrive 'OneDriveSetup.exe'
-                    if (!(Test-Path $OneDriveSetup)) {$OneDriveSetupDownload = $true}
+                    $OneDriveFileName = 'OneDriveSetup.exe'
+                    Write-Host -ForegroundColor Green -Object "OS: Update $OneDriveFileName"
+                    $indent = '                  ' # 18 spaces
 
-                    if (Test-Path $OneDriveSetup) {
-                        if (!(([System.Io.fileinfo]$OneDriveSetup).LastWriteTime.Date -ge [datetime]::Today )) {
-                            $OneDriveSetupDownload = $true
-                        }
-                    }
-<#                     if ($OneDriveSetupDownload -eq $true) {
-                        $WebClient = New-Object System.Net.WebClient
-                        Write-Host "Downloading to $OneDriveSetup" -ForegroundColor Gray
-                        $WebClient.DownloadFile('https://go.microsoft.com/fwlink/p/?LinkId=248256',"$OneDriveSetup")
-                    } #>
-
+                    # SET THE SYSTEM DIRECTORY BASED ON THE ARCHITECTURE OF THE OS
                     if ($OSArchitecture -eq 'x86') {
-                        $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host -ForegroundColor Gray "                  Existing Image Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
-                        if (Test-Path $OneDriveSetup) {
-                            robocopy "$GetOSDBuilderPathContentOneDrive" "$MountDirectory\Windows\System32" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
-                            $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host -ForegroundColor Gray "                  Updating with Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
-                        }
+                        $SystemDirectory = "$MountDirectory\Windows\System32"
                     } else {
-                        $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host -ForegroundColor Gray "                  Existing Image Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
-                        if (Test-Path $OneDriveSetup) {
-                            robocopy "$GetOSDBuilderPathContentOneDrive" "$MountDirectory\Windows\SysWOW64" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
-                            $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host -ForegroundColor Gray "                  Updating with Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
+                        $SystemDirectory = "$MountDirectory\Windows\SysWOW64"
+                    }
+
+                    # CREATE THE DIRECTORY PATHS FOR THE IMAGE AND OSDBUILDER CONTENT
+                    $OneDriveSetupImagePath = Join-Path -Path $SystemDirectory -ChildPath $OneDriveFileName
+                    $OneDriveSetupContentPath = Join-Path -Path $GetOSDBuilderPathContentOneDrive -ChildPath $OneDriveFileName
+
+                    # GET THE VERSION OF ONEDRIVE FROM THE IMAGE
+                    $OneDriveSetupImageVersion = (Get-ItemProperty -Path $OneDriveSetupImagePath).VersionInfo.ProductVersion
+                    Write-Host -ForegroundColor Gray -Object ($indent + "Image $OneDriveFileName Version: $OneDriveSetupImageVersion")
+
+                    # CHECK IF ONEDRIVE IS IN THE CONTENT DIRECTORY
+                    if (Test-Path -Path $OneDriveSetupContentPath) {
+                        # GET THE VERSION OF ONEDRIVE IN THE CONTENT DIRECTORY
+                        $OneDriveSetupVersion = (Get-ItemProperty -Path $OneDriveSetupContentPath).VersionInfo.ProductVersion
+                        Write-Host -ForegroundColor Gray -Object ($indent + "Content $OneDriveFileName Version: $OneDriveSetupVersion")
+
+                        # COPY ONEDRIVE FROM THE CONTENT DIRECTORY TO THE IMAGE DIRECTORY ONLY IF THE IMAGE HAS AN OLDER VERSION
+                        if ([Version]$OneDriveSetupImageVersion -lt [Version]$OneDriveSetupVersion) {
+                            Write-Host -ForegroundColor Gray -Object ($indent + "Updating the image with $OneDriveFileName version $OneDriveSetupVersion")
+                            $null = robocopy "$GetOSDBuilderPathContentOneDrive" "$SystemDirectory" $OneDriveFileName /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log"
+                        } else {
+                            Write-Host -ForegroundColor Gray -Object ($indent + "The version of $OneDriveFileName in the content directory is not newer than the image")
+                            Write-Host -ForegroundColor Gray -Object ($indent + "No changes to $OneDriveFileName will be made to the image")
                         }
                     }
-                    Write-Host -ForegroundColor Cyan "                  To update OneDriveSetup.exe use one of the following commands:"
-                    Write-Host -ForegroundColor Cyan "                  Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Enterprise'"
-                    Write-Host -ForegroundColor Cyan "                  Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Production'"
+
+                    Write-Host -ForegroundColor Cyan -Object ($indent + 'To update the OneDrive content directory, use one of the following commands:')
+                    Write-Host -ForegroundColor Cyan -Object ($indent + "Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Enterprise'")
+                    Write-Host -ForegroundColor Cyan -Object ($indent + "Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Production'")
                 }
                 #===================================================================================================
                 #	DismCleanupImage
