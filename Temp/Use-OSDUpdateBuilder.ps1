@@ -100,9 +100,9 @@ function Use-OSDUpdateBuilder {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.1.1 Initialize OSDBuilder'
-        #===================================================================================================
+        #=================================================
         Get-OSDBuilder -CreatePaths -HideDetails
     }
 
@@ -110,17 +110,17 @@ function Use-OSDUpdateBuilder {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
-        #===================================================================================================
+        #=================================================
         #   Join DateTime Property
-        #===================================================================================================
+        #=================================================
         #$ReleaseDate = [datetime]::ParseExact("$ReleaseDay/$ReleaseMonth/$ReleaseYear", "dd/MM/yyyy", $null)
-        #===================================================================================================
+        #=================================================
         #   UpdateOS
-        #===================================================================================================
+        #=================================================
         if ($UpdateOS -eq 'Windows 7') {$OSDCore = $true}
-        #===================================================================================================
+        #=================================================
         #   Create Custom Object
-        #===================================================================================================
+        #=================================================
         $OSDUpdateBuilder = New-Object PSObject
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name Catalog -Value $Catalog
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDVersion -Value $global:GetOSDBuilder.VersionOSDBuilder
@@ -168,14 +168,14 @@ function Use-OSDUpdateBuilder {
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDCore -Value $OSDCore
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDWinPE -Value $WinPE
         Add-Member -InputObject $OSDUpdateBuilder -MemberType NoteProperty -Name OSDGuid -Value New-Guid
-        #===================================================================================================
+        #=================================================
         #   Create OSDBuilder Update Category Directory
-        #===================================================================================================
+        #=================================================
         if (!(Test-Path "$SetOSDBuilderPathUpdates")) {New-Item -Path "$SetOSDBuilderPathUpdates" -ItemType Directory -Force | Out-Null}
 
-        #===================================================================================================
+        #=================================================
         #   Create OSDBuilder Update Catalog
-        #===================================================================================================
+        #=================================================
         $OSDUpdateBuilder | Export-Clixml -Path "$SetOSDBuilderPathUpdates\$Catalog $KBTitle.xml"
     }
 

@@ -152,20 +152,20 @@ function New-OSBuildTask {
     )
 
     Begin {
-        #===================================================================================================
+        #=================================================
         #   Header
-        #===================================================================================================
+        #=================================================
         #   Write-Host '========================================================================================' -ForegroundColor DarkGray
         #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-        #===================================================================================================
+        #=================================================
         #   Get-OSDBuilder
-        #===================================================================================================
+        #=================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-        #===================================================================================================
+        #=================================================
         #   Block
-        #===================================================================================================
+        #=================================================
         Block-StandardUser
-        #===================================================================================================
+        #=================================================
     }
     
     Process {
@@ -173,17 +173,17 @@ function New-OSBuildTask {
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
         Write-Verbose "PSCmdlet.ParameterSetName: $($PSCmdlet.ParameterSetName)"
-        #===================================================================================================
+        #=================================================
         #   Set Task Name
-        #===================================================================================================
+        #=================================================
         $Task = @()
         $TaskName = "$TaskName"
         if ($SaveAs -eq 'Task') {$TaskPath = "$SetOSDBuilderPathTasks\OSBuild $TaskName.json"}
         if ($SaveAs -eq 'Template') {$TaskPath = "$SetOSDBuilderPathTemplates\OSBuild $TaskName.json"}
         #if ($SaveAs -eq 'GlobalTemplate') {$TaskPath = "$SetOSDBuilderPathTemplates\OSBuild Global $TaskName.json"}
-        #===================================================================================================
+        #=================================================
         #   Existing Task
-        #===================================================================================================
+        #=================================================
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -191,9 +191,9 @@ function New-OSBuildTask {
             Write-Warning "Content will be updated!"
             $ExistingTask = Get-Content "$TaskPath" | ConvertFrom-Json
         }
-        #===================================================================================================
+        #=================================================
         #   Task Information
-        #===================================================================================================
+        #=================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "New-OSBuild $SaveAs Information" -ForegroundColor Green
         Write-Host "-Task Name:                     $TaskName"
@@ -212,9 +212,9 @@ function New-OSBuildTask {
         Write-Host "-WinPEAutoExtraFiles:           $WinPEAutoExtraFiles"
         Write-Host "-WinPEOSDCloud:                 $WinPEOSDCloud"
         Write-Host "-WinREWiFi:                     $WinREWiFi"
-        #===================================================================================================
+        #=================================================
         #   Get-OSMedia
-        #===================================================================================================
+        #=================================================
         if (!$OSMedia) {
             $OSMedia = @()
             $OSMedia = Get-OSMedia -Revision OK -OSMajorVersion 10
@@ -247,14 +247,14 @@ function New-OSBuildTask {
             Break   
         }
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose 'Get-WindowsImage Information'
-        #===================================================================================================
+        #=================================================
         $WindowsImage = Get-WindowsImage -ImagePath "$($OSMedia.FullName)\OS\sources\install.wim" -Index 1 | Select-Object -Property *
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose 'Source OSMedia Windows Image Information'
-        #===================================================================================================
+        #=================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "Source OSMedia Windows Image Information" -ForegroundColor Green
         Write-Host "-OSMedia Family:                $($OSMedia.OSMFamily)"
@@ -280,9 +280,9 @@ function New-OSBuildTask {
         Write-Host "-WimBoot:                       $($WindowsImage.WIMBoot)"
         Write-Host "-Created Time:                  $($OSMedia.CreatedTime)"
         Write-Host "-Modified Time:                 $($OSMedia.ModifiedTime)"
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.10.29 Validate Registry CurrentVersion.xml'
-        #===================================================================================================
+        #=================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
             if (Test-Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
@@ -292,9 +292,9 @@ function New-OSBuildTask {
                 if ($RegValueDisplayVersion) {$OSMedia.ReleaseId = $RegValueDisplayVersion}
             }
         }
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.10.29 Set-OSMedia.ReleaseId'
-        #===================================================================================================
+        #=================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
             if ($($OSMedia.Build) -eq 7600) {$OSMedia.ReleaseId = 7600}
             if ($($OSMedia.Build) -eq 7601) {$OSMedia.ReleaseId = 7601}
@@ -312,11 +312,11 @@ function New-OSBuildTask {
             #if ($($OSMedia.Build) -eq 19043) {$OSMedia.ReleaseId = '21H1'}
             #if ($($OSMedia.Build) -eq 19044) {$OSMedia.ReleaseId = '21H2'}
         }
-        #===================================================================================================
+        #=================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #===================================================================================================
+        #=================================================
         #   Validate-ContentPacks
-        #===================================================================================================
+        #=================================================
         Write-Host "ContentPacks" -ForegroundColor Green
         if ($ExistingTask.ContentPacks) {
             foreach ($Item in $ExistingTask.ContentPacks) {
@@ -336,9 +336,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.ContentPacks) {$ContentPacks = $ExistingTask.ContentPacks}
         }
-        #===================================================================================================
+        #=================================================
         #   RemoveAppx
-        #===================================================================================================
+        #=================================================
         Write-Host "RemoveAppx" -ForegroundColor Green
         if ($ExistingTask.RemoveAppxProvisionedPackage) {
             foreach ($Item in $ExistingTask.RemoveAppxProvisionedPackage) {
@@ -354,9 +354,9 @@ function New-OSBuildTask {
             if ($ExistingTask.RemoveAppxProvisionedPackage) {$RemoveAppxProvisionedPackage = $ExistingTask.RemoveAppxProvisionedPackage}
             #Write-Host "RemoveAppx: Select Appx Provisioned Packages to remove using Remove-AppxProvisionedPackage" -ForegroundColor Gray
         }
-        #===================================================================================================
+        #=================================================
         #   RemoveCapability
-        #===================================================================================================
+        #=================================================
         Write-Host "RemoveCapability" -ForegroundColor Green
         if ($ExistingTask.RemoveWindowsCapability) {
             foreach ($Item in $ExistingTask.RemoveWindowsCapability) {
@@ -372,9 +372,9 @@ function New-OSBuildTask {
             if ($ExistingTask.RemoveWindowsCapability) {$RemoveWindowsCapability = $ExistingTask.RemoveWindowsCapability}
             #Write-Host "RemoveCapability: Select Windows Capabilities to remove using Remove-WindowsCapability" -ForegroundColor Gray
         }
-        #===================================================================================================
+        #=================================================
         #   RemovePackage
-        #===================================================================================================
+        #=================================================
         Write-Host "RemovePackage" -ForegroundColor Green
         if ($ExistingTask.RemoveWindowsPackage) {
             foreach ($Item in $ExistingTask.RemoveWindowsPackage) {
@@ -390,9 +390,9 @@ function New-OSBuildTask {
             if ($ExistingTask.RemoveWindowsPackage) {$RemoveWindowsPackage = $ExistingTask.RemoveWindowsPackage}
             #Write-Host "RemovePackage: Select Windows Packages to remove using Remove-WindowsPackage" -ForegroundColor Gray
         }
-        #===================================================================================================
+        #=================================================
         #   DisableFeature
-        #===================================================================================================
+        #=================================================
         Write-Host "DisableFeature" -ForegroundColor Green
         if ($ExistingTask.DisableWindowsOptionalFeature) {
             foreach ($Item in $ExistingTask.DisableWindowsOptionalFeature) {
@@ -408,9 +408,9 @@ function New-OSBuildTask {
             if ($ExistingTask.DisableWindowsOptionalFeature) {$DisableWindowsOptionalFeature = $ExistingTask.DisableWindowsOptionalFeature}
             #Write-Host "DisableFeature: Select Windows Optional Features to disable using Disable-WindowsOptionalFeature" -ForegroundColor Gray
         }
-        #===================================================================================================
+        #=================================================
         #   EnableFeature
-        #===================================================================================================
+        #=================================================
         Write-Host "EnableFeature" -ForegroundColor Green
         if ($ExistingTask.EnableWindowsOptionalFeature) {
             foreach ($Item in $ExistingTask.EnableWindowsOptionalFeature) {
@@ -427,12 +427,12 @@ function New-OSBuildTask {
             if ($ExistingTask.EnableWindowsOptionalFeature) {$EnableWindowsOptionalFeature = $ExistingTask.EnableWindowsOptionalFeature}
             #Write-Host "EnableFeature: Select Windows Optional Features to enable using Enable-WindowsOptionalFeature" -ForegroundColor Gray
         }
-        #===================================================================================================
+        #=================================================
         #   Content
-        #===================================================================================================
-        #===================================================================================================
+        #=================================================
+        #=================================================
         #   Content Drivers
-        #===================================================================================================
+        #=================================================
         Write-Host "Drivers" -ForegroundColor Green
         if ($ExistingTask.Drivers) {
             foreach ($Item in $ExistingTask.Drivers) {
@@ -448,9 +448,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.Drivers) {$Drivers = $ExistingTask.Drivers}
         }
-        #===================================================================================================
+        #=================================================
         #   Content ExtraFiles
-        #===================================================================================================
+        #=================================================
         Write-Host "ExtraFiles" -ForegroundColor Green
         if ($ExistingTask.ExtraFiles) {
             foreach ($Item in $ExistingTask.ExtraFiles) {
@@ -466,9 +466,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.ExtraFiles) {$ExtraFiles = $ExistingTask.ExtraFiles}
         }
-        #===================================================================================================
+        #=================================================
         #   Content Scripts
-        #===================================================================================================
+        #=================================================
         Write-Host "Scripts" -ForegroundColor Green
         if ($ExistingTask.Scripts) {
             foreach ($Item in $ExistingTask.Scripts) {
@@ -484,9 +484,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.Scripts) {$Scripts = $ExistingTask.Scripts}
         }
-        #===================================================================================================
+        #=================================================
         #   Content StartLayout
-        #===================================================================================================
+        #=================================================
         Write-Host "StartLayout" -ForegroundColor Green
         if ($ExistingTask.StartLayoutXML) {
             foreach ($Item in $ExistingTask.StartLayoutXML) {
@@ -500,9 +500,9 @@ function New-OSBuildTask {
             if ($ExistingTask.StartLayoutXML) {$StartLayoutXML = $ExistingTask.StartLayoutXML}
         }
         if (!($StartLayoutXML)) {if ($ExistingTask.StartLayoutXML) {$StartLayoutXML = $ExistingTask.StartLayoutXML}}
-        #===================================================================================================
+        #=================================================
         #   Content Unattend
-        #===================================================================================================
+        #=================================================
         Write-Host "Unattend" -ForegroundColor Green
         if ($ExistingTask.UnattendXML) {
             foreach ($Item in $ExistingTask.UnattendXML) {
@@ -516,9 +516,9 @@ function New-OSBuildTask {
             if ($ExistingTask.UnattendXML) {$UnattendXML = $ExistingTask.UnattendXML}
         }
         if (!($UnattendXML)) {if ($ExistingTask.UnattendXML) {$UnattendXML = $ExistingTask.UnattendXML}}
-        #===================================================================================================
+        #=================================================
         #   Content Packages
-        #===================================================================================================
+        #=================================================
         Write-Host "Packages" -ForegroundColor Green
         if ($ExistingTask.AddWindowsPackage) {
             foreach ($Item in $ExistingTask.AddWindowsPackage) {
@@ -534,14 +534,14 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.AddWindowsPackage) {$AddWindowsPackage = $ExistingTask.AddWindowsPackage}
         }
-        #===================================================================================================
+        #=================================================
         #   IsoExtract
-        #===================================================================================================
+        #=================================================
         if ($OSMedia.MajorVersion -eq 10) {
             #if ($ContentFeaturesOnDemand.IsPresent -or $ContentLanguagePackages.IsPresent) {
-            #===================================================================================================
+            #=================================================
             #   ContentIsoExtract
-            #===================================================================================================
+            #=================================================
             Write-Warning "Generating IsoExtract Content ... This may take a while"
             $ContentIsoExtract = @()
             [array]$ContentIsoExtract = Get-TaskContentIsoExtract
@@ -552,9 +552,9 @@ function New-OSBuildTask {
             $ContentIsoExtract = $ContentIsoExtract | Where-Object {$_.FullName -notlike "*Windows Preinstallation Environment*"}
             if ($OSMedia.InstallationType -eq 'Client') {$ContentIsoExtract = $ContentIsoExtract | Where-Object {$_.FullName -notlike "*Windows Server*"}}
             if ($OSMedia.InstallationType -like "*Server*") {$ContentIsoExtract = $ContentIsoExtract | Where-Object {$_.FullName -like "*Windows Server*"}}
-            #===================================================================================================
+            #=================================================
             #   AddFeatureOnDemand
-            #===================================================================================================
+            #=================================================
             Write-Host "FeatureOnDemand" -ForegroundColor Green
             if ($ExistingTask.AddFeatureOnDemand) {
                 foreach ($Item in $ExistingTask.AddFeatureOnDemand) {
@@ -570,9 +570,9 @@ function New-OSBuildTask {
             } else {
                 if ($ExistingTask.AddFeatureOnDemand) {$AddFeatureOnDemand = $ExistingTask.AddFeatureOnDemand}
             }
-            #===================================================================================================
+            #=================================================
             #   LanguagePack
-            #===================================================================================================
+            #=================================================
             Write-Host "LanguagePack" -ForegroundColor Green
             if ($ExistingTask.LanguagePack) {
                 foreach ($Item in $ExistingTask.LanguagePack) {
@@ -588,9 +588,9 @@ function New-OSBuildTask {
             } else {
                 if ($ExistingTask.LanguagePack) {$LanguagePack = $ExistingTask.LanguagePack}
             }
-            #===================================================================================================
+            #=================================================
             #   LanguageFeature
-            #===================================================================================================
+            #=================================================
             Write-Host "LanguageFeature" -ForegroundColor Green
             if ($ExistingTask.LanguageFeature) {
                 foreach ($Item in $ExistingTask.LanguageFeature) {
@@ -606,9 +606,9 @@ function New-OSBuildTask {
             } else {
                 if ($ExistingTask.LanguageFeature) {$LanguageFeature = $ExistingTask.LanguageFeature}
             }
-            #===================================================================================================
+            #=================================================
             #   LanguageInterfacePack
-            #===================================================================================================
+            #=================================================
             Write-Host "LanguageInterfacePack" -ForegroundColor Green
             if ($ExistingTask.LanguageInterfacePack) {
                 foreach ($Item in $ExistingTask.LanguageInterfacePack) {
@@ -624,9 +624,9 @@ function New-OSBuildTask {
             } else {
                 if ($ExistingTask.LanguageInterfacePack) {$LanguageInterfacePack = $ExistingTask.LanguageInterfacePack}
             }
-            #===================================================================================================
+            #=================================================
             #   LocalExperiencePacks
-            #===================================================================================================
+            #=================================================
             Write-Host "LocalExperiencePacks" -ForegroundColor Green
             if ($ExistingTask.LocalExperiencePacks) {
                 foreach ($Item in $ExistingTask.LocalExperiencePacks) {
@@ -642,12 +642,12 @@ function New-OSBuildTask {
             } else {
                 if ($ExistingTask.LocalExperiencePacks) {$LocalExperiencePacks = $ExistingTask.LocalExperiencePacks}
             }
-            #===================================================================================================
+            #=================================================
             #}
         }
-        #===================================================================================================
+        #=================================================
         #   SourcesLanguageCopy
-        #===================================================================================================
+        #=================================================
         Write-Host "SourcesLanguageCopy" -ForegroundColor Green
         if ($ExistingTask.LanguageCopySources) {
             foreach ($Item in $ExistingTask.LanguageCopySources) {
@@ -663,11 +663,11 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.LanguageCopySources) {$LanguageCopySources = $ExistingTask.LanguageCopySources}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPE Configuration
-        #===================================================================================================
+        #=================================================
         #   Content WinPEDaRT
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEDaRT" -ForegroundColor Green
         if ($ExistingTask.WinPEDaRT) {
             foreach ($Item in $ExistingTask.WinPEDaRT) {
@@ -681,9 +681,9 @@ function New-OSBuildTask {
             }
         }
         if ($null -eq $WinPEDaRT) {if ($ExistingTask.WinPEDaRT) {$WinPEDaRT = $ExistingTask.WinPEDaRT}}
-        #===================================================================================================
+        #=================================================
         #   WinPEADKPE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEADKPE" -ForegroundColor Green
         if ($ExistingTask.WinPEADKPE) {
             foreach ($Item in $ExistingTask.WinPEADKPE) {
@@ -699,9 +699,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEADKPE) {$WinPEADKPE = $ExistingTask.WinPEADKPE | Sort-Object Length}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEADKRE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEADKRE" -ForegroundColor Green
         if ($ExistingTask.WinPEADKRE) {
             foreach ($Item in $ExistingTask.WinPEADKRE) {
@@ -717,9 +717,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEADKRE) {$WinPEADKRE = $ExistingTask.WinPEADKRE | Sort-Object Length}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEADKSE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEADKSE" -ForegroundColor Green
         if ($ExistingTask.WinPEADKSE) {
             foreach ($Item in $ExistingTask.WinPEADKSE) {
@@ -735,9 +735,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEADKSE) {$WinPEADKSE = $ExistingTask.WinPEADKSE | Sort-Object Length}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEDrivers
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEDrivers" -ForegroundColor Green
         if ($ExistingTask.WinPEDrivers) {
             foreach ($Item in $ExistingTask.WinPEDrivers) {
@@ -753,9 +753,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEDrivers) {$WinPEDrivers = $ExistingTask.WinPEDrivers}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEExtraFilesPE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEExtraFilesPE" -ForegroundColor Green
         if ($ExistingTask.WinPEExtraFilesPE) {
             foreach ($Item in $ExistingTask.WinPEExtraFilesPE) {
@@ -771,9 +771,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEExtraFilesPE) {$WinPEExtraFilesPE = $ExistingTask.WinPEExtraFilesPE}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEExtraFilesRE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEExtraFilesRE" -ForegroundColor Green
         if ($ExistingTask.WinPEExtraFilesRE) {
             foreach ($Item in $ExistingTask.WinPEExtraFilesRE) {
@@ -789,9 +789,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEExtraFilesRE) {$WinPEExtraFilesRE = $ExistingTask.WinPEExtraFilesRE}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEExtraFilesSE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEExtraFilesSE" -ForegroundColor Green
         if ($ExistingTask.WinPEExtraFilesSE) {
             foreach ($Item in $ExistingTask.WinPEExtraFilesSE) {
@@ -807,9 +807,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEExtraFilesSE) {$WinPEExtraFilesSE = $ExistingTask.WinPEExtraFilesSE}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEScriptsPE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEScriptsPE" -ForegroundColor Green
         if ($ExistingTask.WinPEScriptsPE) {
             foreach ($Item in $ExistingTask.WinPEScriptsPE) {
@@ -825,9 +825,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEScriptsPE) {$WinPEScriptsPE = $ExistingTask.WinPEScriptsPE}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEScriptsRE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEScriptsRE" -ForegroundColor Green
         if ($ExistingTask.WinPEScriptsRE) {
             foreach ($Item in $ExistingTask.WinPEScriptsRE) {
@@ -843,9 +843,9 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEScriptsRE) {$WinPEScriptsRE = $ExistingTask.$WinPEScriptsRE}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEScriptsSE
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEScriptsSE" -ForegroundColor Green
         if ($ExistingTask.WinPEScriptsSE) {
             foreach ($Item in $ExistingTask.WinPEScriptsSE) {
@@ -861,17 +861,17 @@ function New-OSBuildTask {
         } else {
             if ($ExistingTask.WinPEScriptsSE) {$WinPEScriptsSE = $ExistingTask.WinPEScriptsSE}
         }
-        #===================================================================================================
+        #=================================================
         #   CustomName
-        #===================================================================================================
+        #=================================================
         if (!($CustomName) -and $ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
         if ($ExistingTask.EnableNetFX3 -eq $true) {$EnableNetFX3 = $true}
         if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
         if ($ExistingTask.WinPEOSDCloud -eq $true) {$WinPEOSDCloud = $true}
         if ($ExistingTask.WinREWiFi -eq $true) {$WinREWiFi = $true}
-        #===================================================================================================
+        #=================================================
         #   Corrections
-        #===================================================================================================
+        #=================================================
         if ($OSMedia.MajorVersion -eq 6) {$EnableNetFX3 = $false}
         if ($null -eq $SetAllIntl) {if ($ExistingTask.SetAllIntl) {$SetAllIntl = $ExistingTask.SetAllIntl}}
         if ($null -eq $SetInputLocale) {if ($ExistingTask.SetInputLocale) {$SetInputLocale = $ExistingTask.SetInputLocale}}
@@ -881,9 +881,9 @@ function New-OSBuildTask {
         if ($null -eq $SetUILang) {if ($ExistingTask.SetUILang) {$SetUILang = $ExistingTask.SetUILang}}
         if ($null -eq $SetUILangFallback) {if ($ExistingTask.SetUILangFallback) {$SetUILang = $ExistingTask.SetUILangFallback}}
         if ($null -eq $SetUserLocale) {if ($ExistingTask.SetUserLocale) {$SetUserLocale = $ExistingTask.SetUserLocale}}
-        #===================================================================================================
+        #=================================================
         #   OSBuildTask
-        #===================================================================================================
+        #=================================================
         $Task = [ordered]@{
             "TaskType" = [string]"OSBuild";
             "TaskVersion" = [string]$global:GetOSDBuilder.VersionOSDBuilder;
@@ -891,9 +891,9 @@ function New-OSBuildTask {
             
             "TaskName" = [string]$TaskName;
             "CustomName" = [string]$CustomName;
-            #===================================================================================================
+            #=================================================
             #   OSMedia
-            #===================================================================================================
+            #=================================================
             "OSMFamily" = [string]$OSMedia.OSMFamily;
             "OSMGuid" = [string]$OSMedia.OSMGuid;
             "Name" = [string]$OSMedia.Name;
@@ -908,41 +908,41 @@ function New-OSBuildTask {
             "Build" = [string]$OSMedia.Build;
             "CreatedTime" = [datetime]$OSMedia.CreatedTime;
             "ModifiedTime" = [datetime]$OSMedia.ModifiedTime;
-            #===================================================================================================
+            #=================================================
             #   ContentPacks
-            #===================================================================================================
+            #=================================================
             "ContentPacks" = [string[]]$ContentPacks;
-            #===================================================================================================
+            #=================================================
             #   Switch
-            #===================================================================================================
+            #=================================================
             "EnableNetFX3" = [string]$EnableNetFX3;
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
             "WinPEOSDCloud" = [string]$WinPEOSDCloud;
             "WinREWiFi" = [string]$WinREWiFi;
-            #===================================================================================================
+            #=================================================
             #   Internal
-            #===================================================================================================
+            #=================================================
             "RemoveAppxProvisionedPackage" = [string[]]$RemoveAppxProvisionedPackage;
             "RemoveWindowsCapability" = [string[]]$RemoveWindowsCapability;
             "RemoveWindowsPackage" = [string[]]$RemoveWindowsPackage;
             "DisableWindowsOptionalFeature" = [string[]]$DisableWindowsOptionalFeature;
             "EnableWindowsOptionalFeature" = [string[]]$EnableWindowsOptionalFeature;
-            #===================================================================================================
+            #=================================================
             #   Content
-            #===================================================================================================
+            #=================================================
             "Drivers" = [string[]]$Drivers;
             "ExtraFiles" = [string[]]$ExtraFiles;
             "Scripts" = [string[]]$Scripts;
             "StartLayoutXML" = [string]$StartLayoutXML;
             "UnattendXML" = [string]$UnattendXML;
-            #===================================================================================================
+            #=================================================
             #   Content Packages
-            #===================================================================================================
+            #=================================================
             "AddWindowsPackage" = [string[]]$AddWindowsPackage;
             "AddFeatureOnDemand" = [string[]]$AddFeatureOnDemand;
-            #===================================================================================================
+            #=================================================
             #   Content WinPE
-            #===================================================================================================
+            #=================================================
             "WinPEADKPE" = [string[]]$WinPEADKPE;
             "WinPEADKRE" = [string[]]$WinPEADKRE;
             "WinPEADKSE" = [string[]]$WinPEADKSE;
@@ -954,9 +954,9 @@ function New-OSBuildTask {
             "WinPEScriptsPE" = [string[]]$WinPEScriptsPE;
             "WinPEScriptsRE" = [string[]]$WinPEScriptsRE;
             "WinPEScriptsSE" = [string[]]$WinPEScriptsSE;
-            #===================================================================================================
+            #=================================================
             #   Language
-            #===================================================================================================
+            #=================================================
             "LangSetAllIntl" = [string]$SetAllIntl;
             "LangSetInputLocale" = [string]$SetInputLocale;
             "LangSetSKUIntlDefaults" = [string]$SetSKUIntlDefaults;
@@ -965,9 +965,9 @@ function New-OSBuildTask {
             "LangSetUILang" = [string]$SetUILang;
             "LangSetUILangFallback" = [string]$SetUILangFallback;
             "LangSetUserLocale" = [string]$SetUserLocale;
-            #===================================================================================================
+            #=================================================
             #   Language Packages
-            #===================================================================================================
+            #=================================================
             "LanguagePack" = [string[]]$LanguagePack;
             "LanguageInterfacePack" = [string[]]$LanguageInterfacePack;
             "LocalExperiencePacks" = [string[]]$LocalExperiencePacks;
@@ -976,9 +976,9 @@ function New-OSBuildTask {
 
         }
 
-        #===================================================================================================
+        #=================================================
         #   Task Complete
-        #===================================================================================================
+        #=================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "OSBuild Task: $TaskName" -ForegroundColor Green
         $Task | ConvertTo-Json | Out-File "$TaskPath"

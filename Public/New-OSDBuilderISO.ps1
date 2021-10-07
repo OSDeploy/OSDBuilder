@@ -22,19 +22,19 @@ function New-OSDBuilderISO {
     )
 
     BEGIN {
-        #===================================================================================================
+        #=================================================
         #   Header
-        #===================================================================================================
+        #=================================================
         #   Write-Host '========================================================================================' -ForegroundColor DarkGray
         #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-        #===================================================================================================
+        #=================================================
         #   Get-OSDBuilder
-        #===================================================================================================
+        #=================================================
         Get-OSDBuilder -CreatePaths -HideDetails
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.2.10 Gather All OS Media'
-        #===================================================================================================
+        #=================================================
         $AllMyOSMedia = @()
         $AllMyOSMedia = Get-OSMedia
 
@@ -47,9 +47,9 @@ function New-OSDBuilderISO {
         $AllMyOSDBMedia = @()
         $AllMyOSDBMedia = [array]$AllMyOSMedia + [array]$AllMyOSBuilds + [array]$AllMyPEBuilds
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.1.1 Locate OSCDIMG'
-        #===================================================================================================
+        #=================================================
         if (Test-Path "$SetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe") {
             $oscdimg = "$SetOSDBuilderPathContent\Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe"
         } elseif (Test-Path "C:\Program Files\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\$env:PROCESSOR_ARCHITECTURE\Oscdimg\oscdimg.exe") {
@@ -77,9 +77,9 @@ function New-OSDBuilderISO {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.1.14 Select Source OSMedia'
-        #===================================================================================================
+        #=================================================
         $SelectedOSMedia = @()
 
         if ($FullName) {
@@ -91,9 +91,9 @@ function New-OSDBuilderISO {
             $SelectedOSMedia = $AllMyOSDBMedia | Out-GridView -Title "OSDBuilder: Select one or more OSMedia to create an ISO and press OK (Cancel to Exit)" -PassThru
         }
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.1.1 Process OSMedia'
-        #===================================================================================================
+        #=================================================
         foreach ($Media in $SelectedOSMedia) {
             $ISOSourceFolder = "$($Media.FullName)\OS"
             $ISODestinationFolder = "$($Media.FullName)\ISO"

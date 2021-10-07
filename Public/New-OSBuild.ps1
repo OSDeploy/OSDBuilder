@@ -138,20 +138,20 @@ function New-OSBuild {
     )
 
     Begin {
-        #===================================================================================================
+        #=================================================
         #   Get-OSDBuilder
-        #===================================================================================================
+        #=================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-        #===================================================================================================
+        #=================================================
         #   Get-OSDUpdates
-        #===================================================================================================
+        #=================================================
         $AllOSDUpdates = @()
         $AllOSDUpdates = Get-OSDUpdates
-        #===================================================================================================
+        #=================================================
         #   Block
-        #===================================================================================================
+        #=================================================
         Block-StandardUser
-        #===================================================================================================
+        #=================================================
     }
 
     Process {
@@ -159,9 +159,9 @@ function New-OSBuild {
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
         Write-Verbose "PSCmdlet.ParameterSetName: $($PSCmdlet.ParameterSetName)"
-        #===================================================================================================
+        #=================================================
         #   OSBuild
-        #===================================================================================================
+        #=================================================
         if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
             if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
                 if ($Name) {
@@ -200,9 +200,9 @@ function New-OSBuild {
                 }
             }
         }
-        #===================================================================================================
+        #=================================================
         #   Update-OSMedia
-        #===================================================================================================
+        #=================================================
         if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
             if ($Name) {
                 $BirdBox = foreach ($Item in $Name) {
@@ -233,9 +233,9 @@ function New-OSBuild {
         }
 
         foreach ($Bird in $BirdBox) {
-            #===================================================================================================
+            #=================================================
             #   New-OSBuild
-            #===================================================================================================
+            #=================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 if ($PSCmdlet.ParameterSetName -eq 'Taskless') {
                     #$Task = Get-OSMedia -Revision OK | Where-Object {$_.Name -eq $Bird.Name}
@@ -311,10 +311,10 @@ function New-OSBuild {
                 
                 if (!($TaskName -eq 'Taskless')) {Show-TaskInfo}
             }
-            #===================================================================================================
+            #=================================================
             #   OSBuild
             Write-Verbose '19.1.1 Validate Proper TaskVersion'
-            #===================================================================================================
+            #=================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (!($TaskName -eq 'Taskless'))) {
                 if ([System.Version]$TaskVersion -lt [System.Version]"19.1.4.0") {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -323,10 +323,10 @@ function New-OSBuild {
                     Return
                 }
             }
-            #===================================================================================================
+            #=================================================
             #   OSBuild
             Write-Verbose '19.3.21 Select Latest OSMedia'
-            #===================================================================================================
+            #=================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (!($DontUseNewestMedia))) {
                 if ($TaskName -eq 'Taskless') {
                     $TaskOSMedia = Get-OSMedia | Where-Object {$_.Name -eq $OSMediaName}
@@ -368,10 +368,10 @@ function New-OSBuild {
                 } #>
             }
             
-            #===================================================================================================
+            #=================================================
             #   OSBuild
             Write-Verbose '19.1.22 Templates'
-            #===================================================================================================
+            #=================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                 Get-ChildItem -Path $SetOSDBuilderPathTemplates *.json | foreach {(Get-Content "$($_.FullName)").replace('WinPEAddDaRT', 'WinPEDaRT') | Set-Content "$($_.FullName)"}
                 $Templates = @()
@@ -446,9 +446,9 @@ function New-OSBuild {
                 }
                 Show-TaskInfo
             }
-            #===================================================================================================
+            #=================================================
             Write-Verbose '19.1.1 Set Proper Paths'
-            #===================================================================================================
+            #=================================================
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
                 if (Test-Path "$SetOSDBuilderPathOSImport\$($Bird.Name)") {$OSMediaPath = "$SetOSDBuilderPathOSImport\$($Bird.Name)"}
                 if (Test-Path "$SetOSDBuilderPathOSMedia\$($Bird.Name)") {$OSMediaPath = "$SetOSDBuilderPathOSMedia\$($Bird.Name)"}
@@ -471,9 +471,9 @@ function New-OSBuild {
                 Return
             }
 
-            #===================================================================================================
+            #=================================================
             Write-Verbose '19.1.1 Get Windows Image Information'
-            #===================================================================================================
+            #=================================================
             $OSImageIndex = 1
             $WindowsImage = Get-WindowsImage -ImagePath "$OSImagePath" -Index $OSImageIndex | Select-Object -Property *
 
@@ -504,9 +504,9 @@ function New-OSBuild {
             $OSModifiedTime =       $($WindowsImage.ModifiedTime)
 
             Show-MediaImageInfoOS
-            #===================================================================================================
+            #=================================================
             Write-Verbose '21.5.21 Validate Registry CurrentVersion.xml'
-            #===================================================================================================
+            #=================================================
             $RegValueCurrentBuild = $null
             if (Test-Path "$OSMediaPath\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$OSMediaPath\info\xml\CurrentVersion.xml"
@@ -516,9 +516,9 @@ function New-OSBuild {
                 [string]$ReleaseId = ($RegKeyCurrentVersion).ReleaseId
                 if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
             }
-            #===================================================================================================
+            #=================================================
             Write-Verbose '19.1.1 Set ReleaseId'
-            #===================================================================================================
+            #=================================================
             if ($null -ne $RegValueCurrentBuild) {$OSBuild = $RegValueCurrentBuild}
             if ($null -eq $ReleaseId) {
                 if ($OSBuild -eq 7600) {$ReleaseId = 7600}
@@ -540,15 +540,22 @@ function New-OSBuild {
 
             Write-Verbose "ReleaseId: $ReleaseId"
             Write-Verbose "CurrentBuild: $RegValueCurrentBuild"
-            #===================================================================================================
+            #=================================================
             #   Operating System
-            #===================================================================================================
+            #=================================================
             $UpdateOS = ''
             if ($OSMajorVersion -eq 10) {
-                if ($OSInstallationType -notlike "*Server*") {$UpdateOS = 'Windows 10'}
-                #elseif ($OSMBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
+                if ($OSInstallationType -notmatch 'Server') {
+                    if ($OSImageName -match ' 11 ') {
+                        $UpdateOS = 'Windows 11'
+                    }
+                    else {
+                        $UpdateOS = 'Windows 10'
+                    }
+                }
                 elseif ($OSImageName -match '2016') {$UpdateOS = 'Windows Server 2016'}
                 elseif ($OSImageName -match '2019') {$UpdateOS = 'Windows Server 2019'}
+                elseif ($OSImageName -match '2022') {$UpdateOS = 'Windows Server 2022'}
                 else {$UpdateOS = 'Windows Server'}
             } elseif ($OSMajorVersion -eq 6) {
                 if ($OSInstallationType -like "*Server*") {
@@ -587,9 +594,9 @@ function New-OSBuild {
                     }
                 }
             }
-            #===================================================================================================
+            #=================================================
             Write-Verbose '19.1.1 WorkingName and WorkingPath'
-            #===================================================================================================
+            #=================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {
                 $WorkingName = "build$((Get-Date).ToString('yyMMddhhmm'))"
                 $WorkingPath = "$SetOSDBuilderPathOSBuilds\$WorkingName"
@@ -597,21 +604,21 @@ function New-OSBuild {
                 $WorkingName = "build$((Get-Date).ToString('yyMMddhhmm'))"
                 $WorkingPath = "$SetOSDBuilderPathOSMedia\$WorkingName"
             }
-            #===================================================================================================
+            #=================================================
             Write-Verbose '19.1.1 Remove Existing OSMedia'
-            #===================================================================================================
+            #=================================================
             if (Test-Path $WorkingPath) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Warning "$WorkingPath will be replaced!"
             }
-            #===================================================================================================
+            #=================================================
             #   Template Content
-            #===================================================================================================
+            #=================================================
             if (Get-IsTemplatesEnabled) {
-                #===================================================================================================
+                #=================================================
                 #   OSBuild
                 #   Driver Templates
-                #===================================================================================================
+                #=================================================
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     $DriverTemplates = Get-OSTemplateDrivers
                     if ($DriverTemplates) {
@@ -620,10 +627,10 @@ function New-OSBuild {
                         foreach ($Item in $DriverTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}
                     }
                 }
-                #===================================================================================================
+                #=================================================
                 #   OSBuild
                 #   ExtraFiles Templates
-                #===================================================================================================
+                #=================================================
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template ExtraFiles Directories (Searched)" -ForegroundColor Green
                     $ExtraFilesTemplates = Get-OSTemplateExtraFiles
@@ -633,10 +640,10 @@ function New-OSBuild {
                         foreach ($Item in $ExtraFilesTemplates) {Write-Host $Item.FullName -ForegroundColor Gray}
                     }
                 }
-                #===================================================================================================
+                #=================================================
                 #   OSBuild
                 #   Registry REG Templates
-                #===================================================================================================
+                #=================================================
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Registry REG Directories (Searched)" -ForegroundColor Green
                     $RegistryTemplatesReg = Get-OSTemplateRegistryReg
@@ -646,10 +653,10 @@ function New-OSBuild {
                         foreach ($Item in $RegistryTemplatesReg) {Write-Host $Item.FullName -ForegroundColor Gray}
                     }
                 }
-                #===================================================================================================
+                #=================================================
                 #   OSBuild
                 #   Registry XML Templates
-                #===================================================================================================
+                #=================================================
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Registry XML Directories (Searched)" -ForegroundColor Green
                     $RegistryTemplatesXml = Get-OSTemplateRegistryXml
@@ -659,10 +666,10 @@ function New-OSBuild {
                         foreach ($Item in $RegistryTemplatesXml) {Write-Host $Item.FullName -ForegroundColor Gray}
                     }
                 }
-                #===================================================================================================
+                #=================================================
                 #   OSBuild
                 #   Script Templates
-                #===================================================================================================
+                #=================================================
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and (Test-Path $SetOSDBuilderPathTemplates) -and (!($SkipTemplates.IsPresent))) {
                     #Write-Host "OSBuild Template Script Directories (Searched)" -ForegroundColor Green
                     $ScriptTemplates = Get-OSTemplateScripts
@@ -673,28 +680,28 @@ function New-OSBuild {
                     }
                 }
             }
-            #===================================================================================================
-            #   OSDSUS (Microsoft Updates)
-            #===================================================================================================
+            #=================================================
+            #   OSDBuilderSUS (Microsoft Updates)
+            #=================================================
             #   OSDUpdates
-            #===================================================================================================
+            #=================================================
             $OSDUpdates = $AllOSDUpdates
             if ($SkipUpdates.IsPresent) {$OSDUpdates = @()}
             $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateArch -eq $OSArchitecture}
             $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateOS -eq $UpdateOS}
             $OSDUpdates = $OSDUpdates | Where-Object {($_.UpdateBuild -eq $ReleaseId) -or ($_.UpdateBuild -eq '')}
             $OSDUpdates = $OSDUpdates | Sort-Object -Property CreationDate
-            #===================================================================================================
+            #=================================================
             #   Update Filters
-            #===================================================================================================
+            #=================================================
             if ($OSInstallationType -match 'Core'){$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'AdobeSU'}}
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia' -and $OSMajorVersion -eq 10) {
                 $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne ''}
                 $OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -ne 'Optional'}
             }
-            #===================================================================================================
+            #=================================================
             #   Include Exclude
-            #===================================================================================================
+            #=================================================
             if ($IncludeKB) {
                 $OSDUpdates = $OSDUpdates | Where-Object {$_.KBNumber -in $IncludeKB}
             }
@@ -707,19 +714,19 @@ function New-OSBuild {
             if ($ExcludeKB){
                 $OSDUpdates = $OSDUpdates | Where-Object {$_.KBNumber -notin $ExcludeKB}
             }
-            #===================================================================================================
+            #=================================================
             #   SelectUpdates
-            #===================================================================================================
+            #=================================================
             if ($SelectUpdates.IsPresent) {$OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Apply and press OK'}
             $MissingUpdate = $false
-            #===================================================================================================
+            #=================================================
             #   Updates Downloaded and Not Downloaded
-            #===================================================================================================
+            #=================================================
             $UpdatesDownloaded = @()
             $UpdatesDownloaded = $OSDUpdates | Where-Object {$_.OSDStatus -eq 'Downloaded'} | Sort-Object CreationDate
             if ($UpdatesDownloaded) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "OSDSUS (Microsoft Updates) Downloaded" -ForegroundColor Green
+                Write-Host "OSDBuilderSUS (Microsoft Updates) Downloaded" -ForegroundColor Green
                 foreach ($Update in $UpdatesDownloaded) {
                     Write-Host "$($Update.CreationDate) - " -NoNewline
                     Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
@@ -737,7 +744,7 @@ function New-OSBuild {
 
             if ($UpdatesNotDownloaded -or $UpdatesNotDownloadedOptional) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "OSDSUS (Microsoft Updates) Not Downloaded" -ForegroundColor Yellow
+                Write-Host "OSDBuilderSUS (Microsoft Updates) Not Downloaded" -ForegroundColor Yellow
                 foreach ($Update in $UpdatesNotDownloaded) {
                     Write-Host "$($Update.CreationDate) - " -NoNewline
                     Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
@@ -750,7 +757,7 @@ function New-OSBuild {
                 }
                 if ($Download.IsPresent) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "OSDSUS (Microsoft Updates) Download" -ForegroundColor Green
+                    Write-Host "OSDBuilderSUS (Microsoft Updates) Download" -ForegroundColor Green
                     if ($UpdatesNotDownloadedOptional){
                         Write-Host "Optional Updates are not automatically downloaded.  Use the following command:" -ForegroundColor Yellow
                         Write-Host "Save-OSDBuilderDownload -UpdateOS '$UpdateOS' -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
@@ -765,87 +772,87 @@ function New-OSBuild {
                 $Execute = $false
                 $MissingUpdate = $true
             }
-            #===================================================================================================
+            #=================================================
             #   SetupDU
-            #===================================================================================================
+            #=================================================
             $OSDUpdateSetupDU = @()
             $OSDUpdateSetupDU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'SetupDU'}
-            #===================================================================================================
+            #=================================================
             #   ComponentDU
-            #===================================================================================================
+            #=================================================
             $OSDUpdateComponentDU = @()
             $OSDUpdateComponentDU = $OSDUpdates | Where-Object {$_.UpdateGroup -like "ComponentDU*"}
-            #===================================================================================================
+            #=================================================
             #   SSU
-            #===================================================================================================
+            #=================================================
             $OSDUpdateSSU = @()
             $OSDUpdateSSU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'SSU'}
-            #===================================================================================================
+            #=================================================
             #   LCU
-            #===================================================================================================
+            #=================================================
             $OSDUpdateLCU = @()
             $OSDUpdateLCU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'LCU'}
-            #===================================================================================================
+            #=================================================
             #   AdobeSU
-            #===================================================================================================
+            #=================================================
             $OSDUpdateAdobeSU = @()
             if ($OSMajorVersion -eq 10) {
                 $OSDUpdateAdobeSU = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'AdobeSU'}
             }
-            #===================================================================================================
+            #=================================================
             #   DotNet
-            #===================================================================================================
+            #=================================================
             $OSDUpdateDotNet = @()
             if ($OSMajorVersion -eq 10) {
                 $OSDUpdateDotNet = $OSDUpdates | Where-Object {$_.UpdateGroup -like "DotNet*"}
             }
-            #===================================================================================================
+            #=================================================
             #   OSDBuilder Seven
-            #===================================================================================================
+            #=================================================
             $OSDUpdateWinSeven = @()
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia' -and $UpdateOS -eq 'Windows 7') {
                 $OSDUpdateWinSeven = $OSDUpdates
             }
-            #===================================================================================================
+            #=================================================
             #   OSDBuilder EightOne
-            #===================================================================================================
+            #=================================================
             $OSDUpdateWinEightOne = @()
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia' -and $UpdateOS -eq 'Windows 8.1') {
                 $OSDUpdateWinEightOne = $OSDUpdates
                 $OSDUpdateWinEightOne = $OSDUpdateWinEightOne | Where-Object {$_.UpdateGroup -ne 'SetupDU'}
                 $OSDUpdateWinEightOne = $OSDUpdateWinEightOne | Where-Object {$_.UpdateGroup -notlike "ComponentDU*"}
             }
-            #===================================================================================================
+            #=================================================
             #   OSDBuilder Twelve
-            #===================================================================================================
+            #=================================================
             $OSDUpdateWinTwelveR2 = @()
             if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia' -and $UpdateOS -eq 'Windows Server 2012 R2') {
                 $OSDUpdateWinTwelveR2 = $OSDUpdates
                 $OSDUpdateWinTwelveR2 = $OSDUpdateWinTwelveR2 | Where-Object {$_.UpdateGroup -ne 'SetupDU'}
                 $OSDUpdateWinTwelveR2 = $OSDUpdateWinTwelveR2 | Where-Object {$_.UpdateGroup -notlike "ComponentDU*"}
             }
-            #===================================================================================================
+            #=================================================
             #   Optional
-            #===================================================================================================
+            #=================================================
             $OSDUpdateOptional = @()
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $OSMajorVersion -eq 10) {
                 $OSDUpdateOptional = $OSDUpdates | Where-Object {($_.UpdateGroup -eq '') -or ($_.UpdateGroup -eq 'Optional')}
             }
-            #===================================================================================================
+            #=================================================
             #   Update Check
-            #===================================================================================================
+            #=================================================
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $LatestOSMedia) {
                 if ($LatestOSMedia.Updates -ne 'OK') {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Warning "This OSMedia does not have the latest OSDSUS (Microsoft Updates)"
+                    Write-Warning "This OSMedia does not have the latest OSDBuilderSUS (Microsoft Updates)"
                     Write-Warning "Use the following command before running New-OSBuild"
                     Write-Warning "Update-OSMedia -Name `'$OSMediaName`' -Download -Execute"
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                 }
             }
-            #===================================================================================================
+            #=================================================
             #   Execution Check
-            #===================================================================================================
+            #=================================================
             if ($MissingUpdate -eq $true) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Warning "Execute is currently disabled as all Updates have not been downloaded"
@@ -854,18 +861,18 @@ function New-OSBuild {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 Write-Warning "Use the -Execute parameter to complete this task"
             }
-            #===================================================================================================
+            #=================================================
             if ($Execute.IsPresent) {
-                #===================================================================================================
+                #=================================================
                 Write-Verbose '19.1.25 Remove Existing WorkingPath'
-                #===================================================================================================
+                #=================================================
                 if (Test-Path $WorkingPath) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
                     Remove-Item -Path "$WorkingPath" -Force -Recurse
                 }
-                #===================================================================================================
+                #=================================================
                 Write-Verbose '19.2.25 Set Variables'
-                #===================================================================================================
+                #=================================================
                 $MountDirectory = Join-Path $SetOSDBuilderPathMount "os$((Get-Date).ToString('yyMMddhhmm'))"
                 $MountWinPE = Join-Path $SetOSDBuilderPathMount "winpe$((Get-Date).ToString('yyMMddhhmm'))"
                 $MountWinRE = Join-Path $SetOSDBuilderPathMount "winre$((Get-Date).ToString('yyMMddhhmm'))"
@@ -877,29 +884,29 @@ function New-OSBuild {
                 $WinPE = Join-Path $WorkingPath 'WinPE'
                     $PEInfo = Join-Path $WinPE 'info'
                     $PELogs = Join-Path $PEInfo 'logs'
-                #===================================================================================================
+                #=================================================
                 Write-Verbose '19.1.1 Start Transcript'
-                #===================================================================================================
+                #=================================================
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
                 $ScriptName = $($MyInvocation.MyCommand.Name)
                 $LogName = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-$ScriptName.log"
                 Start-Transcript -Path (Join-Path "$Info\logs" $LogName) | Out-Null
-                #===================================================================================================
+                #=================================================
                 #   Update-OSMedia and New-OSBuild
-                #===================================================================================================
+                #=================================================
                 New-DirectoriesOSMedia
                 Show-WorkingInfoOS
                 Copy-MediaOperatingSystem
-                #===================================================================================================
+                #=================================================
                 #   WinPE
-                #===================================================================================================
+                #=================================================
                 Mount-WinPEwim -OSMediaPath "$WorkingPath"
                 Mount-WinREwim -OSMediaPath "$WorkingPath"
                 Mount-WinSEwim -OSMediaPath "$WorkingPath"
                 Update-SetupDUMEDIA
-                #===================================================================================================
+                #=================================================
                 #   WinPE ADK
-                #===================================================================================================
+                #=================================================
                 $global:ReapplyLCU = $false
                 $global:UpdateLanguageContent = $false
                 Add-ContentADKWinPE
@@ -907,19 +914,19 @@ function New-OSBuild {
                 Add-ContentADKWinSE
                 Add-ContentPack -PackType PEADK
                 Add-ContentPack -PackType PEADKLang
-                #===================================================================================================
+                #=================================================
                 #   WinPE DaRT
-                #===================================================================================================
+                #=================================================
                 Expand-DaRTPE
                 Add-ContentPack -PackType PEDaRT
-                #===================================================================================================
+                #=================================================
                 #   WinPE Updates
-                #===================================================================================================
+                #=================================================
                 Update-ServicingStackPE
                 Update-CumulativePE
-                #===================================================================================================
+                #=================================================
                 #   WinPE Content
-                #===================================================================================================
+                #=================================================
                 Import-AutoExtraFilesPE
                 Enable-WinPEOSDCloud
                 Enable-WinREWiFi
@@ -931,9 +938,9 @@ function New-OSBuild {
                 Add-ContentPack -PackType PEPoshMods
                 Add-ContentPack -PackType PERegistry
                 Add-ContentPack -PackType PEScripts
-                #===================================================================================================
+                #=================================================
                 #   Update-OSMedia and New-OSBuild
-                #===================================================================================================
+                #=================================================
                 Update-SourcesPE -OSMediaPath "$WorkingPath"
                 Save-PackageInventoryPE -OSMediaPath "$WorkingPath"
                 if ($PauseDismountPE.IsPresent){[void](Read-Host 'Press Enter to Continue')}
@@ -941,15 +948,15 @@ function New-OSBuild {
                 Export-PEWims -OSMediaPath "$WorkingPath"
                 Export-PEBootWim -OSMediaPath "$WorkingPath"
                 Save-InventoryPE -OSMediaPath "$WorkingPath"
-                #===================================================================================================
+                #=================================================
                 #   Install.wim
-                #===================================================================================================
+                #=================================================
                 $global:ReapplyLCU = $false
                 Mount-InstallwimOS
                 Set-WinREWimOS
-                #===================================================================================================
+                #=================================================
                 #   Install.wim UBR Pre-Update
-                #===================================================================================================
+                #=================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Mount Registry for UBR Information"
                 $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
@@ -965,9 +972,9 @@ function New-OSBuild {
                 $UBR = "$RegValueCurrentBuild.$RegValueUbr"
                 Save-RegistryCurrentVersionOS
                 $UBRPre = $UBR
-                #===================================================================================================
+                #=================================================
                 #   Language Content
-                #===================================================================================================
+                #=================================================
                 Add-LanguagePacksOS
                 Add-ContentPack -PackType OSLanguagePacks
                 Add-LanguageInterfacePacksOS
@@ -982,31 +989,31 @@ function New-OSBuild {
                     #Update-CumulativeOS -Force
                     #if ($HideCleanupProgress.IsPresent) {Invoke-DismCleanupImage -HideCleanupProgress} else {Invoke-DismCleanupImage}
                 }
-                #===================================================================================================
+                #=================================================
                 #   Optional Content
-                #===================================================================================================
+                #=================================================
                 Add-ContentPack -PackType OSCapability
                 Add-ContentPack -PackType OSPackages
                 Add-WindowsPackageOS
                 Add-FeaturesOnDemandOS
-                #===================================================================================================
+                #=================================================
                 #   Install.wim Updates
-                #===================================================================================================
+                #=================================================
                 Update-ComponentOS
                 Update-ServicingStackOS
-                #===================================================================================================
+                #=================================================
                 #   Install.wim UBR Post-Update
-                #===================================================================================================
+                #=================================================
                 Show-ActionTime; Write-Host -ForegroundColor Green "OS: Update Build Revision $UBRPre (Pre-LCU)"
                 if ($global:ReapplyLCU -eq $true) {Update-CumulativeOS -Force} else {Update-CumulativeOS}
-                #===================================================================================================
+                #=================================================
                 #   Update-OSMedia
-                #===================================================================================================
+                #=================================================
                 Update-WindowsSevenOS
                 Update-WindowsServer2012R2OS
-                #===================================================================================================
+                #=================================================
                 #   Install.wim UBR Post-Update
-                #===================================================================================================
+                #=================================================
                 $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
 
                 $RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
@@ -1021,15 +1028,15 @@ function New-OSBuild {
                 Save-RegistryCurrentVersionOS
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Update Build Revision $UBR (Post-LCU)"
-                #===================================================================================================
+                #=================================================
                 #   Update-OSMedia and New-OSBuild
-                #===================================================================================================
+                #=================================================
                 Update-AdobeOS
                 Update-DotNetOS
                 Update-OptionalOS
-                #===================================================================================================
+                #=================================================
                 #   OneDriveSetup
-                #===================================================================================================
+                #=================================================
                 if ($OSMajorVersion -eq 10 -and $OSInstallationType -eq 'Client') {
                     Show-ActionTime
                     Write-Host -ForegroundColor Green "OS: Update OneDriveSetup.exe"
@@ -1069,14 +1076,14 @@ function New-OSBuild {
                     Write-Host -ForegroundColor Cyan "                  Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Enterprise'"
                     Write-Host -ForegroundColor Cyan "                  Save-OSDBuilderDownload -ContentDownload 'OneDriveSetup Production'"
                 }
-                #===================================================================================================
+                #=================================================
                 #	DismCleanupImage
-                #===================================================================================================
+                #=================================================
                 if ($global:ReapplyLCU -eq $true) {Update-CumulativeOS -Force}
                 if ($HideCleanupProgress.IsPresent) {Invoke-DismCleanupImage -HideCleanupProgress} else {Invoke-DismCleanupImage}
-                #===================================================================================================
+                #=================================================
                 #   Content
-                #===================================================================================================
+                #=================================================
                 Enable-WindowsOptionalFeatureOS
                 Enable-NetFXOS
                 Remove-AppxProvisionedPackageOS
@@ -1096,25 +1103,25 @@ function New-OSBuild {
                 Add-ContentPack -PackType OSRegistry
                 Add-ContentPack -PackType OSScripts
                 Add-ContentPack -PackType OSStartLayout
-                #===================================================================================================
+                #=================================================
                 #	Updates
-                #===================================================================================================
+                #=================================================
                 #Update-ServicingStackOS -Force
-                #===================================================================================================
+                #=================================================
                 #	Mirror OSMedia and OSBuild
-                #===================================================================================================
+                #=================================================
                 Save-AutoExtraFilesOS -OSMediaPath "$WorkingPath"
                 Save-SessionsXmlOS -OSMediaPath "$WorkingPath"
                 Save-InventoryOS -OSMediaPath "$WorkingPath"
-                #===================================================================================================
+                #=================================================
                 #   Dismount
-                #===================================================================================================
+                #=================================================
                 if ($PauseDismountOS.IsPresent){[void](Read-Host 'Press Enter to Continue')}
                 Dismount-InstallwimOS
                 Export-InstallwimOS
-                #===================================================================================================
+                #=================================================
                 Write-Verbose '19.1.1 OS: Export Configuration'
-                #===================================================================================================
+                #=================================================
                 Show-ActionTime
                 Write-Host -ForegroundColor Green "OS: Export Configuration to $WorkingPath\WindowsImage.txt"
                 $GetWindowsImage = @()
@@ -1136,14 +1143,14 @@ function New-OSBuild {
                 $GetWindowsImage | ConvertTo-Json | Out-File "$Info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsImage.json"
                 (Get-Content "$WorkingPath\WindowsImage.txt") | Where-Object {$_.Trim(" `t")} | Set-Content "$WorkingPath\WindowsImage.txt"
                 
-                #===================================================================================================
+                #=================================================
                 #    OSD-Export
-                #===================================================================================================
+                #=================================================
                 #Save-WindowsImageContentPE
 
-                #===================================================================================================
+                #=================================================
                 Write-Verbose '19.3.17 UBR Validation'
-                #===================================================================================================
+                #=================================================
                 if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {
                     if ($UBRPre -eq $UBR) {
                         Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -1157,18 +1164,18 @@ function New-OSBuild {
                     Write-Warning 'Could not determine a UBR'
                 }
 
-                #===================================================================================================
+                #=================================================
                 Write-Verbose '19.1.1 Remove Temporary Files'
-                #===================================================================================================
+                #=================================================
                 if (Test-Path "$WimTemp") {Remove-Item -Path "$WimTemp" -Force -Recurse | Out-Null}
                 if (Test-Path "$MountDirectory") {Remove-Item -Path "$MountDirectory" -Force -Recurse | Out-Null}
                 if (Test-Path "$MountWinRE") {Remove-Item -Path "$MountWinRE" -Force -Recurse | Out-Null}
                 if (Test-Path "$MountWinPE") {Remove-Item -Path "$MountWinPE" -Force -Recurse | Out-Null}
                 if (Test-Path "$MountWinSE") {Remove-Item -Path "$MountWinSE" -Force -Recurse | Out-Null}
 
-                #===================================================================================================
+                #=================================================
                 Write-Verbose '19.1.1 Set New Name'
-                #===================================================================================================
+                #=================================================
                 $OSImageName = $($GetWindowsImage.ImageName)
                 $OSImageName = $OSImageName -replace '\(', ''
                 $OSImageName = $OSImageName -replace '\)', ''
@@ -1220,9 +1227,9 @@ function New-OSBuild {
                 
                 if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {$NewOSMediaPath = "$SetOSDBuilderPathOSMedia\$NewOSMediaName"}
                 if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {$NewOSMediaPath = "$SetOSDBuilderPathOSBuilds\$NewOSMediaName"}
-                #===================================================================================================
+                #=================================================
                 #   19.1.1 Rename Build Directory
-                #===================================================================================================
+                #=================================================
                 if (Test-Path $NewOSMediaPath) {
                     $yyMMddhhmm = $((Get-Date).ToString('yyMMddhhmm'))
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -1234,20 +1241,20 @@ function New-OSBuild {
                     if ($MyInvocation.MyCommand.Name -eq 'Update-OSMedia') {$NewOSMediaPath = "$SetOSDBuilderPathOSMedia\$NewOSMediaName"}
                     if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild') {$NewOSMediaPath = "$SetOSDBuilderPathOSBuilds\$NewOSMediaName"}
                 }
-                #===================================================================================================
+                #=================================================
                 #   OSD-Export
-                #===================================================================================================
+                #=================================================
                 Save-WindowsImageContentOS
                 Save-VariablesOSD
-                #===================================================================================================
+                #=================================================
                 #   OSDBuilder Media'
-                #===================================================================================================
+                #=================================================
                 if ($CreateISO.IsPresent) {New-OSDBuilderISO -FullName "$WorkingPath"}
                 if ($OSDVHD.IsPresent) {New-OSDBuilderVHD -FullName "$WorkingPath"}
                 if ($OSDInfo.IsPresent) {Show-OSDBuilderInfo -FullName "$WorkingPath"}
-                #===================================================================================================
+                #=================================================
                 #   Complete Update
-                #===================================================================================================
+                #=================================================
 				Show-ActionTime
 				Write-Host -ForegroundColor Green "Media: Renaming ""$WorkingPath"" to ""$NewOSMediaName"""
                 Write-Host '========================================================================================' -ForegroundColor DarkGray

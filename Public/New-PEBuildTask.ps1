@@ -12,9 +12,9 @@ https://osdbuilder.osdeploy.com/module/functions/new-pebuildtask
 function New-PEBuildTask {
     [CmdletBinding(DefaultParameterSetName='Recovery')]
     param (
-        #===================================================================================================
+        #=================================================
         #   Basic Parameters
-        #===================================================================================================
+        #=================================================
         #Sets the name of the Task
         [Parameter(Mandatory)]
         [string]$TaskName,
@@ -40,15 +40,15 @@ function New-PEBuildTask {
         [Parameter(Mandatory,ParameterSetName='MDT')]
         [ValidateSet('WinRE','WinPE')]
         [string]$SourceWim,
-        #===================================================================================================
+        #=================================================
         #   MDT
-        #===================================================================================================
+        #=================================================
         #Full Path to an MDT DeployRoot
         [Parameter(Mandatory,ParameterSetName='MDT')]
         [string]$MDTDeploymentShare,
-        #===================================================================================================
+        #=================================================
         #   Add Content
-        #===================================================================================================
+        #=================================================
         [switch]$ContentWinPEADK,
         [switch]$ContentWinPEDart,
         [switch]$ContentWinPEDrivers,
@@ -57,20 +57,20 @@ function New-PEBuildTask {
     )
 
     Begin {
-        #===================================================================================================
+        #=================================================
         #   Header
-        #===================================================================================================
+        #=================================================
         #   Write-Host '========================================================================================' -ForegroundColor DarkGray
         #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-        #===================================================================================================
+        #=================================================
         #   Get-OSDBuilder
-        #===================================================================================================
+        #=================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-        #===================================================================================================
+        #=================================================
         #   Block
-        #===================================================================================================
+        #=================================================
         Block-StandardUser
-        #===================================================================================================
+        #=================================================
     }
 
     Process {
@@ -78,17 +78,17 @@ function New-PEBuildTask {
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
         Write-Verbose "PSCmdlet.ParameterSetName: $($PSCmdlet.ParameterSetName)"
-        #===================================================================================================
+        #=================================================
         #   Set Task Name
-        #===================================================================================================
+        #=================================================
         $WinPEOutput = $($PsCmdlet.ParameterSetName)
         if ($WinPEOutput -eq 'Recovery') {$SourceWim = 'WinRE'}
 
         $TaskName = "$TaskName"
         $TaskPath = "$SetOSDBuilderPathTasks\$WinPEOutput $TaskName.json"
-        #===================================================================================================
+        #=================================================
         #   Existing Task
-        #===================================================================================================
+        #=================================================
         $ExistingTask = @()
         if (Test-Path "$TaskPath") {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
@@ -96,9 +96,9 @@ function New-PEBuildTask {
             Write-Warning "Content will be updated!"
             $ExistingTask = Get-Content "$TaskPath" | ConvertFrom-Json
         }
-        #===================================================================================================
+        #=================================================
         #   Task Information
-        #===================================================================================================
+        #=================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "New-PEBuild Task Settings" -ForegroundColor Green
         Write-Host "-Task Name:                     $TaskName"
@@ -108,9 +108,9 @@ function New-PEBuildTask {
         Write-Host "-Wim File:                      $SourceWim"
         Write-Host "-Deployment Share:              $MDTDeploymentShare"
         Write-Host "-Scratch Space:                 $ScratchSpace"
-        #===================================================================================================
+        #=================================================
         #   Get-OSMedia
-        #===================================================================================================
+        #=================================================
         $OSMedia = @()
         $OSMedia = Get-OSMedia -Revision OK -OSMajorVersion 10 | Sort-Object Name
 
@@ -141,14 +141,14 @@ function New-PEBuildTask {
             Write-Warning "Source OSMedia was not selected . . . Exiting!"
             Return
         }
-        #===================================================================================================
+        #=================================================
         Write-Verbose 'Get-WindowsImage Information'
-        #===================================================================================================
+        #=================================================
         $WindowsImage = Get-WindowsImage -ImagePath "$($OSMedia.FullName)\OS\sources\install.wim" -Index 1 | Select-Object -Property *
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose 'Source OSMedia Windows Image Information'
-        #===================================================================================================
+        #=================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "Source OSMedia Windows Image Information" -ForegroundColor Green
         Write-Host "-OSMedia Chain:                 $($OSMedia.OSMFamily)"
@@ -174,9 +174,9 @@ function New-PEBuildTask {
         Write-Host "-WimBoot:                       $($WindowsImage.WIMBoot)"
         Write-Host "-Created Time:                  $($OSMedia.CreatedTime)"
         Write-Host "-Modified Time:                 $($OSMedia.ModifiedTime)"
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.10.29 Validate Registry CurrentVersion.xml'
-        #===================================================================================================
+        #=================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
             if (Test-Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$($OSMedia.FullName)\info\xml\CurrentVersion.xml"
@@ -186,9 +186,9 @@ function New-PEBuildTask {
                 }
             }
         }
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.10.29 Set-OSMedia.ReleaseId'
-        #===================================================================================================
+        #=================================================
         if ($null -eq $($OSMedia.ReleaseId)) {
             if ($($OSMedia.Build) -eq 7601) {$OSMedia.ReleaseId = 7601}
             if ($($OSMedia.Build) -eq 10240) {$OSMedia.ReleaseId = 1507}
@@ -204,11 +204,11 @@ function New-PEBuildTask {
             #if ($($OSMedia.Build) -eq 19043) {$OSMedia.ReleaseId = '21H1'}
             #if ($($OSMedia.Build) -eq 19043) {$OSMedia.ReleaseId = '21H2'}
         }
-        #===================================================================================================
+        #=================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
-        #===================================================================================================
+        #=================================================
         #   Validate-ContentPacks
-        #===================================================================================================
+        #=================================================
         Write-Host "ContentPacks" -ForegroundColor Green
         if ($ExistingTask.ContentPacks) {
             foreach ($Item in $ExistingTask.ContentPacks) {
@@ -228,9 +228,9 @@ function New-PEBuildTask {
         } else {
             if ($ExistingTask.ContentPacks) {$ContentPacks = $ExistingTask.ContentPacks}
         }
-        #===================================================================================================
+        #=================================================
         #   Content WinPEDaRT
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEDaRT" -ForegroundColor Green
         if ($ExistingTask.WinPEDaRT) {
             foreach ($Item in $ExistingTask.WinPEDaRT) {
@@ -244,9 +244,9 @@ function New-PEBuildTask {
             }
         }
         if ($null -eq $WinPEDaRT) {if ($ExistingTask.WinPEDaRT) {$WinPEDaRT = $ExistingTask.WinPEDaRT}}
-        #===================================================================================================
+        #=================================================
         #   ContentIsoExtract
-        #===================================================================================================
+        #=================================================
         if ($ContentWinPEADK.IsPresent) {
             Write-Warning "Generating IsoExtract Content ... This may take a while"
             $ContentIsoExtract = @()
@@ -255,9 +255,9 @@ function New-PEBuildTask {
             $ContentIsoExtractWinPE = @()
             $ContentIsoExtractWinPE = $ContentIsoExtract | Where-Object {$_.FullName -like "*Windows Preinstallation Environment*"}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEADK
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEADK" -ForegroundColor Green
         if ($ExistingTask.WinPEADK) {
             foreach ($Item in $ExistingTask.WinPEADK) {
@@ -273,9 +273,9 @@ function New-PEBuildTask {
         } else {
             if ($ExistingTask.WinPEADK) {$WinPEADK = $ExistingTask.WinPEADK | Sort-Object Length}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEDrivers
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEDrivers" -ForegroundColor Green
         if ($ExistingTask.WinPEDrivers) {
             foreach ($Item in $ExistingTask.WinPEDrivers) {
@@ -291,9 +291,9 @@ function New-PEBuildTask {
         } else {
             if ($ExistingTask.WinPEDrivers) {$WinPEDrivers = $ExistingTask.WinPEDrivers}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEExtraFiles
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEExtraFiles" -ForegroundColor Green
         if ($ExistingTask.WinPEExtraFiles) {
             foreach ($Item in $ExistingTask.WinPEExtraFiles) {
@@ -309,9 +309,9 @@ function New-PEBuildTask {
         } else {
             if ($ExistingTask.WinPEExtraFiles) {$WinPEExtraFiles = $ExistingTask.WinPEExtraFiles}
         }
-        #===================================================================================================
+        #=================================================
         #   WinPEScripts
-        #===================================================================================================
+        #=================================================
         Write-Host "WinPEScripts" -ForegroundColor Green
         if ($ExistingTask.WinPEScripts) {
             foreach ($Item in $ExistingTask.WinPEScripts) {
@@ -327,16 +327,16 @@ function New-PEBuildTask {
         } else {
             if ($ExistingTask.WinPEScripts) {$WinPEScripts = $ExistingTask.WinPEScripts}
         }
-        #===================================================================================================
+        #=================================================
         #   Parameters
-        #===================================================================================================
+        #=================================================
         if (!($CustomName) -and $ExistingTask.CustomName) {$CustomName = $ExistingTask.CustomName}
         if (!($MDTDeploymentShare) -and $ExistingTask.MDTDeploymentShare) {$MDTDeploymentShare = $ExistingTask.MDTDeploymentShare}
         if (!($ScratchSpace) -and $ExistingTask.ScratchSpace) {$ScratchSpace = $ExistingTask.ScratchSpace}
         if ($ExistingTask.WinPEAutoExtraFiles -eq $true) {$WinPEAutoExtraFiles = $true}
-        #===================================================================================================
+        #=================================================
         #   PEBuildTask
-        #===================================================================================================
+        #=================================================
         $Task = [ordered]@{
             "TaskType" = [string]'PEBuild';
             "TaskVersion" = [string]$global:GetOSDBuilder.VersionOSDBuilder;
@@ -344,13 +344,13 @@ function New-PEBuildTask {
 
             "TaskName" = [string]$TaskName;
             "CustomName" = [string]$CustomName;
-            #===================================================================================================
+            #=================================================
             #   ContentPacks
-            #===================================================================================================
+            #=================================================
             "ContentPacks" = [string[]]$ContentPacks;
-            #===================================================================================================
+            #=================================================
             #   OSMedia
-            #===================================================================================================
+            #=================================================
             "OSMFamily" = [string]$OSMedia.OSMFamily;
             "OSMGuid" = [string]$OSMedia.OSMGuid;
             "Name" = [string]$OSMedia.Name;
@@ -365,30 +365,30 @@ function New-PEBuildTask {
             "Build" = [string]$OSMedia.Build;
             "CreatedTime" = [datetime]$OSMedia.CreatedTime;
             "ModifiedTime" = [datetime]$OSMedia.ModifiedTime;
-            #===================================================================================================
+            #=================================================
             #   String
-            #===================================================================================================
+            #=================================================
             "WinPEOutput" = [string]$WinPEOutput;
             "SourceWim" = [string]$SourceWim;
             "MDTDeploymentShare" = [string]$MDTDeploymentShare;
             "WinPEDaRT" = [string]$WinPEDaRT;
             "ScratchSpace" = [string]$ScratchSpace;
-            #===================================================================================================
+            #=================================================
             #   Switch
-            #===================================================================================================
+            #=================================================
             "WinPEAutoExtraFiles" = [string]$WinPEAutoExtraFiles;
-            #===================================================================================================
+            #=================================================
             #   Array
-            #===================================================================================================
+            #=================================================
             "WinPEADK" = [string[]]$WinPEADK;
             "WinPEDrivers" = [string[]]$WinPEDrivers;
             "WinPEExtraFiles" = [string[]]$WinPEExtraFiles;
             "WinPEScripts" = [string[]]$WinPEScripts;
         }
 
-        #===================================================================================================
+        #=================================================
         #   Task Complete
-        #===================================================================================================
+        #=================================================
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host "PEBuild Task: $TaskName" -ForegroundColor Green
         $Task | ConvertTo-Json | Out-File "$TaskPath"

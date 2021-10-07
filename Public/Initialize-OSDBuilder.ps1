@@ -4,9 +4,9 @@ function Initialize-OSDBuilder {
         #Sets the OSDBuilder Path in the Registry
         [string]$SetHome
     )
-    #===================================================================================================
+    #=================================================
     #   GetOSDBuilderHome
-    #===================================================================================================
+    #=================================================
     if (! (Test-Path HKCU:\Software\OSDeploy)) {
         Try {New-Item HKCU:\Software -Name OSDeploy -Force | Out-Null}
         Catch {Write-Warning 'Unable to New-Item HKCU:\Software\OSDeploy'; Break}
@@ -33,9 +33,9 @@ function Initialize-OSDBuilder {
         Set-ItemProperty -Path HKCU:\Software\OSDeploy -Name GetOSDBuilderHome -Value "$env:SystemDrive\OSDBuilder" -Force
         $global:GetOSDBuilderHome = "$env:SystemDrive\OSDBuilder"
     }
-    #===================================================================================================
+    #=================================================
     #   Initialize OSDBuilder Variables
-    #===================================================================================================
+    #=================================================
     Write-Verbose "Initializing OSDBuilder ..." -Verbose
 
     
@@ -160,9 +160,9 @@ function Initialize-OSDBuilder {
         UpdateOSMediaSkipUpdates = $false
         UpdateOSMediaSkipUpdatesPE = $false
     }
-    #===================================================================================================
+    #=================================================
     #   Import Local JSON
-    #===================================================================================================
+    #=================================================
     if (Test-Path $global:GetOSDBuilder.JsonLocal) {
         Write-Verbose "Importing OSDBuilder Local Settings $($global:GetOSDBuilder.JsonLocal)"
         Try {
@@ -203,9 +203,9 @@ function Initialize-OSDBuilder {
         }
     } #>
 
-    #===================================================================================================
+    #=================================================
     #   Set Content Paths
-    #===================================================================================================
+    #=================================================
     $global:GetOSDBuilder.PathContentADK            = Join-Path $global:SetOSDBuilder.PathContent 'ADK'
     $global:GetOSDBuilder.PathContentDaRT           = Join-Path $global:SetOSDBuilder.PathContent 'DaRT'
     $global:GetOSDBuilder.PathContentDrivers        = Join-Path $global:SetOSDBuilder.PathContent 'Drivers'
@@ -216,9 +216,9 @@ function Initialize-OSDBuilder {
     $global:GetOSDBuilder.PathContentScripts        = Join-Path $global:SetOSDBuilder.PathContent 'Scripts'
     $global:GetOSDBuilder.PathContentStartLayout    = Join-Path $global:SetOSDBuilder.PathContent 'StartLayout'
     $global:GetOSDBuilder.PathContentUnattend       = Join-Path $global:SetOSDBuilder.PathContent 'Unattend'
-    #===================================================================================================
+    #=================================================
     #   Get Variables
-    #===================================================================================================
+    #=================================================
     $global:GetOSDBuilderHome                   = $global:GetOSDBuilder.Home
     $global:GetOSDBuilderPathContentADK         = $global:GetOSDBuilder.PathContentADK
     $global:GetOSDBuilderPathContentDaRT        = $global:GetOSDBuilder.PathContentDaRT
@@ -230,9 +230,9 @@ function Initialize-OSDBuilder {
     $global:GetOSDBuilderPathContentScripts     = $global:GetOSDBuilder.PathContentScripts
     $global:GetOSDBuilderPathContentStartLayout = $global:GetOSDBuilder.PathContentStartLayout
     $global:GetOSDBuilderPathContentUnattend    = $global:GetOSDBuilder.PathContentUnattend
-    #===================================================================================================
+    #=================================================
     #   Set Variables
-    #===================================================================================================
+    #=================================================
     $global:SetOSDBuilderPathContent            = $global:SetOSDBuilder.PathContent
     $global:SetOSDBuilderPathContentPacks       = $global:SetOSDBuilder.PathContentPacks
     $global:SetOSDBuilderPathMount              = $global:SetOSDBuilder.PathMount
@@ -244,9 +244,9 @@ function Initialize-OSDBuilder {
     $global:SetOSDBuilderPathTasks              = $global:SetOSDBuilder.PathTasks
     $global:SetOSDBuilderPathTemplates          = $global:SetOSDBuilder.PathTemplates
     $global:SetOSDBuilderPathUpdates            = $global:SetOSDBuilder.PathUpdates
-    #===================================================================================================
+    #=================================================
     #   Corrections
-    #===================================================================================================
+    #=================================================
     if (Test-Path "$GetOSDBuilderHome\Media") {
         Write-Warning "Renaming $GetOSDBuilderHome\Media to $SetOSDBuilderPathFeatureUpdates"
         Rename-Item "$GetOSDBuilderHome\Media" "$SetOSDBuilderPathFeatureUpdates" -Force | Out-Null

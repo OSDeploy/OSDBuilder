@@ -184,10 +184,17 @@ function New-OSDCloudOSMedia {
             #=======================================================================
             $UpdateOS = ''
             if ($OSMajorVersion -eq 10) {
-                if ($OSInstallationType -notlike "*Server*") {$UpdateOS = 'Windows 10'}
-                #elseif ($OSMBuild -ge 17763) {$UpdateOS = 'Windows Server 2019'}
+                if ($OSInstallationType -notmatch 'Server') {
+                    if ($OSImageName -match ' 11 ') {
+                        $UpdateOS = 'Windows 11'
+                    }
+                    else {
+                        $UpdateOS = 'Windows 10'
+                    }
+                }
                 elseif ($OSImageName -match '2016') {$UpdateOS = 'Windows Server 2016'}
                 elseif ($OSImageName -match '2019') {$UpdateOS = 'Windows Server 2019'}
+                elseif ($OSImageName -match '2022') {$UpdateOS = 'Windows Server 2022'}
                 else {$UpdateOS = 'Windows Server'}
             }
             #=======================================================================

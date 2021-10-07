@@ -19,16 +19,16 @@ function Show-OSDBuilderInfo {
     )
 
     Begin {
-        #===================================================================================================
+        #=================================================
         #   Header
-        #===================================================================================================
+        #=================================================
         #   Write-Host '========================================================================================' -ForegroundColor DarkGray
         #   Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
-        #===================================================================================================
+        #=================================================
         #   Get-OSDBuilder
-        #===================================================================================================
+        #=================================================
         Get-OSDBuilder -CreatePaths -HideDetails
-        #===================================================================================================
+        #=================================================
         #   Gather All OS Media
         $AllMyOSMedia = @()
         $AllMyOSBuilds = @()
@@ -40,16 +40,16 @@ function Show-OSDBuilderInfo {
         $AllMyOSBuilds = Get-OSBuilds
         $AllMyPEBuilds = Get-PEBuilds
         $AllMyOSDBMedia = [array]$AllMyOSMedia + [array]$AllMyOSBuilds + [array]$AllMyPEBuilds
-        #===================================================================================================
+        #=================================================
     }
 
     PROCESS {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
-        #===================================================================================================
+        #=================================================
         Write-Verbose '19.1.1 Select Source OSMedia'
-        #===================================================================================================
+        #=================================================
         $SelectedOSMedia = @()
 
         if ($FullName) {
@@ -61,9 +61,9 @@ function Show-OSDBuilderInfo {
             $SelectedOSMedia = $AllMyOSDBMedia | Out-GridView -Title "OSDBuilder: Select one or more Media and press OK (Cancel to Exit)" -PassThru
         }
 
-        #===================================================================================================
+        #=================================================
         #   Foreach
-        #===================================================================================================
+        #=================================================
         foreach ($Media in $SelectedOSMedia) {
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Host "Show-OSDBuilderInfo -FullName '$($Media.FullName)'" -ForegroundColor Green
@@ -74,9 +74,9 @@ function Show-OSDBuilderInfo {
                 Break
             }
 
-            #===================================================================================================
+            #=================================================
             #   Get-AppxProvisionedPackage
-            #===================================================================================================
+            #=================================================
             $global:GetAppxProvisionedPackage = @()
             $GetAppxProvisionedPackageXml = Join-Path $($Media.FullName) (Join-Path "info" (Join-Path "xml" "Get-AppxProvisionedPackage.xml"))
             if (Test-Path $GetAppxProvisionedPackageXml) {
@@ -107,9 +107,9 @@ function Show-OSDBuilderInfo {
                 }
             }
 
-            #===================================================================================================
+            #=================================================
             #   Get-WindowsCapability
-            #===================================================================================================
+            #=================================================
             $global:GetWindowsCapability = @()
             $GetWindowsCapabilityXml = Join-Path $($Media.FullName) (Join-Path "info" (Join-Path "xml" "Get-WindowsCapability.xml"))
             if (Test-Path $GetWindowsCapabilityXml) {
@@ -140,9 +140,9 @@ function Show-OSDBuilderInfo {
                 }
             }
 
-            #===================================================================================================
+            #=================================================
             #   Get-WindowsOptionalFeature
-            #===================================================================================================
+            #=================================================
             $global:GetWindowsOptionalFeature = @()
             $WindowsOptionalFeatureXml = Join-Path $($Media.FullName) (Join-Path "info" (Join-Path "xml" "Get-WindowsOptionalFeature.xml"))
             if (Test-Path $WindowsOptionalFeatureXml) {
@@ -173,9 +173,9 @@ function Show-OSDBuilderInfo {
                 }
             }
 
-            #===================================================================================================
+            #=================================================
             #   Get-WindowsPackage
-            #===================================================================================================
+            #=================================================
             $global:GetWindowsPackage = @()
             $GetWindowsPackageXml = Join-Path $($Media.FullName) (Join-Path "info" (Join-Path "xml" "Get-WindowsPackage.xml"))
             if (Test-Path $GetWindowsPackageXml) {
@@ -218,9 +218,9 @@ function Show-OSDBuilderInfo {
                 }
             }
 
-            #===================================================================================================
+            #=================================================
             #   Get-WindowsImage
-            #===================================================================================================
+            #=================================================
             $global:GetWindowsImage = @()
             $GetWindowsImageXml = Join-Path $($Media.FullName) (Join-Path "info" (Join-Path "xml" "Get-WindowsImage.xml"))
             if (Test-Path $GetWindowsImageXml) {
