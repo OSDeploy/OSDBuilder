@@ -1611,17 +1611,17 @@ function Add-ContentPackPEExtraFiles {
     #Save-WindowsImage -Path $MountWinPE | Out-Null
     if ($MountWinPE) {
         #robocopy "$ContentPackContent" "$MountWinPE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-        robocopy "$ContentPackContent" "$MountWinPE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinPE" *.* /S /B /COPY:D /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
         #xcopy "$ContentPackContent" "$MountWinPE" /F /C /H /E /R /Y /J
         #Copy-Item "$ContentPackContent\*" -Destination "$MountWinPE\" -Recurse -Force
     }
     if ($MountWinRE) {
         #robocopy "$ContentPackContent" "$MountWinRE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-        robocopy "$ContentPackContent" "$MountWinRE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinRE" *.* /S /B /COPY:D /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
     }
     if ($MountWinSE) {
         #robocopy "$ContentPackContent" "$MountWinSE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-        robocopy "$ContentPackContent" "$MountWinSE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinSE" *.* /S /B /COPY:D /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
     }
     #Start-Sleep -Seconds 1
 }
