@@ -291,7 +291,7 @@ function Import-OSMedia {
         #   Build ge 1809
         #=================================================
         Write-Verbose "Filtering Windows Major Version gt 10 and Build ge 1809"
-        $ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {($_.MajorVersion -eq '10') -and ($_.Version -ge '10.0.17763.1')}
+        $ImportOSMediaWindowsImages = $ImportOSMediaWindowsImages | Where-Object {($_.MajorVersion -eq '10')}
         #=================================================
         #   ImportOSMediaWindowsImages Filter
         #=================================================

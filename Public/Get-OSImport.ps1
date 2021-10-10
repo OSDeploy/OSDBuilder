@@ -130,7 +130,7 @@ function Get-OSMedia {
             #   UpdateOS
             #=================================================
             $UpdateOS = ''
-            if (($OSMMajorVersion -eq 10) -and ($OSMVersion -ge '10.0.17763.1')) {
+            if ($OSMMajorVersion -eq 10) {
                 if ($OSMInstallationType -match 'Server') {
                     $UpdateOS = 'Windows Server'
                 }

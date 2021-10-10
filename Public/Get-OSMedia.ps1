@@ -30,7 +30,7 @@ function Get-OSMedia {
         [string]$OSMajorVersion,
 
         #Filter the OSMedia by OS Release Id
-        [ValidateSet ('21H2','21H1','20H2',2004,1909,1903,1809)]
+        [ValidateSet ('21H2','21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507)]
         [string]$OSReleaseId,
         
         #Filter the OSMedia by Image Revision
@@ -130,7 +130,7 @@ function Get-OSMedia {
             #   UpdateOS
             #=================================================
             $UpdateOS = ''
-            if (($OSMMajorVersion -eq 10) -and ($OSMVersion -ge '10.0.17763.1')) {
+            if ($OSMMajorVersion -eq 10) {
                 if ($OSMInstallationType -match 'Server') {
                     $UpdateOS = 'Windows Server'
                 }
