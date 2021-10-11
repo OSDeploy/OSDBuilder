@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '21.10.5.1'
+ModuleVersion = '21.10.10.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -31,9 +31,6 @@ https://osdbuilder.osdeploy.com
 
 Requirements:
 PowerShell Module OSD 21.9.10.1 or newer
-
-Latest Microsoft Updates (WSUS):
-https://raw.githubusercontent.com/OSDeploy/OSDBuilder/master/UPDATES.md
 '@
 
 # Minimum version of the Windows PowerShell engine required by this module
@@ -56,7 +53,7 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName = 'OSD'; ModuleVersion = '21.9.14.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+    @{ModuleName = 'OSD'; ModuleVersion = '21.10.10.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
 )
 
 # Assemblies that must be loaded prior to importing this module
@@ -78,7 +75,6 @@ RequiredModules = @(
 FunctionsToExport = 'Save-OSDBuilderDownload',
                     'Get-OSBuilds',
                     'Get-OSDBuilder',
-                    'Get-OSDBuilderSUS',
                     'Get-OSMedia',
                     'Get-PEBuilds',
                     'Import-OSMedia',
@@ -123,7 +119,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('OSD','OSDeploy','OSDBuilder','OSDSUS','OSBuilder','OSBuilderSUS','Servicing','SCCM','MDT')
+        Tags = @('OSD','OSDeploy','OSDBuilder','OSBuilder','OSBuilderSUS','Servicing','SCCM','MDT')
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/OSDeploy/OSDBuilder/blob/master/LICENSE'
@@ -137,7 +133,7 @@ PrivateData = @{
         # ReleaseNotes of this module
         ReleaseNotes = 'https://osdbuilder.osdeploy.com/release'
 
-        #ExternalModuleDependencies = @('OSDBuilderSUS')
+        #ExternalModuleDependencies = @()
 
     } # End of PSData hashtable
 

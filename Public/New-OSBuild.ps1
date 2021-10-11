@@ -681,7 +681,7 @@ function New-OSBuild {
                 }
             }
             #=================================================
-            #   OSDBuilderSUS (Microsoft Updates)
+            #   WSUSXML (Microsoft Updates)
             #=================================================
             #   OSDUpdates
             #=================================================
@@ -726,7 +726,7 @@ function New-OSBuild {
             $UpdatesDownloaded = $OSDUpdates | Where-Object {$_.OSDStatus -eq 'Downloaded'} | Sort-Object CreationDate
             if ($UpdatesDownloaded) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "OSDBuilderSUS (Microsoft Updates) Downloaded" -ForegroundColor Green
+                Write-Host "WSUSXML (Microsoft Updates) Downloaded" -ForegroundColor Green
                 foreach ($Update in $UpdatesDownloaded) {
                     Write-Host "$($Update.CreationDate) - " -NoNewline
                     Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
@@ -744,7 +744,7 @@ function New-OSBuild {
 
             if ($UpdatesNotDownloaded -or $UpdatesNotDownloadedOptional) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "OSDBuilderSUS (Microsoft Updates) Not Downloaded" -ForegroundColor Yellow
+                Write-Host "WSUSXML (Microsoft Updates) Not Downloaded" -ForegroundColor Yellow
                 foreach ($Update in $UpdatesNotDownloaded) {
                     Write-Host "$($Update.CreationDate) - " -NoNewline
                     Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
@@ -757,7 +757,7 @@ function New-OSBuild {
                 }
                 if ($Download.IsPresent) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "OSDBuilderSUS (Microsoft Updates) Download" -ForegroundColor Green
+                    Write-Host "WSUSXML (Microsoft Updates) Download" -ForegroundColor Green
                     if ($UpdatesNotDownloadedOptional){
                         Write-Host "Optional Updates are not automatically downloaded.  Use the following command:" -ForegroundColor Yellow
                         Write-Host "Save-OSDBuilderDownload -UpdateOS '$UpdateOS' -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
@@ -844,7 +844,7 @@ function New-OSBuild {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $LatestOSMedia) {
                 if ($LatestOSMedia.Updates -ne 'OK') {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Warning "This OSMedia does not have the latest OSDBuilderSUS (Microsoft Updates)"
+                    Write-Warning "This OSMedia does not have the latest WSUSXML (Microsoft Updates)"
                     Write-Warning "Use the following command before running New-OSBuild"
                     Write-Warning "Update-OSMedia -Name `'$OSMediaName`' -Download -Execute"
                     Write-Host '========================================================================================' -ForegroundColor DarkGray

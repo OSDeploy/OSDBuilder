@@ -2717,7 +2717,7 @@ function Export-SessionsXmlOS {
 }
 function Get-FeatureUpdateDownloads {
     $FeatureUpdateDownloads = @()
-    $FeatureUpdateDownloads = Get-OSDSUS FeatureUpdate
+    $FeatureUpdateDownloads = Get-WSUSXML FeatureUpdate
 <#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\CatalogsESD\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {
@@ -2952,9 +2952,9 @@ function Get-OSDUpdates {
     )
     $AllOSDUpdates = @()
     if ($Silent.IsPresent) {
-        $AllOSDUpdates = Get-OSDSUS Windows -Silent
+        $AllOSDUpdates = Get-WSUSXML Windows -Silent
     } else {
-        $AllOSDUpdates = Get-OSDSUS Windows
+        $AllOSDUpdates = Get-WSUSXML Windows
     }
     #=================================================
     #   Get Downloaded Updates
@@ -6738,18 +6738,6 @@ function Update-ModuleOSDBuilder {
         try {Install-Module -Name OSDBuilder -Force -ErrorAction SilentlyContinue}
         catch {}
     }
-    #=================================================
-    #   OSDBuilderSUS Update-Module
-    #=================================================
-    Write-Warning "Update-Module -Name -Force OSDBuilderSUS"
-    try {Update-Module -Name OSDBuilderSUS -Force -ErrorAction SilentlyContinue}
-    catch {}
-    #=================================================
-    #   OSDBuilderSUS Import-Module
-    #=================================================
-    Write-Warning "Import-Module -Name OSDBuilderSUS -Force"
-    try {Import-Module -Name OSDBuilderSUS -Force -ErrorAction SilentlyContinue}
-    catch {}
     #=================================================
     #   Import-Module
     #=================================================

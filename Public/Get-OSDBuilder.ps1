@@ -57,7 +57,6 @@ function Get-OSDBuilder {
     #   OSDBuilder.PSModule*
     #=================================================
     $global:GetOSDBuilder.PSModuleOSD               = Get-Module -Name OSD | Select-Object *
-    $global:GetOSDBuilder.PSModuleOSDBuilderSUS            = Get-Module -Name OSDBuilderSUS | Select-Object *
     $global:GetOSDBuilder.PSModuleOSDBuilder        = Get-Module -Name OSDBuilder | Select-Object *
     #=================================================
     #   OSDBuilder.Public*
@@ -70,9 +69,6 @@ function Get-OSDBuilder {
     #=================================================
     $global:GetOSDBuilder.VersionOSD                = $global:GetOSDBuilder.PSModuleOSD.Version | Sort-Object | Select-Object -Last 1
     $global:GetOSDBuilder.VersionOSDPublic          = $global:GetOSDBuilder.VersionOSD
-
-    $global:GetOSDBuilder.VersionOSDBuilderSUS             = $global:GetOSDBuilder.PSModuleOSDBuilderSUS.Version | Sort-Object | Select-Object -Last 1
-    $global:GetOSDBuilder.VersionOSDBuilderSUSPublic       = $global:GetOSDBuilder.VersionOSDBuilderSUS
     
     $global:GetOSDBuilder.VersionOSDBuilder         = $global:GetOSDBuilder.PSModuleOSDBuilder.Version | Sort-Object | Select-Object -Last 1
     $global:GetOSDBuilder.VersionOSDBuilderPublic   = $global:GetOSDBuilder.VersionOSDBuilder
@@ -85,54 +81,20 @@ function Get-OSDBuilder {
         } else {
             $global:GetOSDBuilder.PublicJson               = Invoke-RestMethod -Uri $global:GetOSDBuilder.PublicJsonURL
             $global:GetOSDBuilder.VersionOSDPublic         = $global:GetOSDBuilder.PublicJson.OSD
-            $global:GetOSDBuilder.VersionOSDBuilderSUSPublic      = $global:GetOSDBuilder.PublicJson.OSDBuilderSUS
             $global:GetOSDBuilder.VersionOSDBuilderPublic  = $global:GetOSDBuilder.PublicJson.OSDBuilder
         }
     }
-    #=================================================
-    #   Archive
-    #=================================================
-    #$global:OSDBuilderPath                  = $global:GetOSDBuilder.Home
-    #$global:OSDBuilderOSImport              = $global:SetOSDBuilder.PathOSImport
-    #$global:OSDBuilderOSMedia               = $global:SetOSDBuilder.PathOSMedia
-    #$global:OSDBuilderOSBuilds              = $global:SetOSDBuilder.PathOSBuilds
-    #$global:OSDBuilderPEBuilds              = $global:SetOSDBuilder.PathPEBuilds
-    #$global:OSDBuilderTasks                 = $global:GetOSDBuilder.PathTasks
-    #$global:OSDBuilderTemplates             = $global:GetOSDBuilder.PathTemplates
-    #$global:OSDBuilderContent               = $global:SetOSDBuilder.PathContent
-
-    #$global:GetModuleOSD                    = $global:GetOSDBuilder.PSModuleOSD
-    #$global:GetModuleOSDBuilderSUS                 = $global:GetOSDBuilder.PSModuleOSDBuilderSUS
-    #$global:GetModuleOSDBuilder             = $global:GetOSDBuilder.PSModuleOSDBuilder
-
-    #$global:GetModuleOSDVersion             = $global:GetOSDBuilder.VersionOSD
-    #$global:GetModuleOSDBuilderSUSVersion          = $global:GetOSDBuilder.VersionOSDBuilderSUS
-    #$global:GetModuleOSDBuilderVersion      = $global:GetOSDBuilder.VersionOSDBuilder
-    #$global:GetOSDBuilderVersionOSDBuilder      = $global:GetOSDBuilder.VersionOSDBuilder
-
-    #$global:OSDBuilderPublic                = $global:GetOSDBuilder.PublicJson
-    #$global:OSDBuilderPublicURL             = $global:GetOSDBuilder.PublicJsonURL
-
-    #$global:OSDBuilderPublicOSD             = $global:GetOSDBuilder.VersionOSDPublic
-    #$global:OSDBuilderPublicOSDBuilderSUS          = $global:GetOSDBuilder.VersionOSDBuilderSUSPublic
-    #$global:OSDBuilderPublicOSDBuilder      = $global:GetOSDBuilder.VersionOSDBuilderPublic
     #=================================================
     #   Display Version Information
     #=================================================
     if (!($HideDetails.IsPresent)) {
         if ($null -eq $global:GetOSDBuilder.PublicJson) {
-            Write-Verbose "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) | OSDBuilderSUS $($global:GetOSDBuilder.VersionOSDBuilderSUS) | OSD $($global:GetOSDBuilder.VersionOSD) | OFFLINE" -Verbose
+            Write-Verbose "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) | OSD $($global:GetOSDBuilder.VersionOSD) | OFFLINE" -Verbose
         } else {
             if ($global:GetOSDBuilder.VersionOSDBuilder -ge $global:GetOSDBuilder.VersionOSDBuilderPublic) {
                 Write-Host "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) " -ForegroundColor Green -NoNewline
             } else {
                 Write-Host "OSDBuilder $($global:GetOSDBuilder.VersionOSDBuilder) " -ForegroundColor Yellow -NoNewline
-            }
-            Write-Host "| " -ForegroundColor White -NoNewline
-            if ($global:GetOSDBuilder.VersionOSDBuilderSUS -ge $global:GetOSDBuilder.VersionOSDBuilderSUSPublic) {
-                Write-Host "OSDBuilderSUS $($global:GetOSDBuilder.VersionOSDBuilderSUS) " -ForegroundColor Green -NoNewline
-            } else {
-                Write-Host "OSDBuilderSUS $($global:GetOSDBuilder.VersionOSDBuilderSUS) " -ForegroundColor Yellow -NoNewline
             }
             Write-Host "| " -ForegroundColor White -NoNewline
             if ($global:GetOSDBuilder.VersionOSD -ge $global:GetOSDBuilder.VersionOSDPublic) {
@@ -239,18 +201,6 @@ function Get-OSDBuilder {
                 Write-Host "OSDBuilder -Update" -ForegroundColor Cyan
             }
 
-            if ($global:GetOSDBuilder.VersionOSDBuilderSUS -gt $global:GetOSDBuilder.VersionOSDBuilderSUSPublic) {
-                Write-Host
-                Write-Host "OSDBuilderSUS Release Preview" -ForegroundColor Green
-                Write-Host "The current Public version is $($global:GetOSDBuilder.VersionOSDBuilderSUSPublic)" -ForegroundColor DarkGray
-            } elseif ($global:GetOSDBuilder.VersionOSDBuilderSUS -eq $global:GetOSDBuilder.VersionOSDBuilderSUSPublic) {
-                #Write-Host "OSDBuilderSUS is up to date" -ForegroundColor Green
-            } else {
-                Write-Host
-                Write-Warning "OSDBuilderSUS can be updated to $($global:GetOSDBuilder.VersionOSDBuilderSUSPublic)"
-                Write-Host "Update-OSDBuilderSUS" -ForegroundColor Cyan
-            }
-
             if ($global:GetOSDBuilder.VersionOSD -gt $global:GetOSDBuilder.VersionOSDPublic) {
                 Write-Host
                 Write-Host "OSD Release Preview" -ForegroundColor Green
@@ -277,7 +227,6 @@ function Get-OSDBuilder {
         Show-OSDBuilderHomeTips
     }
     if ($UpdateModule.IsPresent) {
-        Update-OSDBuilderSUS
         Update-ModuleOSDBuilder
     }
 }
