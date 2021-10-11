@@ -322,19 +322,19 @@ function Add-ContentExtraFilesPE {
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
             #robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinPE" *.* /s /ndl /xx /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinPE" *.* /S /ZB /COPY:DX /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinPE" *.* /S /ZB /COPY:D /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
         }
         foreach ($ExtraFile in $WinPEExtraFilesRE) {
             Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinRE" *.* /S /ZB /COPY:DX /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinRE" *.* /S /ZB /COPY:D /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
         }
         foreach ($ExtraFile in $WinPEExtraFilesSE) {
             Write-Host "Source: $SetOSDBuilderPathContent\$ExtraFile" -ForegroundColor DarkGray
             $CurrentLog = "$PEInfo\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-ContentExtraFilesPE.log"
             Write-Verbose "CurrentLog: $CurrentLog"
-            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinSE" *.* /S /ZB /COPY:DX /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+            robocopy "$SetOSDBuilderPathContent\$ExtraFile" "$MountWinSE" *.* /S /ZB /COPY:D /NODCOPY /XJ /NDL /NP /TEE /TS /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
         }
     } else {
         Return
@@ -1611,17 +1611,17 @@ function Add-ContentPackPEExtraFiles {
     #Save-WindowsImage -Path $MountWinPE | Out-Null
     if ($MountWinPE) {
         #robocopy "$ContentPackContent" "$MountWinPE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-        robocopy "$ContentPackContent" "$MountWinPE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinPE" *.* /S /B /COPY:D /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
         #xcopy "$ContentPackContent" "$MountWinPE" /F /C /H /E /R /Y /J
         #Copy-Item "$ContentPackContent\*" -Destination "$MountWinPE\" -Recurse -Force
     }
     if ($MountWinRE) {
         #robocopy "$ContentPackContent" "$MountWinRE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-        robocopy "$ContentPackContent" "$MountWinRE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinRE" *.* /S /B /COPY:D /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
     }
     if ($MountWinSE) {
         #robocopy "$ContentPackContent" "$MountWinSE" *.* /s /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$CurrentLog" | Out-Null
-        robocopy "$ContentPackContent" "$MountWinSE" *.* /S /B /COPY:DX /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
+        robocopy "$ContentPackContent" "$MountWinSE" *.* /S /B /COPY:D /NODCOPY /XJ /FP /NS /NC /NDL /NJH /NJS /NP /TEE /XX /R:0 /W:0 /LOG+:"$CurrentLog" | Out-Null
     }
     #Start-Sleep -Seconds 1
 }
@@ -2935,14 +2935,32 @@ function Get-OSDUpdateDownloads {
     foreach ($Update in $OSDUpdateDownload) {
         $DownloadPath = $SetOSDBuilderPathUpdates
         $DownloadFullPath = Join-Path $DownloadPath $(Split-Path $Update.OriginUri -Leaf)
+        #=================================================
+        #	Download
+        #=================================================
+        $SourceUrl = $Update.OriginUri
+        $SourceUrl = [Uri]::EscapeUriString($SourceUrl)
 
         if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
         if (!(Test-Path $DownloadFullPath)) {
             Write-Host "$DownloadFullPath"
             Write-Host "$($Update.OriginUri)" -ForegroundColor Gray
-            $WebClient = New-Object System.Net.WebClient
-            $WebClient.DownloadFile("$($Update.OriginUri)","$DownloadFullPath")
-            #Start-BitsTransfer -Source $Update.OriginUri -Destination $DownloadFullPath
+            if (Get-Command 'curl.exe') {
+                Write-Verbose "cURL: $SourceUrl"
+                if ($host.name -match 'ConsoleHost') {
+                    Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$SourceUrl`""
+                }
+                else {
+                    #PowerShell ISE will display a NativeCommandError, so progress will not be displayed
+                    $Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$SourceUrl`" 2>&1"
+                }
+            }
+            else {
+                [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls1
+                $WebClient = New-Object System.Net.WebClient
+                $WebClient.DownloadFile("$SourceUrl", "$DownloadFullPath")
+                $WebClient.Dispose()
+            }
         }
     }
 }
@@ -6440,6 +6458,8 @@ function Update-CumulativePE {
     }
     Show-ActionTime
     Write-Host -ForegroundColor Green "WinPE: (LCU) Latest Cumulative Update"
+    Write-Warning "Skipping WinPE LCU Update for this version of Windows"
+    Return
     if ($OSBuild -ge 18362) {
         Write-Warning "Skipping WinPE LCU Update for this version of Windows"
         Return
@@ -6868,8 +6888,10 @@ function Update-ServicingStackPE {
     }
     Show-ActionTime
     Write-Host -ForegroundColor Green "WinPE: (SSU) Servicing Stack Update"
+    Write-Warning "Skipping WinPE SSU Update for this version of Windows"
+    Return
     if ($OSBuild -ge 18362) {
-        Write-Warning "Skipping WinPE Update for this version of Windows"
+        Write-Warning "Skipping WinPE SSU Update for this version of Windows"
         Return
     }
 
