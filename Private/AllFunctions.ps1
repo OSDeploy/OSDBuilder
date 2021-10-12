@@ -5769,8 +5769,7 @@ function Save-SessionsXmlOS {
     #   Header
     #=================================================
     Show-ActionTime
-    #Write-Host -ForegroundColor Green "OS: OSDBuilder Function Save-SessionsXmlOS"
-    #Write-Host -ForegroundColor Yellow "21.5.21 - For some reason the latest Windows Updates are not reporting properly in Sessions.xml"
+    Write-Host -ForegroundColor Green "OS: Exporting Sessions.xml Patch Inventory"
 
     if (Test-Path "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml") {
         [xml]$SessionsXML = Get-Content -Path "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
@@ -5790,19 +5789,19 @@ function Save-SessionsXmlOS {
         #=================================================
         #   Export Sessions
         #=================================================
-        Write-Host -ForegroundColor DarkGray "Source: $MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
-        Write-Host -ForegroundColor DarkGray "Destination: $OSMediaPath\info\Sessions.xml"
+        Write-Host -ForegroundColor DarkGray "                  Source:      $MountDirectory\Windows\Servicing\Sessions\Sessions.xml"
+        Write-Host -ForegroundColor DarkGray "                  Destination: $OSMediaPath\info\Sessions.xml"
         Copy-Item "$MountDirectory\Windows\Servicing\Sessions\Sessions.xml" "$OSMediaPath\info\Sessions.xml" -Force | Out-Null
 
-        Write-Host -ForegroundColor DarkGray "Export: $OSMediaPath\Sessions.txt"
+        Write-Host -ForegroundColor DarkGray "                  Export:      $OSMediaPath\Sessions.txt"
         $Sessions | Out-File "$OSMediaPath\Sessions.txt"
         $Sessions | Out-File "$OSMediaPath\info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.txt"
 
-        Write-Host -ForegroundColor DarkGray "Export: $OSMediaPath\info\xml\Sessions.xml"
+        Write-Host -ForegroundColor DarkGray "                  Export:      $OSMediaPath\info\xml\Sessions.xml"
         $Sessions | Export-Clixml -Path "$OSMediaPath\info\xml\Sessions.xml"
         $Sessions | Export-Clixml -Path "$OSMediaPath\info\xml\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.xml"
 
-        Write-Host -ForegroundColor DarkGray "Export: $OSMediaPath\info\json\Sessions.json"
+        Write-Host -ForegroundColor DarkGray "                  Export:      $OSMediaPath\info\json\Sessions.json"
         $Sessions | ConvertTo-Json | Out-File "$OSMediaPath\info\json\Sessions.json"
         $Sessions | ConvertTo-Json | Out-File "$OSMediaPath\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Sessions.json"
     }
