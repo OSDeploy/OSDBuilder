@@ -545,52 +545,15 @@ function New-OSBuild {
             #=================================================
             $UpdateOS = ''
             if ($OSMajorVersion -eq 10) {
-                if ($OSInstallationType -notmatch 'Server') {
+                if ($OSInstallationType -match 'Server') {
+                    $UpdateOS = 'Windows Server'
+                }
+                else {
                     if ($OSImageName -match ' 11 ') {
                         $UpdateOS = 'Windows 11'
                     }
                     else {
                         $UpdateOS = 'Windows 10'
-                    }
-                }
-                elseif ($OSImageName -match '2016') {$UpdateOS = 'Windows Server 2016'}
-                elseif ($OSImageName -match '2019') {$UpdateOS = 'Windows Server 2019'}
-                elseif ($OSImageName -match '2022') {$UpdateOS = 'Windows Server 2022'}
-                else {$UpdateOS = 'Windows Server'}
-            } elseif ($OSMajorVersion -eq 6) {
-                if ($OSInstallationType -like "*Server*") {
-                    if ($OSVersion -like "6.3*") {
-                        $UpdateOS = 'Windows Server 2012 R2'
-                    }
-                    elseif ($OSVersion -like "6.2*") {
-                        $UpdateOS = 'Windows Server 2012'
-                        Write-Warning "This Operating System is not supported"
-                        Return
-                    }
-                    elseif ($OSVersion -like "6.1*") {
-                        $UpdateOS = 'Windows Server 2008 R2'
-                        Write-Warning "This Operating System is not supported"
-                        Return
-                    }
-                    else {
-                        Write-Warning "This Operating System is not supported"
-                    }
-                } else {
-                    if ($OSVersion -like "6.3*") {
-                        $UpdateOS = 'Windows 8.1'
-                        Write-Warning "This Operating System is not supported"
-                        Return
-                    }
-                    elseif ($OSVersion -like "6.2*") {
-                        $UpdateOS = 'Windows 8'
-                        Write-Warning "This Operating System is not supported"
-                        Return
-                    }
-                    elseif ($OSVersion -like "6.1*") {
-                        $UpdateOS = 'Windows 7'
-                    }
-                    else {
-                        Write-Warning "This Operating System is not supported"
                     }
                 }
             }

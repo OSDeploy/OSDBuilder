@@ -127,7 +127,7 @@ function Get-OSMedia {
             $OSMUBR = $($XmlWindowsImage.UBR)
             Write-Verbose "UBR: $OSMUBR"
             #=================================================
-            #   UpdateOS
+            #   Operating System
             #=================================================
             $UpdateOS = ''
             if ($OSMMajorVersion -eq 10) {
@@ -135,7 +135,7 @@ function Get-OSMedia {
                     $UpdateOS = 'Windows Server'
                 }
                 else {
-                    if ($OSMImageName -match ' 11 ') {
+                    if ($OSImageName -match ' 11 ') {
                         $UpdateOS = 'Windows 11'
                     }
                     else {

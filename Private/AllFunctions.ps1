@@ -514,9 +514,16 @@ function Add-ContentPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "MEDIA: ContentPack"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\MEDIA"
-                Add-ContentPackMEDIA -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackMEDIA -ContentPackContent "$ContentPackPath\$OSArchitecture"
-                Add-ContentPackMEDIA -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackMEDIA -ContentPackContent $ContentPath
+                }
             }
         }
         #=================================================
@@ -526,17 +533,32 @@ function Add-ContentPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSDrivers"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSDrivers"
-                Add-ContentPackOSDrivers -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackOSDrivers -ContentPackContent "$ContentPackPath\$OSArchitecture"
-                Add-ContentPackOSDrivers -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackOSDrivers -ContentPackContent $ContentPath
+                }
             }
         }
         if ($PackType -eq 'OSExtraFiles') {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSExtraFiles"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSExtraFiles"
-                Add-ContentPackOSExtraFiles -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackOSExtraFiles -ContentPackContent "$ContentPackPath\$OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackOSExtraFiles -ContentPackContent $ContentPath
+                }
                 Get-ChildItem "$ContentPackPath\All Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-ContentPackOSExtraFiles -ContentPackContent "$($_.FullName)"}
                 Get-ChildItem "$ContentPackPath\$OSArchitecture Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {Add-ContentPackOSExtraFiles -ContentPackContent "$($_.FullName)"}
             }
@@ -545,46 +567,62 @@ function Add-ContentPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSCapability"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSCapability"
-                Add-ContentPackOSCapability -ContentPackContent "$ContentPackPath\$MSUX $OSArchitecture"
-                Add-ContentPackOSCapability -ContentPackContent "$ContentPackPath\$MSUX $OSArchitecture RSAT" -RSAT
+
+                if (! (Test-Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture")) {New-Item -Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                Add-ContentPackOSCapability -ContentPackContent "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+
+                if (! (Test-Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture RSAT")) {New-Item -Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture RSAT" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                Add-ContentPackOSCapability -ContentPackContent "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture RSAT" -RSAT
             }
         }
         if ($PackType -eq 'OSLanguageFeatures') {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSLanguageFeatures"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSLanguageFeatures"
-                Add-ContentPackOSLanguageFeatures -ContentPackContent "$ContentPackPath\$MSUX $OSArchitecture"
+                
+                if (! (Test-Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture")) {New-Item -Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                Add-ContentPackOSLanguageFeatures -ContentPackContent "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'OSLanguagePacks') {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSLanguagePacks"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSLanguagePacks"
-                Add-ContentPackOSLanguagePacks -ContentPackContent "$ContentPackPath\$MSUX $OSArchitecture"
+                
+                if (! (Test-Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture")) {New-Item -Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                Add-ContentPackOSLanguagePacks -ContentPackContent "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'OSLocalExperiencePacks') {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSLocalExperiencePacks"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSLocalExperiencePacks"
-                Add-ContentPackOSLocalExperiencePacks -ContentPackContent "$ContentPackPath\$MSUX $OSArchitecture"
+                
+                if (! (Test-Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture")) {New-Item -Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                Add-ContentPackOSLocalExperiencePacks -ContentPackContent "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'OSPackages') {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSPackages"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSPackages"
-                Add-ContentPackOSPackages -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+                
+                if (! (Test-Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture")) {New-Item -Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                Add-ContentPackOSPackages -ContentPackContent "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'OSPoshMods') {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSPoshMods"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSPoshMods"
+
+                if (! (Test-Path "$ContentPackPath\ProgramFiles")) {New-Item -Path "$ContentPackPath\ProgramFiles" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
                 Add-ContentPackOSPoshMods -ContentPackContent "$ContentPackPath\ProgramFiles"
             }
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSPoshMods"
+
+                if (! (Test-Path "$ContentPackPath\System")) {New-Item -Path "$ContentPackPath\System" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
                 Add-ContentPackOSPoshModsSystem -ContentPackContent "$ContentPackPath\System"
             }
         }
@@ -592,27 +630,48 @@ function Add-ContentPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSRegistry"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSRegistry"
-                Add-ContentPackOSRegistry -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackOSRegistry -ContentPackContent "$ContentPackPath\$OSArchitecture"
-                Add-ContentPackOSRegistry -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackOSRegistry -ContentPackContent $ContentPath
+                }
             }
         }
         if ($PackType -eq 'OSScripts') {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSScripts"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSScripts"
-                Add-ContentPackOSScripts -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackOSScripts -ContentPackContent "$ContentPackPath\$OSArchitecture"
-                Add-ContentPackOSScripts -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackOSScripts -ContentPackContent $ContentPath
+                }
             }
         }
         if ($PackType -eq 'OSStartLayout') {
             Show-ActionTime; Write-Host -ForegroundColor Green "OS: ContentPack OSStartLayout"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\OSStartLayout"
-                Add-ContentPackOSStartLayouts -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackOSStartLayouts -ContentPackContent "$ContentPackPath\$OSArchitecture"
-                Add-ContentPackOSStartLayouts -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackOSStartLayouts -ContentPackContent $ContentPath
+                }
             }
         }
         #=================================================
@@ -622,20 +681,23 @@ function Add-ContentPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEADK"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEADK"
-                Add-ContentPackPEADK -ContentPackContent "$ContentPackPath\$MSUX $OSArchitecture"
+                if (! (Test-Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture")) {New-Item -Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                Add-ContentPackPEADK -ContentPackContent "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
             }
         }
         if ($PackType -eq 'PEADKLang') {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEADKLang"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEADKLang"
-                Add-ContentPackPEADK -ContentPackContent "$ContentPackPath\$MSUX $OSArchitecture" -Lang
+                if (! (Test-Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture")) {New-Item -Path "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                Add-ContentPackPEADK -ContentPackContent "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture" -Lang
             }
         }
         if ($PackType -eq 'PEDaRT') {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEDaRT"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEDaRT"
+                if (! (Test-Path $ContentPackPath)) {New-Item -Path $ContentPackPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
                 Add-ContentPackPEDaRT -ContentPackContent "$ContentPackPath"
             }
         }
@@ -643,16 +705,32 @@ function Add-ContentPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEDrivers"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEDrivers"
-                Add-ContentPackPEDrivers -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackPEDrivers -ContentPackContent "$ContentPackPath\$OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackPEDrivers -ContentPackContent $ContentPath
+                }
             }
         }
         if ($PackType -eq 'PEExtraFiles') {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEExtraFiles"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEExtraFiles"
-                Add-ContentPackPEExtraFiles -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackPEExtraFiles -ContentPackContent "$ContentPackPath\$OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackPEExtraFiles -ContentPackContent $ContentPath
+                }
 
                 Get-ChildItem "$ContentPackPath\ALL Subdirs" -Directory -ErrorAction SilentlyContinue | foreach {
                     Add-ContentPackPEExtraFiles -ContentPackContent "$($_.FullName)"
@@ -666,10 +744,14 @@ function Add-ContentPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEPoshMods"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEPoshMods"
+
+                if (! (Test-Path "$ContentPackPath\ProgramFiles")) {New-Item -Path "$ContentPackPath\ProgramFiles" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
                 Add-ContentPackPEPoshMods -ContentPackContent "$ContentPackPath\ProgramFiles"
             }
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEPoshMods"
+                
+                if (! (Test-Path "$ContentPackPath\System")) {New-Item -Path "$ContentPackPath\System" -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
                 Add-ContentPackPEPoshModsSystem -ContentPackContent "$ContentPackPath\System"
             }
         }
@@ -677,18 +759,32 @@ function Add-ContentPack {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PERegistry"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PERegistry"
-                Add-ContentPackPERegistry -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackPERegistry -ContentPackContent "$ContentPackPath\$OSArchitecture"
-                Add-ContentPackPERegistry -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackPERegistry -ContentPackContent $ContentPath
+                }
             }
         }
         if ($PackType -eq 'PEScripts') {
             Show-ActionTime; Write-Host -ForegroundColor Green "WinPE: ContentPack PEScripts"
             foreach ($ContentPack in $ContentPacks) {
                 $ContentPackPath = Join-Path $SetOSDBuilderPathContentPacks "$ContentPack\PEScripts"
-                Add-ContentPackPEScripts -ContentPackContent "$ContentPackPath\ALL"
-                Add-ContentPackPEScripts -ContentPackContent "$ContentPackPath\$OSArchitecture"
-                Add-ContentPackPEScripts -ContentPackContent "$ContentPackPath\$ReleaseID $OSArchitecture"
+
+                $ContentPaths = @(
+                    "$ContentPackPath\ALL"
+                    "$ContentPackPath\$OSArchitecture"
+                    "$ContentPackPath\$UpdateOS $ReleaseID $OSArchitecture"
+                )
+                foreach ($ContentPath in $ContentPaths) {
+                    if (! (Test-Path $ContentPath)) {New-Item -Path $ContentPath -ItemType Directory -Force -ErrorAction Ignore | Out-Null}
+                    Add-ContentPackPEScripts -ContentPackContent $ContentPath
+                }
             }
         }
     }
@@ -699,7 +795,7 @@ function Add-ContentPackMEDIA {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -726,7 +822,7 @@ function Add-ContentPackOSDrivers {
         [string]$ContentPackContent
         #[string]$MountDirectory
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -756,7 +852,7 @@ function Add-ContentPackOSExtraFiles {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -783,7 +879,7 @@ function Add-ContentPackOSCapability {
         [string]$ContentPackContent,
         [switch]$RSAT
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -941,7 +1037,7 @@ function Add-ContentPackOSLanguageFeatures {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -979,7 +1075,7 @@ function Add-ContentPackOSLanguagePacks {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1016,7 +1112,7 @@ function Add-ContentPackOSLocalExperiencePacks {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1056,7 +1152,7 @@ function Add-ContentPackOSPackages {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1094,6 +1190,7 @@ function Add-ContentPackOSPoshMods {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     Write-Warning "OSPoshMods is being deprecated in the near future"
     #======================================================================================
     #   Test
@@ -1120,6 +1217,7 @@ function Add-ContentPackOSPoshModsSystem {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     Write-Warning "OSPoshModsSystem is being deprecated in the near future"
     #======================================================================================
     #   Test
@@ -1148,7 +1246,7 @@ function Add-ContentPackOSRegistry {
 
         [switch]$ShowRegContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying content in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test-OSDContentPackOSRegistry
     #======================================================================================
@@ -1235,7 +1333,7 @@ function Add-ContentPackOSScripts {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically running PowerShell scripts in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   TEST
     #======================================================================================
@@ -1259,7 +1357,7 @@ function Add-ContentPackOSStartLayouts {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
-    Write-Host -ForegroundColor DarkGray "Automatically applying StartLayout in $ContentPackContent"
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   TEST
     #======================================================================================
@@ -1299,6 +1397,7 @@ function Add-ContentPackPEADK {
         #[ValidateSet('WinPE','WinRE')]
         #[string]$SourceWim
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1509,6 +1608,7 @@ function Add-ContentPackPEDaRT {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   TEST
     #======================================================================================
@@ -1559,6 +1659,7 @@ function Add-ContentPackPEDrivers {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1592,6 +1693,7 @@ function Add-ContentPackPEExtraFiles {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1631,6 +1733,7 @@ function Add-ContentPackPEPoshMods {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1658,6 +1761,7 @@ function Add-ContentPackPEPoshModsSystem {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test
     #======================================================================================
@@ -1686,6 +1790,7 @@ function Add-ContentPackPERegistry {
         [string]$ContentPackContent,
         [switch]$ShowRegContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   Test-OSDContentPackPERegistry
     #======================================================================================
@@ -1861,6 +1966,7 @@ function Add-ContentPackPEScripts {
         [Parameter(Mandatory)]
         [string]$ContentPackContent
     )
+    Write-Host -ForegroundColor DarkGray "AutoApply Content $ContentPackContent"
     #======================================================================================
     #   TEST
     #======================================================================================
@@ -3166,7 +3272,7 @@ function Get-PEBuildTask {
         [switch]$GridView
     )
 
-    BEGIN {
+    Begin {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host "$($MyInvocation.MyCommand.Name) BEGIN"
 
@@ -3183,7 +3289,7 @@ function Get-PEBuildTask {
         $AllPEBuildTasks = $AllPEBuildTasks | Where-Object {$_.Name -like "MDT*" -or $_.Name -like "Recovery*" -or $_.Name -like "WinPE*"}
     }
 
-    PROCESS {
+    Process {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host "$($MyInvocation.MyCommand.Name) PROCESS"
 
@@ -3260,7 +3366,7 @@ function Get-PEBuildTask {
         else {$PEBuildTask | Select-Object TaskType,TaskVersion,TaskName,CustomName,SourceOSMedia,ImageName,Arch,ReleaseId,UBR,EditionId,FullName,LastWriteTime,OSMFamily,OSMGuid | Sort-Object TaskName }
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host "$($MyInvocation.MyCommand.Name) END"
     }

@@ -6,7 +6,7 @@
 RootModule = 'OSDBuilder.psm1'
 
 # Version number of his module.
-ModuleVersion = '21.10.11.1'
+ModuleVersion = '21.10.12.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ This is the final release for Windows 7 and Windows Server 2012 Support
 https://osdbuilder.osdeploy.com
 
 Requirements:
-PowerShell Module OSD 21.9.10.1 or newer
+PowerShell Module OSD 21.10.11.1 or newer
 '@
 
 # Minimum version of the Windows PowerShell engine required by this module

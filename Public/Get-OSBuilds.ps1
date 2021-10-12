@@ -26,7 +26,7 @@ function Get-OSBuilds {
         [string]$OSInstallationType,
 
         #Filter the OSBuild by OS Major Version
-        [ValidateSet(6,10)]
+        [ValidateSet(10)]
         [string]$OSMajorVersion,
 
         #Filter the OSBuild by OS Release Id
@@ -121,7 +121,7 @@ function Get-OSBuilds {
             $OSMUBR = $($XmlWindowsImage.UBR)
             Write-Verbose "UBR: $OSMUBR"
             #=================================================
-            #   UpdateOS
+            #   Operating System
             #=================================================
             $UpdateOS = ''
             if ($OSMMajorVersion -eq 10) {
@@ -129,7 +129,7 @@ function Get-OSBuilds {
                     $UpdateOS = 'Windows Server'
                 }
                 else {
-                    if ($OSMImageName -match ' 11 ') {
+                    if ($OSImageName -match ' 11 ') {
                         $UpdateOS = 'Windows 11'
                     }
                     else {
