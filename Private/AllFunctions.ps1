@@ -3051,7 +3051,7 @@ function Get-OSDUpdateDownloads {
         if (!(Test-Path $DownloadFullPath)) {
             Write-Host "$DownloadFullPath"
             Write-Host "$($Update.OriginUri)" -ForegroundColor Gray
-            if (Get-Command 'curl.exe') {
+            if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
                 Write-Verbose "cURL: $SourceUrl"
                 if ($host.name -match 'ConsoleHost') {
                     Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$SourceUrl`""

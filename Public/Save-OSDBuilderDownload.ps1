@@ -179,7 +179,7 @@ function Save-OSDBuilderDownload {
                     #=================================================
                     #   Download File
                     #=================================================
-                    if (Get-Command 'curl.exe') {
+                    if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
                         if ($host.name -match 'ConsoleHost') {
                             Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`""
                         }
@@ -259,7 +259,7 @@ function Save-OSDBuilderDownload {
             #=================================================
             #   Download File
             #=================================================
-            if (Get-Command 'curl.exe') {
+            if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
                 if ($host.name -match 'ConsoleHost') {
                     Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadPath\$DownloadFile`" --url `"$DownloadUrl`""
                 }
@@ -365,7 +365,7 @@ function Save-OSDBuilderDownload {
                         Write-Host "$DownloadFullPath" -ForegroundColor Cyan
                         Write-Host "$($Update.OriginUri)" -ForegroundColor DarkGray
 
-                        if (Get-Command 'curl.exe') {
+                        if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
                             if ($host.name -match 'ConsoleHost') {
                                 Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Update.OriginUri)`""
                             }
