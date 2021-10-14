@@ -129,7 +129,7 @@ function Get-OSBuilds {
                     $UpdateOS = 'Windows Server'
                 }
                 else {
-                    if ($OSImageName -match ' 11 ') {
+                    if ($OSMImageName -match ' 11 ') {
                         $UpdateOS = 'Windows 11'
                     }
                     else {

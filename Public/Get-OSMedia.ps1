@@ -10,7 +10,7 @@ https://osdbuilder.osdeploy.com/module/functions/get-osmedia
 #>
 function Get-OSMedia {
     [CmdletBinding()]
-    param (
+    Param (
         #Displays results in GridView with PassThru
         [switch]$GridView,
         
@@ -26,7 +26,7 @@ function Get-OSMedia {
         [string]$OSInstallationType,
 
         #Filter the OSMedia by OS Major Version
-        [ValidateSet(6,10)]
+        [ValidateSet(10)]
         [string]$OSMajorVersion,
 
         #Filter the OSMedia by OS Release Id
@@ -135,7 +135,7 @@ function Get-OSMedia {
                     $UpdateOS = 'Windows Server'
                 }
                 else {
-                    if ($OSImageName -match ' 11 ') {
+                    if ($OSMImageName -match ' 11 ') {
                         $UpdateOS = 'Windows 11'
                     }
                     else {

@@ -285,7 +285,7 @@ $MDTUnattendPEx86 = @'
             Write-Host "-Source Path:                   $OSSourcePath"
             Write-Host "-Image File:                    $OSImagePath"
             Write-Host "-Image Index:                   $OSImageIndex"
-            Write-Host "-Name:                          $OSImageName"
+            Write-Host "-Image Name:                    $OSImageName"
             Write-Host "-Description:                   $OSImageDescription"
             Write-Host "-Architecture:                  $OSArchitecture"
             Write-Host "-Edition:                       $OSEditionID"
@@ -300,9 +300,25 @@ $MDTUnattendPEx86 = @'
             Write-Host "-WimBoot:                       $OSWIMBoot"
             Write-Host "-Created Time:                  $OSCreatedTime"
             Write-Host "-Modified Time:                 $OSModifiedTime"
-
             #=================================================
-            Write-Verbose '19.1.1 Set DestionationName'
+            #   Operating System
+            #=================================================
+            $UpdateOS = ''
+            if ($OSMajorVersion -eq 10) {
+                if ($OSInstallationType -match 'Server') {
+                    $UpdateOS = 'Windows Server'
+                }
+                else {
+                    if ($OSImageName -match ' 11 ') {
+                        $UpdateOS = 'Windows 11'
+                    }
+                    else {
+                        $UpdateOS = 'Windows 10'
+                    }
+                }
+            }
+            #=================================================
+            Write-Verbose '19.1.1 Set DestinationName'
             #=================================================
             if ($WinPEOutput -eq 'Recovery') {
                 $DestinationName = "Microsoft Windows Recovery Environment ($OSArchitecture)"
@@ -317,32 +333,27 @@ $MDTUnattendPEx86 = @'
             if (Test-Path "$OSSourcePath\info\xml\CurrentVersion.xml") {
                 $RegKeyCurrentVersion = Import-Clixml -Path "$OSSourcePath\info\xml\CurrentVersion.xml"
                 $ReleaseId = $($RegKeyCurrentVersion.ReleaseId)
-                if ($ReleaseId -gt 2009) {
-                    Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Warning "OSDBuilder does not currently support this version of Windows ... Check for an updated version"
-                }
             }
 
             #=================================================
-            Write-Verbose '19.1.1 Set ReleaseId'
+            # Set ReleaseID
             #=================================================
-            if ($null -eq $ReleaseId) {
-                if ($OSBuild -eq 7600) {$ReleaseId = 7600}
-                if ($OSBuild -eq 7601) {$ReleaseId = 7601}
-                if ($OSBuild -eq 10240) {$ReleaseId = 1507}
-                if ($OSBuild -eq 14393) {$ReleaseId = 1607}
-                if ($OSBuild -eq 15063) {$ReleaseId = 1703}
-                if ($OSBuild -eq 16299) {$ReleaseId = 1709}
-                if ($OSBuild -eq 17134) {$ReleaseId = 1803}
-                if ($OSBuild -eq 17763) {$ReleaseId = 1809}
-                #if ($OSBuild -eq 18362) {$ReleaseId = 1903}
-                #if ($OSBuild -eq 18363) {$ReleaseId = 1909}
-                #if ($OSBuild -eq 19041) {$ReleaseId = 2004}
-                #if ($OSBuild -eq 19042) {$ReleaseId = '20H2'}
-                #if ($OSBuild -eq 19043) {$ReleaseId = '21H1'}
-                #if ($OSBuild -eq 19044) {$ReleaseId = '21H2'}
-            }
-
+            if ($OSBuild -eq 7600) {$ReleaseId = 7600}
+            if ($OSBuild -eq 7601) {$ReleaseId = 7601}
+            if ($OSBuild -eq 10240) {$ReleaseId = 1507}
+            if ($OSBuild -eq 14393) {$ReleaseId = 1607}
+            if ($OSBuild -eq 15063) {$ReleaseId = 1703}
+            if ($OSBuild -eq 16299) {$ReleaseId = 1709}
+            if ($OSBuild -eq 17134) {$ReleaseId = 1803}
+            if ($OSBuild -eq 17763) {$ReleaseId = 1809}
+            if ($OSBuild -eq 18362) {$ReleaseId = 1903}
+            if ($OSBuild -eq 18363) {$ReleaseId = 1909}
+            if ($OSBuild -eq 19041) {$ReleaseId = 2004}
+            if ($OSBuild -eq 19042) {$ReleaseId = '20H2'}
+            if ($OSBuild -eq 19043) {$ReleaseId = '21H1'}
+            if ($OSBuild -eq 19044) {$ReleaseId = '21H2'}
+            if ($OSBuild -eq 22000) {$ReleaseId = '21H2'}
+            if ($OSBuild -eq 20348) {$ReleaseId = '21H2'}
             #=================================================
             Write-Verbose '19.1.1 Set Working Path'
             #=================================================
@@ -456,8 +467,8 @@ $MDTUnattendPEx86 = @'
                 $RegKeyCurrentVersion = Get-RegCurrentVersion -Path $MountDirectory
 
                 $RegValueDisplayVersion = ($RegKeyCurrentVersion).DisplayVersion
-                $ReleaseId = ($RegKeyCurrentVersion).ReleaseId
-                if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
+                #$ReleaseId = ($RegKeyCurrentVersion).ReleaseId
+                #if ($RegValueDisplayVersion) {$ReleaseId = $RegValueDisplayVersion}
                 #=================================================
                 #   Get Registry and UBR
                 #=================================================

@@ -98,6 +98,7 @@ function New-OSBuildMultiLang {
             $OSBuild                = $($LangMultiWindowsImage.Build)
             $OSInstallationType     = $($LangMultiWindowsImage.InstallationType)
             $OSMajorVersion         = $($LangMultiWindowsImage.MajorVersion)
+            $WindowsImageMediaName  = $($LangMultiWindowsImage.MediaName)
             $OSVersion              = $($LangMultiWindowsImage.Version)
 
             if ($OSArchitecture -eq '0') {$OSArchitecture = 'x86'}
@@ -113,7 +114,7 @@ function New-OSBuildMultiLang {
                     $UpdateOS = 'Windows Server'
                 }
                 else {
-                    if ($OSImageName -match ' 11 ') {
+                    if ($WindowsImageMediaName -match ' 11 ') {
                         $UpdateOS = 'Windows 11'
                     }
                     else {
