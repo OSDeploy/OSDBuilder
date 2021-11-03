@@ -124,6 +124,25 @@ function Save-OSDBuilderDownload {
 
     Process {
         #=================================================
+        #   Test WebClient
+        #=================================================
+        $UseWebClient = $false
+        $UseWebRequest = $false
+        $UseCurl = $false
+
+        if ($WebClient.IsPresent) {$UseWebClient = $true}
+        if (([System.Net.WebRequest]::DefaultWebProxy).Address) {$UseWebClient = $true}
+        if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
+            $UseCurl = $true
+        }
+        else {
+            $UseWebClient = $true
+        }
+        if ($UseWebClient -eq $true) {
+            [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls1
+            $WebClientObj = New-Object System.Net.WebClient
+        }
+        #=================================================
         #   FeatureUpdates
         #=================================================
         if ($FeatureUpdates.IsPresent) {
@@ -161,12 +180,8 @@ function Save-OSDBuilderDownload {
                 $FeatureUpdateDownloads = $FeatureUpdateDownloads | Out-GridView -PassThru -Title 'Select ESD Files to Download and Build and press OK'
             }
             #=================================================
-            #   Download Updates
+            #   Download
             #=================================================
-            if ($WebClient.IsPresent) {
-                [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls1
-                $WebClientObj = New-Object System.Net.WebClient
-            }
             foreach ($Item in $FeatureUpdateDownloads) {
                 $DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $Item.FileName
 
@@ -179,7 +194,10 @@ function Save-OSDBuilderDownload {
                     #=================================================
                     #   Download File
                     #=================================================
-                    if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
+                    if ($UseWebClient -eq $true) {
+                        $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
+                    }
+                    elseif ($UseCurl -eq $true) {
                         if ($host.name -match 'ConsoleHost') {
                             Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`""
                         }
@@ -188,15 +206,14 @@ function Save-OSDBuilderDownload {
                             $Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`" 2>&1"
                         }
                     }
-                    elseif ($WebClient.IsPresent) {							
-                        $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
-                    }
                     else {
                         Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath -ErrorAction Stop
                     }
                 }
-
-                if (!(Test-Path $DownloadFullPath)) {
+                #=================================================
+                #   Verify Download
+                #=================================================
+                if (! (Test-Path $DownloadFullPath)) {
                     Write-Warning "Could not complete download of $DownloadFullPath"
                     Break
                 }
@@ -259,17 +276,25 @@ function Save-OSDBuilderDownload {
             #=================================================
             #   Download File
             #=================================================
-            if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
+            if ($UseWebClient -eq $true) {
+                $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
+            }
+            elseif ($UseWebRequest -eq $true) {
+                Invoke-WebRequest -Uri $DownloadUrl -OutFile "$DownloadPath\$DownloadFile"
+            }
+            elseif ($UseCurl -eq $true) {
                 if ($host.name -match 'ConsoleHost') {
+                    #Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`""
                     Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadPath\$DownloadFile`" --url `"$DownloadUrl`""
                 }
                 else {
                     #PowerShell ISE will display a NativeCommandError, so progress will not be displayed
+                    #$Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`" 2>&1"
                     $Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadPath\$DownloadFile`" --url `"$DownloadUrl`" 2>&1"
                 }
             }
             else {
-                Invoke-WebRequest -Uri $DownloadUrl -OutFile "$DownloadPath\$DownloadFile"
+                #Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath -ErrorAction Stop
             }
 
             if (Test-Path "$DownloadPath\$DownloadFile") {
