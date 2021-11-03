@@ -6,9 +6,9 @@ Downloads Microsoft Updates for use in OSDBuilder
 Downloads Microsoft Updates for use in OSDBuilder
 
 .LINK
-https://osdbuilder.osdeploy.com
+https://osdbuilder.osdeploy.com/module/functions/Save-OSDBuilderDownload
 #>
-function Save-OSDBuilderDownload {
+function Save-OSDBuilderDownload2 {
     [CmdletBinding(DefaultParameterSetName='OSDUpdate')]
     param (
 
@@ -32,11 +32,6 @@ function Save-OSDBuilderDownload {
         #Downloads Feature Updates
         [Parameter(ParameterSetName='FeatureUpdates',Mandatory = $True)]
         [switch]$FeatureUpdates,
-
-        #Feature Update Architecture
-        [Parameter(ParameterSetName = 'FeatureUpdates')]
-        [ValidateSet ('Windows 10','Windows 11')]
-        [string]$FeatureOS,
 
         #Feature Update Architecture
         [Parameter(ParameterSetName = 'FeatureUpdates')]
@@ -101,10 +96,11 @@ function Save-OSDBuilderDownload {
         #Filter Microsoft Updates for a specific OS
         [Parameter(ParameterSetName='OSDUpdate')]
         [ValidateSet(
+            'Windows 7',
             'Windows 10',
-            'Windows 11',
+            'Windows Server 2012 R2',
+            'Windows Server 2016',
             'Windows Server 2019',
-            'Windows Server 2022',
             'Windows Server')]
         [string]$UpdateOS,
 
@@ -118,45 +114,35 @@ function Save-OSDBuilderDownload {
     )
 
     Begin {
+        #===================================================================================================
+        #   Get-OSDBuilder
+        #===================================================================================================
         Get-OSDBuilder -CreatePaths -HideDetails
+        #===================================================================================================
+        #   Block
+        #===================================================================================================
         Block-StandardUser
+        #===================================================================================================
     }
 
-    Process {
-        #=================================================
-        #   Test WebClient
-        #=================================================
-        $UseWebClient = $false
-        $UseWebRequest = $false
-        $UseCurl = $false
+    PROCESS {
+        #Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
-        if ($WebClient.IsPresent) {$UseWebClient = $true}
-        if (([System.Net.WebRequest]::DefaultWebProxy).Address) {$UseWebClient = $true}
-        if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
-            $UseCurl = $true
-        }
-        else {
-            $UseWebClient = $true
-        }
-        if ($UseWebClient -eq $true) {
-            [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls1
-            $WebClientObj = New-Object System.Net.WebClient
-        }
-        #=================================================
+        #===================================================================================================
         #   FeatureUpdates
-        #=================================================
+        #===================================================================================================
         if ($FeatureUpdates.IsPresent) {
-            #Write-Warning "FeatureUpdates are downloaded using BITS Transfer"
+            Write-Warning "FeatureUpdates are downloaded using BITS Transfer"
             Write-Warning "Windows Server 2016 (1607) does not support decompressing ESD Files"
-            #=================================================
+            #===================================================================================================
             #   Get FeatureUpdateDownloads
-            #=================================================
+            #===================================================================================================
             $FeatureUpdateDownloads = @()
             $FeatureUpdateDownloads = Get-FeatureUpdateDownloads
-            #=================================================
+            #===================================================================================================
             #   Filters
-            #=================================================
-            if ($FeatureOS) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.UpdateOS -eq $FeatureOS}}
+            #===================================================================================================
             if ($FeatureArch) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.UpdateArch -eq $FeatureArch}}
             if ($FeatureBuild) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.UpdateBuild -eq $FeatureBuild}}
             if ($FeatureEdition) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.Title -match $FeatureEdition}}
@@ -164,56 +150,40 @@ function Save-OSDBuilderDownload {
                 $regex = $FeatureLang.ForEach({ [RegEx]::Escape($_) }) -join '|'
                 $FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.Title -match $regex}
             }
-            #=================================================
+            #===================================================================================================
             #   Select-Object
-            #=================================================
+            #===================================================================================================
             $FeatureUpdateDownloads = $FeatureUpdateDownloads | Select-Object -Property OSDStatus, Title, UpdateOS,`
             UpdateBuild, UpdateArch, CreationDate, KBNumber, FileName, Size, OriginUri, Hash, AdditionalHash
-            #=================================================
+            #===================================================================================================
             #   Sorting
-            #=================================================
+            #===================================================================================================
             $FeatureUpdateDownloads = $FeatureUpdateDownloads | Sort-Object -Property Title
-            #=================================================
+            #===================================================================================================
             #   Select Updates with GridView
-            #=================================================
+            #===================================================================================================
             if (! ($SkipGridView.IsPresent)) {
                 $FeatureUpdateDownloads = $FeatureUpdateDownloads | Out-GridView -PassThru -Title 'Select ESD Files to Download and Build and press OK'
             }
-            #=================================================
-            #   Download
-            #=================================================
+            #===================================================================================================
+            #   Download Updates
+            #===================================================================================================
+            if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
             foreach ($Item in $FeatureUpdateDownloads) {
                 $DownloadFullPath = Join-Path $SetOSDBuilderPathFeatureUpdates $Item.FileName
 
-                if (!(Test-Path $SetOSDBuilderPathFeatureUpdates)) {
-                    New-Item -Path $SetOSDBuilderPathFeatureUpdates -ItemType Directory -Force | Out-Null
-                }
+                if (!(Test-Path $SetOSDBuilderPathFeatureUpdates)) {New-Item -Path $SetOSDBuilderPathFeatureUpdates -ItemType Directory -Force | Out-Null}
                 Write-Host "$DownloadFullPath" -ForegroundColor Cyan
                 Write-Host "$($Item.OriginUri)" -ForegroundColor DarkGray
                 if (!(Test-Path $DownloadFullPath)) {
-                    #=================================================
-                    #   Download File
-                    #=================================================
-                    if ($UseWebClient -eq $true) {
+                    if ($WebClient.IsPresent) {							
                         $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
-                    }
-                    elseif ($UseCurl -eq $true) {
-                        if ($host.name -match 'ConsoleHost') {
-                            Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`""
-                        }
-                        else {
-                            #PowerShell ISE will display a NativeCommandError, so progress will not be displayed
-                            $Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`" 2>&1"
-                        }
-                    }
-                    else {
+                    } else {
                         Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath -ErrorAction Stop
                     }
                 }
-                #=================================================
-                #   Verify Download
-                #=================================================
-                if (! (Test-Path $DownloadFullPath)) {
+
+                if (!(Test-Path $DownloadFullPath)) {
                     Write-Warning "Could not complete download of $DownloadFullPath"
                     Break
                 }
@@ -252,10 +222,11 @@ function Save-OSDBuilderDownload {
             Write-Warning "Use Import-OSMedia to import this Feature Update to OSMedia"
         }
 
+
         if ($PSCmdlet.ParameterSetName -eq 'Content') {
-            #=================================================
+            #===================================================================================================
             #   Database
-            #=================================================
+            #===================================================================================================
             if ($ContentDownload -eq 'OneDriveSetup Production') {
                 $DownloadUrl = 'https://go.microsoft.com/fwlink/p/?LinkId=248256'
                 $DownloadPath = $GetOSDBuilderPathContentOneDrive
@@ -266,37 +237,14 @@ function Save-OSDBuilderDownload {
                 $DownloadPath = $GetOSDBuilderPathContentOneDrive
                 $DownloadFile = 'OneDriveSetup.exe'
             }
-            #=================================================
+            #===================================================================================================
             #   Download
-            #=================================================
+            #===================================================================================================
             if (!(Test-Path "$DownloadPath")) {New-Item -Path $DownloadPath -ItemType Directory -Force | Out-Null}
             Write-Verbose "DownloadUrl: $DownloadUrl" -Verbose
             Write-Verbose "DownloadPath: $DownloadPath" -Verbose
             Write-Verbose "DownloadFile: $DownloadFile" -Verbose
-            #=================================================
-            #   Download File
-            #=================================================
-            if ($UseWebClient -eq $true) {
-                $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
-            }
-            elseif ($UseWebRequest -eq $true) {
-                Invoke-WebRequest -Uri $DownloadUrl -OutFile "$DownloadPath\$DownloadFile"
-            }
-            elseif ($UseCurl -eq $true) {
-                if ($host.name -match 'ConsoleHost') {
-                    #Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`""
-                    Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadPath\$DownloadFile`" --url `"$DownloadUrl`""
-                }
-                else {
-                    #PowerShell ISE will display a NativeCommandError, so progress will not be displayed
-                    #$Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Item.OriginUri)`" 2>&1"
-                    $Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadPath\$DownloadFile`" --url `"$DownloadUrl`" 2>&1"
-                }
-            }
-            else {
-                #Start-BitsTransfer -Source $Item.OriginUri -Destination $DownloadFullPath -ErrorAction Stop
-            }
-
+            Invoke-WebRequest -Uri $DownloadUrl -OutFile "$DownloadPath\$DownloadFile"
             if (Test-Path "$DownloadPath\$DownloadFile") {
                 $OneDriveSetupInfo = Get-Item -Path "$DownloadPath\$DownloadFile" | Select-Object -Property *
                 Write-Verbose "DownloadVersion: $($($OneDriveSetupInfo).VersionInfo.ProductVersion)" -Verbose
@@ -307,23 +255,23 @@ function Save-OSDBuilderDownload {
         }
 
         if (($PSCmdlet.ParameterSetName -eq 'OSDUpdate') -or ($PSCmdlet.ParameterSetName -eq 'OSDUpdateSuperseded')) {
-            #=================================================
+            #===================================================================================================
             #   Information
-            #=================================================
+            #===================================================================================================
             if ($WebClient.IsPresent) {
                 Write-Verbose "Downloading OSDUpdates using System.Net.WebClient" -Verbose
             } else {
                 Write-Verbose "Downloading OSDUpdates using BITS-Transfer" -Verbose
                 Write-Verbose "To use System.Net.WebClient, use the -WebClient Parameter" -Verbose
             }
-            #=================================================
+            #===================================================================================================
             #   Get OSDUpdates
-            #=================================================
+            #===================================================================================================
             $OSDUpdates = @()
             $OSDUpdates = Get-OSDUpdates | Sort-Object CreationDate -Descending
-            #=================================================
+            #===================================================================================================
             #   Superseded Updates
-            #=================================================
+            #===================================================================================================
             if ($Superseded) {
                 $ExistingUpdates = @()
                 if (!(Test-Path $SetOSDBuilderPathUpdates)) {New-Item $SetOSDBuilderPathUpdates -ItemType Directory -Force | Out-Null}
@@ -349,15 +297,15 @@ function Save-OSDBuilderDownload {
                 }
                 Break
             }
-            #=================================================
+            #===================================================================================================
             #   Filters
-            #=================================================
+            #===================================================================================================
             if ($UpdateOS) {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateOS -eq $UpdateOS}}
             if ($UpdateArch) {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateArch -eq $UpdateArch}}
             if ($UpdateBuild) {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateBuild -eq $UpdateBuild}}
-            #=================================================
+            #===================================================================================================
             #   UpdateGroup
-            #=================================================
+            #===================================================================================================
             if ($UpdateGroup -like "*Adobe*") {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'AdobeSU'}}
             if ($UpdateGroup -like "*DotNet*") {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -like "DotNet*"}}
             if ($UpdateGroup -like "*DUCU*") {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -like "ComponentDU*"}}
@@ -365,41 +313,32 @@ function Save-OSDBuilderDownload {
             if ($UpdateGroup -like "*LCU*") {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'LCU'}}
             if ($UpdateGroup -like "*SSU*") {$OSDUpdates = $OSDUpdates | Where-Object {$_.UpdateGroup -eq 'SSU'}}
             if ($UpdateGroup -eq 'Optional') {$OSDUpdates = $OSDUpdates | Where-Object {[String]::IsNullOrWhiteSpace($_.UpdateGroup) -or $_.UpdateGroup -eq 'Optional'}}
-            #=================================================
+            #===================================================================================================
             #   Sorting
-            #=================================================
+            #===================================================================================================
             $OSDUpdates = $OSDUpdates | Sort-Object -Property CreationDate -Descending
-            #=================================================
+            #===================================================================================================
             #   Select Updates with GridView
-            #=================================================
+            #===================================================================================================
             if ($GridView.IsPresent) {$OSDUpdates = $OSDUpdates | Out-GridView -PassThru -Title 'Select Updates to Download and press OK'}
-            #=================================================
+            #===================================================================================================
             #   Download Updates
-            #=================================================
+            #   21.5.21 Downloads are now stored in the Updates root
+            #===================================================================================================
             if ($Download.IsPresent) {
-				if ($WebClient.IsPresent) {
-                    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls1
-                    $WebClientObj = New-Object System.Net.WebClient
-                }
+				if ($WebClient.IsPresent) {$WebClientObj = New-Object System.Net.WebClient}
                 foreach ($Update in $OSDUpdates) {
+                    #$DownloadPath = "$SetOSDBuilderPathUpdates\$($Update.Catalog)\$($Update.Title)"
                     $DownloadPath = "$SetOSDBuilderPathUpdates"
+                    
+                    #$DownloadFullPath = "$DownloadPath\$($Update.FileName)"
                     $DownloadFullPath = Join-Path $DownloadPath $(Split-Path $Update.OriginUri -Leaf)
 
                     if (!(Test-Path $DownloadPath)) {New-Item -Path "$DownloadPath" -ItemType Directory -Force | Out-Null}
                     if (!(Test-Path $DownloadFullPath)) {
                         Write-Host "$DownloadFullPath" -ForegroundColor Cyan
                         Write-Host "$($Update.OriginUri)" -ForegroundColor DarkGray
-
-                        if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
-                            if ($host.name -match 'ConsoleHost') {
-                                Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Update.OriginUri)`""
-                            }
-                            else {
-                                #PowerShell ISE will display a NativeCommandError, so progress will not be displayed
-                                $Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Update.OriginUri)`" 2>&1"
-                            }
-                        }
-                        elseif ($WebClient.IsPresent) {							
+                        if ($WebClient.IsPresent) {							
                             $WebClientObj.DownloadFile("$($Update.OriginUri)","$DownloadFullPath")
                         } else {
                             Start-BitsTransfer -Source $Update.OriginUri -Destination $DownloadFullPath
@@ -426,6 +365,8 @@ function Save-OSDBuilderDownload {
         }
     }
 
-    end {
+    END {
+        #Write-Host '========================================================================================' -ForegroundColor DarkGray
+        #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
 }
