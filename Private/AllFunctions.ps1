@@ -6888,7 +6888,19 @@ function Update-ModuleOSDBuilder {
     try {Remove-Module -Name OSDBuilder -Force -ErrorAction SilentlyContinue}
     catch {}
     #=================================================
-    #   Install-Module
+    #   Install-Module OSD
+    #=================================================
+    if ($CurrentUser.IsPresent) {
+        Write-Warning "Install-Module -Name OSD -Scope CurrentUser -Force"
+        try {Install-Module -Name OSD -Scope CurrentUser -Force -ErrorAction SilentlyContinue}
+        catch {}
+    } else {
+        Write-Warning "Install-Module -Name OSD -Force"
+        try {Install-Module -Name OSD -Force -ErrorAction SilentlyContinue}
+        catch {}
+    }
+    #=================================================
+    #   Install-Module OSDBuilder
     #=================================================
     if ($CurrentUser.IsPresent) {
         Write-Warning "Install-Module -Name OSDBuilder -Scope CurrentUser -Force"
