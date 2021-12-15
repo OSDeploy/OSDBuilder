@@ -557,6 +557,10 @@ function New-OSBuild {
                     }
                 }
             }
+            else {
+                Write-Warning "$OSMediaPath is not supported"
+                Break
+            }
             #=================================================
             Write-Verbose '19.1.1 WorkingName and WorkingPath'
             #=================================================
@@ -1000,7 +1004,12 @@ function New-OSBuild {
                 #=================================================
                 #   OneDriveSetup
                 #=================================================
-                if ($OSMajorVersion -eq 10 -and $OSInstallationType -eq 'Client') {
+                $UpdateOneDrive = $true
+                if ($OSMajorVersion -ne 10) {$UpdateOneDrive = $false}
+                if ($OSInstallationType -ne 'Client') {$UpdateOneDrive = $false}
+                if ((!(Test-Path "$MountDirectory\Windows\System32\OneDriveSetup.exe")) -and (!(Test-Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe"))) {$UpdateOneDrive = $false}
+
+                if ($UpdateOneDrive -eq $true) {
                     Show-ActionTime
                     Write-Host -ForegroundColor Green "OS: Update OneDriveSetup.exe"
                     $OneDriveSetupDownload = $false
@@ -1019,20 +1028,24 @@ function New-OSBuild {
                     } #>
 
                     if ($OSArchitecture -eq 'x86') {
-                        $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host -ForegroundColor Gray "                  Existing Image Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
-                        if (Test-Path $OneDriveSetup) {
-                            robocopy "$GetOSDBuilderPathContentOneDrive" "$MountDirectory\Windows\System32" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
+                        if (Test-Path "$MountDirectory\Windows\System32\OneDriveSetup.exe") {
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host -ForegroundColor Gray "                  Updating with Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
+                            Write-Host -ForegroundColor Gray "                  Existing Image Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
+                            if (Test-Path $OneDriveSetup) {
+                                robocopy "$GetOSDBuilderPathContentOneDrive" "$MountDirectory\Windows\System32" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
+                                $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\System32\OneDriveSetup.exe" | Select-Object -Property *
+                                Write-Host -ForegroundColor Gray "                  Updating with Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
+                            }
                         }
                     } else {
-                        $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                        Write-Host -ForegroundColor Gray "                  Existing Image Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
-                        if (Test-Path $OneDriveSetup) {
-                            robocopy "$GetOSDBuilderPathContentOneDrive" "$MountDirectory\Windows\SysWOW64" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
+                        if (Test-Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe") {
                             $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
-                            Write-Host -ForegroundColor Gray "                  Updating with Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
+                            Write-Host -ForegroundColor Gray "                  Existing Image Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
+                            if (Test-Path $OneDriveSetup) {
+                                robocopy "$GetOSDBuilderPathContentOneDrive" "$MountDirectory\Windows\SysWOW64" OneDriveSetup.exe /ndl /xx /b /np /ts /tee /r:0 /w:0 /Log+:"$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-OneDriveSetup.log" | Out-Null
+                                $OneDriveSetupInfo = Get-Item -Path "$MountDirectory\Windows\SysWOW64\OneDriveSetup.exe" | Select-Object -Property *
+                                Write-Host -ForegroundColor Gray "                  Updating with Version $($($OneDriveSetupInfo).VersionInfo.ProductVersion)"
+                            }
                         }
                     }
                     Write-Host -ForegroundColor Cyan "                  To update OneDriveSetup.exe use one of the following commands:"
