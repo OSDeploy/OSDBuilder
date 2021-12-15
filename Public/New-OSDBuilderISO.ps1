@@ -18,7 +18,9 @@ function New-OSDBuilderISO {
     param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [string[]]$FullName,
-        [Parameter(Mandatory=$false)][Switch]$PassThru
+        
+        [Parameter(Mandatory = $false)]
+        [Switch]$PassThru
     )
 
     BEGIN {

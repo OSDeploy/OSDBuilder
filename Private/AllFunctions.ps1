@@ -6519,17 +6519,53 @@ function Update-CumulativeOS {
         Write-Host -ForegroundColor Cyan "INSTALLING        " -NoNewline
         Write-Host -ForegroundColor Gray "$($Update.Title) - $(Split-Path $Update.OriginUri -Leaf)"
 
-        $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsPackageSSU-KB$($Update.FileKBNumber).log"
-        Write-Verbose "CurrentLog: $CurrentLog"
+        $TestWindowsPackageCAB = $null
+        $TestWindowsPackageCAB = Test-WindowsPackageCAB -PackagePath $UpdateLCU
 
-        Add-WindowsPackageSSU -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
+        #=================================================
+        #   CombinedMSU
+        #   This is for Windows 11 need to run as an MSU
+        #=================================================
+        if ($TestWindowsPackageCAB -eq 'CombinedMSU') {
+            $GetUpdateLCU = Get-Item $UpdateLCU
+            $UpdateLCUMSU = Join-Path $GetUpdateLCU.Directory ($GetUpdateLCU.BaseName + ".msu")
+            if (! (Test-Path $UpdateLCUMSU)) {
+                Copy-Item $GetUpdateLCU.FullName $UpdateLCUMSU -Force -ErrorAction Ignore | Out-Null
+            }
+            if (Test-Path $UpdateLCUMSU) {
+                Write-Verbose -Verbose "Applying Combined LCU as an MSU Package"
+                $UpdateLCU = $UpdateLCUMSU
+            }
+        }
+        #=================================================
+        #   CombinedLCU
+        #   Split the SSU from the LCU and install
+        #=================================================
+        if ($TestWindowsPackageCAB -eq 'CombinedLCU') {
+            $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Add-WindowsPackageSSU-KB$($Update.FileKBNumber).log"
+            Write-Verbose "CurrentLog: $CurrentLog"
+    
+            Add-WindowsPackageSSU -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null
+
+            $MountedWindowsImage = Get-WindowsImage -Mounted | Where-Object {$_.Path -eq $MountDirectory}
+
+            #Save-WindowsImage -Path "$MountDirectory" | Out-Null
+            Dismount-WindowsImage -Path "$MountDirectory" -Save
+            Mount-WindowsImage -Path "$MountDirectory" -ImagePath $MountedWindowsImage.ImagePath -Index $MountedWindowsImage.ImageIndex
+        }
 
         $CurrentLog = "$Info\logs\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Update-CumulativeOS-KB$($Update.FileKBNumber).log"
         Write-Verbose "CurrentLog: $CurrentLog"
-        Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" | Out-Null}
+        Try {Add-WindowsPackage -Path "$MountDirectory" -PackagePath "$UpdateLCU" -LogPath "$CurrentLog" -Verbose | Out-Null}
         Catch {
             if ($_.Exception.Message -match '0x800f081e') {
                 Write-Verbose "OSDBuilder: 0x800f081e The package is not applicable to this image" -Verbose
+            }
+            if ($_.Exception.Message -match '0x800f0998') {
+                Write-Verbose "OSDBuilder: 0x800f0998 The package may require an SSU installed first" -Verbose
+            }
+            if ($_.Exception.Message -match '0x8007007b') {
+                Write-Verbose "OSDBuilder: 0x8007007b This is a bug that Manel Rodero first spotted, working on it" -Verbose
             }
 <#             elseif ($_.Exception.Message -match '0x800f0823') {
                 Write-Verbose "OSDBuilder: 0x800f0823 Retrying the installation of the LCU.  This is necessary to ensure the SSU is installed properly" -Verbose

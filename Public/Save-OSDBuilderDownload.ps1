@@ -389,8 +389,13 @@ function Save-OSDBuilderDownload {
                     if (!(Test-Path $DownloadFullPath)) {
                         Write-Host "$DownloadFullPath" -ForegroundColor Cyan
                         Write-Host "$($Update.OriginUri)" -ForegroundColor DarkGray
-
-                        if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
+                        #=================================================
+                        #   Download File
+                        #=================================================
+                        if ($UseWebClient -eq $true) {
+                            $WebClientObj.DownloadFile("$($Update.OriginUri)","$DownloadFullPath")
+                        }
+                        elseif ($UseCurl -eq $true) {
                             if ($host.name -match 'ConsoleHost') {
                                 Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Update.OriginUri)`""
                             }
@@ -399,9 +404,7 @@ function Save-OSDBuilderDownload {
                                 $Quiet = Invoke-Expression "& curl.exe --insecure --location --output `"$DownloadFullPath`" --url `"$($Update.OriginUri)`" 2>&1"
                             }
                         }
-                        elseif ($WebClient.IsPresent) {							
-                            $WebClientObj.DownloadFile("$($Update.OriginUri)","$DownloadFullPath")
-                        } else {
+                        else {
                             Start-BitsTransfer -Source $Update.OriginUri -Destination $DownloadFullPath
                         }
                         if ($CheckFileHash.IsPresent -and ($Update.Hash -ne "")) {

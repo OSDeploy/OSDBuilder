@@ -28,7 +28,7 @@ Description = @'
 https://osdbuilder.osdeploy.com
 
 Requirements:
-PowerShell Module OSD 21.10.14.1 or newer
+PowerShell Module OSD 21.12.14.1 or newer
 '@
 
 # Minimum version of the Windows PowerShell engine required by this module
@@ -51,7 +51,7 @@ PowerShellVersion = '5.0'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(
-    @{ModuleName = 'OSD'; ModuleVersion = '21.10.14.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+    @{ModuleName = 'OSD'; ModuleVersion = '21.12.14.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
 )
 
 # Assemblies that must be loaded prior to importing this module
