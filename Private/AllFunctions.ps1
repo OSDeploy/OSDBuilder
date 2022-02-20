@@ -2823,7 +2823,7 @@ function Export-SessionsXmlOS {
 }
 function Get-FeatureUpdateDownloads {
     $FeatureUpdateDownloads = @()
-    $FeatureUpdateDownloads = Get-WSUSXML FeatureUpdate
+    $FeatureUpdateDownloads = Get-OSDSUS -Catalog FeatureUpdate
 <#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\CatalogsESD\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {
@@ -3076,9 +3076,9 @@ function Get-OSDUpdates {
     )
     $AllOSDUpdates = @()
     if ($Silent.IsPresent) {
-        $AllOSDUpdates = Get-WSUSXML Windows -Silent
+        $AllOSDUpdates = Get-OSDSUS -Catalog Windows -Silent
     } else {
-        $AllOSDUpdates = Get-WSUSXML Windows
+        $AllOSDUpdates = Get-OSDSUS -Catalog Windows
     }
     #=================================================
     #   Get Downloaded Updates
@@ -6520,7 +6520,7 @@ function Update-CumulativeOS {
         Write-Host -ForegroundColor Gray "$($Update.Title) - $(Split-Path $Update.OriginUri -Leaf)"
 
         $TestWindowsPackageCAB = $null
-        $TestWindowsPackageCAB = Test-WindowsPackageCAB -PackagePath $UpdateLCU
+        $TestWindowsPackageCAB = Test-WindowsPackageCAB -Path $MountDirectory -PackagePath $UpdateLCU
 
         #=================================================
         #   CombinedMSU
