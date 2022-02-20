@@ -2823,7 +2823,7 @@ function Export-SessionsXmlOS {
 }
 function Get-FeatureUpdateDownloads {
     $FeatureUpdateDownloads = @()
-    $FeatureUpdateDownloads = Get-OSDSUS -Catalog FeatureUpdate
+    $FeatureUpdateDownloads = Get-WSUSXML -Catalog FeatureUpdate
 <#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\CatalogsESD\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {
@@ -3076,9 +3076,9 @@ function Get-OSDUpdates {
     )
     $AllOSDUpdates = @()
     if ($Silent.IsPresent) {
-        $AllOSDUpdates = Get-OSDSUS -Catalog Windows -Silent
+        $AllOSDUpdates = Get-WSUSXML -Catalog Windows -Silent
     } else {
-        $AllOSDUpdates = Get-OSDSUS -Catalog Windows
+        $AllOSDUpdates = Get-WSUSXML -Catalog Windows
     }
     #=================================================
     #   Get Downloaded Updates
