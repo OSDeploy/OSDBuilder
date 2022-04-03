@@ -246,8 +246,8 @@ function Add-ContentDriversPE {
     #=================================================
     $MountPaths = @(
         $MountWinPE
-        $MountWinPE
-        $MountWinPE
+        $MountWinRE
+        $MountWinSE
     )
     #=================================================
     #   Task
