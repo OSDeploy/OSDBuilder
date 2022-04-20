@@ -429,6 +429,6 @@ function Save-OSDBuilderDownload {
         }
     }
 
-    end {
+    End {
     }
 }

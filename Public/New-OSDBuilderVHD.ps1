@@ -63,7 +63,7 @@ function New-OSDBuilderVHD {
         [array]$AllMyOSDMedia = [array](Get-OSMedia) + [array](Get-OSBuilds)
     }
 
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         #=================================================
@@ -211,7 +211,7 @@ function New-OSDBuilderVHD {
         Dismount-DiskImage -ImagePath $VhdFile | Out-Null
     }
 
-    END {
+    End {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
         Write-Host '========================================================================================' -ForegroundColor DarkGray

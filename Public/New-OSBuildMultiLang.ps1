@@ -39,7 +39,7 @@ function New-OSBuildMultiLang {
         #=================================================
     }
     
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Warning "OSBuild MultiLang will take an OSBuild with Language Packs"
@@ -198,7 +198,7 @@ function New-OSBuildMultiLang {
         }
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }

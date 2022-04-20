@@ -183,13 +183,13 @@ $MDTUnattendPEx86 = @'
             Write-Host "-WinPE Scratch Space:           $ScratchSpace"
             Write-Host "-WinPE Source Wim:              $SourceWim"
             Write-Host "-WinPE Drivers:"
-            if ($WinPEDrivers) {foreach ($item in $WinPEDrivers) {Write-Host $item -ForegroundColor DarkGray}}
+            if ($WinPEDrivers) {foreach ($item in $WinPEDrivers) {Write-Host -ForegroundColor DarkGray "$item"}}
             Write-Host "-WinPE Extra Files:"
-            if ($WinPEExtraFiles) {foreach ($item in $WinPEExtraFiles) {Write-Host $item -ForegroundColor DarkGray}}
+            if ($WinPEExtraFiles) {foreach ($item in $WinPEExtraFiles) {Write-Host -ForegroundColor DarkGray "$item"}}
             Write-Host "-WinPE Scripts:"
-            if ($WinPEScripts) {foreach ($item in $WinPEScripts) {Write-Host $item -ForegroundColor DarkGray}}
+            if ($WinPEScripts) {foreach ($item in $WinPEScripts) {Write-Host -ForegroundColor DarkGray "$item"}}
             Write-Host "-WinPE ADK Pkgs:"
-            if ($WinPEADK) {foreach ($item in $WinPEADK) {Write-Host $item -ForegroundColor DarkGray}}
+            if ($WinPEADK) {foreach ($item in $WinPEADK) {Write-Host -ForegroundColor DarkGray "$item"}}
 
 <#             #=================================================
             Write-Verbose '19.1.1 Validate Proper TaskVersion'
@@ -840,7 +840,7 @@ $MDTUnattendPEx86 = @'
         }
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }

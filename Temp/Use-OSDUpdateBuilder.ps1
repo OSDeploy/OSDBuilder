@@ -96,7 +96,7 @@ function Use-OSDUpdateBuilder {
         [switch]$WinPE
     )
 
-    BEGIN {
+    Begin {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
@@ -106,7 +106,7 @@ function Use-OSDUpdateBuilder {
         Get-OSDBuilder -CreatePaths -HideDetails
     }
 
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
@@ -179,7 +179,7 @@ function Use-OSDUpdateBuilder {
         $OSDUpdateBuilder | Export-Clixml -Path "$SetOSDBuilderPathUpdates\$Catalog $KBTitle.xml"
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }

@@ -190,7 +190,7 @@ function Import-OSMedia {
     #ImportOSMediaPSDrives
     #ImportOSMediaPSDrives
     
-    begin {
+    Begin {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
         #=================================================
@@ -325,7 +325,7 @@ function Import-OSMedia {
         }
     }
 
-    process {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Verbose "MyInvocation.MyCommand.Name: $($MyInvocation.MyCommand.Name)"
@@ -542,5 +542,5 @@ function Import-OSMedia {
         }
     }
 
-    end {}
+    End {}
 }

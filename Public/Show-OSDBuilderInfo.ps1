@@ -43,7 +43,7 @@ function Show-OSDBuilderInfo {
         #=================================================
     }
 
-    PROCESS {
+    Process {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
@@ -236,7 +236,7 @@ function Show-OSDBuilderInfo {
         }
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }

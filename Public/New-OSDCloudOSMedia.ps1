@@ -237,7 +237,6 @@ function New-OSDCloudOSMedia {
             #=======================================================================
             #   Start Transcript
             #=======================================================================
-            Write-Host '========================================================================================' -ForegroundColor DarkGray
             $ScriptName = $($MyInvocation.MyCommand.Name)
             $LogName = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-$ScriptName.log"
             Start-Transcript -Path (Join-Path "$Info\logs" $LogName) | Out-Null
@@ -578,5 +577,5 @@ function New-OSDCloudOSMedia {
         }
     }
 
-    END {}
+    End {}
 }

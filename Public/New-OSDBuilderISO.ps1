@@ -23,7 +23,7 @@ function New-OSDBuilderISO {
         [Switch]$PassThru
     )
 
-    BEGIN {
+    Begin {
         #=================================================
         #   Header
         #=================================================
@@ -75,7 +75,7 @@ function New-OSDBuilderISO {
         }
     }
 
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
@@ -217,7 +217,7 @@ function New-OSDBuilderISO {
         }
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
         if($PassThru)

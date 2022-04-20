@@ -325,7 +325,7 @@ function Get-OSMedia {
         #=================================================
     }
 
-    END {}
+    End {}
 }
 function Repair-GetOSDMediaTemplateDirectories {
     #=================================================

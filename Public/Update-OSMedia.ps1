@@ -833,7 +833,6 @@ function Update-OSMedia {
                 #=================================================
                 Write-Verbose '19.1.1 Start Transcript'
                 #=================================================
-                Write-Host '========================================================================================' -ForegroundColor DarkGray
                 $ScriptName = $($MyInvocation.MyCommand.Name)
                 $LogName = "$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-$ScriptName.log"
                 Start-Transcript -Path (Join-Path "$Info\logs" $LogName) | Out-Null
@@ -1238,7 +1237,7 @@ function Update-OSMedia {
         }
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }

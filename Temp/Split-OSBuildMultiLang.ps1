@@ -18,7 +18,7 @@ function Split-OSBuildMultiLang {
         [string]$CustomName
     )
 
-    BEGIN {
+    Begin {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) BEGIN"
 
@@ -28,7 +28,7 @@ function Split-OSBuildMultiLang {
         Get-OSDBuilder -CreatePaths -HideDetails
     }
     
-    PROCESS {
+    Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
         Write-Warning "This script is under Development at this time"
@@ -124,7 +124,7 @@ function Split-OSBuildMultiLang {
         }
     }
 
-    END {
+    End {
         #Write-Host '========================================================================================' -ForegroundColor DarkGray
         #Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) END"
     }
