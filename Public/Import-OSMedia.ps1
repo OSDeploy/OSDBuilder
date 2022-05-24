@@ -104,6 +104,10 @@ function Import-OSMedia {
         #Windows Server 2019 Standard (Desktop Experience)
         #Windows Server 2019 Datacenter
         #Windows Server 2019 Datacenter (Desktop Experience)
+        #Windows Server 2022 Standard
+        #Windows Server 2022 Standard (Desktop Experience)
+        #Windows Server 2022 Datacenter
+        #Windows Server 2022 Datacenter (Desktop Experience)
         [ValidateSet(`
             'Windows 10 Education',`
             'Windows 10 Enterprise',`
@@ -135,6 +139,10 @@ function Import-OSMedia {
             'Windows 11 Pro N for Workstations',`
             'Windows Server Standard',`
             'Windows Server Datacenter',
+            'Windows Server 2016 Standard',`
+            'Windows Server 2016 Standard (Desktop Experience)',`
+            'Windows Server 2016 Datacenter',`
+            'Windows Server 2016 Datacenter (Desktop Experience)',
             'Windows Server 2019 Standard',`
             'Windows Server 2019 Standard (Desktop Experience)',`
             'Windows Server 2019 Datacenter',`
