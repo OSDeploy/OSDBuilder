@@ -277,7 +277,7 @@ function Save-OSDBuilderDownload {
             #   Download File
             #=================================================
             if ($UseWebClient -eq $true) {
-                $WebClientObj.DownloadFile("$($Item.OriginUri)","$DownloadFullPath")
+                $WebClientObj.DownloadFile("$DownloadUrl","$DownloadPath\$DownloadFile")
             }
             elseif ($UseWebRequest -eq $true) {
                 Invoke-WebRequest -Uri $DownloadUrl -OutFile "$DownloadPath\$DownloadFile"
