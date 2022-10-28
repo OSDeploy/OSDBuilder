@@ -6565,9 +6565,15 @@ function Update-CumulativeOS {
         Write-Host -ForegroundColor Cyan "INSTALLING        " -NoNewline
         Write-Host -ForegroundColor Gray "$($Update.Title) - $(Split-Path $Update.OriginUri -Leaf)"
 
+        # Workaround for RPC/DISM error on Win11 22H2
         $TestWindowsPackageCAB = $null
-        $TestWindowsPackageCAB = Test-WindowsPackageCAB -Path $MountDirectory -PackagePath $UpdateLCU
-
+        if ($OSImageName -like '*Windows 11*' -and $ReleaseID -eq '22H2') {
+            $TestWindowsPackageCAB = 'CombinedMSU'
+        }
+        else {
+            $TestWindowsPackageCAB = Test-WindowsPackageCAB -Path $MountDirectory -PackagePath $UpdateLCU
+        }
+	
         #=================================================
         #   CombinedMSU
         #   This is for Windows 11 need to run as an MSU
