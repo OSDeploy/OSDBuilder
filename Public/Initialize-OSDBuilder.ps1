@@ -140,6 +140,8 @@ function Initialize-OSDBuilder {
         #New-PEBuild
         NewPEBuildCreateISO = $false
         NewPEBuildExecute = $false
+        NewPEBuildSkipGrid = $false
+        NewPEBuildTaskName = $null
         NewPEBuildPauseDismount = $false
         NewPEBuildPauseMount = $false
         #New-PEBuildTask
