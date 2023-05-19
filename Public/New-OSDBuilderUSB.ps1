@@ -89,9 +89,6 @@ function New-OSDBuilderUSB {
         Write-Warning "USB will be formatted FAT32"
         Write-Warning "Install.wim larger than 4GB will FAIL"
 
-        # TODO: Create a check if install.wim is greater than 4GB or the "split" parameter is selected, then split the wim file into multiple .swm files of the desired size (4GB exactly, if not using the split and splitsize parameters).
-        # Example: Dism /Split-Image /ImageFile:C:\install.wim /SWMFile:C:\images\split\install.swm /FileSize:4000
-
         #=================================================
         Write-Verbose '19.1.14 Select Source OSMedia'
         #=================================================
@@ -106,17 +103,14 @@ function New-OSDBuilderUSB {
             $SelectedOSMedia = $AllMyOSDBMedia | Out-GridView -Title "OSDBuilder: Select one OSMedia to create an USB and press OK (Cancel to Exit)" -OutputMode Single
         }
 
+        # Get install.wim size in MB
+        $WIMSize = (Get-Item "$($SelectedOSMedia.FullName)\OS\Sources\install.wim").Length/1000000
+
+        # If the split parameter is not selected and install.wim is larger than 4000MB, set the split size to 4000MB
         Switch ($Split){
-            $true {
-                $SplitSize = 4000
-            }
-            $false {
-                Continue
-            }
+            $true { Continue }
+            $false { if ( $WIMSize -gt 4000 ) { $SplitSize = 4000 } }
         }
-
-        $WIMSize = (Get-Item "$($SelectedOSMedia.FullName)\OS\Sources\install.wim").Length/1000000 # Returns size in MB
-
 
         #=================================================
         Write-Verbose '19.1.1 Select USB Drive'
@@ -134,7 +128,7 @@ function New-OSDBuilderUSB {
             Set-Location -Path "$($SelectedOSMedia.FullName)\OS\boot"
             bootsect.exe /nt60 "$($Results.DriveLetter):"
 
-            #Copy Files from ISO to USB
+            #Copy Files from ISO to USB and split the install.wim if needed or if specified by the split parameter
             if ($Split -eq $true -or $WIMSize -gt 4000){
                 Dism /Split-Image /ImageFile:"$($SelectedOSMedia.FullName)\OS\Sources\install.wim" /SWMFile:"$($SelectedOSMedia.FullName)\OS\Sources\install.swm" /FileSize:$SplitSize /Verbose
                 Copy-Item -Path "$($SelectedOSMedia.FullName)\OS\*" -Destination "$($Results.DriveLetter):" -Recurse -Exclude "$($SelectedOSMedia.FullName)\OS\Sources\install.wim" -Verbose
