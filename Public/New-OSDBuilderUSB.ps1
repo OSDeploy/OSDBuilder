@@ -91,6 +91,7 @@ function New-OSDBuilderUSB {
         Write-Warning "Install.wim larger than 4GB will FAIL"
 
         # TODO: Create a check if install.wim is greater than 4GB or the "split" parameter is selected, then split the wim file into multiple .swm files of the desired size (4GB exactly, if not using the split and splitsize parameters).
+        # Example: Dism /Split-Image /ImageFile:C:\install.wim /SWMFile:C:\images\split\install.swm /FileSize:4000
 
         #=================================================
         Write-Verbose '19.1.14 Select Source OSMedia'
