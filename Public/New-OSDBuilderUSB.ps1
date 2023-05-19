@@ -80,7 +80,6 @@ function New-OSDBuilderUSB {
         $AllMyOSDBMedia = @()
         $AllMyOSDBMedia = [array]$AllMyOSMedia + [array]$AllMyOSBuilds + [array]$AllMyPEBuilds
 
-        # TODO: Create variable with size of the install.wim
     }
 
     Process {
@@ -107,6 +106,18 @@ function New-OSDBuilderUSB {
             $SelectedOSMedia = $AllMyOSDBMedia | Out-GridView -Title "OSDBuilder: Select one OSMedia to create an USB and press OK (Cancel to Exit)" -OutputMode Single
         }
 
+        Switch ($Split){
+            $true {
+                $SplitSize = 4000
+            }
+            $false {
+                Continue
+            }
+        }
+
+        $WIMSize = (Get-Item "$($SelectedOSMedia.FullName)\OS\Sources\install.wim").Length/1000000 # Returns size in MB
+
+
         #=================================================
         Write-Verbose '19.1.1 Select USB Drive'
         #=================================================
@@ -124,8 +135,14 @@ function New-OSDBuilderUSB {
             bootsect.exe /nt60 "$($Results.DriveLetter):"
 
             #Copy Files from ISO to USB
-            Copy-Item -Path "$($SelectedOSMedia.FullName)\OS\*" -Destination "$($Results.DriveLetter):" -Recurse -Verbose
+            if ($Split -eq $true -or $WIMSize -gt 4000){
+                Dism /Split-Image /ImageFile:"$($SelectedOSMedia.FullName)\OS\Sources\install.wim" /SWMFile:"$($SelectedOSMedia.FullName)\OS\Sources\install.swm" /FileSize:$SplitSize /Verbose
+                Copy-Item -Path "$($SelectedOSMedia.FullName)\OS\*" -Destination "$($Results.DriveLetter):" -Recurse -Exclude "$($SelectedOSMedia.FullName)\OS\Sources\install.wim" -Verbose
+            } else {
+                Copy-Item -Path "$($SelectedOSMedia.FullName)\OS\*" -Destination "$($Results.DriveLetter):" -Recurse -Verbose
+            }
         }
+
     }
 
     End {
