@@ -132,7 +132,7 @@ function New-OSDBuilderUSB {
             #Copy Files from ISO to USB and split the install.wim if needed or if specified by the split parameter
             if ($Split -eq $true -or $WIMSize -gt 4000){
                 #Create .swm files from the install.wim and copy them over instead of the install.wim (keeps filesize down for FAT32)
-                Dism /Split-Image /ImageFile:"$($SelectedOSMedia.FullName)\OS\Sources\install.wim" /SWMFile:"$($SelectedOSMedia.FullName)\OS\Sources\install.swm" /FileSize:$SplitSize /Verbose
+                Dism /Split-Image /ImageFile:"$($SelectedOSMedia.FullName)\OS\Sources\install.wim" /SWMFile:"$($Results.DriveLetter):\Sources\install.swm" /FileSize:$SplitSize /Verbose
                 Copy-Item -Path "$($SelectedOSMedia.FullName)\OS\*" -Destination "$($Results.DriveLetter):" -Recurse -Exclude "$($SelectedOSMedia.FullName)\OS\Sources\install.wim" -Verbose
             } else {
                 Copy-Item -Path "$($SelectedOSMedia.FullName)\OS\*" -Destination "$($Results.DriveLetter):" -Recurse -Verbose
