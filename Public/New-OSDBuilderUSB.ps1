@@ -88,7 +88,7 @@ function New-OSDBuilderUSB {
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
 
         Write-Warning "USB will be formatted FAT32"
-        Write-Warning "Install.wim larger than 4GB will FAIL"
+        Write-Warning "Install.wim larger than 4GB will be split into swm files, if the Split parameter is not already specified"
 
         #=================================================
         Write-Verbose '19.1.14 Select Source OSMedia'
