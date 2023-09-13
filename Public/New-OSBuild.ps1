@@ -965,7 +965,10 @@ function New-OSBuild {
                 #=================================================
                 Add-ContentPack -PackType OSCapability
                 Add-ContentPack -PackType OSPackages
-                DISM.exe /Image:$MountDirectory /Add-ProvisioningPackage /PackagePath:$PPKGPath
+                if ($null -ne $PPKGPath){
+					Write-Host -ForegroundColor Yellow "Adding $PPKGPath to $MountDirectory"
+					& DISM.exe /Image:$MountDirectory /Add-ProvisioningPackage /PackagePath:$PPKGPath
+				}
                 Add-WindowsPackageOS
                 Add-FeaturesOnDemandOS
                 #=================================================
