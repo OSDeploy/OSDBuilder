@@ -30,7 +30,7 @@ function Get-OSBuilds {
         [string]$OSMajorVersion,
 
         #Filter the OSBuild by OS Release Id
-        [ValidateSet ('22H2','21H2','21H1','20H2',2004,1909,1903,1809)]
+        [ValidateSet ('23H2','22H2','21H2','21H1','20H2',2004,1909,1903,1809)]
         [string]$OSReleaseId,
         
         #Filter the OSBuild by Image Revision
