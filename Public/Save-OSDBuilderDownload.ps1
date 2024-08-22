@@ -257,7 +257,7 @@ function Save-OSDBuilderDownload {
             #   Database
             #=================================================
             if ($ContentDownload -eq 'OneDriveSetup Production') {
-                $DownloadUrl = 'https://go.microsoft.com/fwlink/p/?LinkId=248256'
+                $DownloadUrl = 'https://go.microsoft.com/fwlink/?linkid=844652'
                 $DownloadPath = $GetOSDBuilderPathContentOneDrive
                 $DownloadFile = 'OneDriveSetup.exe'
             }

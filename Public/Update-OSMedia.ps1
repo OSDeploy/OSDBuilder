@@ -675,8 +675,9 @@ function Update-OSMedia {
                 Write-Host "WSUSXML (Microsoft Updates) Downloaded" -ForegroundColor Green
                 foreach ($Update in $UpdatesDownloaded) {
                     Write-Host "$($Update.CreationDate) - " -NoNewline
-                    Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
-                    Write-Host "$($Update.Title)"
+                    Write-Host "$($Update.UpdateGroup)" -NoNewline -ForegroundColor Cyan
+                    Write-Host " - $($Update.Title) - " -NoNewline
+                    Write-Host "$($Update.FileName)" -ForegroundColor Yellow
                 }
             }
             $UpdatesNotDownloaded = @()

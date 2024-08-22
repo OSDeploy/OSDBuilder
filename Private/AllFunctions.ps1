@@ -3118,6 +3118,10 @@ function Get-OSDUpdates {
     #=================================================
     #   Return
     #=================================================
+    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch '.wim'}
+    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'desktopdeployment'}
+    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'aggregatedmetadata'}
+    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'fodmetadata'}
     $AllOSDUpdates = $AllOSDUpdates | Select-Object -Property *
     Return $AllOSDUpdates
 }
