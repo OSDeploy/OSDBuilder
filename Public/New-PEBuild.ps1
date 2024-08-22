@@ -18,6 +18,15 @@ function New-PEBuild {
 
         #Executes the PEBuild
         [switch]$Execute = $global:SetOSDBuilder.NewPEBuildExecute,
+        
+        #PEBuild Tasks to process
+        [string[]]$TaskName = $global:SetOSDBuilder.NewPEBuildTaskName,
+
+        #Used to bypass the ISE GridView PE Task Selection
+        #Must use TaskName Parameter
+        #Alias: SkipGridView
+        [Alias('SkipGridView')]
+        [switch]$SkipGrid = $global:SetOSDBuilder.NewPEBuildSkipGrid,
 
         #Adds a 'Press Enter to Continue' prompt before WinPE is dismounted
         [Parameter(ParameterSetName='Advanced')]
@@ -113,7 +122,15 @@ $MDTUnattendPEx86 = @'
         #$GetPEBuildTask = Get-ChildItem -Path $SetOSDBuilderPathTasks *.json -File | Select-Object -Property BaseName, FullName, Length, CreationTime, LastWriteTime | Sort-Object -Property BaseName
         #$GetPEBuildTask = $GetPEBuildTask | Where-Object {$_.BaseName -like "MDT*" -or $_.BaseName -like "Recovery*" -or $_.BaseName -like "WinPE*"}
         #$GetPEBuildTask = $GetPEBuildTask | Out-GridView -Title "OSDBuilder Tasks: Select one or more Tasks to execute and press OK (Cancel to Exit)" -Passthru
-        $GetPEBuildTask = Get-PEBuildTask | Out-GridView -PassThru -Title "PEBuild Tasks: Select one or more Tasks to execute and press OK (Cancel to Exit)"
+        $GetPEBuildTask = Get-PEBuildTask
+        
+        if($TaskName) {
+            $GetPEBuildTask = $GetPEBuildTask | Where-Object {$_.TaskName -in $TaskName}
+        }
+        
+        if(!($SkipGrid.IsPresent)) {
+            $GetPEBuildTask = $GetPEBuildTask | Out-GridView -PassThru -Title "PEBuild Tasks: Select one or more Tasks to execute and press OK (Cancel to Exit)"
+        }
 
         if($null -eq $GetPEBuildTask) {
             Write-Warning "PEBuild Task was not selected or found . . . Exiting!"
