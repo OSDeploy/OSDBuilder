@@ -244,6 +244,7 @@ function New-OSBuildTask {
             if ($TaskName -match '21H1') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '21H1'}}
             if ($TaskName -match '21H2') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '21H2'}}
             if ($TaskName -match '22H2') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '22H2'}}
+            if ($TaskName -match '23H2') {$OSMedia = $OSMedia | Where-Object {$_.ReleaseId -eq '23H2'}}
     
             Try {
                 $OSMedia = $OSMedia | Out-GridView -OutputMode Single -Title 'Select a Source OSMedia to use for this Task (Cancel to Exit)'
