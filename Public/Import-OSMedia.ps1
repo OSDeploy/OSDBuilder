@@ -205,10 +205,10 @@ function Import-OSMedia {
         #   Get-OSDBuilder
         #=================================================
         Show-ActionTime; Write-Host 'Get-OSDBuilder: Validating OSDBuilder Content'
-        Show-ActionTime; Write-Warning 'This version of OSDBuilder only supports:'
-        Show-ActionTime; Write-Warning 'Windows 10 1607 - 21H2'
-        Show-ActionTime; Write-Warning 'Windows 11 21H2 - 22H2'
-        Show-ActionTime; Write-Warning 'Windows Server 2016 1607 - Windows Server 2022 21H1'
+        Show-ActionTime; Write-Warning 'This version of OSDBuilder supports:'
+        Show-ActionTime; Write-Warning 'Windows 10 1607 - 21H2 x64'
+        Show-ActionTime; Write-Warning 'Windows 11 21H2 - 24H2 x64'
+        #Show-ActionTime; Write-Warning 'Windows Server 2016 1607 - Windows Server 2022 21H1'
         Get-OSDBuilder -CreatePaths -HideDetails
         #=================================================
         #   Block
