@@ -12,11 +12,11 @@
 https://osdbuilder.osdeploy.com
 
 Requirements:
-PowerShell Module OSD 24.10.7.1 or newer
+PowerShell Module OSD 24.10.8.1 or newer
 '@
     PowerShellVersion = '5.1'
     RequiredModules = @(
-        @{ModuleName = 'OSD'; ModuleVersion = '22.11.1.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
+        @{ModuleName = 'OSD'; ModuleVersion = '24.10.8.1'; Guid = '9fe5b9b6-0224-4d87-9018-a8978529f6f5'}
     )
     FunctionsToExport = @(
         'Get-OSBuilds',
