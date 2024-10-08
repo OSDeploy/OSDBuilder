@@ -108,18 +108,18 @@ function Get-OSDBuilder {
     #   Display OSDBulder Home Path
     #=================================================
     if (!($HideDetails.IsPresent)) {
-        Write-Host "Home            $global:GetOSDBuilderHome"
-        Write-Host "-Content        $global:SetOSDBuilderPathContent" -ForegroundColor Gray
-        Write-Host "-ContentPacks   $global:SetOSDBuilderPathContentPacks" -ForegroundColor Gray
-        Write-Host "-FeatureUpdates $global:SetOSDBuilderPathFeatureUpdates" -ForegroundColor Gray
-        Write-Host "-OSImport       $global:SetOSDBuilderPathOSImport" -ForegroundColor Gray
-        Write-Host "-OSMedia        $global:SetOSDBuilderPathOSMedia" -ForegroundColor Gray
-        Write-Host "-OSBuilds       $global:SetOSDBuilderPathOSBuilds" -ForegroundColor Gray
-        Write-Host "-PEBuilds       $global:SetOSDBuilderPathPEBuilds" -ForegroundColor Gray
-        Write-Host "-Mount          $global:SetOSDBuilderPathMount" -ForegroundColor Gray
-        Write-Host "-Tasks          $global:SetOSDBuilderPathTasks" -ForegroundColor Gray
-        Write-Host "-Templates      $global:SetOSDBuilderPathTemplates" -ForegroundColor Gray
-        Write-Host "-Updates        $global:SetOSDBuilderPathUpdates" -ForegroundColor Gray
+        Write-Host "Home                $global:GetOSDBuilderHome"
+        Write-Host "-Content            $global:SetOSDBuilderPathContent" -ForegroundColor Gray
+        Write-Host "-ContentPacks       $global:SetOSDBuilderPathContentPacks" -ForegroundColor Gray
+        Write-Host "-FeatureUpdates     $global:SetOSDBuilderPathFeatureUpdates" -ForegroundColor Gray
+        Write-Host "-OSImport           $global:SetOSDBuilderPathOSImport" -ForegroundColor Gray
+        Write-Host "-OSMedia            $global:SetOSDBuilderPathOSMedia" -ForegroundColor Gray
+        Write-Host "-OSBuilds           $global:SetOSDBuilderPathOSBuilds" -ForegroundColor Gray
+        Write-Host "-PEBuilds           $global:SetOSDBuilderPathPEBuilds" -ForegroundColor Gray
+        Write-Host "-Mount              $global:SetOSDBuilderPathMount" -ForegroundColor Gray
+        Write-Host "-Tasks              $global:SetOSDBuilderPathTasks" -ForegroundColor Gray
+        Write-Host "-Templates          $global:SetOSDBuilderPathTemplates" -ForegroundColor Gray
+        Write-Host "-Updates            $global:SetOSDBuilderPathUpdates" -ForegroundColor Gray
         #Show-OSDBuilderHomeMap
     }
     #=================================================
