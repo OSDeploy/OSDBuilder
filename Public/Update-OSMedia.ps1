@@ -672,7 +672,7 @@ function Update-OSMedia {
             $UpdatesDownloaded = $OSDUpdates | Where-Object {$_.OSDStatus -eq 'Downloaded'} | Sort-Object CreationDate
             if ($UpdatesDownloaded) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "WSUSXML (Microsoft Updates) Downloaded" -ForegroundColor Green
+                Write-Host 'Microsoft Update Manifests Downloaded' -ForegroundColor Green
                 foreach ($Update in $UpdatesDownloaded) {
                     Write-Host "$($Update.CreationDate) - " -NoNewline
                     Write-Host "$($Update.UpdateGroup)" -NoNewline -ForegroundColor Cyan
@@ -691,27 +691,28 @@ function Update-OSMedia {
 
             if ($UpdatesNotDownloaded -or $UpdatesNotDownloadedOptional) {
                 Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "WSUSXML (Microsoft Updates) Not Downloaded" -ForegroundColor Yellow
+                Write-Host 'Microsoft Update Manifests Not Downloaded' -ForegroundColor Yellow
                 foreach ($Update in $UpdatesNotDownloaded) {
                     Write-Host "$($Update.CreationDate) - " -NoNewline
                     Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
-                    Write-Host "$($Update.Title)"
+                    Write-Host "$($Update.Title) $($Update.FileName)"
                 }
                 foreach ($Update in $UpdatesNotDownloadedOptional) {
                     Write-Host "$($Update.CreationDate) - " -NoNewline
                     Write-Host "$($Update.UpdateGroup) - " -NoNewline -ForegroundColor Cyan
-                    Write-Host "$($Update.Title)"
+                    Write-Host "$($Update.Title) $($Update.FileName)"
                 }
                 if ($Download.IsPresent) {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Host "WSUSXML (Microsoft Updates) Download" -ForegroundColor Green
+                    Write-Host 'Microsoft Update Manifests Download' -ForegroundColor Green
                     if ($UpdatesNotDownloadedOptional){
                         Write-Host "Optional Updates are not automatically downloaded.  Use the following command:" -ForegroundColor Yellow
                         Write-Host "Save-OSDBuilderDownload -UpdateOS '$UpdateOS' -UpdateBuild $ReleaseId -UpdateArch $OSArchitecture -UpdateGroup Optional -Download" -ForegroundColor Yellow
                     }
                     foreach ($Update in $UpdatesNotDownloaded) {
                         Write-Host "$($Update.CreationDate) - $($Update.UpdateGroup) - $($Update.Title)" -ForegroundColor Cyan
-                        Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
+                        #Get-OSDUpdateDownloads -OSDGuid $Update.OSDGuid
+                        Get-OSDUpdateDownloads -FileName $Update.FileName
                     }
                 }
             }
@@ -791,7 +792,7 @@ function Update-OSMedia {
             if ($MyInvocation.MyCommand.Name -eq 'New-OSBuild' -and $LatestOSMedia) {
                 if ($LatestOSMedia.Updates -ne 'OK') {
                     Write-Host '========================================================================================' -ForegroundColor DarkGray
-                    Write-Warning "This OSMedia does not have the latest WSUSXML (Microsoft Updates)"
+                    Write-Warning "This OSMedia does not have the latest Microsoft Update Manifests"
                     Write-Warning "Use the following command before running New-OSBuild"
                     Write-Warning "Update-OSMedia -Name `'$OSMediaName`' -Download -Execute"
                     Write-Host '========================================================================================' -ForegroundColor DarkGray

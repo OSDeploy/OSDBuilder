@@ -45,7 +45,7 @@ function Save-OSDBuilderDownload {
 
         #Feature Update Build
         [Parameter(ParameterSetName = 'FeatureUpdates')]
-        [ValidateSet ('22H2','21H2','21H1','20H2',2004,1909,1903,1809)]
+        [ValidateSet ('24H2','23H2','22H2','21H2','21H1','20H2',2004,1909,1903,1809)]
         [string]$FeatureBuild,
 
         #Feature Update Edition
@@ -82,7 +82,7 @@ function Save-OSDBuilderDownload {
 
         #Filter Microsoft Updates for a specific ReleaseId
         [Parameter(ParameterSetName='OSDUpdate')]
-        [ValidateSet ('22H2','21H2','21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
+        [ValidateSet ('24H2','23H2','22H2','21H2','21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507,7601,7603)]
         [Alias('ReleaseId')]
         [string]$UpdateBuild,
 
@@ -147,7 +147,7 @@ function Save-OSDBuilderDownload {
         #=================================================
         if ($FeatureUpdates.IsPresent) {
             #Write-Warning "FeatureUpdates are downloaded using BITS Transfer"
-            Write-Warning "Windows Server 2016 (1607) does not support decompressing ESD Files"
+            #Write-Warning "Windows Server 2016 (1607) does not support decompressing ESD Files"
             #=================================================
             #   Get FeatureUpdateDownloads
             #=================================================
@@ -156,23 +156,23 @@ function Save-OSDBuilderDownload {
             #=================================================
             #   Filters
             #=================================================
-            if ($FeatureOS) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.UpdateOS -eq $FeatureOS}}
-            if ($FeatureArch) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.UpdateArch -eq $FeatureArch}}
-            if ($FeatureBuild) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.UpdateBuild -eq $FeatureBuild}}
-            if ($FeatureEdition) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.Title -match $FeatureEdition}}
+            if ($FeatureOS) { $FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object { $_.UpdateOS -eq $FeatureOS}}
+            if ($FeatureArch) { $FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object { $_.UpdateArch -eq $FeatureArch}}
+            if ($FeatureBuild) { $FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object { $_.UpdateBuild -eq $FeatureBuild}}
+            if ($FeatureEdition) {$FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.FileName -match $FeatureEdition}}
             if ($FeatureLang) {
                 $regex = $FeatureLang.ForEach({ [RegEx]::Escape($_) }) -join '|'
-                $FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.Title -match $regex}
+                $FeatureUpdateDownloads = $FeatureUpdateDownloads | Where-Object {$_.Name -match $regex}
             }
             #=================================================
             #   Select-Object
             #=================================================
             $FeatureUpdateDownloads = $FeatureUpdateDownloads | Select-Object -Property OSDStatus, Title, UpdateOS,`
-            UpdateBuild, UpdateArch, CreationDate, KBNumber, FileName, Size, OriginUri, Hash, AdditionalHash
+            UpdateBuild, UpdateArch, CreationDate, KBNumber, FileName, OriginUri, Hash
             #=================================================
             #   Sorting
             #=================================================
-            $FeatureUpdateDownloads = $FeatureUpdateDownloads | Sort-Object -Property Title
+            $FeatureUpdateDownloads = $FeatureUpdateDownloads | Sort-Object -Property Language -Descending
             #=================================================
             #   Select Updates with GridView
             #=================================================

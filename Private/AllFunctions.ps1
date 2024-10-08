@@ -2848,7 +2848,18 @@ function Export-SessionsXmlOS {
 }
 function Get-FeatureUpdateDownloads {
     $FeatureUpdateDownloads = @()
-    $FeatureUpdateDownloads = Get-WSUSXML -Catalog FeatureUpdate
+    #$FeatureUpdateDownloads = Get-WSUSXML -Catalog FeatureUpdate
+    $FeatureUpdateDownloads = Get-OSDCloudOperatingSystems -OSArch x64
+    $FeatureUpdateDownloads = $FeatureUpdateDownloads | Select-Object -Property OSDStatus, `
+    @{Name = 'Title'; Expression = { $_.Name } }, `
+    Language, Activaton, Build, `
+    @{Name = 'UpdateOS'; Expression = { $_.Version } }, `
+    @{Name = 'UpdateBuild'; Expression = { $_.ReleaseID } }, `
+    @{Name = 'UpdateArch'; Expression = { $_.Architecture } }, `
+    @{Name = 'CreationDate'; Expression = { $_.ReleaseDate } }, `
+    FileName, `
+    @{Name = 'OriginUri'; Expression = { $_.Url } }, `
+    @{Name = 'Hash'; Expression = { $_.SHA1 } }
 <#     $CatalogsXmls = @()
     $CatalogsXmls = Get-ChildItem "$($MyInvocation.MyCommand.Module.ModuleBase)\CatalogsESD\*" -Include *.xml
     foreach ($CatalogsXml in $CatalogsXmls) {
@@ -3046,6 +3057,7 @@ function Get-OSDFromJson
 function Get-OSDUpdateDownloads {
     [CmdletBinding()]
     param (
+        [string]$FileName,
         [string]$OSDGuid,
         [string]$UpdateTitle,
         [switch]$Silent
@@ -3053,7 +3065,10 @@ function Get-OSDUpdateDownloads {
     #=================================================
     #   Filtering
     #=================================================
-    if ($OSDGuid) {
+    if ($FileName) {
+        $OSDUpdateDownload = Get-OSDUpdates -Silent | Where-Object {$_.FileName -eq $FileName} | Select-Object -First 1
+    }
+    elseif ($OSDGuid) {
         $OSDUpdateDownload = Get-OSDUpdates -Silent | Where-Object {$_.OSDGuid -eq $OSDGuid}
     } elseif ($UpdateTitle) {
         $OSDUpdateDownload = Get-OSDUpdates -Silent | Where-Object {$_.UpdateTitle -eq $UpdateTitle}
@@ -3099,11 +3114,115 @@ function Get-OSDUpdates {
     param (
         [switch]$Silent
     )
+    $OSDVersion = Get-Module -Name OSD -ListAvailable | Select-Object -First 1 | Select-Object -ExpandProperty Version
+
+    $WindowsUpdateManifests = @()
+    $WindowsUpdateManifests = Get-WindowsUpdateManifests
+
     $AllOSDUpdates = @()
-    if ($Silent.IsPresent) {
-        $AllOSDUpdates = Get-WSUSXML -Catalog Windows -Silent
-    } else {
-        $AllOSDUpdates = Get-WSUSXML -Catalog Windows
+    $AllOSDUpdates = foreach ($Item in $WindowsUpdateManifests) {
+        if ($Item.Architecture -eq 'ARM64') {
+            Continue
+        }
+
+        foreach ($Url in $Item.Link) {
+            $UpdateOS = $null
+            if ($Item.Title -match 'Windows 10') {
+                $UpdateOS = 'Windows 10'
+            }
+            if ($Item.Title -match 'Windows 11') {
+                $UpdateOS = 'Windows 11'
+            }
+
+            $UpdateBuild = $null
+            if ($Item.Title -match '25H2') {
+                $UpdateBuild = '25H2'
+            }
+            elseif ($Item.Title -match '24H2') {
+                $UpdateBuild = '24H2'
+            }
+            elseif ($Item.Title -match '23H2') {
+                $UpdateBuild = '23H2'
+            }
+            elseif ($Item.Title -match '22H2') {
+                $UpdateBuild = '22H2'
+            }
+            elseif ($Item.Title -match '21H2') {
+                $UpdateBuild = '21H2'
+            }
+            elseif ($Item.Title -match '1809') {
+                $UpdateBuild = '1809'
+            }
+            elseif ($Item.Title -match '1607') {
+                $UpdateBuild = '1607'
+            }
+            elseif ($Item.Title -match '1507') {
+                $UpdateBuild = '1507'
+            }
+            elseif ($UpdateOS -eq 'Windows 11') {
+                $UpdateBuild = '21H2'
+            }
+
+            $UpdateGroup = 'Optional'
+            if ($Item.Title -match 'Adobe') {
+                $UpdateGroup = 'AdobeSU'
+            }
+            elseif ($Item.Title -match '.NET') {
+                $UpdateGroup = 'DotNet'
+                if ($Item.Title -match 'Cumulative Update') {
+                    $UpdateGroup = 'DotNetCU'
+                }
+            }
+            elseif ($Item.Title -match 'Servicing Stack Update') {
+                $UpdateGroup = 'SSU'
+            }
+            elseif ($Item.Title -match 'Safe OS') {
+                $UpdateGroup = 'ComponentDU SafeOS'
+            }
+            elseif ($Item.Title -match 'Setup Dynamic Update') {
+                $UpdateGroup = 'SetupDU'
+            }
+            elseif ($Item.Title -match 'Cumulative Update') {
+                $UpdateGroup = 'LCU'
+            }
+            elseif ($Item.Description -match 'ComponentUpdate') {
+                $UpdateGroup = 'ComponentDU Critical'
+            }
+
+            $FileName = $(Split-Path $Url -Leaf)
+
+            $KBPattern = '(kb\d{7})'
+            $FileKBNumber = [regex]::matches($FileName, $KBPattern).Value
+            $FileKBNumber = $FileKBNumber -replace 'kb', ''
+        
+            $ObjectProperties = [ordered]@{
+                Catalog                   = "$UpdateOS $UpdateBuild"
+                OSDVersion                = $OSDVersion
+                OSDStatus                 = $null
+                UpdateOS                  = $UpdateOS
+                UpdateBuild               = $UpdateBuild
+                UpdateArch                = $Item.Architecture
+                UpdateGroup               = $UpdateGroup
+                CreationDate              = $Item.LastModified
+                KBNumber                  = $Item.Id
+                FileKBNumber              = $FileKBNumber
+                Title                     = $Item.Title
+                UpdateID                  = $Item.UpdateId
+                LegacyName                = $null
+                FileName                  = $FileName
+                Size                      = $Item.Size
+                Category                  = $Item.SupportedProducts
+                UpdateClassificationTitle = $Item.Classification
+                IsSuperseded              = $null
+                Description               = $Item.Description
+                FileUri                   = $Url
+                OriginUri                 = $Url
+                Hash                      = $null
+                OSDGuid                   = $Item.UpdateId
+            }
+            New-Object -TypeName PSObject -Property $ObjectProperties
+            Write-Verbose ""
+        }
     }
     #=================================================
     #   Get Downloaded Updates
@@ -3112,17 +3231,17 @@ function Get-OSDUpdates {
         $FullUpdatePath = Join-Path $SetOSDBuilderPathUpdates $(Split-Path $Update.OriginUri -Leaf)
 
         if (Test-Path $FullUpdatePath) {
-            $Update.OSDStatus = "Downloaded"
+            $Update.OSDStatus = 'Downloaded'
         }
     }
     #=================================================
     #   Return
     #=================================================
-    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch '.wim'}
-    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'desktopdeployment'}
-    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'aggregatedmetadata'}
-    $AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'fodmetadata'}
-    $AllOSDUpdates = $AllOSDUpdates | Select-Object -Property *
+    #$AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch '.wim'}
+    #$AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'desktopdeployment'}
+    #$AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'aggregatedmetadata'}
+    #$AllOSDUpdates = $AllOSDUpdates | Where-Object {$_.FileName -notmatch 'fodmetadata'}
+    #$AllOSDUpdates = $AllOSDUpdates | Select-Object -Property *
     Return $AllOSDUpdates
 }
 function Get-OSTemplateDrivers {
@@ -5617,11 +5736,9 @@ function Save-InventoryOS {
     #=================================================
     #   Execute
     #=================================================
-    Write-Verbose 'Save-InventoryOS'
-    Write-Verbose "OSMediaPath: $OSMediaPath"
-
+    Write-Host -ForegroundColor DarkGray "Get-AppxProvisionedPackage"
     $GetAppxProvisionedPackage = @()
-    TRY {
+    try {
         Write-Verbose "$OSMediaPath\AppxProvisionedPackage.txt"
         $GetAppxProvisionedPackage = Get-AppxProvisionedPackage -Path "$MountDirectory"
         $GetAppxProvisionedPackage | Out-File "$OSMediaPath\info\Get-AppxProvisionedPackage.txt"
@@ -5632,10 +5749,15 @@ function Save-InventoryOS {
         $GetAppxProvisionedPackage | ConvertTo-Json | Out-File "$OSMediaPath\info\json\Get-AppxProvisionedPackage.json"
         $GetAppxProvisionedPackage | ConvertTo-Json | Out-File "$OSMediaPath\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-AppxProvisionedPackage.json"
     }
-    CATCH {Write-Warning "Get-AppxProvisionedPackage is not supported by this Operating System"}
+    catch {
+        Write-Warning "Get-AppxProvisionedPackage encountered errors"
+        Write-Warning $_.Exception.ErrorCode
+        Write-Warning $_.Exception.Message
+    }
 
+    Write-Host -ForegroundColor DarkGray "Get-WindowsOptionalFeature"
     $GetWindowsOptionalFeature = @()
-    TRY {
+    try {
         Write-Verbose "$OSMediaPath\WindowsOptionalFeature.txt"
         $GetWindowsOptionalFeature = Get-WindowsOptionalFeature -Path "$MountDirectory"
         $GetWindowsOptionalFeature | Out-File "$OSMediaPath\info\Get-WindowsOptionalFeature.txt"
@@ -5646,10 +5768,15 @@ function Save-InventoryOS {
         $GetWindowsOptionalFeature | ConvertTo-Json | Out-File "$OSMediaPath\info\json\Get-WindowsOptionalFeature.json"
         $GetWindowsOptionalFeature | ConvertTo-Json | Out-File "$OSMediaPath\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsOptionalFeature.json"
     }
-    CATCH {Write-Warning "Get-WindowsOptionalFeature is not supported by this Operating System"}
+    catch {
+        Write-Warning "Get-WindowsOptionalFeature encountered errors"
+        Write-Warning $_.Exception.ErrorCode
+        Write-Warning $_.Exception.Message
+    }
 
+    Write-Host -ForegroundColor DarkGray "Get-WindowsCapability"
     $GetWindowsCapability = @()
-    TRY {
+    try {
         Write-Verbose "$OSMediaPath\WindowsCapability.txt"
         $GetWindowsCapability = Get-WindowsCapability -Path "$MountDirectory"
         $GetWindowsCapability | Out-File "$OSMediaPath\info\Get-WindowsCapability.txt"
@@ -5660,10 +5787,15 @@ function Save-InventoryOS {
         $GetWindowsCapability | ConvertTo-Json | Out-File "$OSMediaPath\info\json\Get-WindowsCapability.json"
         $GetWindowsCapability | ConvertTo-Json | Out-File "$OSMediaPath\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsCapability.json"            
     }
-    CATCH {Write-Warning "Get-WindowsCapability is not supported by this Operating System"}
+    catch {
+        Write-Warning "Get-WindowsCapability encountered errors"
+        Write-Warning $_.Exception.ErrorCode
+        Write-Warning $_.Exception.Message
+    }
 
+    Write-Host -ForegroundColor DarkGray "Get-WindowsPackage"
     $GetWindowsPackage = @()
-    TRY {
+    try {
         Write-Verbose "$OSMediaPath\WindowsPackage.txt"
         $GetWindowsPackage = Get-WindowsPackage -Path "$MountDirectory"
         $GetWindowsPackage | Out-File "$OSMediaPath\info\Get-WindowsPackage.txt"
@@ -5674,7 +5806,11 @@ function Save-InventoryOS {
         $GetWindowsPackage | ConvertTo-Json | Out-File "$OSMediaPath\info\json\Get-WindowsPackage.json"
         $GetWindowsPackage | ConvertTo-Json | Out-File "$OSMediaPath\info\json\$((Get-Date).ToString('yyyy-MM-dd-HHmmss'))-Get-WindowsPackage.json"
     }
-    CATCH {Write-Warning "Get-WindowsPackage is not supported by this Operating System"}
+    catch {
+        Write-Warning "Get-WindowsPackage encountered errors"
+        Write-Warning $_.Exception.ErrorCode
+        Write-Warning $_.Exception.Message
+    }
 }
 function Save-InventoryPE {
     [CmdletBinding()]

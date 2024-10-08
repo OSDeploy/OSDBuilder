@@ -81,10 +81,24 @@ function Get-OSMedia {
             $RegKeyCurrentVersion = Import-Clixml -Path "$OSMediaPath\info\xml\CurrentVersion.xml"
 
             $OSMPackage = @()
-            $OSMPackage = Import-Clixml -Path "$OSMediaPath\info\xml\Get-WindowsPackage.xml"
+            if (Test-Path "$OSMediaPath\info\xml\Get-WindowsPackage.xml") {
+                try {
+                    $OSMPackage = Import-Clixml -Path "$OSMediaPath\info\xml\Get-WindowsPackage.xml" | Where-Object { $_.targetState -eq 'Installed' } | Sort-Object id
+                }
+                catch {
+                    Write-Warning "Get-WindowsPackage.xml not found at $OSMediaPath"
+                }
+            }
 
             $OSMSessions = @()
-            $OSMSessions = Import-Clixml -Path "$OSMediaPath\info\xml\Sessions.xml" | Where-Object {$_.targetState -eq 'Installed'} | Sort-Object id
+            if (Test-Path "$OSMediaPath\info\xml\Sessions.xml") {
+                try {
+                    $OSMSessions = Import-Clixml -Path "$OSMediaPath\info\xml\Sessions.xml" | Where-Object { $_.targetState -eq 'Installed' } | Sort-Object id
+                }
+                catch {
+                    Write-Warning "Sessions.xml not found at $OSMediaPath"
+                }
+            }
             #=================================================
             #   MediaType
             #=================================================
