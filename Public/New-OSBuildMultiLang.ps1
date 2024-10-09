@@ -38,7 +38,7 @@ function New-OSBuildMultiLang {
         Block-StandardUser
         #=================================================
     }
-    
+
     Process {
         Write-Host '========================================================================================' -ForegroundColor DarkGray
         Write-Host -ForegroundColor Green "$($MyInvocation.MyCommand.Name) PROCESS"
@@ -46,7 +46,7 @@ function New-OSBuildMultiLang {
         Write-Warning "and create a new OSBuild with multiple Indexes"
         Write-Warning "Each Index will have a Language set as the System UI"
         Write-Warning "This process will take some time as the LCU will be reapplied"
-        
+
         #=================================================
         #   Get OSBuilds with Multi Lang
         #=================================================
@@ -98,7 +98,7 @@ function New-OSBuildMultiLang {
             $OSBuild                = $($LangMultiWindowsImage.Build)
             $OSInstallationType     = $($LangMultiWindowsImage.InstallationType)
             $OSMajorVersion         = $($LangMultiWindowsImage.MajorVersion)
-            $WindowsImageMediaName  = $($LangMultiWindowsImage.MediaName)
+            $WindowsImageName       = $($LangMultiWindowsImage.ImageName)
             $OSVersion              = $($LangMultiWindowsImage.Version)
 
             if ($OSArchitecture -eq '0') {$OSArchitecture = 'x86'}
@@ -114,7 +114,7 @@ function New-OSBuildMultiLang {
                     $UpdateOS = 'Windows Server'
                 }
                 else {
-                    if ($WindowsImageMediaName -match ' 11 ') {
+                    if ($WindowsImageName -match ' 11 ') {
                         $UpdateOS = 'Windows 11'
                     }
                     else {
@@ -138,10 +138,10 @@ function New-OSBuildMultiLang {
 
             Write-Host "Exporting install.wim to $DestinationFullName\OS\Sources\install.wim" -ForegroundColor Cyan
             Export-WindowsImage -SourceImagePath "$SourceFullName\OS\Sources\install.wim" -SourceIndex 1 -DestinationImagePath "$DestinationFullName\OS\Sources\install.wim" -DestinationName "$($Media.ImageName) $LangMultiDefaultName" | Out-Null
-            
+
             Write-Host "Exporting temporary install.wim to $TempInstallWim" -ForegroundColor Cyan
             Export-WindowsImage -SourceImagePath "$SourceFullName\OS\Sources\Install.wim" -SourceIndex 1 -DestinationImagePath "$TempInstallWim" -DestinationName "$($Media.ImageName)" | Out-Null
-            
+
             $MountDirectory = Join-Path "$env:Temp" "mount$((Get-Date).ToString('mmss'))"
             New-Item "$MountDirectory" -ItemType Directory | Out-Null
             Mount-WindowsImage -Path "$MountDirectory" -ImagePath "$TempInstallWim" -Index 1 | Out-Null
@@ -164,7 +164,7 @@ function New-OSBuildMultiLang {
 
                     Write-Host "Dism /Image:"$MountDirectory" /Get-Intl" -ForegroundColor Cyan
                     Dism /Image:"$MountDirectory" /Get-Intl
-                    
+
                     Write-Warning "Waiting 10 seconds for processes to complete before applying LCU ..."
                     Start-Sleep -Seconds 10
                     Update-CumulativeOS -Force
