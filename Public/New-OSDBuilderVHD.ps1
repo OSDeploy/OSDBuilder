@@ -172,21 +172,20 @@ function New-OSDBuilderVHD {
             Write-Host "Creating MSR Partition 128MB" -ForegroundColor Green
             $PartitionMSR = New-Partition -DiskNumber $DiskNumber -GptType '{e3c9e316-0b5c-4db8-817d-f92df00215ae}' -Size 128MB
 
+            If($IncludeRecoveryPartition){
+                Write-Host '========================================================================================' -ForegroundColor DarkGray
+                Write-Host "Creating Recovery Partition 984MB NTFS" -ForegroundColor Green
+                $PartitionRecovery = New-Partition -DiskNumber $DiskNumber -GptType '{de94bba4-06d1-4d40-a16a-bfd50179d6ac}' -Size 984MB
+                $PartitionRecovery | Format-Volume -FileSystem NTFS -NewFileSystemLabel Recovery -Confirm:$false | Out-Null
+            }
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Host "Creating $OSDriveLabel Partition NTFS" -ForegroundColor Green
             $PartitionOS = New-Partition -DiskNumber $DiskNumber -GptType '{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}' -UseMaximumSize
             $PartitionOSSize = (Get-PartitionSupportedSize -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber)
-            Resize-Partition -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber -Size ($PartitionOSSize.SizeMax - 984MB)
             $PartitionOS | Format-Volume -FileSystem NTFS -NewFileSystemLabel $OSDriveLabel -Confirm:$false | Out-Null
             Add-PartitionAccessPath -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber -AssignDriveLetter
             $PartitionOS = Get-Partition -DiskNumber $DiskNumber -PartitionNumber $PartitionOS.PartitionNumber
             $PartitionOSVolume = [string]$PartitionOS.DriveLetter+":"
-            If($IncludeRecoveryPartition){
-                Write-Host '========================================================================================' -ForegroundColor DarkGray
-                Write-Host "Creating Recovery Partition 984MB NTFS" -ForegroundColor Green
-                $PartitionRecovery = New-Partition -DiskNumber $DiskNumber -GptType '{de94bba4-06d1-4d40-a16a-bfd50179d6ac}' -UseMaximumSize
-                $PartitionRecovery | Format-Volume -FileSystem NTFS -NewFileSystemLabel Recovery -Confirm:$false | Out-Null
-            }
             Write-Host '========================================================================================' -ForegroundColor DarkGray
             Write-Host "Expand-WindowsImage -ImagePath $VhdInstallWim -Index 1 -ApplyPath $PartitionOSVolume\" -ForegroundColor Green
             Try { Expand-WindowsImage -ImagePath $VhdInstallWim -Index 1 -ApplyPath $PartitionOSVolume\ -ErrorAction Stop | Out-Null }
