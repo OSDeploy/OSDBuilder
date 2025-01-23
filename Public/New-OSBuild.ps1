@@ -88,9 +88,14 @@ function New-OSBuild {
         # -IncludeKB '4577010','4577015'
         [string[]]$IncludeKB,
 
+        [Alias('PPKG','ProvisioningPackage')]
+        [ValidatePattern(".*?\.ppkg$")]
+        [ValidateScript({Test-Path $_})]
+        [string]$PPKGPath,
+
         #Pauses the function the Install.wim is dismounted
         #Useful for Testing
-        [Alias('PauseOS','PauseDismount')]
+        
         [switch]$PauseDismountOS = $global:SetOSDBuilder.NewOSBuildPauseDismountOS,
 
         #Pauses the function before WinPE is dismounted
@@ -961,6 +966,10 @@ function New-OSBuild {
                 #=================================================
                 Add-ContentPack -PackType OSCapability
                 Add-ContentPack -PackType OSPackages
+                if ($null -ne $PPKGPath){
+					Write-Host -ForegroundColor Yellow "Adding $PPKGPath to $MountDirectory"
+					& DISM.exe /Image:$MountDirectory /Add-ProvisioningPackage /PackagePath:$PPKGPath
+				}
                 Add-WindowsPackageOS
                 Add-FeaturesOnDemandOS
                 #=================================================
