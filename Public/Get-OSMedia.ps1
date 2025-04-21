@@ -30,7 +30,7 @@ function Get-OSMedia {
         [string]$OSMajorVersion,
 
         #Filter the OSMedia by OS Release Id
-        [ValidateSet ('22H2','21H2','21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507)]
+        [ValidateSet ('24H2','23H2','22H2','21H2','21H1','20H2',2004,1909,1903,1809,1803,1709,1703,1607,1511,1507)]
         [string]$OSReleaseId,
         
         #Filter the OSMedia by Image Revision
@@ -193,6 +193,9 @@ function Get-OSMedia {
             if ($RegValueCurrentBuild -eq 19044) {$ReleaseId = '21H2'} #Windows
             if ($RegValueCurrentBuild -eq 22000) {$ReleaseId = '21H2'} #Windows 11
             if ($RegValueCurrentBuild -eq 20348) {$ReleaseId = '21H2'} #Server 2022
+            if ($RegValueCurrentBuild -eq 22621) {$ReleaseId = '22H2'} #Windows 11 22H2
+            if ($RegValueCurrentBuild -eq 22631) {$ReleaseId = '23H2'} #Windows 11 23H2
+            if ($RegValueCurrentBuild -eq 26100) {$ReleaseId = '24H2'} #Server 2025 and Windows 11 24H2
 
             Write-Verbose "ReleaseId: $ReleaseId"
             Write-Verbose "CurrentBuild: $RegValueCurrentBuild"
